@@ -50,7 +50,7 @@ const CONFIG = {
 
        { tipo: "video",    url: "link de youtube", titulo: "..." }
        { tipo: "ahorcado", palabra: "PALABRA" }        (mayúsculas, sin acentos)
-       { tipo: "sopa",     palabras: ["UNA","DOS"] }   (máx 9 letras c/u)
+       { tipo: "sopa",     palabras: ["UNA","DOS"] }   (hasta 12 letras c/u)
 
      OPCIONAL: cada día puede tener además su propio "nombre" (cómo
      la saludás ese día) y su propia "firma". Si no los ponés, se
@@ -66,12 +66,12 @@ const CONFIG = {
   dias: {
     "2026-07-29": {
       mensaje: "Arranca esto. Cada día vas a encontrar acá unas líneas mías y algo para jugar o mirar.",
-      actividad: { tipo: "sopa", palabra: ["ERIZO", "GATO", "PIZZA", "PLAN"] }
+      actividad: { tipo: "sopa", palabras: ["ERIZO", "GATO", "PIZZA", "PLAN"] }
     },
     "2026-07-30": {
       nombre: "hermosa",
       firma: "— el que te extraña",
-      mensaje: "Funciona",
+      mensaje: "Este video me hizo acordar a vos.",
       actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Mirá esto" }
     },
     "2026-07-31": {
@@ -448,8 +448,54 @@ function montarAhorcado(palabra){
 
 /* ===== sopa de letras ===== */
 function montarSopa(palabras){
-  const SN=9;
-  const words=(palabras||["EJEMPLO"]).map(w=>w.toUpperCase()).filter(w=>w.length<=SN && w.length>1);
+  // normalizar: mayúsculas, sin acentos, solo letras
+  const limpiar=w=>w.toUpperCase()
+    .normalize("NFD").replace(/[\u0300-\u0302\u0308]/g,"")
+    .replace(/[^A-ZÑ]/g,"");
+  let words=[...new Set((palabras||["EJEMPLO"]).map(limpiar).filter(w=>w.length>1))];
+
+  // tamaño de grilla según la palabra más larga (9 a 12); >12 se descarta
+  words=words.filter(w=>w.length<=12);
+  const SN=Math.max(9, Math.min(12, ...[12], Math.max(...words.map(w=>w.length), 9)));
+  const dirs=[[1,0],[0,1],[1,1],[-1,1]];
+
+  // generar la grilla hasta que TODAS las palabras queden colocadas
+  function generar(){
+    const grid=Array.from({length:SN},()=>Array(SN).fill(""));
+    const orden=[...words].sort((a,b)=>b.length-a.length);
+    for(const w of orden){
+      let puesta=false;
+      for(let t=0;t<600 && !puesta;t++){
+        const [dx,dy]=dirs[Math.floor(Math.random()*dirs.length)];
+        const x0=Math.floor(Math.random()*SN), y0=Math.floor(Math.random()*SN);
+        const xe=x0+dx*(w.length-1), ye=y0+dy*(w.length-1);
+        if(xe<0||xe>=SN||ye<0||ye>=SN) continue;
+        let ok=true;
+        for(let i=0;i<w.length;i++){
+          const c=grid[y0+dy*i][x0+dx*i];
+          if(c!=="" && c!==w[i]){ok=false;break;}
+        }
+        if(!ok) continue;
+        for(let i=0;i<w.length;i++) grid[y0+dy*i][x0+dx*i]=w[i];
+        puesta=true;
+      }
+      if(!puesta) return null; // no entró: rehacer toda la grilla
+    }
+    return grid;
+  }
+  let grid=null;
+  for(let i=0;i<40 && !grid;i++) grid=generar();
+  if(!grid && words.length>1){
+    // caso extremo: sacar la palabra más larga y reintentar
+    words.sort((a,b)=>a.length-b.length).pop();
+    for(let i=0;i<40 && !grid;i++) grid=generar();
+  }
+  if(!grid){
+    cont.innerHTML=`<div class="box"><p class="note">No pude armar la sopa con esas palabras. Probá con menos o más cortas.</p></div>`;
+    return;
+  }
+
+  const cell = SN<=9 ? 32 : 26;
   cont.innerHTML=`
     <div class="box">
       <p class="note">tocá la primera y la última letra de cada palabra</p>
@@ -457,35 +503,18 @@ function montarSopa(palabras){
       <div class="sopa-words" id="sopaWords"></div>
       <div class="result" id="sopaResult"></div>
     </div>`;
-  const grid=Array.from({length:SN},()=>Array(SN).fill(""));
-  const dirs=[[1,0],[0,1],[1,1],[-1,1]];
-  words.forEach(w=>{
-    for(let t=0;t<400;t++){
-      const [dx,dy]=dirs[Math.floor(Math.random()*dirs.length)];
-      const x0=Math.floor(Math.random()*SN), y0=Math.floor(Math.random()*SN);
-      const xe=x0+dx*(w.length-1), ye=y0+dy*(w.length-1);
-      if(xe<0||xe>=SN||ye<0||ye>=SN) continue;
-      let ok=true;
-      for(let i=0;i<w.length;i++){
-        const c=grid[y0+dy*i][x0+dx*i];
-        if(c!=="" && c!==w[i]){ok=false;break;}
-      }
-      if(!ok) continue;
-      for(let i=0;i<w.length;i++) grid[y0+dy*i][x0+dx*i]=w[i];
-      break;
-    }
-  });
   const AB="ABCDEFGHIJLMNOPRSTUV";
   for(let y=0;y<SN;y++)for(let x=0;x<SN;x++)
     if(grid[y][x]==="") grid[y][x]=AB[Math.floor(Math.random()*AB.length)];
 
   const g=document.getElementById("sopaGrid");
-  g.style.gridTemplateColumns=`repeat(${SN},32px)`;
+  g.style.gridTemplateColumns=`repeat(${SN},${cell}px)`;
   let start=null, found=new Set();
   const cellEl=(x,y)=>g.querySelector(`div[data-x="${x}"][data-y="${y}"]`);
   for(let y=0;y<SN;y++)for(let x=0;x<SN;x++){
     const d=document.createElement("div");
     d.textContent=grid[y][x]; d.dataset.x=x; d.dataset.y=y;
+    d.style.width=cell+"px"; d.style.height=cell+"px";
     d.addEventListener("click",()=>{
       if(!start){ start={x,y,el:d}; d.classList.add("sel"); return; }
       start.el.classList.remove("sel");

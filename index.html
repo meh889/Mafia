@@ -16,10 +16,12 @@
    ============================================================ */
 const CONFIG = {
 
-  // Cómo la saludás (su nombre, un apodo, lo que quieras)
+  // Cómo la saludás (su nombre, un apodo, lo que quieras).
+  // Este es el valor GENERAL: se usa si el día no tiene uno propio.
   nombre: "Sofi",
 
-  // Cómo firmás las cartas (aparece al pie de cada mensaje)
+  // Cómo firmás las cartas (aparece al pie de cada mensaje).
+  // También es el valor general; cada día puede tener su propia firma.
   firma: "— Yo",
 
   // Fecha de aniversario para el contador de días.
@@ -50,6 +52,10 @@ const CONFIG = {
        { tipo: "ahorcado", palabra: "PALABRA" }        (mayúsculas, sin acentos)
        { tipo: "sopa",     palabras: ["UNA","DOS"] }   (máx 9 letras c/u)
 
+     OPCIONAL: cada día puede tener además su propio "nombre" (cómo
+     la saludás ese día) y su propia "firma". Si no los ponés, se
+     usan los generales de arriba.
+
      Si un día no está en la lista, se usa "porDefecto".
      ---------------------------------------------------------- */
   porDefecto: {
@@ -60,10 +66,12 @@ const CONFIG = {
   dias: {
     "2026-07-29": {
       mensaje: "Arranca esto. Cada día vas a encontrar acá unas líneas mías y algo para jugar o mirar.",
-      actividad: { tipo: "ahorcado", palabra: "ESTRELLA" }
+      actividad: { tipo: "sopa", palabra: ["ERIZO", "GATO", "PIZZA", "PLAN"] }
     },
     "2026-07-30": {
-      mensaje: "Este video me hizo acordar a vos.",
+      nombre: "hermosa",
+      firma: "— el que te extraña",
+      mensaje: "Funciona",
       actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Mirá esto" }
     },
     "2026-07-31": {
@@ -340,7 +348,6 @@ function luminancia(hex){
 })();
 
 /* ---------- encabezado ---------- */
-document.getElementById("saludo").textContent = "Hola, " + CONFIG.nombre;
 document.getElementById("fecha").textContent =
   new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
 
@@ -352,8 +359,9 @@ if(CONFIG.aniversario){
 
 /* ---------- día actual ---------- */
 const diaHoy = CONFIG.dias[fechaHoy()] || CONFIG.porDefecto;
+document.getElementById("saludo").textContent = "Hola, " + (diaHoy.nombre || CONFIG.nombre);
 document.getElementById("letterMsg").textContent = diaHoy.mensaje;
-document.getElementById("letterFirma").textContent = CONFIG.firma || "— para vos";
+document.getElementById("letterFirma").textContent = diaHoy.firma || CONFIG.firma || "— para vos";
 
 document.getElementById("envelope").addEventListener("click",()=>{
   const l=document.getElementById("letter");

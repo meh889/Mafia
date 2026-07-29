@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Para vos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+
+<script>
+/* ============================================================
+   ✏️  CONFIGURACIÓN — editá solo esto
+   ============================================================ */
+const CONFIG = {
+
+  // Cómo la saludás (su nombre, un apodo, lo que quieras)
+  nombre: "Sofi",
+
+  // Cómo firmás las cartas (aparece al pie de cada mensaje)
+  firma: "— tuyo, siempre",
+
+  // Fecha de aniversario para el contador de días.
+  // Dejalo vacío ("") si no querés mostrar el contador.
+  aniversario: "2024-03-15",
+
+  // FONDO DE LA APP:
+  //   color:  cualquier color en hex (ej "#151210", "#F2EFE9", "#1B2A41")
+  //   imagen: si ponés una URL o nombre de archivo acá, se usa de fondo
+  //           en vez del color. Podés subir la foto al mismo repositorio
+  //           de GitHub y escribir solo el nombre, ej: "fondo.jpg"
+  //   textoClaro: true = texto blanco (fondos oscuros)
+  //               false = texto oscuro (fondos claros)
+  //               Solo se usa con imagen; con color se calcula solo.
+  //   estrellas: true muestra un cielo estrellado sutil (solo sin imagen)
+  fondo: {
+    color: "#171310",
+    imagen: "",
+    textoClaro: true,
+    estrellas: true
+  },
+
+  /* ----------------------------------------------------------
+     PLAN DÍA POR DÍA
+     Para cada fecha ponés el mensaje y UNA actividad:
+
+       { tipo: "video",    url: "link de youtube", titulo: "..." }
+       { tipo: "ahorcado", palabra: "PALABRA" }        (mayúsculas, sin acentos)
+       { tipo: "sopa",     palabras: ["UNA","DOS"] }   (máx 9 letras c/u)
+
+     Si un día no está en la lista, se usa "porDefecto".
+     ---------------------------------------------------------- */
+  porDefecto: {
+    mensaje: "Hoy no dejé nada programado, pero igual pensé en vos.",
+    actividad: { tipo: "ahorcado", palabra: "SORPRESA" }
+  },
+
+  dias: {
+    "2026-07-29": {
+      mensaje: "Arranca esto. Cada día vas a encontrar acá unas líneas mías y algo para jugar o mirar.",
+      actividad: { tipo: "ahorcado", palabra: "ESTRELLA" }
+    },
+    "2026-07-30": {
+      mensaje: "Este video me hizo acordar a vos.",
+      actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Mirá esto" }
+    },
+    "2026-07-31": {
+      mensaje: "Hoy toca sopa de letras. Sin ayuda, eh.",
+      actividad: { tipo: "sopa", palabras: ["VIERNES", "PELICULA", "PIZZA", "PLAN"] }
+    }
+  }
+};
+/* ============================================================ */
+</script>
+
+<style>
+:root{
+  --acc:#E4B75B;
+  --acc-soft:rgba(228,183,91,.35);
+  --ink:#F3EFE7;
+  --ink-soft:rgba(243,239,231,.58);
+  --card:rgba(255,255,255,.055);
+  --card-border:rgba(255,255,255,.13);
+  --key:rgba(255,255,255,.09);
+  --paper:#F6EFE2;
+  --paper-ink:#2E2418;
+  --paper-soft:#8A7A5E;
+  --radius:18px;
+  --sans:-apple-system, "SF Pro Text", system-ui, "Segoe UI", sans-serif;
+  --serif:"Cormorant Garamond", "New York", ui-serif, Georgia, serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:#171310 center/cover no-repeat fixed;
+  -webkit-user-select:none;user-select:none;
+}
+body:not(.with-image){
+  background-image:radial-gradient(120% 90% at 50% 0%, #231C16 0%, #171310 55%, #100D0B 100%);
+}
+body.with-image::before{
+  content:"";position:fixed;inset:0;z-index:-1;
+  background:rgba(10,8,6,.5);
+}
+body.light-text-off{
+  --ink:#241E15; --ink-soft:rgba(36,30,21,.55);
+  --card:rgba(255,255,255,.6); --card-border:rgba(0,0,0,.12);
+  --key:rgba(0,0,0,.06);
+}
+body.light-text-off.with-image::before{ background:rgba(255,252,246,.4); }
+body.light-text-off:not(.with-image){ background-image:none; }
+
+/* cielo estrellado */
+#sky{position:fixed;inset:0;z-index:-2;pointer-events:none}
+#sky .st{
+  position:absolute;border-radius:50%;background:var(--ink);
+  opacity:.25;animation:tw 4s ease-in-out infinite;
+}
+@keyframes tw{0%,100%{opacity:.12}50%{opacity:.5}}
+
+#app{
+  max-width:480px;margin:0 auto;min-height:100dvh;
+  padding:calc(env(safe-area-inset-top) + 26px) 22px calc(env(safe-area-inset-bottom) + 34px);
+}
+header{text-align:center;margin-bottom:4px}
+header h1{
+  font-family:var(--serif);font-weight:500;font-size:2rem;
+  letter-spacing:.01em;
+}
+header .fecha{
+  color:var(--ink-soft);font-size:.8rem;margin-top:4px;
+  text-transform:capitalize;letter-spacing:.08em;
+}
+.counter{
+  display:inline-block;margin-top:12px;font-size:.78rem;font-weight:600;
+  color:var(--ink-soft);border:1px solid var(--card-border);
+  border-radius:999px;padding:5px 14px;letter-spacing:.03em;
+}
+.counter b{color:var(--acc);font-weight:700}
+.counter::before{content:"✦ ";color:var(--acc);font-size:.7rem}
+
+/* ---------- sobre ---------- */
+.envelope-wrap{text-align:center;padding:36px 0 6px;position:relative}
+#envelope{cursor:pointer;transition:transform .18s ease;color:var(--ink)}
+#envelope:active{transform:scale(.94)}
+#envelope .seal{
+  filter:drop-shadow(0 0 7px var(--acc-soft));
+  transform-origin:65px 32px;
+  animation:sealGlow 3.2s ease-in-out infinite;
+}
+@keyframes sealGlow{
+  0%,100%{filter:drop-shadow(0 0 4px var(--acc-soft))}
+  50%{filter:drop-shadow(0 0 11px var(--acc-soft))}
+}
+.spark{
+  position:absolute;color:var(--acc);font-size:.65rem;opacity:.55;
+  animation:tw 3.4s ease-in-out infinite;
+}
+.hint{
+  color:var(--ink-soft);font-size:.82rem;margin-top:12px;
+  font-family:var(--serif);font-style:italic;font-size:.95rem;
+}
+@keyframes unfold{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- carta (siempre papel) ---------- */
+.letter{
+  display:none;position:relative;
+  background:var(--paper);color:var(--paper-ink);
+  border-radius:14px;padding:26px 24px 22px;margin-top:20px;
+  box-shadow:0 14px 34px rgba(0,0,0,.35);
+  animation:unfold .35s ease;
+}
+.letter::before{
+  content:"";position:absolute;inset:7px;
+  border:1px solid rgba(46,36,24,.18);border-radius:9px;pointer-events:none;
+}
+.letter .msg{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:1.28rem;line-height:1.55;
+}
+.letter .firma{
+  margin-top:16px;font-family:var(--serif);font-size:1.02rem;
+  color:var(--paper-soft);text-align:right;
+}
+
+/* ---------- actividad ---------- */
+.act-label{
+  margin:34px 0 14px;font-size:.72rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-soft);
+  display:flex;align-items:center;gap:12px;
+}
+.act-label::before,.act-label::after{
+  content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--card-border));
+}
+.act-label::after{background:linear-gradient(90deg,var(--card-border),transparent)}
+.box{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:20px;backdrop-filter:blur(12px);
+  text-align:center;
+}
+
+/* video */
+.video-box{padding:0;overflow:hidden;text-align:left}
+.video-box iframe{width:100%;aspect-ratio:16/9;border:none;display:block}
+.video-box p{
+  padding:13px 18px;font-family:var(--serif);font-style:italic;
+  font-size:1.08rem;
+}
+
+/* ahorcado */
+#gallows{margin:2px auto 4px;display:block}
+#gallows line,#gallows circle{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+#gallows .part{visibility:hidden}
+.word{
+  font-family:var(--serif);letter-spacing:.34em;font-size:1.8rem;
+  font-weight:600;margin:12px 0 16px;
+}
+.kbd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.kbd button{
+  width:33px;height:40px;border:1px solid var(--card-border);border-radius:9px;
+  background:var(--key);color:var(--ink);
+  font-family:var(--sans);font-weight:600;font-size:.95rem;cursor:pointer;
+  transition:opacity .15s ease;
+}
+.kbd button:disabled{opacity:.2}
+.result{font-weight:600;margin-top:14px;min-height:1.3em;font-size:1rem;font-family:var(--serif);font-style:italic}
+.result.ok{color:#8BC79A}
+.result.bad{color:#DB8A7C}
+.btn{
+  border:none;background:var(--acc);color:#241A08;
+  font-family:var(--sans);font-weight:700;font-size:.88rem;
+  padding:11px 24px;border-radius:12px;margin-top:14px;cursor:pointer;
+  letter-spacing:.02em;
+}
+.btn:active{filter:brightness(.88)}
+
+/* sopa */
+#sopaGrid{display:grid;gap:3px;justify-content:center;margin:6px auto}
+#sopaGrid div{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:var(--key);border:1px solid var(--card-border);border-radius:7px;
+  font-weight:600;font-size:.92rem;cursor:pointer;
+}
+#sopaGrid div.sel{background:var(--acc);color:#241A08;border-color:var(--acc)}
+#sopaGrid div.found{background:rgba(139,199,154,.22);border-color:rgba(139,199,154,.55)}
+.sopa-words{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.sopa-words span{
+  border:1px solid var(--card-border);border-radius:999px;padding:4px 13px;
+  font-weight:600;font-size:.78rem;color:var(--ink-soft);letter-spacing:.05em;
+}
+.sopa-words span.done{text-decoration:line-through;opacity:.35}
+.note{
+  font-size:.92rem;color:var(--ink-soft);margin-bottom:10px;
+  font-family:var(--serif);font-style:italic;
+}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<div id="app">
+
+  <header>
+    <h1 id="saludo"></h1>
+    <div class="fecha" id="fecha"></div>
+    <div><span class="counter" id="counter" style="display:none"><b id="dias"></b>&nbsp;días juntos</span></div>
+  </header>
+
+  <div class="envelope-wrap" id="envWrap">
+    <svg id="envelope" width="140" height="102" viewBox="0 0 130 96" role="button" aria-label="Abrir mensaje del día">
+      <rect x="4" y="10" width="122" height="82" rx="11" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M7 15 L65 58 L123 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+      <path class="seal" d="M65 22.5 l3.1 6.4 7.1 1 -5.2 5 1.3 7 -6.3 -3.3 -6.3 3.3 1.3 -7 -5.2 -5 7.1 -1 z"
+            fill="#E4B75B" stroke="none"/>
+    </svg>
+    <p class="hint">tocá el sobre y leé lo de hoy</p>
+  </div>
+
+  <div class="letter" id="letter">
+    <div class="msg" id="letterMsg"></div>
+    <div class="firma" id="letterFirma"></div>
+  </div>
+
+  <div class="act-label" id="actLabel" style="display:none">Hoy toca</div>
+  <div id="actividad"></div>
+
+</div>
+
+<script>
+/* ---------- utilidades ---------- */
+function fechaHoy(){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function ytId(url){
+  if(!url) return "";
+  if(/^[\w-]{11}$/.test(url)) return url;
+  const m=url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/);
+  return m ? m[1] : "";
+}
+function luminancia(hex){
+  const h=hex.replace("#","");
+  const f=h.length===3 ? h.split("").map(c=>c+c).join("") : h;
+  const n=parseInt(f,16);
+  return (0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255))/255;
+}
+
+/* ---------- fondo, tema y cielo ---------- */
+(function(){
+  const f=CONFIG.fondo||{};
+  let claro=true;
+  if(f.imagen){
+    document.body.style.backgroundImage=`url("${f.imagen}")`;
+    document.body.classList.add("with-image");
+    claro = f.textoClaro!==false;
+  } else {
+    const col=f.color||"#171310";
+    document.body.style.backgroundColor=col;
+    claro = luminancia(col) < 0.55;
+    if(f.estrellas!==false){
+      const sky=document.getElementById("sky");
+      for(let i=0;i<16;i++){
+        const s=document.createElement("span");
+        s.className="st";
+        const size=(Math.random()*1.6+1).toFixed(1);
+        s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;`+
+          `width:${size}px;height:${size}px;animation-delay:${(Math.random()*4).toFixed(1)}s;`+
+          `animation-duration:${(3+Math.random()*3).toFixed(1)}s`;
+        sky.appendChild(s);
+      }
+    }
+  }
+  if(!claro) document.body.classList.add("light-text-off");
+})();
+
+/* ---------- encabezado ---------- */
+document.getElementById("saludo").textContent = "Hola, " + CONFIG.nombre;
+document.getElementById("fecha").textContent =
+  new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+
+if(CONFIG.aniversario){
+  const dias=Math.max(0,Math.floor((new Date() - new Date(CONFIG.aniversario+"T00:00:00"))/86400000));
+  document.getElementById("dias").textContent=dias;
+  document.getElementById("counter").style.display="inline-block";
+}
+
+/* ---------- día actual ---------- */
+const diaHoy = CONFIG.dias[fechaHoy()] || CONFIG.porDefecto;
+document.getElementById("letterMsg").textContent = diaHoy.mensaje;
+document.getElementById("letterFirma").textContent = CONFIG.firma || "— para vos";
+
+document.getElementById("envelope").addEventListener("click",()=>{
+  const l=document.getElementById("letter");
+  l.style.display = l.style.display==="block" ? "none" : "block";
+});
+
+/* ---------- actividad del día ---------- */
+const act=diaHoy.actividad;
+const cont=document.getElementById("actividad");
+if(act && act.tipo){
+  document.getElementById("actLabel").style.display="flex";
+  if(act.tipo==="video") montarVideo(act);
+  if(act.tipo==="ahorcado") montarAhorcado(act.palabra);
+  if(act.tipo==="sopa") montarSopa(act.palabras);
+}
+
+/* ===== video ===== */
+function montarVideo(a){
+  const id=ytId(a.url);
+  cont.innerHTML = id
+    ? `<div class="box video-box">
+         <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen loading="lazy"></iframe>
+         ${a.titulo ? `<p>${a.titulo}</p>` : ""}
+       </div>`
+    : `<div class="box"><p class="note">El link del video no es válido.</p></div>`;
+}
+
+/* ===== ahorcado clásico ===== */
+function montarAhorcado(palabra){
+  const P=(palabra||"SORPRESA").toUpperCase();
+  cont.innerHTML=`
+    <div class="box">
+      <svg id="gallows" width="150" height="160" viewBox="0 0 150 160">
+        <line x1="15" y1="150" x2="95" y2="150"/>
+        <line x1="40" y1="150" x2="40" y2="15"/>
+        <line x1="40" y1="15" x2="105" y2="15"/>
+        <line x1="105" y1="15" x2="105" y2="35"/>
+        <circle class="part" id="p0" cx="105" cy="49" r="14"/>
+        <line class="part" id="p1" x1="105" y1="63" x2="105" y2="105"/>
+        <line class="part" id="p2" x1="105" y1="73" x2="85"  y2="92"/>
+        <line class="part" id="p3" x1="105" y1="73" x2="125" y2="92"/>
+        <line class="part" id="p4" x1="105" y1="105" x2="88"  y2="130"/>
+        <line class="part" id="p5" x1="105" y1="105" x2="122" y2="130"/>
+      </svg>
+      <div class="word" id="ahorWord"></div>
+      <div class="kbd" id="ahorKbd"></div>
+      <div class="result" id="ahorResult"></div>
+      <button class="btn" id="ahorRetry" style="display:none">Reintentar</button>
+    </div>`;
+  let ok=new Set(), err=0, fin=false;
+  const pintar=()=>{
+    document.getElementById("ahorWord").textContent =
+      P.split("").map(l=>ok.has(l)?l:"_").join(" ");
+  };
+  const terminar=(win)=>{
+    fin=true;
+    document.querySelectorAll("#ahorKbd button").forEach(b=>b.disabled=true);
+    const r=document.getElementById("ahorResult");
+    r.textContent = win ? "La sacaste. Bien ahí." : "Nada… era: "+P;
+    r.className = "result "+(win?"ok":"bad");
+    if(!win) document.getElementById("ahorRetry").style.display="inline-block";
+  };
+  const kbd=document.getElementById("ahorKbd");
+  "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("").forEach(L=>{
+    const b=document.createElement("button");
+    b.textContent=L;
+    b.addEventListener("click",()=>{
+      if(fin) return;
+      b.disabled=true;
+      if(P.includes(L)){
+        ok.add(L); pintar();
+        if(P.split("").every(l=>ok.has(l))) terminar(true);
+      } else {
+        document.getElementById("p"+err).style.visibility="visible";
+        err++;
+        if(err>=6) terminar(false);
+      }
+    });
+    kbd.appendChild(b);
+  });
+  document.getElementById("ahorRetry").addEventListener("click",()=>montarAhorcado(P));
+  pintar();
+}
+
+/* ===== sopa de letras ===== */
+function montarSopa(palabras){
+  const SN=9;
+  const words=(palabras||["EJEMPLO"]).map(w=>w.toUpperCase()).filter(w=>w.length<=SN && w.length>1);
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">tocá la primera y la última letra de cada palabra</p>
+      <div id="sopaGrid"></div>
+      <div class="sopa-words" id="sopaWords"></div>
+      <div class="result" id="sopaResult"></div>
+    </div>`;
+  const grid=Array.from({length:SN},()=>Array(SN).fill(""));
+  const dirs=[[1,0],[0,1],[1,1],[-1,1]];
+  words.forEach(w=>{
+    for(let t=0;t<400;t++){
+      const [dx,dy]=dirs[Math.floor(Math.random()*dirs.length)];
+      const x0=Math.floor(Math.random()*SN), y0=Math.floor(Math.random()*SN);
+      const xe=x0+dx*(w.length-1), ye=y0+dy*(w.length-1);
+      if(xe<0||xe>=SN||ye<0||ye>=SN) continue;
+      let ok=true;
+      for(let i=0;i<w.length;i++){
+        const c=grid[y0+dy*i][x0+dx*i];
+        if(c!=="" && c!==w[i]){ok=false;break;}
+      }
+      if(!ok) continue;
+      for(let i=0;i<w.length;i++) grid[y0+dy*i][x0+dx*i]=w[i];
+      break;
+    }
+  });
+  const AB="ABCDEFGHIJLMNOPRSTUV";
+  for(let y=0;y<SN;y++)for(let x=0;x<SN;x++)
+    if(grid[y][x]==="") grid[y][x]=AB[Math.floor(Math.random()*AB.length)];
+
+  const g=document.getElementById("sopaGrid");
+  g.style.gridTemplateColumns=`repeat(${SN},32px)`;
+  let start=null, found=new Set();
+  const cellEl=(x,y)=>g.querySelector(`div[data-x="${x}"][data-y="${y}"]`);
+  for(let y=0;y<SN;y++)for(let x=0;x<SN;x++){
+    const d=document.createElement("div");
+    d.textContent=grid[y][x]; d.dataset.x=x; d.dataset.y=y;
+    d.addEventListener("click",()=>{
+      if(!start){ start={x,y,el:d}; d.classList.add("sel"); return; }
+      start.el.classList.remove("sel");
+      const {x:x0,y:y0}=start; start=null;
+      const dx=Math.sign(x-x0), dy=Math.sign(y-y0);
+      const len=Math.max(Math.abs(x-x0),Math.abs(y-y0))+1;
+      const aligned=(x0===x)||(y0===y)||(Math.abs(x-x0)===Math.abs(y-y0));
+      if(!aligned) return;
+      let cells=[], str="";
+      for(let i=0;i<len;i++){
+        const cx=x0+dx*i, cy=y0+dy*i;
+        cells.push([cx,cy]); str+=grid[cy][cx];
+      }
+      const rev=str.split("").reverse().join("");
+      const hit=words.find(w=>(w===str||w===rev)&&!found.has(w));
+      if(hit){
+        found.add(hit);
+        cells.forEach(([cx,cy])=>cellEl(cx,cy).classList.add("found"));
+        document.getElementById("sw-"+hit).classList.add("done");
+        if(found.size===words.length){
+          const r=document.getElementById("sopaResult");
+          r.textContent="Las encontraste todas.";
+          r.className="result ok";
+        }
+      }
+    });
+    g.appendChild(d);
+  }
+  const wl=document.getElementById("sopaWords");
+  words.forEach(w=>{
+    const s=document.createElement("span");
+    s.textContent=w; s.id="sw-"+w;
+    wl.appendChild(s);
+  });
+}
+</script>
+</body>
+</html>

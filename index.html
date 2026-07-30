@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Para vos</title>
+<title>Mafia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
@@ -49,12 +49,21 @@ const CONFIG = {
      Para cada fecha ponés el mensaje y UNA actividad:
 
        { tipo: "video",    url: "link de youtube", titulo: "..." }
-       { tipo: "ahorcado", palabra: "PALABRA" }        (mayúsculas, sin acentos)
+       { tipo: "ahorcado", palabra: "PALABRA" }
        { tipo: "sopa",     palabras: ["UNA","DOS"] }   (hasta 12 letras c/u)
+       { tipo: "trivia",   pregunta: "...", opciones: ["A","B","C"],
+         respuesta: 1,          <- número de la opción correcta (1, 2 o 3)
+         acierto: "texto si acierta", error: "texto si le erra" }
+       { tipo: "cupon",    texto: "una cena donde elijas" }
+       { tipo: "foto",     archivo: "nombre.jpg", texto: "epígrafe" }
+                           (subí la foto al mismo repositorio)
+       { tipo: "mision",   texto: "mandame un audio cantando..." }
 
-     OPCIONAL: cada día puede tener además su propio "nombre" (cómo
-     la saludás ese día) y su propia "firma". Si no los ponés, se
-     usan los generales de arriba.
+     OPCIONALES por día:
+       nombre: "..."   -> cómo la saludás ese día
+       firma: "..."    -> cómo firmás ese día
+       sellado: true   -> la carta queda sellada hasta que gane el
+                          juego del día (solo ahorcado, sopa o trivia)
 
      Si un día no está en la lista, se usa "porDefecto".
      ---------------------------------------------------------- */
@@ -63,20 +72,49 @@ const CONFIG = {
     actividad: { tipo: "ahorcado", palabra: "SORPRESA" }
   },
 
+  // Cuenta regresiva a un evento (cita, viaje, lo que venga).
+  // Dejá fecha en "" para ocultarla.
+  proximoEvento: {
+    fecha: "",
+    texto: "para vernos"
+  },
+
+  // Días especiales (formato "MM-DD"): la app se pone de fiesta,
+  // con más estrellas y todo dorado. El aniversario se agrega solo.
+  diasEspeciales: ["08-14"],
+
   dias: {
-    "2026-07-29": {
-      mensaje: "Arranca esto. Cada día vas a encontrar acá unas líneas mías y algo para jugar o mirar.",
-      actividad: { tipo: "sopa", palabras: ["ERIZO", "GATO", "PIZZA", "PLAN"] }
-    },
     "2026-07-30": {
-      nombre: "hermosa",
-      firma: "— el que te extraña",
-      mensaje: "Este video me hizo acordar a vos.",
-      actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Mirá esto" }
+      nombre: "Hermosa",
+      firma: "— Yo",
+      mensaje: "Bienvenida a MafiApp, aca vas a encontrar cosas todos los dias, preparate porque esta llena de sorpresas.",
     },
     "2026-07-31": {
-      mensaje: "Hoy toca sopa de letras. Sin ayuda, eh.",
-      actividad: { tipo: "sopa", palabras: ["VIERNES", "PELICULA", "PIZZA", "PLAN"] }
+      sellado: true,
+      mensaje: "Muy bien! Como lo lograste revolver podes leer el mensaje de hoy, ojala este linda la peli, te amo <3",
+      actividad: { tipo: "ahorcado", palabra: ["Avatar"] }
+    },
+    "2026-08-01": {
+      sellado: true,
+      mensaje: "Ayer Avatar y hoy Spiderman! Me gusta esta semana de tantos dias juntitos",
+      actividad: { tipo: "trivia",
+        pregunta: "¿Dónde fuimos por primera vez al cine?",
+        opciones: ["Unicenter", "Dot", "Norcenter"],
+        respuesta: 1,
+        acierto: "Que peliculon Your Name",
+        error: "Mati tite" }
+    },
+    "2026-08-02": {
+      mensaje: "Hoy no se juega. Hoy se cobra.",
+      actividad: { tipo: "cupon", texto: "Válido por una cena donde vos elijas" }
+    },
+    "2026-08-03": {
+      mensaje: "Encontré esta foto y me quedé un rato mirándola.",
+      actividad: { tipo: "foto", archivo: "nosotros.jpg", texto: "Mi lugar favorito sos vos" }
+    },
+    "2026-08-04": {
+      mensaje: "Hoy tenés tarea.",
+      actividad: { tipo: "mision", texto: "Mandame un audio cantando el estribillo de nuestra canción. Sin vergüenza." }
     }
   }
 };
@@ -153,16 +191,16 @@ header .fecha{
 
 /* ---------- sobre ---------- */
 .envelope-wrap{text-align:center;padding:36px 0 6px;position:relative}
-#envelope{cursor:pointer;transition:transform .18s ease;color:var(--ink)}
-#envelope:active{transform:scale(.94)}
-#envelope .seal{
-  filter:drop-shadow(0 0 7px var(--acc-soft));
-  transform-origin:65px 32px;
-  animation:sealGlow 3.2s ease-in-out infinite;
+.env-emoji{
+  display:inline-block;font-size:4.4rem;line-height:1;cursor:pointer;
+  transition:transform .18s ease;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));
+  animation:flotar 3.4s ease-in-out infinite;
 }
-@keyframes sealGlow{
-  0%,100%{filter:drop-shadow(0 0 4px var(--acc-soft))}
-  50%{filter:drop-shadow(0 0 11px var(--acc-soft))}
+.env-emoji:active{transform:scale(.92)}
+@keyframes flotar{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
 }
 .spark{
   position:absolute;color:var(--acc);font-size:.65rem;opacity:.55;
@@ -267,6 +305,75 @@ header .fecha{
   font-size:.92rem;color:var(--ink-soft);margin-bottom:10px;
   font-family:var(--serif);font-style:italic;
 }
+
+/* carta sellada */
+.letter.sellada .msg{
+  font-size:1.05rem;text-align:center;padding:8px 0;
+}
+.letter.sellada .firma{display:none}
+.sello-icon{font-size:1.6rem;color:var(--acc);text-align:center;margin-bottom:6px}
+
+/* trivia */
+.trivia-q{font-family:var(--serif);font-style:italic;font-size:1.15rem;margin-bottom:14px;line-height:1.4}
+.trivia-op{
+  display:block;width:100%;margin:8px 0;padding:12px 14px;
+  border:1px solid var(--card-border);border-radius:12px;background:var(--key);
+  color:var(--ink);font-family:var(--sans);font-weight:600;font-size:.95rem;
+  cursor:pointer;text-align:left;
+}
+.trivia-op:disabled{opacity:.45}
+.trivia-op.ok{background:rgba(139,199,154,.25);border-color:rgba(139,199,154,.6);opacity:1}
+.trivia-op.bad{background:rgba(219,138,124,.22);border-color:rgba(219,138,124,.55);opacity:1}
+
+/* cupón */
+.cupon{
+  border:1.5px dashed var(--acc);border-radius:14px;padding:20px 16px;
+  margin:4px 2px;position:relative;
+}
+.cupon .tag{
+  font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--acc);margin-bottom:8px;
+}
+.cupon .txt{font-family:var(--serif);font-style:italic;font-size:1.25rem;line-height:1.4}
+.cupon .canjeado{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-12deg);
+  border:2px solid #8BC79A;color:#8BC79A;border-radius:8px;
+  padding:4px 14px;font-weight:800;letter-spacing:.14em;font-size:.9rem;
+  background:rgba(0,0,0,.25);backdrop-filter:blur(2px);
+}
+
+/* foto polaroid */
+.polaroid{
+  background:var(--paper);padding:12px 12px 16px;border-radius:6px;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);max-width:320px;margin:4px auto;
+  transform:rotate(-1.5deg);
+}
+.polaroid img{width:100%;border-radius:3px;display:block}
+.polaroid p{
+  font-family:var(--serif);font-style:italic;color:var(--paper-ink);
+  font-size:1.05rem;margin-top:10px;
+}
+
+/* misión */
+.mision-txt{font-family:var(--serif);font-style:italic;font-size:1.18rem;line-height:1.5;margin-bottom:6px}
+
+/* confetti de estrellas */
+.confetti-star{
+  position:fixed;top:-24px;z-index:99;pointer-events:none;
+  color:var(--acc);animation:caer linear forwards;
+}
+@keyframes caer{
+  to{transform:translateY(110vh) rotate(540deg);opacity:0}
+}
+
+/* modo fiesta (días especiales) */
+body.fiesta header h1{color:var(--acc)}
+body.fiesta .counter{border-color:var(--acc-soft)}
+.fiesta-badge{
+  display:inline-block;margin-top:10px;color:var(--acc);
+  font-family:var(--serif);font-style:italic;font-size:1rem;
+  animation:tw 2.8s ease-in-out infinite;
+}
 </style>
 </head>
 <body>
@@ -276,16 +383,15 @@ header .fecha{
   <header>
     <h1 id="saludo"></h1>
     <div class="fecha" id="fecha"></div>
-    <div><span class="counter" id="counter" style="display:none"><b id="dias"></b>&nbsp;días juntos</span></div>
+    <div>
+      <span class="counter" id="counter" style="display:none"><b id="dias"></b>&nbsp;días juntos</span>
+      <span class="counter" id="countdown" style="display:none"></span>
+    </div>
+    <div class="fiesta-badge" id="fiestaBadge" style="display:none">✦ hoy es un día especial ✦</div>
   </header>
 
   <div class="envelope-wrap" id="envWrap">
-    <svg id="envelope" width="140" height="102" viewBox="0 0 130 96" role="button" aria-label="Abrir mensaje del día">
-      <rect x="4" y="10" width="122" height="82" rx="11" fill="none" stroke="currentColor" stroke-width="2.5"/>
-      <path d="M7 15 L65 58 L123 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
-      <path class="seal" d="M65 22.5 l3.1 6.4 7.1 1 -5.2 5 1.3 7 -6.3 -3.3 -6.3 3.3 1.3 -7 -5.2 -5 7.1 -1 z"
-            fill="#E4B75B" stroke="none"/>
-    </svg>
+    <div id="envelope" class="env-emoji" role="button" aria-label="Abrir mensaje del día">✉️</div>
     <p class="hint">tocá el sobre y leé lo de hoy</p>
   </div>
 
@@ -357,25 +463,194 @@ if(CONFIG.aniversario){
   document.getElementById("counter").style.display="inline-block";
 }
 
+/* ---------- memoria local (recuerda cupones y sellos) ---------- */
+function guardar(k,v){ try{ localStorage.setItem("pv-"+k,v); }catch(e){} }
+function leer(k){ try{ return localStorage.getItem("pv-"+k); }catch(e){ return null; } }
+
 /* ---------- día actual ---------- */
 const diaHoy = CONFIG.dias[fechaHoy()] || CONFIG.porDefecto;
 document.getElementById("saludo").textContent = "Hola, " + (diaHoy.nombre || CONFIG.nombre);
-document.getElementById("letterMsg").textContent = diaHoy.mensaje;
 document.getElementById("letterFirma").textContent = diaHoy.firma || CONFIG.firma || "— para vos";
+
+const act=diaHoy.actividad;
+const puedeSellar = act && ["ahorcado","sopa","trivia"].includes(act.tipo);
+let sellado = diaHoy.sellado===true && puedeSellar && leer("sello-"+fechaHoy())!=="abierto";
+
+function pintarCarta(){
+  const l=document.getElementById("letter");
+  if(sellado){
+    l.classList.add("sellada");
+    document.getElementById("letterMsg").innerHTML =
+      '<div class="sello-icon">✦</div>El mensaje de hoy está sellado.<br>Ganá el juego de acá abajo para abrirlo.';
+  } else {
+    l.classList.remove("sellada");
+    document.getElementById("letterMsg").textContent = diaHoy.mensaje;
+  }
+}
+pintarCarta();
 
 document.getElementById("envelope").addEventListener("click",()=>{
   const l=document.getElementById("letter");
   l.style.display = l.style.display==="block" ? "none" : "block";
 });
 
+/* ---------- cuenta regresiva ---------- */
+(function(){
+  const ev=CONFIG.proximoEvento;
+  if(!ev || !ev.fecha) return;
+  const n=Math.ceil((new Date(ev.fecha+"T00:00:00") - new Date())/86400000);
+  if(n<0) return;
+  const cd=document.getElementById("countdown");
+  cd.textContent = n===0 ? "¡hoy es el día!" :
+    n===1 ? `falta 1 día ${ev.texto||""}` : `faltan ${n} días ${ev.texto||""}`;
+  cd.style.display="inline-block";
+})();
+
+/* ---------- día especial ---------- */
+(function(){
+  const mmdd=fechaHoy().slice(5);
+  const esp=new Set(CONFIG.diasEspeciales||[]);
+  if(CONFIG.aniversario) esp.add(CONFIG.aniversario.slice(5));
+  if(!esp.has(mmdd)) return;
+  document.body.classList.add("fiesta");
+  document.getElementById("fiestaBadge").style.display="inline-block";
+  const sky=document.getElementById("sky");
+  if(sky && !document.body.classList.contains("with-image")){
+    for(let i=0;i<26;i++){
+      const s=document.createElement("span");
+      s.className="st";
+      const size=(Math.random()*1.8+1).toFixed(1);
+      s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;`+
+        `width:${size}px;height:${size}px;background:#E4B75B;`+
+        `animation-delay:${(Math.random()*4).toFixed(1)}s;`+
+        `animation-duration:${(2.5+Math.random()*3).toFixed(1)}s`;
+      sky.appendChild(s);
+    }
+  }
+})();
+
+/* ---------- celebración (confetti + desbloqueo) ---------- */
+function confetti(){
+  for(let i=0;i<32;i++){
+    const s=document.createElement("span");
+    s.className="confetti-star";
+    s.textContent=Math.random()<0.5?"✦":"★";
+    s.style.left=(Math.random()*100)+"%";
+    s.style.fontSize=(10+Math.random()*14)+"px";
+    s.style.animationDuration=(1.6+Math.random()*2.2)+"s";
+    s.style.animationDelay=(Math.random()*0.7)+"s";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),5200);
+  }
+}
+function celebrar(){
+  confetti();
+  if(sellado){
+    sellado=false;
+    guardar("sello-"+fechaHoy(),"abierto");
+    pintarCarta();
+    document.getElementById("letter").style.display="block";
+    document.getElementById("letter").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+}
+
 /* ---------- actividad del día ---------- */
-const act=diaHoy.actividad;
 const cont=document.getElementById("actividad");
 if(act && act.tipo){
   document.getElementById("actLabel").style.display="flex";
   if(act.tipo==="video") montarVideo(act);
   if(act.tipo==="ahorcado") montarAhorcado(act.palabra);
   if(act.tipo==="sopa") montarSopa(act.palabras);
+  if(act.tipo==="trivia") montarTrivia(act);
+  if(act.tipo==="cupon") montarCupon(act);
+  if(act.tipo==="foto") montarFoto(act);
+  if(act.tipo==="mision") montarMision(act);
+}
+
+/* ===== trivia ===== */
+function montarTrivia(a){
+  const ops=(a.opciones||[]).map((o,i)=>
+    `<button class="trivia-op" data-i="${i+1}">${o}</button>`).join("");
+  cont.innerHTML=`
+    <div class="box" style="text-align:left">
+      <div class="trivia-q">${a.pregunta||""}</div>
+      ${ops}
+      <div class="result" id="trResult" style="text-align:center"></div>
+    </div>`;
+  const correcta=parseInt(a.respuesta,10);
+  document.querySelectorAll(".trivia-op").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll(".trivia-op").forEach(x=>x.disabled=true);
+      const i=parseInt(b.dataset.i,10);
+      const r=document.getElementById("trResult");
+      const bOk=document.querySelector(`.trivia-op[data-i="${correcta}"]`);
+      if(bOk) bOk.classList.add("ok");
+      if(i===correcta){
+        r.textContent=a.acierto||"¡Correcto!";
+        r.className="result ok";
+        celebrar();
+      } else {
+        b.classList.add("bad");
+        r.textContent=a.error||"Mmm… no.";
+        r.className="result bad";
+      }
+    });
+  });
+}
+
+/* ===== cupón ===== */
+function montarCupon(a){
+  const usado = leer("cupon-"+fechaHoy())==="si";
+  cont.innerHTML=`
+    <div class="box">
+      <div class="cupon">
+        <div class="tag">✦ Cupón de amor ✦</div>
+        <div class="txt">${a.texto||""}</div>
+        ${usado?'<div class="canjeado">CANJEADO</div>':""}
+      </div>
+      <button class="btn" id="cuponBtn" ${usado?"disabled style='opacity:.4'":""}>
+        ${usado?"Ya canjeado":"Canjear"}
+      </button>
+      <div class="result" id="cuponMsg">${usado?"":""}</div>
+    </div>`;
+  const btn=document.getElementById("cuponBtn");
+  if(!usado) btn.addEventListener("click",()=>{
+    guardar("cupon-"+fechaHoy(),"si");
+    confetti();
+    montarCupon(a);
+    document.getElementById("cuponMsg").textContent="Listo: sacale captura y mandámela para cobrarlo.";
+    document.getElementById("cuponMsg").className="result ok";
+  });
+}
+
+/* ===== foto ===== */
+function montarFoto(a){
+  cont.innerHTML=`
+    <div class="box">
+      <div class="polaroid">
+        <img src="${a.archivo||""}" alt="foto"
+             onerror="this.parentElement.innerHTML='<p style=&quot;padding:30px 10px&quot;>No encontré la foto <b>${a.archivo||""}</b>. ¿Está subida al repositorio?</p>'">
+        <p>${a.texto||""}</p>
+      </div>
+    </div>`;
+}
+
+/* ===== misión ===== */
+function montarMision(a){
+  const hecha = leer("mision-"+fechaHoy())==="si";
+  cont.innerHTML=`
+    <div class="box">
+      <div class="tag" style="font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--acc);margin-bottom:10px">✦ Misión del día ✦</div>
+      <div class="mision-txt">${a.texto||""}</div>
+      <button class="btn" id="misionBtn" ${hecha?"disabled style='opacity:.4'":""}>
+        ${hecha?"Misión cumplida ✔":"Misión cumplida"}
+      </button>
+    </div>`;
+  if(!hecha) document.getElementById("misionBtn").addEventListener("click",()=>{
+    guardar("mision-"+fechaHoy(),"si");
+    confetti();
+    montarMision(a);
+  });
 }
 
 /* ===== video ===== */
@@ -422,6 +697,7 @@ function montarAhorcado(palabra){
     const r=document.getElementById("ahorResult");
     r.textContent = win ? "La sacaste. Bien ahí." : "Nada… era: "+P;
     r.className = "result "+(win?"ok":"bad");
+    if(win) celebrar();
     if(!win) document.getElementById("ahorRetry").style.display="inline-block";
   };
   const kbd=document.getElementById("ahorKbd");
@@ -538,6 +814,7 @@ function montarSopa(palabras){
           const r=document.getElementById("sopaResult");
           r.textContent="Las encontraste todas.";
           r.className="result ok";
+          celebrar();
         }
       }
     });

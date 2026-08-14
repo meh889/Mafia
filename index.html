@@ -2956,8 +2956,18 @@ function montarEpico(a){
   /* fondo del día: tu imagen a PANTALLA COMPLETA, oscurecida,
      con el cielo de estrellas flotando encima */
   if(a.fondo){
-    document.body.style.backgroundImage=`url("${rutaFoto(a.fondo)}")`;
-    document.body.style.backgroundColor="";
+    /* capa fija propia (el fondo "fixed" del body está roto en iOS:
+       deja una franja gris hasta que scrolleás) */
+    let fx=document.getElementById("epFondoFull");
+    if(!fx){
+      fx=document.createElement("div");
+      fx.id="epFondoFull";
+      document.body.prepend(fx);
+    }
+    fx.style.cssText="position:fixed;inset:0;z-index:-3;"+
+      `background:url("${rutaFoto(a.fondo)}") center/cover no-repeat;`;
+    document.body.style.backgroundImage="none";
+    document.body.style.backgroundColor="#171310";
     document.body.classList.add("with-image");
     document.body.classList.remove("light-text-off");
   }

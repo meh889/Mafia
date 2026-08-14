@@ -264,7 +264,7 @@ const CONFIG = {
     "2026-08-14": {
       escribir: true,
       // ⭐ DÍA 3000 ⭐ Editá los hitos y la carta con lo de ustedes.
-      mensaje: "Tres mil días. Gracias por cada uno de estos 3000 dias hermosos. I Love You 3000.",
+      mensaje: "Tres mil días. Gracias por cada uno de estos 3000 dias hermosos. I Love You 3000. (Toca las estrellas brillantes para sorpresas)",
       // Subí a audios/ la canción, y a fotos/ el fondo (fondo3000.jpg) y los
       // recuerdos nombrados recuerdo1.jpg, recuerdo2.jpg, ... recuerdo30.jpg
       actividad: { tipo: "epico", numero: 3000,
@@ -738,9 +738,9 @@ header .fecha{
 
 /* ================== DÍA ÉPICO (cielo de estrellas) ================== */
 .ep-escena{position:relative;text-align:center}
-#epCanvas{position:fixed;inset:0;z-index:-1;pointer-events:none;width:100%;height:100%}
+#epCanvas{position:absolute;inset:0;pointer-events:none;width:100%;height:100%}
 .ep-contador{
-  position:fixed;top:30%;left:0;right:0;z-index:6;pointer-events:none;text-align:center;
+  position:absolute;top:30%;left:0;right:0;z-index:6;pointer-events:none;text-align:center;
   font-family:var(--serif);font-weight:600;font-size:3.4rem;color:var(--acc);
   text-shadow:0 0 24px var(--acc-soft), 0 2px 10px rgba(0,0,0,.5);
   transition:opacity .8s ease, transform .8s ease;
@@ -748,7 +748,7 @@ header .fecha{
 .ep-contador.final{font-size:4.2rem}
 .ep-contador.fuera{opacity:0;transform:scale(.8)}
 .ep-hito{
-  position:fixed;top:47%;left:8%;right:8%;z-index:6;pointer-events:none;text-align:center;
+  position:absolute;top:47%;left:8%;right:8%;z-index:6;pointer-events:none;text-align:center;
   font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--ink);
   opacity:0;transition:opacity .6s ease;text-shadow:0 2px 8px rgba(0,0,0,.6);
 }
@@ -756,14 +756,14 @@ header .fecha{
 .ep-hito small{display:block;font-family:var(--sans);font-style:normal;font-weight:700;
   font-size:.68rem;letter-spacing:.2em;color:var(--acc);margin-bottom:2px}
 .ep-titulo{
-  position:fixed;left:0;right:0;z-index:6;pointer-events:none;text-align:center;
+  position:absolute;left:0;right:0;z-index:6;pointer-events:none;text-align:center;
   opacity:0;transition:opacity 1.2s ease;
 }
 .ep-titulo b{font-family:var(--serif);font-weight:600;font-size:2rem;color:var(--acc);letter-spacing:.04em}
 .ep-titulo span{display:block;font-size:.8rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-top:2px}
 .ep-titulo.ver{opacity:1}
 .ep-hint{
-  position:fixed;left:0;right:0;z-index:6;pointer-events:none;text-align:center;
+  position:absolute;left:0;right:0;z-index:6;pointer-events:none;text-align:center;
   color:var(--ink-soft);font-family:var(--serif);font-style:italic;font-size:.92rem;
   opacity:0;transition:opacity 1s ease;
 }
@@ -2947,6 +2947,10 @@ function montarEpico(a){
       <div class="ep-hint${a.cancion?" ver":""}" id="epHint">${a.cancion?"tocá la estrella para empezar ✦":""}</div>
     </div>
     <div class="ep-visor" id="epVisor"><img id="epFoto" alt="recuerdo"></div>`;
+  /* la carta vive arriba en el HTML (por el sobre de los días normales);
+     en el día épico la movemos DEBAJO del cielo para que aparezca
+     después de la estrella, nunca encima */
+  cont.appendChild(document.getElementById("letter"));
   /* canción de apertura: intenta sola; si iOS la bloquea, con el primer toque */
   let musica=null, tocarMusica=()=>{};
   if(a.cancion){
@@ -2984,7 +2988,18 @@ function montarEpico(a){
 
   /* vértices de la estrella de 5 puntas */
   const R=Math.min(SW*0.36,185), RI=R*0.42;
-  document.getElementById("epEscena").style.height=Math.round(CY+R+150-(cont.getBoundingClientRect?0:0))+"px";
+  /* capa del cielo ANCLADA A LA PÁGINA (no a la pantalla): al scrollear,
+     la estrella sube con el contenido y nunca se superpone con la carta */
+  const capa=document.createElement("div");
+  capa.id="epCapa";
+  capa.style.cssText="position:absolute;top:0;left:0;width:100%;height:"+SH+"px;z-index:-1;pointer-events:none;";
+  document.body.appendChild(capa);
+  capa.appendChild(cv);
+  capa.appendChild(document.getElementById("epNum"));
+  capa.appendChild(document.getElementById("epHito"));
+  capa.appendChild(document.getElementById("epTitulo"));
+  capa.appendChild(document.getElementById("epHint"));
+  document.getElementById("epEscena").style.height=Math.round(CY+R+150)+"px";
   document.getElementById("epTitulo").style.top=Math.round(CY+R+22)+"px";
   document.getElementById("epHint").style.top=Math.round(CY+R+92)+"px";
   const V=[];
@@ -3080,6 +3095,9 @@ function montarEpico(a){
       celebrar();
       const l=document.getElementById("letter");
       pintarCarta(); l.style.display="block"; tipearCarta();
+      setTimeout(()=>{
+        try{ window.scrollTo({top:Math.max(0,l.offsetTop-Math.round(SH*0.34)), behavior:"smooth"}); }catch(e){}
+      },900);
     }, DUR_FORMA+300);
   }
   function frame(now){
@@ -3201,7 +3219,7 @@ function montarEpico(a){
     foto._alt=0;
     foto.src=e.src||rutaFoto(e.foto);
     const dx=ex-window.innerWidth/2;
-    const dy=ey-window.innerHeight/2;
+    const dy=(ey-(window.scrollY||0))-window.innerHeight/2;
     foto.style.transition="none";
     foto.style.transform=`translate(${dx}px,${dy}px) scale(.1)`;
     visor.style.display="flex";
@@ -3234,7 +3252,7 @@ function montarEpico(a){
     if(fase==="intro"){ empezar(); return; }
     if(fase==="contando"){ terminarConteo(); return; }
     if(fase==="listo" && ESP.length){
-      const mx=e.clientX, my=e.clientY;
+      const mx=e.clientX, my=e.clientY+(window.scrollY||0);
       let mejor=null, md=999;
       for(const es of ESP){
         if(!es.ok) continue;

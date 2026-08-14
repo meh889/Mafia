@@ -2953,9 +2953,13 @@ function montarEpico(a){
     tocarMusica=()=>{ try{ const pr=musica.play(); if(pr&&pr.catch) pr.catch(()=>{}); }catch(e){} };
   }
   const cv=document.getElementById("epCanvas");
-  /* fondo de la escena: imagen tuya oscurecida detrás de las estrellas */
+  /* fondo del día: tu imagen a PANTALLA COMPLETA, oscurecida,
+     con el cielo de estrellas flotando encima */
   if(a.fondo){
-    cv.style.background=`linear-gradient(rgba(8,6,4,.55),rgba(8,6,4,.55)), url("${rutaFoto(a.fondo)}") center/cover`;
+    document.body.style.backgroundImage=`url("${rutaFoto(a.fondo)}")`;
+    document.body.style.backgroundColor="";
+    document.body.classList.add("with-image");
+    document.body.classList.remove("light-text-off");
   }
   const ctx=cv.getContext&&cv.getContext("2d");
   const dpr=window.devicePixelRatio||1;

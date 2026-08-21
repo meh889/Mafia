@@ -63,7 +63,8 @@ const CONFIG = {
                             por ronda; los sonidos son opcionales: si subís
                             simon-ok.wav y simon-err.wav al repo suenan solos,
                             o poné acá tus propios archivos)
-       { tipo: "atrapar",  objetivo: 12 }     cazar estrellas en 30s
+       { tipo: "atrapar",  objetivo: 12, emoji: "🌸", titulo: "flores" }
+                           (cazar cositas en 30s; emoji/titulo opcionales)
        { tipo: "puzzle" }                     rompecabezas deslizante
        { tipo: "ppt",      rondas: 3 }        piedra papel tijera
        { tipo: "mentira",  frases:["v","v","m"], mentira:3, acierto:"", error:"" }
@@ -117,13 +118,33 @@ const CONFIG = {
        { tipo: "deslizante", archivo: "foto.jpg", tam: 4 }
                            (rompecabezas deslizante con tu foto: falta una
                             pieza y se mueve el resto hasta acomodarla)
+       { tipo: "quiz",     minimo: 2, preguntas: [ {pregunta:"...",
+                             opciones:["A","B","C"], respuesta:1}, x3 ] }
+                           (varias preguntas seguidas; "minimo" = aciertos
+                            necesarios para ganar)
+       { tipo: "constelacion" }              unir estrellas en orden y ver
+                                             qué dibujan (spoiler: amor)
+       { tipo: "globos",   palabra: "SIEMPRE" }
+                           (reventar globos: algunos esconden las letras
+                            de la palabra, otros son puro confetti)
+       { tipo: "flappy",   objetivo: 10 }    la estrellita voladora: tocá
+                                             para aletear y pasá los aros
+       { tipo: "runner",   objetivo: 12 }    la estrellita corre: tocá para
+                                             saltar los obstáculos
+       { tipo: "breakout", vidas: 3 }        rompebloques: arrastrá la
+                                             paleta y rompé todo
+       { tipo: "dosmil",   objetivo: 128 }   2048 de corazones: deslizá,
+                                             sumá y llegá al objetivo
+       { tipo: "gala" }                      gran final de temporada: las
+                                             estrellas juntadas arman algo
 
      OPCIONALES por día:
        nombre / firma    -> saludo y firma de ese día
+       sticker: "🎈"     -> sticker que suma ese día a la colección (T2)
        sellado: true     -> carta sellada hasta ganar el juego del día
        escribir: true    -> la carta se escribe sola
        tema: { fondo:"#hex", acento:"#hex" }  -> colores de ese día
-       modo: "terminal" | "papel" | "arcade" | "cielo"
+       modo: "terminal" | "papel" | "arcade" | "cielo" | "jardin"
                          -> CAMBIO RADICAL de interfaz ese día
      ---------------------------------------------------------- */
   porDefecto: {
@@ -132,11 +153,20 @@ const CONFIG = {
   },
 
   proximoEvento: {
-    fecha: "",
-    texto: "para vernos"
+    fecha: "2026-09-28",
+    texto: "para los 100 meses"
   },
 
-  diasEspeciales: ["08-14"],
+  diasEspeciales: ["08-14", "08-28", "09-28"],
+
+  /* TEMPORADA 2: entre "inicio" y "fin" cada día completado suma un
+     sticker a la colección (botón arriba). El día "gala" es el cierre. */
+  temporada: {
+    activo: true,
+    nombre: "Temporada 2",
+    inicio: "2026-08-22",
+    fin: "2026-09-15"
+  },
 
   /* MODO CAOS: cada día la app elige sola look, sobre, frases y a veces
      un evento raro (estrellas fugaces, corazones, sobre gigante, pantalla
@@ -144,21 +174,25 @@ const CONFIG = {
      activo:false lo apaga. */
   caos: {
     activo: true,
-    sobres: ["✉️","📩","📬","🎁","🎈","🔮"],
+    sobres: ["✉️","📩","📬","🎁","🎈","🔮","💌","🪄","🎟️"],
     temas: [
       { fondo:"#171310", acento:"#E4B75B" },
       { fondo:"#1B1023", acento:"#B48CF2" },
       { fondo:"#0F1B18", acento:"#5FC49E" },
       { fondo:"#20090D", acento:"#E86A7C" },
       { fondo:"#0D1420", acento:"#6FA8DC" },
-      { fondo:"#231326", acento:"#F08CB0" }
+      { fondo:"#231326", acento:"#F08CB0" },
+      { fondo:"#101B10", acento:"#9BD77E" },
+      { fondo:"#1C1410", acento:"#E8955C" }
     ],
     frases: [
       "tocá el sobre y leé lo de hoy",
       "hay algo para vos acá adentro",
       "correo entrante ✦",
       "esto se abre con un toque",
-      "tocá, dale, tocá"
+      "tocá, dale, tocá",
+      "hoy el sobre amaneció cariñoso",
+      "la temporada 2 no se detiene"
     ],
     estados: [
       "la app amaneció con ganas",
@@ -166,7 +200,10 @@ const CONFIG = {
       "hoy puede pasar cualquier cosa",
       "estado de la app: enamorada",
       "sin novedades por hoy. mentira.",
-      "cargando cosas lindas…"
+      "cargando cosas lindas…",
+      "temporada 2: en emisión",
+      "coleccionando estrellas ✦",
+      "la gerencia está enamorada"
     ]
   },
 
@@ -224,7 +261,7 @@ const CONFIG = {
       // Día del loro: sin carta ni mensaje, solo el loro que habla con tus audios.
       // Grabá los audios, subilos al repo y listá acá los nombres (los que quieras):
       actividad: { tipo: "loro", audios: ["loro1.m4a", "loro2.m4a", "loro3.m4a","loro4.m4a", "loro5.m4a", "loro6.m4a","loro7.m4a", "loro8.m4a", "loro9.m4a","loro10.m4a", "loro11.m4a", "loro12.m4a","loro13.m4a", "loro14.m4a", "loro15.m4a", "loro16.m4a","loro17.m4a", "loro18.m4a", "loro19.m4a"] }
-       }, 
+       },
     "2026-08-09": {
       modo: "arcade",
       sellado: true,
@@ -309,63 +346,178 @@ const CONFIG = {
         acierto: "Muy bien, era Zootopia 2!.",
         error: "¡No! Vimos Zootopia 2." }
     },
-    "2026-08-30": {
-      mensaje: "Rascá despacito que abajo hay data importante.",
-      actividad: { tipo: "rascar", premio: "TE AMO ×2984 (uno por cada día juntos, el número sigue subiendo)" }
-    },
-    "2026-08-21": {
-      mensaje: "Viernes. La ruleta decide el plan del finde y no se discute (salvo que quieras discutirlo, me gusta discutir).",
-      actividad: { tipo: "ruleta", titulo: "Plan del finde",
-        opciones: ["Maratón de series", "Salir a caminar", "Pelicula Chill", "Vos elegís"] }
-    },
-    "2026-08-22": {
-      mensaje: "Sábado de video. Este me hizo reír y necesitaba que lo veas.",
-      // CAMBIÁ este link por el video que quieras
-      actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Mirá esto y decime que no somos nosotros" }
+    "2026-08-19": {
+      escribir: true,
+      sellado: true,
+      mensaje: "Te escribo esta carta, bueno este mensaje (al menos no en una servilleta) para decirte que te amo y que oficialmente queda menos de una semana para irnos de vacacionessss.",
+      actividad: { tipo: "memoria", emojis: ["💫","🎁","🌙","⭐","🎬","🧸"] }
     },
     "2026-08-20": {
       sellado: true,
       mensaje: "Grandes reflejos, pero yo creo que te gano a Payopa.",
       actividad: { tipo: "topo", aciertos: 10 }
     },
+    "2026-08-21": {
+      mensaje: "Viernes. La ruleta decide el plan del finde y no se discute (salvo que quieras discutirlo, me gusta discutir).",
+      actividad: { tipo: "ruleta", titulo: "Plan del finde",
+        opciones: ["Maratón de series", "Salir a caminar", "Pelicula Chill", "Vos elegís"] }
+    },
+    /* ==================== TEMPORADA 2 ==================== */
+    "2026-08-22": {
+      escribir: true,
+      mensaje: "ALERTA: anoche la app se actualizó sola. Nuevo look, juegos nuevos y una novedad grande: cada día que completes te da un sticker para tu colección (mirá los botones acá arriba, también podés releer las cartas viejas). Son 25 días y 25 stickers. Bienvenida a la Temporada 2, que arranca como arrancamos nosotros: uniendo puntos que parecían sueltos.",
+      sticker: "🌠",
+      actividad: { tipo: "constelacion" }
+    },
+    "2026-08-23": {
+      sellado: true,
+      mensaje: "Reventaste todos los globos para leer esto. Sos oficialmente un peligro para la industria del globo y la dueña de la palabra que apareció. Te amo.",
+      sticker: "🎈",
+      actividad: { tipo: "globos", palabra: "SIEMPRE" }
+    },
     "2026-08-24": {
-      mensaje: "Lunes. Nadie merece un lunes. Tomá, para amortiguar:",
-      actividad: { tipo: "cupon", texto: "Válido por un masaje de 10 minutos sin quejarme ni una vez" }
+      mensaje: "Lunes. La Temporada 2 incluye cobertura total anti-lunes:",
+      sticker: "🍦",
+      actividad: { tipo: "cupon", texto: "Vale por un helado de dos gustos. Yo invito y no opino de tu elección (me va a costar muchísimo)." }
     },
     "2026-08-25": {
-      tema: { fondo: "#EAF2F8", acento: "#3E7CB1" },
-      escribir: true,
-      mensaje: "Hoy la app está en modo día despejado, como me quedo yo cuando te veo. Sí, fue cursi. No lo pienso borrar.",
-      actividad: { tipo: "mision", texto: "Contame algo que nunca me hayas contado. Lo que sea. Te escucho." }
+      modo: "arcade",
+      sellado: true,
+      mensaje: "JUEGO NUEVO DESBLOQUEADO. Sí, la estrellita voladora sos vos. Sí, los obstáculos los puse yo. No, no me arrepiento de nada. Te amo.",
+      sticker: "🕹️",
+      actividad: { tipo: "flappy", objetivo: 10 }
     },
     "2026-08-26": {
-      mensaje: "Pregunta seria hoy. Concentrate.",
-      // CAMBIÁ los emojis y opciones por una peli/serie de ustedes
-      actividad: { tipo: "emojis", emojis: "🕷️🧑🏙️",
-        opciones: ["Spiderman", "Batman", "Superman"],
-        respuesta: 1,
-        acierto: "Obvio, la vimos juntos.",
-        error: "¿Batman con telarañas? No, mi amor." }
+      sellado: true,
+      mensaje: "Aprobaste el examen más importante de tu carrera académica: Nosotros I. Igual ya sabía que aprobabas, venís cursando la materia hace 99 meses (dato que va a ser importante en 48 horas).",
+      sticker: "🧠",
+      actividad: { tipo: "quiz", minimo: 2, preguntas: [
+        { pregunta: "¿Qué fecha es LA fecha?", opciones: ["28 de mayo", "25 de mayo", "28 de marzo"], respuesta: 1 },
+        { pregunta: "¿Dónde fuimos al cine juntos por primera vez?", opciones: ["Dot", "Unicenter", "Norcenter"], respuesta: 2 },
+        { pregunta: "¿Cuál de estos NO es un apodo tuyo?", opciones: ["Popi", "Pulga", "Cacahuate"], respuesta: 3 }
+      ] }
     },
     "2026-08-27": {
+      modo: "papel",
       sellado: true,
-      mensaje: "Mañana es 28… y los 28 son nuestros. Andá calentando.",
-      actividad: { tipo: "sopa", palabras: ["VEINTIOCHO","NUESTRO","FECHA","SIEMPRE"] }
+      mensaje: "Encontraste todas las palabras, así que ya sabés de qué se trata: mañana no es un día cualquiera. Dormí bien que mañana hay fiesta en la app.",
+      sticker: "🔍",
+      actividad: { tipo: "sopa", palabras: ["NOVENTA", "NUEVE", "MESES", "FIESTA", "MAÑANA"] }
     },
     "2026-08-28": {
       nombre: "mi amor",
-      mensaje: "Hoy cumplimos 99 MESES juntos. Noventa y nueve. El mes que viene son 100 y pienso hacer un escándalo. Gracias por cada uno.",
-      actividad: { tipo: "rascar", premio: "99 meses ✦ y los que faltan, que son todos" }
+      escribir: true,
+      tema: { fondo: "#1A1206", acento: "#F2C14E" },
+      mensaje: "99 meses. NOVENTA Y NUEVE. Estamos a un mes exacto del escándalo de los 100 que te prometí (sigue en pie, ya estoy organizando). Gracias por cada uno de los 99: los de cine, los de sushi, los de aeropuerto y los de no hacer nada, que son mis favoritos. Te amo.",
+      sticker: "💛",
+      actividad: { tipo: "rascar", premio: "99 meses ✦ y contando. El mes que viene: tres cifras y escándalo prometido." }
     },
     "2026-08-29": {
-      mensaje: "Sábado. Hoy el poder es tuyo.",
-      actividad: { tipo: "reaccion" }
+      mensaje: "Sábado. La ruleta de la Temporada 2 gira con tecnología de última generación (la misma de antes) y su decisión es inapelable. Reclamos: a la gerencia (yo), que acepta sobornos (besos).",
+      sticker: "🎡",
+      actividad: { tipo: "ruleta", titulo: "Plan del finde",
+        opciones: ["Maratón + pochoclos", "Caminata + helado", "Peli que elegís vos", "Peli que elijo yo (perdón)"] }
     },
-    "2026-08-19": {
-      escribir: true,
+    "2026-08-30": {
       sellado: true,
-      mensaje: "Te escribo esta carta, bueno este mensaje (al menos no en una servilleta) para decirte que te amo y que oficialmente queda menos de una semana para irnos de vacacionessss.",
-      actividad: { tipo: "memoria", emojis: ["💫","🎁","🌙","⭐","🎬","🧸"] }
+      mensaje: "Domingo de recuerdos: armaste la foto, desbloqueaste el mimo. Esa tarde la tengo guardada acá arriba (señalo mi cabeza) y ahora también acá (señalo la app).",
+      sticker: "🧩",
+      actividad: { tipo: "fotopuzzle", archivo: "recuerdo16.jpeg", columnas: 4, filas: 4 }
+    },
+    "2026-08-31": {
+      sellado: true,
+      mensaje: "Último día de agosto y lo cerraste sumando corazones, que es exactamente como venimos cerrando todos los meses desde 2018. Mañana arranca septiembre y la app tiene planes.",
+      sticker: "💞",
+      actividad: { tipo: "dosmil", objetivo: 128 }
+    },
+    "2026-09-01": {
+      modo: "jardin",
+      mensaje: "Septiembre = mes de la primavera = la app se llenó de flores y no pienso disculparme. Juntá el ramo de hoy, que es todo tuyo.",
+      sticker: "🌸",
+      actividad: { tipo: "atrapar", emoji: "🌸", titulo: "flores", objetivo: 14 }
+    },
+    "2026-09-02": {
+      sellado: true,
+      mensaje: "CASPER… qué palabra tan misteriosa, quién sabe de dónde habrá salido. Te amo, fantasmita.",
+      sticker: "👻",
+      actividad: { tipo: "wordle", palabra: "CASPER", intentos: 6 }
+    },
+    "2026-09-03": {
+      mensaje: "Qué memoria la tuya. Yo en cambio me olvido de todo… menos de vos, de nuestra fecha, de tus apodos y de cada plan juntos. Bueno, parece que solo me olvido de las cosas que no importan.",
+      sticker: "🎴",
+      actividad: { tipo: "memoria", emojis: ["🦜", "🌸", "🍣", "🎬", "🧸", "🎧", "⭐", "🍕"] }
+    },
+    "2026-09-04": {
+      modo: "arcade",
+      sellado: true,
+      mensaje: "Viernes de arcade. La estrellita corre y salta sin cansarse, igual que yo cuando te estoy por contar algo que me emociona. Te amo.",
+      sticker: "⚡",
+      actividad: { tipo: "runner", objetivo: 12 }
+    },
+    "2026-09-05": {
+      mensaje: "Sábado. Misión de campo, nivel: fácil pero obligatoria.",
+      sticker: "📷",
+      actividad: { tipo: "mision", texto: "Mandame AHORA una foto de exactamente lo que estás viendo. Literal. Levantá el teléfono y foto. Sin producción, sin ángulo bueno. Quiero ver tu ahora." }
+    },
+    "2026-09-06": {
+      mensaje: "Domingo tranqui, puzzle tranqui. Otra joyita del archivo de nosotros.",
+      sticker: "🖼️",
+      actividad: { tipo: "deslizante", archivo: "recuerdo23.jpg", tam: 3 }
+    },
+    "2026-09-07": {
+      mensaje: "Lunes otra vez (¿quién los autoriza? ¿por qué son semanales?). Tomá, para el trámite:",
+      sticker: "🍣",
+      actividad: { tipo: "cupon", texto: "Vale por una noche de sushi + serie con los dos celulares en modo avión. Canjeable cuando digas." }
+    },
+    "2026-09-08": {
+      sellado: true,
+      mensaje: "Le ganaste a mi número secreto. Era esperable: me conocés hasta los números. Te amo.",
+      sticker: "🎲",
+      actividad: { tipo: "numero", max: 100, intentos: 7 }
+    },
+    "2026-09-09": {
+      mensaje: "Día 9 del mes 9. Dejando la numerología de lado, pregunta seria:",
+      sticker: "🌺",
+      actividad: { tipo: "emojis", emojis: "👽🌺🏄‍♀️",
+        opciones: ["Lilo & Stitch", "Avatar", "Moana"],
+        respuesta: 1,
+        acierto: "Ohana significa familia. Y familia significa que nadie se queda atrás.",
+        error: "¿Un Na'vi surfeando? No, mi amor." }
+    },
+    "2026-09-10": {
+      sellado: true,
+      mensaje: "La caja se abrió porque vos también sabés el número mágico. I love you 3000. Y los que se sigan sumando, que el contador no para.",
+      sticker: "🔐",
+      actividad: { tipo: "cajafuerte", codigo: "3000", pista: "I love you ____ (lo festejamos hace poquito)" }
+    },
+    "2026-09-11": {
+      mensaje: "Viernes de revancha oficial: piedra, papel o tijera, al mejor de 5. Si me ganás, esta noche elegís vos la peli. Si te gano… también elegís vos, no soy tonto.",
+      sticker: "✂️",
+      actividad: { tipo: "ppt", rondas: 5 }
+    },
+    "2026-09-12": {
+      modo: "arcade",
+      sellado: true,
+      mensaje: "Rompiste todos los bloques. Así, exactamente así, me rompiste todos los esquemas en 2018. Te amo.",
+      sticker: "🧱",
+      actividad: { tipo: "breakout", vidas: 3 }
+    },
+    "2026-09-13": {
+      sellado: true,
+      mensaje: "La víbora volvió con más hambre y vos volviste a ganarle. Domingo perfecto: vos, yo y veinte manzanas digitales.",
+      sticker: "🐍",
+      actividad: { tipo: "snake", objetivo: 20, sonido: "comer.m4a" }
+    },
+    "2026-09-14": {
+      mensaje: "Comunicado urgente de la gerencia:",
+      sticker: "🍿",
+      actividad: { tipo: "rascar", premio: "SPOILER: mañana es el gran final de la Temporada 2. Vení con cinco minutos libres y el corazón preparado." }
+    },
+    "2026-09-15": {
+      escribir: true,
+      mensaje: "Fin de la Temporada 2. Veinticinco días, veinticinco estrellas, y las juntaste todas vos… aunque acá entre nosotros, la colección importante la venimos armando desde el 28 de mayo de 2018. Gracias por jugar conmigo, acá y en todos lados. Y esto no termina: en trece días festejamos 100 MESES, y ya sabés que prometí escándalo. Te amo.",
+      sticker: "👑",
+      actividad: { tipo: "gala" }
     }
   }
 };
@@ -1076,6 +1228,192 @@ body.fiesta .counter{border-color:var(--acc-soft)}
   font-family:var(--serif);font-style:italic;font-size:1rem;
   animation:tw 2.8s ease-in-out infinite;
 }
+
+/* ================== TEMPORADA 2 ================== */
+.season{margin-top:14px}
+.season-label{
+  font-size:.64rem;font-weight:800;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--acc);margin-bottom:6px;
+}
+.season-bar{
+  height:6px;border-radius:999px;background:var(--key);
+  border:1px solid var(--card-border);overflow:hidden;max-width:230px;margin:0 auto;
+}
+.season-bar i{
+  display:block;height:100%;border-radius:999px;background:var(--acc);
+  box-shadow:0 0 10px var(--acc-soft);transition:width .8s ease;
+}
+.pills{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.pill{
+  border:1px solid var(--card-border);background:var(--key);color:var(--ink);
+  font-family:var(--sans);font-weight:700;font-size:.74rem;letter-spacing:.04em;
+  border-radius:999px;padding:7px 14px;cursor:pointer;
+}
+.pill b{color:var(--acc)}
+.pill:active{transform:scale(.95)}
+
+/* modales (colección + archivo de cartas) */
+.modal{
+  position:fixed;inset:0;z-index:300;display:none;
+  align-items:flex-end;justify-content:center;
+  background:rgba(8,6,4,.72);
+}
+.modal.ver{display:flex}
+.modal-card{
+  width:100%;max-width:480px;max-height:78dvh;overflow-y:auto;
+  background:var(--paper);color:var(--paper-ink);
+  border-radius:22px 22px 0 0;padding:22px 20px calc(env(safe-area-inset-bottom) + 26px);
+  animation:subirModal .3s ease;
+}
+@keyframes subirModal{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.modal-card h3{
+  font-family:var(--serif);font-weight:600;font-size:1.4rem;text-align:center;
+}
+.modal-card .sub{
+  text-align:center;color:var(--paper-soft);font-size:.8rem;font-weight:600;
+  margin:4px 0 16px;letter-spacing:.04em;
+}
+.stk-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.stk{
+  aspect-ratio:1;border-radius:14px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;
+  background:rgba(46,36,24,.05);border:1px solid rgba(46,36,24,.14);
+}
+.stk span{font-size:1.5rem}
+.stk small{font-size:.52rem;font-weight:700;color:var(--paper-soft);letter-spacing:.02em}
+.stk.on{background:rgba(228,183,91,.16);border-color:rgba(228,183,91,.55);animation:stkPop .3s ease}
+.stk.off span{opacity:.28;filter:grayscale(1)}
+.stk.hoy{border-style:dashed;border-color:var(--paper-soft)}
+@keyframes stkPop{from{transform:scale(.6)}to{transform:scale(1)}}
+.cartas-lista{display:flex;flex-direction:column;gap:14px}
+.carta-item{border-left:2px solid rgba(163,74,42,.4);padding-left:12px}
+.carta-item .cfecha{
+  font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--paper-soft);margin-bottom:3px;
+}
+.carta-item .ctxt{
+  font-family:var(--serif);font-style:italic;font-size:1.02rem;line-height:1.45;
+}
+.modal-cerrar{
+  display:block;margin:18px auto 0;border:none;background:var(--paper-ink);
+  color:var(--paper);font-family:var(--sans);font-weight:700;font-size:.82rem;
+  padding:10px 26px;border-radius:999px;cursor:pointer;
+}
+
+/* toast de sticker nuevo */
+.toast{
+  position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 22px);
+  transform:translateX(-50%) translateY(90px);z-index:400;
+  background:var(--paper);color:var(--paper-ink);border-radius:999px;
+  padding:11px 20px;font-weight:700;font-size:.88rem;white-space:nowrap;
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
+  transition:transform .45s cubic-bezier(.2,.9,.3,1.2);
+  display:flex;align-items:center;gap:8px;
+}
+.toast.ver{transform:translateX(-50%) translateY(0)}
+.toast span{font-size:1.3rem}
+
+/* chispas al abrir el sobre */
+.env-burst{
+  position:absolute;color:var(--acc);font-size:.85rem;pointer-events:none;
+  animation:burst .7s ease-out forwards;
+}
+@keyframes burst{
+  0%{opacity:1;transform:translate(0,0) scale(.6)}
+  100%{opacity:0;transform:translate(var(--bx),var(--by)) scale(1.2)}
+}
+
+/* sello de lacre en la carta */
+.letter::after{
+  content:"✦";position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  width:30px;height:30px;border-radius:50%;
+  background:var(--acc);color:var(--paper);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;box-shadow:0 3px 8px rgba(0,0,0,.3);
+}
+
+/* ================== MODO JARDÍN (primavera) ================== */
+body.modo-jardin{
+  --acc:#C2557B; --acc-soft:rgba(194,85,123,.28);
+  --ink:#2C3A26; --ink-soft:rgba(44,58,38,.58);
+  --card:rgba(255,255,255,.75); --card-border:rgba(44,58,38,.16);
+  --key:rgba(44,58,38,.06);
+  --paper:#FFFDF6; --paper-ink:#2C3A26; --paper-soft:#7A9464;
+  background:#EAF2E0!important;
+  background-image:linear-gradient(180deg,#DCEBC8 0%,#EFF5E4 55%,#FBF8EE 100%)!important;
+}
+body.modo-jardin #sky{display:none}
+body.modo-jardin .box{backdrop-filter:blur(8px);box-shadow:0 10px 26px rgba(122,148,100,.2)}
+body.modo-jardin .letter{box-shadow:0 12px 30px rgba(122,148,100,.25)}
+body.modo-jardin header h1{color:#4C6B3C}
+.flor{
+  position:fixed;z-index:-1;pointer-events:none;opacity:.9;
+  animation:caerFlor linear infinite;
+}
+@keyframes caerFlor{
+  from{transform:translateY(-8vh) rotate(0deg)}
+  to{transform:translateY(108vh) rotate(340deg)}
+}
+
+/* ================== JUEGOS TEMPORADA 2 ================== */
+/* constelación */
+#constCanvas{width:100%;max-width:320px;border-radius:14px;display:block;margin:0 auto;touch-action:manipulation}
+/* globos */
+#globosZona{
+  position:relative;height:300px;border:1px solid var(--card-border);
+  border-radius:14px;background:rgba(0,0,0,.12);overflow:hidden;margin:8px 0;
+}
+.globo{
+  position:absolute;font-size:2.5rem;cursor:pointer;user-select:none;
+  animation:globoFlota 3s ease-in-out infinite;padding:4px;line-height:1;
+  transition:transform .1s ease;
+}
+.globo:active{transform:scale(1.2)}
+@keyframes globoFlota{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.globo-pop{animation:globoPop .28s ease forwards!important}
+@keyframes globoPop{40%{transform:scale(1.5);opacity:1}100%{transform:scale(.1);opacity:0}}
+.globos-slots{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+/* (los casilleros reusan .caja-dig) */
+/* flappy + runner + breakout: canvas estilo snake */
+#flapCanvas,#runCanvas,#brkCanvas{
+  width:100%;max-width:320px;border-radius:14px;background:rgba(0,0,0,.22);
+  border:1px solid var(--card-border);touch-action:none;display:block;margin:0 auto;
+}
+/* dosmil (2048 de corazones) */
+#dmGrid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
+  max-width:300px;margin:8px auto;touch-action:none;
+}
+.dm-cel{
+  aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:0;
+  background:var(--key);border:1px solid var(--card-border);
+  font-weight:800;transition:transform .1s ease;
+}
+.dm-cel span{font-size:1.35rem;line-height:1.1}
+.dm-cel b{font-size:.72rem;opacity:.75}
+.dm-cel.nuevo{animation:stkPop .18s ease}
+/* gala final */
+.gala-escena{
+  position:relative;min-height:74dvh;
+}
+.gala-star{
+  position:absolute;cursor:default;user-select:none;line-height:1;
+  transition:left 2.2s cubic-bezier(.25,.8,.3,1), top 2.2s cubic-bezier(.25,.8,.3,1);
+  filter:drop-shadow(0 0 8px var(--acc-soft));
+  animation:tw 3.4s ease-in-out infinite;
+}
+.gala-titulo{
+  text-align:center;padding-top:8px;
+  font-family:var(--serif);font-weight:600;font-size:1.7rem;color:var(--acc);
+  text-shadow:0 0 18px var(--acc-soft);
+}
+.gala-sub{
+  text-align:center;color:var(--ink-soft);font-family:var(--serif);
+  font-style:italic;font-size:.95rem;margin-top:4px;
+}
+.gala-btn-zona{text-align:center;position:absolute;left:0;right:0;bottom:4dvh}
+
 </style>
 </head>
 <body>
@@ -1091,6 +1429,14 @@ body.fiesta .counter{border-color:var(--acc-soft)}
       <span class="counter" id="countdown" style="display:none"></span>
     </div>
     <div class="fiesta-badge" id="fiestaBadge" style="display:none">✦ hoy es un día especial ✦</div>
+    <div class="season" id="season" style="display:none">
+      <div class="season-label" id="seasonLabel"></div>
+      <div class="season-bar"><i id="seasonFill"></i></div>
+    </div>
+    <div class="pills" id="pills" style="display:none">
+      <button class="pill" id="btnStickers">✦ stickers <b id="stkCount"></b></button>
+      <button class="pill" id="btnCartas">✉ cartas viejas</button>
+    </div>
   </header>
 
   <div class="envelope-wrap" id="envWrap">
@@ -1108,13 +1454,36 @@ body.fiesta .counter{border-color:var(--acc-soft)}
 
 </div>
 
+<div class="modal" id="modalStk">
+  <div class="modal-card">
+    <h3>Tu colección</h3>
+    <div class="sub" id="stkSub"></div>
+    <div class="stk-grid" id="stkGrid"></div>
+    <button class="modal-cerrar" data-cierra="modalStk">Listo</button>
+  </div>
+</div>
+<div class="modal" id="modalCartas">
+  <div class="modal-card">
+    <h3>Cartas viejas</h3>
+    <div class="sub">todo lo que ya te escribí, por si querés releer</div>
+    <div class="cartas-lista" id="cartasLista"></div>
+    <button class="modal-cerrar" data-cierra="modalCartas">Listo</button>
+  </div>
+</div>
+<div class="toast" id="toast" style="display:none"><span id="toastEmoji"></span><span id="toastTxt" style="font-size:.88rem"></span></div>
+
 <script>
 /* ---------- utilidades ---------- */
 function fechaHoy(){
+  try{
+    const q=new URLSearchParams(location.search).get("fecha");
+    if(q && /^\d{4}-\d{2}-\d{2}$/.test(q)) return q;
+  }catch(e){}
   const d=new Date();
   const p=n=>String(n).padStart(2,"0");
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
 }
+function fechaHoyDate(){ return new Date(fechaHoy()+"T00:00:00"); }
 function ytId(url){
   if(!url) return "";
   if(/^[\w-]{11}$/.test(url)) return url;
@@ -1190,10 +1559,10 @@ const CAOS=(function(){
 
 /* ---------- encabezado ---------- */
 document.getElementById("fecha").textContent =
-  new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+  fechaHoyDate().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
 
 if(CONFIG.aniversario){
-  const dias=Math.max(0,Math.floor((new Date() - new Date(CONFIG.aniversario+"T00:00:00"))/86400000));
+  const dias=Math.max(0,Math.floor((fechaHoyDate() - new Date(CONFIG.aniversario+"T00:00:00"))/86400000));
   document.getElementById("dias").textContent=dias;
   document.getElementById("counter").style.display="inline-block";
 }
@@ -1208,7 +1577,7 @@ document.getElementById("saludo").textContent = "Hola, " + (diaHoy.nombre || CON
 document.getElementById("letterFirma").textContent = diaHoy.firma || CONFIG.firma || "— para vos";
 
 /* modo radical del día (terminal / papel / arcade / cielo) */
-const MODOS={terminal:true, papel:false, arcade:true, cielo:false};
+const MODOS={terminal:true, papel:false, arcade:true, cielo:false, jardin:false};
 const modoHoy = diaHoy.modo && (diaHoy.modo in MODOS) ? diaHoy.modo : null;
 if(modoHoy){
   document.body.classList.add("modo-"+modoHoy);
@@ -1222,6 +1591,19 @@ if(modoHoy){
       n.style.fontSize=(1.6+Math.random()*2.2)+"rem";
       n.style.animationDuration=(46+Math.random()*50)+"s";
       n.style.animationDelay=(-Math.random()*60)+"s";
+      document.body.appendChild(n);
+    }
+  }
+  if(modoHoy==="jardin"){
+    const petalos=["🌸","🌼","🌷","🌺","🍃"];
+    for(let i=0;i<10;i++){
+      const n=document.createElement("span");
+      n.className="flor";
+      n.textContent=petalos[i%petalos.length];
+      n.style.left=(Math.random()*96)+"%";
+      n.style.fontSize=(.8+Math.random()*1.1)+"rem";
+      n.style.animationDuration=(14+Math.random()*18)+"s";
+      n.style.animationDelay=(-Math.random()*25)+"s";
       document.body.appendChild(n);
     }
   }
@@ -1269,7 +1651,7 @@ if(CAOS.activo && !modoHoy){
 }
 
 const act=diaHoy.actividad;
-const puedeSellar = act && ["ahorcado","sopa","trivia","memoria","ruleta","rascar","simon","atrapar","puzzle","ppt","mentira","crucigrama","adivinanza","emojis","orden","numero","reaccion","topo","cajafuerte","verdadfalso","intruso","wordle","nexos","snake","fotopuzzle","deslizante"].includes(act.tipo);
+const puedeSellar = act && ["ahorcado","sopa","trivia","memoria","ruleta","rascar","simon","atrapar","puzzle","ppt","mentira","crucigrama","adivinanza","emojis","orden","numero","reaccion","topo","cajafuerte","verdadfalso","intruso","wordle","nexos","snake","fotopuzzle","deslizante","quiz","constelacion","globos","flappy","runner","breakout","dosmil"].includes(act.tipo);
 let sellado = diaHoy.sellado===true && puedeSellar && leer("sello-"+fechaHoy())!=="abierto";
 let cartaTipeada = false;
 
@@ -1304,14 +1686,34 @@ document.getElementById("envelope").addEventListener("click",()=>{
   const l=document.getElementById("letter");
   const abrir = l.style.display!=="block";
   l.style.display = abrir ? "block" : "none";
-  if(abrir) tipearCarta();
+  if(abrir){
+    tipearCarta();
+    const wrap=document.getElementById("envWrap");
+    for(let i=0;i<8;i++){
+      const s=document.createElement("span");
+      s.className="env-burst";
+      s.textContent=Math.random()<0.5?"✦":"★";
+      const ang=Math.random()*Math.PI*2, dist=34+Math.random()*40;
+      s.style.left="50%"; s.style.top="42%";
+      s.style.setProperty("--bx",(Math.cos(ang)*dist)+"px");
+      s.style.setProperty("--by",(Math.sin(ang)*dist)+"px");
+      wrap.appendChild(s);
+      setTimeout(()=>s.remove(),750);
+    }
+    /* días sin juego (cupón, misión, foto, video, audio o nada):
+       abrir la carta ya completa el día y suma el sticker */
+    const t=act && act.tipo;
+    if(!t || ["cupon","mision","foto","video","audio"].includes(t)){
+      try{ otorgarSticker(); }catch(e){}
+    }
+  }
 });
 
 /* ---------- cuenta regresiva ---------- */
 (function(){
   const ev=CONFIG.proximoEvento;
   if(!ev || !ev.fecha) return;
-  const n=Math.ceil((new Date(ev.fecha+"T00:00:00") - new Date())/86400000);
+  const n=Math.round((new Date(ev.fecha+"T00:00:00") - fechaHoyDate())/86400000);
   if(n<0) return;
   const cd=document.getElementById("countdown");
   cd.textContent = n===0 ? "¡hoy es el día!" :
@@ -1358,6 +1760,7 @@ function confetti(){
 }
 function celebrar(){
   confetti();
+  try{ otorgarSticker(); }catch(e){}
   try{ const au=new Audio(rutaAudio("win.wav")); au.volume=0.5; au.play().catch(()=>{}); }catch(e){}
   if(sellado){
     sellado=false;
@@ -1369,6 +1772,140 @@ function celebrar(){
     if(l.scrollIntoView) l.scrollIntoView({behavior:"smooth",block:"center"});
   }
 }
+
+/* ---------- TEMPORADA 2: stickers y colección ---------- */
+const T2=CONFIG.temporada||{};
+function enTemporada(f){ return T2.activo!==false && T2.inicio && T2.fin && f>=T2.inicio && f<=T2.fin; }
+function fechasTemporada(){
+  const out=[];
+  if(!T2.inicio||!T2.fin) return out;
+  const d=new Date(T2.inicio+"T00:00:00"), fin=new Date(T2.fin+"T00:00:00");
+  const p=n=>String(n).padStart(2,"0");
+  while(d<=fin){
+    out.push(`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`);
+    d.setDate(d.getDate()+1);
+  }
+  return out;
+}
+function stickersGanados(){
+  return fechasTemporada().filter(f=>leer("stk-"+f)).length;
+}
+function diaTemporada(){
+  if(!enTemporada(fechaHoy())) return 0;
+  return Math.round((fechaHoyDate()-new Date(T2.inicio+"T00:00:00"))/86400000)+1;
+}
+function pintarSeason(){
+  const total=fechasTemporada().length;
+  if(!total) return;
+  const hoyEn=enTemporada(fechaHoy());
+  const n=stickersGanados();
+  document.getElementById("stkCount").textContent=n;
+  document.getElementById("pills").style.display="flex";
+  if(hoyEn){
+    const s=document.getElementById("season");
+    s.style.display="block";
+    document.getElementById("seasonLabel").textContent=
+      `${T2.nombre||"Temporada"} · día ${diaTemporada()} de ${total}`;
+    document.getElementById("seasonFill").style.width=
+      Math.round(diaTemporada()/total*100)+"%";
+  }
+}
+function toastSticker(emoji){
+  const t=document.getElementById("toast");
+  document.getElementById("toastEmoji").textContent=emoji;
+  document.getElementById("toastTxt").textContent=
+    `¡Sticker nuevo! Van ${stickersGanados()} de ${fechasTemporada().length}`;
+  t.style.display="flex";
+  requestAnimationFrame(()=>t.classList.add("ver"));
+  setTimeout(()=>{ t.classList.remove("ver"); },3400);
+}
+function otorgarSticker(){
+  if(!enTemporada(fechaHoy())) return;
+  if(leer("stk-"+fechaHoy())) return;
+  const e=diaHoy.sticker||"⭐";
+  guardar("stk-"+fechaHoy(),e);
+  pintarSeason();
+  setTimeout(()=>toastSticker(e),600);
+}
+/* modal colección */
+function pintarColeccion(){
+  const g=document.getElementById("stkGrid");
+  g.innerHTML="";
+  const fechas=fechasTemporada(), hoy=fechaHoy();
+  document.getElementById("stkSub").textContent=
+    `${stickersGanados()} de ${fechas.length} stickers`;
+  fechas.forEach(f=>{
+    const e=leer("stk-"+f);
+    const d=document.createElement("div");
+    const lbl=f.slice(8,10).replace(/^0/,"")+"/"+f.slice(5,7).replace(/^0/,"");
+    if(e){ d.className="stk on"; d.innerHTML=`<span>${e}</span><small>${lbl}</small>`; }
+    else if(f<hoy){ d.className="stk off"; d.innerHTML=`<span>✦</span><small>${lbl}</small>`; }
+    else if(f===hoy){ d.className="stk hoy"; d.innerHTML=`<span>?</span><small>hoy</small>`; }
+    else { d.className="stk"; d.innerHTML=`<span>·</span><small>${lbl}</small>`; }
+    g.appendChild(d);
+  });
+}
+/* modal cartas viejas (solo días ya pasados) */
+function pintarCartas(){
+  const l=document.getElementById("cartasLista");
+  l.innerHTML="";
+  const hoy=fechaHoy();
+  Object.keys(CONFIG.dias).filter(f=>f<hoy && CONFIG.dias[f].mensaje)
+    .sort().reverse().forEach(f=>{
+      const d=CONFIG.dias[f];
+      const it=document.createElement("div");
+      it.className="carta-item";
+      const ff=new Date(f+"T00:00:00")
+        .toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+      it.innerHTML=`<div class="cfecha">${ff}</div><div class="ctxt"></div>`;
+      it.querySelector(".ctxt").textContent=d.mensaje;
+      l.appendChild(it);
+    });
+}
+function abrirModal(id){
+  const m=document.getElementById(id);
+  m.classList.add("ver");
+  const c=m.querySelector(".modal-card");
+  if(c) c.scrollTop=0;
+}
+document.getElementById("btnStickers").addEventListener("click",()=>{
+  pintarColeccion();
+  abrirModal("modalStk");
+});
+document.getElementById("btnCartas").addEventListener("click",()=>{
+  pintarCartas();
+  abrirModal("modalCartas");
+});
+document.querySelectorAll(".modal").forEach(m=>{
+  m.addEventListener("click",e=>{ if(e.target===m) m.classList.remove("ver"); });
+});
+document.querySelectorAll(".modal-cerrar").forEach(b=>{
+  b.addEventListener("click",()=>document.getElementById(b.dataset.cierra).classList.remove("ver"));
+});
+pintarSeason();
+
+/* contador que cicla: días → meses → semanas */
+(function(){
+  const c=document.getElementById("counter");
+  if(!c || !CONFIG.aniversario) return;
+  const ini=new Date(CONFIG.aniversario+"T00:00:00");
+  const dias=Math.max(0,Math.floor((fechaHoyDate()-ini)/86400000));
+  const hoy=fechaHoyDate();
+  let meses=(hoy.getFullYear()-ini.getFullYear())*12+(hoy.getMonth()-ini.getMonth());
+  if(hoy.getDate()<ini.getDate()) meses--;
+  const vistas=[
+    `<b>${dias}</b>&nbsp;días juntos`,
+    `<b>${meses}</b>&nbsp;meses juntos`,
+    `<b>${Math.floor(dias/7)}</b>&nbsp;semanas juntos`,
+    `<b>∞</b>&nbsp;mimos juntos`
+  ];
+  let v=0;
+  c.style.cursor="pointer";
+  c.addEventListener("click",()=>{
+    v=(v+1)%vistas.length;
+    c.innerHTML=vistas[v];
+  });
+})();
 
 /* ---------- actividad del día ---------- */
 const cont=document.getElementById("actividad");
@@ -1405,6 +1942,19 @@ if(act && act.tipo){
   if(act.tipo==="snake") montarSnake(act);
   if(act.tipo==="fotopuzzle") montarFotoPuzzle(act);
   if(act.tipo==="deslizante") montarDeslizante(act);
+  if(act.tipo==="quiz") montarQuiz(act);
+  if(act.tipo==="constelacion") montarConstelacion(act);
+  if(act.tipo==="globos") montarGlobos(act);
+  if(act.tipo==="flappy") montarFlappy(act);
+  if(act.tipo==="runner") montarRunner(act);
+  if(act.tipo==="breakout") montarBreakout(act);
+  if(act.tipo==="dosmil") montarDosmil(act);
+  if(act.tipo==="gala"){
+    document.getElementById("envWrap").style.display="none";
+    document.getElementById("letter").style.display="none";
+    document.getElementById("actLabel").style.display="none";
+    montarGala(act);
+  }
   if(act.tipo==="loro"){
     // día del loro: desaparecen el sobre, la carta y el "hoy toca"
     document.getElementById("envWrap").style.display="none";
@@ -1723,9 +2273,10 @@ function montarSimon(a){
 function montarAtrapar(a){
   const META=Math.max(3,parseInt(a.objetivo,10)||12);
   const DUR=30;
+  const EMO=a.emoji||"⭐", EMO2=a.emoji?a.emoji:"🌟";
   cont.innerHTML=`
     <div class="box">
-      <div class="atrapar-hud"><span id="atPts">⭐ 0 / ${META}</span><span id="atTiempo">${DUR}s</span></div>
+      <div class="atrapar-hud"><span id="atPts">${EMO} 0 / ${META}</span><span id="atTiempo">${DUR}s</span></div>
       <div id="atraparZona"></div>
       <div class="result" id="atResult"></div>
       <button class="btn" id="atBtn">Jugar</button>
@@ -1736,7 +2287,7 @@ function montarAtrapar(a){
   function terminar(win){
     limpiar();
     const r=document.getElementById("atResult");
-    r.textContent = win ? `¡${pts} estrellas! Manos rápidas.` : `${pts} de ${META}… casi. Otra vez.`;
+    r.textContent = win ? `¡${pts} ${a.titulo||"estrellas"}! Manos rápidas.` : `${pts} de ${META}… casi. Otra vez.`;
     r.className="result "+(win?"ok":"bad");
     if(win) celebrar();
     else { const b=document.getElementById("atBtn"); b.style.display="inline-block"; b.textContent="Reintentar"; }
@@ -1745,14 +2296,14 @@ function montarAtrapar(a){
   function tirarEstrella(){
     const s=document.createElement("span");
     s.className="atrapar-star";
-    s.textContent=Math.random()<0.18?"🌟":"⭐";
+    s.textContent=Math.random()<0.18?EMO2:EMO;
     s.style.left=(4+Math.random()*80)+"%";
     s.style.top=(4+Math.random()*78)+"%";
     const cazar=e=>{
       e.preventDefault();
       if(!activo) return;
       pts++; s.remove();
-      document.getElementById("atPts").textContent=`⭐ ${pts} / ${META}`;
+      document.getElementById("atPts").textContent=`${EMO} ${pts} / ${META}`;
       if(pts>=META) terminar(true);
     };
     s.addEventListener("touchstart",cazar,{passive:false});
@@ -1764,7 +2315,7 @@ function montarAtrapar(a){
     this.style.display="none";
     document.getElementById("atResult").textContent="";
     pts=0; resta=DUR; activo=true;
-    document.getElementById("atPts").textContent=`⭐ 0 / ${META}`;
+    document.getElementById("atPts").textContent=`${EMO} 0 / ${META}`;
     document.getElementById("atTiempo").textContent=DUR+"s";
     spawner=setInterval(tirarEstrella,520);
     reloj=setInterval(()=>{
@@ -3532,6 +4083,663 @@ function montarSopa(palabras){
     s.textContent=w; s.id="sw-"+w;
     wl.appendChild(s);
   });
+}
+
+/* ================== JUEGOS TEMPORADA 2 ================== */
+
+/* ===== quiz (varias preguntas seguidas) ===== */
+function montarQuiz(a){
+  const qs=(a.preguntas||[]).slice();
+  if(!qs.length) return;
+  const MIN=Math.min(qs.length, parseInt(a.minimo,10)||qs.length);
+  let idx=0, aciertos=0;
+  function pintar(){
+    const q=qs[idx];
+    cont.innerHTML=`
+      <div class="box" style="text-align:left">
+        <div class="vf-prog" style="margin-bottom:8px">PREGUNTA ${idx+1} / ${qs.length}</div>
+        <div class="trivia-q">${q.pregunta||""}</div>
+        ${(q.opciones||[]).map((o,i)=>`<button class="trivia-op" data-i="${i+1}">${o}</button>`).join("")}
+        <div class="result" id="qzResult" style="text-align:center"></div>
+      </div>`;
+    const correcta=parseInt(q.respuesta,10);
+    document.querySelectorAll("#actividad .trivia-op").forEach(b=>{
+      b.addEventListener("click",()=>{
+        document.querySelectorAll("#actividad .trivia-op").forEach(x=>x.disabled=true);
+        const i=parseInt(b.dataset.i,10);
+        const bOk=document.querySelector(`#actividad .trivia-op[data-i="${correcta}"]`);
+        if(bOk) bOk.classList.add("ok");
+        if(i===correcta) aciertos++;
+        else b.classList.add("bad");
+        setTimeout(()=>{ idx++; idx<qs.length ? pintar() : terminar(); },900);
+      });
+    });
+  }
+  function terminar(){
+    const win=aciertos>=MIN;
+    cont.innerHTML=`
+      <div class="box">
+        <div class="trivia-q" style="text-align:center">${aciertos} de ${qs.length} correctas</div>
+        <div class="result ${win?"ok":"bad"}">${win?"Aprobadísima. Nos conocés.":"Mmm… vamos de nuevo, que esto es importante."}</div>
+        ${win?"":'<button class="btn" id="qzBtn">Reintentar</button>'}
+      </div>`;
+    if(win) celebrar();
+    else document.getElementById("qzBtn").addEventListener("click",()=>{ idx=0; aciertos=0; pintar(); });
+  }
+  pintar();
+  window._dbg=window._dbg||{}; window._dbg.quiz={win:()=>{aciertos=qs.length;terminar();}};
+}
+
+/* ===== constelación (unir estrellas en orden) ===== */
+function montarConstelacion(){
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">uní las estrellas en orden, del 1 en adelante</p>
+      <canvas id="constCanvas" width="300" height="310"></canvas>
+      <div class="result" id="csResult"></div>
+    </div>`;
+  const CV=document.getElementById("constCanvas"), CX=CV.getContext("2d");
+  const N=12, pts=[];
+  for(let i=0;i<N;i++){
+    const t=Math.PI/2 - (i/N)*Math.PI*2;   /* arranca arriba y gira */
+    const x=16*Math.pow(Math.sin(t),3);
+    const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+    pts.push({x:150+x*7.6, y:128-y*7.2});
+  }
+  let prox=0, listo=false, err=0;
+  function dibujar(){
+    CX.clearRect(0,0,300,310);
+    const acc=getComputedStyle(document.documentElement).getPropertyValue("--acc").trim()||"#E4B75B";
+    if(listo){
+      CX.beginPath();
+      pts.forEach((p,i)=> i?CX.lineTo(p.x,p.y):CX.moveTo(p.x,p.y));
+      CX.closePath();
+      CX.fillStyle=acc+"33"; CX.fill();
+    }
+    CX.strokeStyle=acc; CX.lineWidth=2; CX.lineCap="round";
+    CX.beginPath();
+    for(let i=0;i<(listo?N:prox);i++){
+      const p=pts[i];
+      i?CX.lineTo(p.x,p.y):CX.moveTo(p.x,p.y);
+    }
+    if(listo){ CX.closePath(); }
+    CX.stroke();
+    pts.forEach((p,i)=>{
+      const hecho=i<prox||listo;
+      const esProx=!listo&&i===prox;
+      CX.save();
+      if(esProx){
+        const pulso=1+Math.sin(Date.now()/220)*.25;
+        CX.translate(p.x,p.y); CX.scale(pulso,pulso); CX.translate(-p.x,-p.y);
+      }
+      CX.fillStyle = hecho?acc:(err&&esProx?"#DB8A7C":"rgba(255,255,255,.75)");
+      CX.beginPath(); CX.arc(p.x,p.y,hecho?5:4,0,7); CX.fill();
+      CX.restore();
+      if(!listo){
+        CX.fillStyle=hecho?acc:"rgba(255,255,255,.6)";
+        CX.font="bold 10px sans-serif"; CX.textAlign="center";
+        CX.fillText(i+1, p.x, p.y-11);
+      }
+    });
+  }
+  let anim=setInterval(dibujar,90);
+  function ganarC(){
+    listo=true; clearInterval(anim); dibujar();
+    const r=document.getElementById("csResult");
+    r.textContent="Un corazón. Obvio que era un corazón.";
+    r.className="result ok";
+    celebrar();
+  }
+  function tocar(e){
+    if(listo) return;
+    e.preventDefault();
+    const rect=CV.getBoundingClientRect();
+    const t=e.touches?e.touches[0]:e;
+    const x=(t.clientX-rect.left)*(300/rect.width);
+    const y=(t.clientY-rect.top)*(310/rect.height);
+    const p=pts[prox];
+    if(Math.hypot(x-p.x,y-p.y)<26){
+      prox++; err=0;
+      if(prox>=N) ganarC();
+    } else if(pts.some(q=>Math.hypot(x-q.x,y-q.y)<20)){
+      err=1; setTimeout(()=>{err=0;},350);
+    }
+    dibujar();
+  }
+  CV.addEventListener("touchstart",tocar,{passive:false});
+  CV.addEventListener("mousedown",tocar);
+  dibujar();
+  window._dbg=window._dbg||{}; window._dbg.constelacion={win:ganarC};
+}
+
+/* ===== globos (reventar y encontrar las letras) ===== */
+function montarGlobos(a){
+  const palabra=String(a.palabra||"TE AMO").toUpperCase();
+  const letras=palabra.split("").map((ch,i)=>({ch,i})).filter(o=>o.ch!==" ");
+  const decoys=["🎉","✦","🎊","💫","⭐"];
+  const items=letras.map(o=>({tipo:"letra",...o}))
+    .concat(decoys.map(d=>({tipo:"decoy",ch:d})));
+  items.sort(()=>Math.random()-0.5);
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">reventá los globos: adentro hay letras escondidas</p>
+      <div id="globosZona"></div>
+      <div class="globos-slots" id="globosSlots"></div>
+      <div class="result" id="gbResult"></div>
+    </div>`;
+  const slots=document.getElementById("globosSlots");
+  palabra.split("").forEach((ch,i)=>{
+    const d=document.createElement("div");
+    if(ch===" "){ d.style.width="14px"; }
+    else { d.className="caja-dig"; d.id="gslot-"+i; }
+    slots.appendChild(d);
+  });
+  const zona=document.getElementById("globosZona");
+  const tintes=[0,40,90,160,210,280,320];
+  let quedan=letras.length;
+  items.forEach((it,k)=>{
+    const g=document.createElement("span");
+    g.className="globo"; g.textContent="🎈";
+    g.style.filter=`hue-rotate(${tintes[k%tintes.length]}deg)`;
+    g.style.left=(4+(k%4)*24+Math.random()*6)+"%";
+    g.style.top=(4+Math.floor(k/4)*30+Math.random()*8)+"%";
+    g.style.animationDelay=(-Math.random()*3)+"s";
+    const pop=e=>{
+      e.preventDefault();
+      if(g.dataset.pop) return;
+      g.dataset.pop="1";
+      g.classList.add("globo-pop");
+      const chip=document.createElement("span");
+      chip.className="loro-nota";
+      chip.textContent=it.tipo==="letra"?it.ch:it.ch;
+      chip.style.left=g.style.left; chip.style.top=g.style.top;
+      chip.style.fontSize="1.5rem"; chip.style.fontWeight="800";
+      zona.appendChild(chip);
+      setTimeout(()=>chip.remove(),1400);
+      setTimeout(()=>g.remove(),300);
+      if(it.tipo==="letra"){
+        const s=document.getElementById("gslot-"+it.i);
+        if(s){ s.textContent=it.ch; s.classList.add("ok"); }
+        quedan--;
+        if(quedan<=0){
+          const r=document.getElementById("gbResult");
+          r.textContent="La palabra era esa, sí: "+palabra.toLowerCase()+".";
+          r.className="result ok";
+          celebrar();
+        }
+      }
+    };
+    g.addEventListener("touchstart",pop,{passive:false});
+    g.addEventListener("mousedown",pop);
+    zona.appendChild(g);
+  });
+  window._dbg=window._dbg||{}; window._dbg.globos={win:()=>{
+    document.querySelectorAll("#globosZona .globo").forEach(g=>g.dispatchEvent(new Event("mousedown")));
+  }};
+}
+
+/* ===== flappy (la estrellita voladora) ===== */
+function montarFlappy(a){
+  const META=Math.max(3,parseInt(a.objetivo,10)||10);
+  cont.innerHTML=`
+    <div class="box" id="flBox">
+      <div class="atrapar-hud"><span id="flPts">✦ 0 / ${META}</span><span id="flBest"></span></div>
+      <canvas id="flapCanvas" width="300" height="360"></canvas>
+      <p class="note" style="margin-top:10px">tocá el cielo para aletear y pasá entre los aros</p>
+      <div class="result" id="flResult"></div>
+      <button class="btn" id="flBtn">Jugar</button>
+    </div>`;
+  const CV=document.getElementById("flapCanvas"), CX=CV.getContext("2d");
+  const W=300,H=360;
+  let y,vy,tubos,pts,vivo=false,logrado=false,raf=null,frame=0;
+  const best=()=>parseInt(leer("flappy-best")||"0",10);
+  const pintarBest=()=>document.getElementById("flBest").textContent="récord: "+best();
+  pintarBest();
+  function reset(){
+    y=H/2; vy=0; tubos=[]; pts=0; frame=0; logrado=false;
+    document.getElementById("flPts").textContent=`✦ 0 / ${META}`;
+  }
+  function fin(){
+    vivo=false; cancelAnimationFrame(raf);
+    if(pts>best()) guardar("flappy-best",String(pts));
+    pintarBest();
+    const r=document.getElementById("flResult");
+    if(!logrado){ r.textContent=`${pts} de ${META}… la estrellita cree en vos.`; r.className="result bad"; }
+    else { r.textContent=`Fin con ${pts} aros. Vuelo estelar.`; r.className="result ok"; }
+    const b=document.getElementById("flBtn");
+    b.style.display="inline-block"; b.textContent="Jugar de nuevo";
+  }
+  function lograr(){
+    if(logrado) return;
+    logrado=true;
+    const r=document.getElementById("flResult");
+    r.textContent=`¡${META} aros! Objetivo cumplido, seguí por el récord.`;
+    r.className="result ok";
+    celebrar();
+  }
+  function paso(){
+    frame++;
+    vy+=0.42; y+=vy;
+    if(frame%92===1){
+      const gap=118, gy=60+Math.random()*(H-120-gap);
+      tubos.push({x:W+20, gy, gap, w:34, pasado:false});
+    }
+    tubos.forEach(t=>t.x-=2.2);
+    tubos=tubos.filter(t=>t.x>-40);
+    const sx=70, r=13;
+    for(const t of tubos){
+      if(!t.pasado && t.x+t.w<sx){
+        t.pasado=true; pts++;
+        document.getElementById("flPts").textContent=`✦ ${pts} / ${META}`;
+        if(pts>=META) lograr();
+      }
+      if(sx+r>t.x && sx-r<t.x+t.w && (y-r<t.gy || y+r>t.gy+t.gap)) return fin();
+    }
+    if(y+r>H||y-r<0) return fin();
+    const acc=getComputedStyle(document.documentElement).getPropertyValue("--acc").trim()||"#E4B75B";
+    CX.clearRect(0,0,W,H);
+    tubos.forEach(t=>{
+      CX.fillStyle=acc;
+      CX.beginPath();
+      if(CX.roundRect){ CX.roundRect(t.x,0,t.w,t.gy,8); CX.roundRect(t.x,t.gy+t.gap,t.w,H-t.gy-t.gap,8); }
+      else { CX.rect(t.x,0,t.w,t.gy); CX.rect(t.x,t.gy+t.gap,t.w,H-t.gy-t.gap); }
+      CX.fill();
+    });
+    CX.font="26px serif"; CX.textAlign="center"; CX.textBaseline="middle";
+    CX.save();
+    CX.translate(sx,y); CX.rotate(Math.max(-0.4,Math.min(0.6,vy*0.06)));
+    CX.fillText("⭐",0,0);
+    CX.restore();
+    raf=requestAnimationFrame(paso);
+  }
+  function flap(e){
+    if(e){ e.preventDefault(); }
+    if(!vivo) return;
+    vy=-6.4;
+  }
+  CV.addEventListener("touchstart",flap,{passive:false});
+  CV.addEventListener("mousedown",flap);
+  document.getElementById("flBtn").addEventListener("click",function(){
+    this.style.display="none";
+    document.getElementById("flResult").textContent="";
+    reset(); vivo=true; raf=requestAnimationFrame(paso);
+  });
+  reset();
+  CX.font="26px serif"; CX.textAlign="center"; CX.textBaseline="middle";
+  CX.fillText("⭐",70,H/2);
+  window._dbg=window._dbg||{}; window._dbg.flappy={win:lograr};
+}
+
+/* ===== runner (la estrellita corre y salta) ===== */
+function montarRunner(a){
+  const META=Math.max(3,parseInt(a.objetivo,10)||12);
+  cont.innerHTML=`
+    <div class="box" id="runBox">
+      <div class="atrapar-hud"><span id="runPts">🌵 0 / ${META}</span><span id="runBest"></span></div>
+      <canvas id="runCanvas" width="300" height="190"></canvas>
+      <p class="note" style="margin-top:10px">tocá el tablero para saltar los cactus</p>
+      <div class="result" id="runResult"></div>
+      <button class="btn" id="runBtn">Jugar</button>
+    </div>`;
+  const CV=document.getElementById("runCanvas"), CX=CV.getContext("2d");
+  const W=300,H=190,SUELO=158,SX=56;
+  let y,vy,obs,pts,vel,vivo=false,logrado=false,raf=null,frame=0,prox=0;
+  const best=()=>parseInt(leer("runner-best")||"0",10);
+  const pintarBest=()=>document.getElementById("runBest").textContent="récord: "+best();
+  pintarBest();
+  function reset(){
+    y=SUELO; vy=0; obs=[]; pts=0; vel=3; frame=0; prox=50; logrado=false;
+    document.getElementById("runPts").textContent=`🌵 0 / ${META}`;
+  }
+  function fin(){
+    vivo=false; cancelAnimationFrame(raf);
+    if(pts>best()) guardar("runner-best",String(pts));
+    pintarBest();
+    const r=document.getElementById("runResult");
+    if(!logrado){ r.textContent=`${pts} de ${META}… ese cactus jugó sucio.`; r.className="result bad"; }
+    else { r.textContent=`Fin con ${pts} 🌵. Piernas de estrella.`; r.className="result ok"; }
+    const b=document.getElementById("runBtn");
+    b.style.display="inline-block"; b.textContent="Jugar de nuevo";
+  }
+  function lograr(){
+    if(logrado) return;
+    logrado=true;
+    const r=document.getElementById("runResult");
+    r.textContent=`¡${META} cactus saltados! Seguí por el récord.`;
+    r.className="result ok";
+    celebrar();
+  }
+  function paso(){
+    frame++;
+    vy+=0.52; y+=vy;
+    if(y>SUELO){ y=SUELO; vy=0; }
+    if(frame>=prox){
+      obs.push({x:W+16,pasado:false});
+      prox=frame+55+Math.random()*65-Math.min(20,pts);
+    }
+    obs.forEach(o=>o.x-=vel);
+    obs=obs.filter(o=>o.x>-30);
+    vel=3+Math.min(2.4,pts*0.12);
+    for(const o of obs){
+      if(!o.pasado && o.x<SX-16){
+        o.pasado=true; pts++;
+        document.getElementById("runPts").textContent=`🌵 ${pts} / ${META}`;
+        if(pts>=META) lograr();
+      }
+      if(Math.abs(o.x-SX)<20 && y>SUELO-26) return fin();
+    }
+    CX.clearRect(0,0,W,H);
+    CX.strokeStyle="rgba(255,255,255,.35)"; CX.lineWidth=2;
+    CX.beginPath(); CX.moveTo(0,SUELO+16); CX.lineTo(W,SUELO+16); CX.stroke();
+    CX.font="24px serif"; CX.textAlign="center"; CX.textBaseline="middle";
+    obs.forEach(o=>CX.fillText("🌵",o.x,SUELO+2));
+    CX.font="26px serif";
+    CX.fillText("⭐",SX,y-6);
+    raf=requestAnimationFrame(paso);
+  }
+  function saltar(e){
+    if(e){ e.preventDefault(); }
+    if(!vivo) return;
+    if(y>=SUELO) vy=-9.4;
+  }
+  CV.addEventListener("touchstart",saltar,{passive:false});
+  CV.addEventListener("mousedown",saltar);
+  document.getElementById("runBtn").addEventListener("click",function(){
+    this.style.display="none";
+    document.getElementById("runResult").textContent="";
+    reset(); vivo=true; raf=requestAnimationFrame(paso);
+  });
+  reset();
+  CX.font="26px serif"; CX.textAlign="center"; CX.textBaseline="middle";
+  CX.fillText("⭐",SX,SUELO-6);
+  window._dbg=window._dbg||{}; window._dbg.runner={win:lograr};
+}
+
+/* ===== breakout (rompebloques) ===== */
+function montarBreakout(a){
+  const VIDAS=Math.max(1,parseInt(a.vidas,10)||3);
+  cont.innerHTML=`
+    <div class="box" id="brkBox">
+      <div class="atrapar-hud"><span id="brPts">🧱 0</span><span id="brVidas"></span></div>
+      <canvas id="brkCanvas" width="300" height="360"></canvas>
+      <p class="note" style="margin-top:10px">deslizá el dedo para mover la paleta</p>
+      <div class="result" id="brResult"></div>
+      <button class="btn" id="brBtn">Jugar</button>
+    </div>`;
+  const CV=document.getElementById("brkCanvas"), CX=CV.getContext("2d");
+  const W=300,H=360,PW=66,PH=10,PY=332,R=6;
+  const COLS=6,FILAS=5,BW=44,BH=15,GAP=4,TOP=42;
+  const colores=["#F2C14E","#E8955C","#E86A7C","#F08CB0","#B48CF2"];
+  let px,bx,by,vx,vy,bricks,rotos,vidas,vivo=false,raf=null,pegado=true;
+  function armar(){
+    bricks=[];
+    for(let f=0;f<FILAS;f++)for(let c=0;c<COLS;c++)
+      bricks.push({x:GAP+c*(BW+GAP)+4, y:TOP+f*(BH+GAP), f, ok:true});
+    rotos=0;
+  }
+  function pintarVidas(){
+    document.getElementById("brVidas").textContent="♥".repeat(vidas);
+  }
+  function reset(){
+    px=W/2; bx=W/2; by=PY-14; vx=2.4*(Math.random()<0.5?1:-1); vy=-3.1;
+    pegado=true;
+  }
+  function fin(win){
+    vivo=false; cancelAnimationFrame(raf);
+    const r=document.getElementById("brResult");
+    if(win){
+      r.textContent="Todos los bloques rotos. Demoledora.";
+      r.className="result ok";
+      celebrar();
+    } else {
+      r.textContent=`${rotos} de ${COLS*FILAS} bloques… otra vez.`;
+      r.className="result bad";
+      const b=document.getElementById("brBtn");
+      b.style.display="inline-block"; b.textContent="Reintentar";
+    }
+  }
+  function dibujar(){
+    CX.clearRect(0,0,W,H);
+    bricks.forEach(b=>{
+      if(!b.ok) return;
+      CX.fillStyle=colores[b.f%colores.length];
+      CX.beginPath();
+      if(CX.roundRect) CX.roundRect(b.x,b.y,BW,BH,4); else CX.rect(b.x,b.y,BW,BH);
+      CX.fill();
+    });
+    const acc=getComputedStyle(document.documentElement).getPropertyValue("--acc").trim()||"#E4B75B";
+    CX.fillStyle=acc;
+    CX.beginPath();
+    if(CX.roundRect) CX.roundRect(px-PW/2,PY,PW,PH,5); else CX.rect(px-PW/2,PY,PW,PH);
+    CX.fill();
+    CX.font="13px serif"; CX.textAlign="center"; CX.textBaseline="middle";
+    CX.fillText("💛",bx,by);
+  }
+  function paso(){
+    if(pegado){ bx=px; by=PY-14; }
+    else {
+      bx+=vx; by+=vy;
+      if(bx<R||bx>W-R) vx=-vx;
+      if(by<R) vy=Math.abs(vy);
+      if(by>PY-R-2 && by<PY+PH && Math.abs(bx-px)<PW/2+R){
+        vy=-Math.abs(vy);
+        vx += (bx-px)/(PW/2)*1.6;
+        vx=Math.max(-4,Math.min(4,vx));
+      }
+      if(by>H+20){
+        vidas--; pintarVidas();
+        if(vidas<=0) return fin(false);
+        reset();
+      }
+      for(const b of bricks){
+        if(!b.ok) continue;
+        if(bx>b.x-R && bx<b.x+BW+R && by>b.y-R && by<b.y+BH+R){
+          b.ok=false; rotos++;
+          document.getElementById("brPts").textContent=`🧱 ${rotos}`;
+          const dxl=Math.min(Math.abs(bx-b.x),Math.abs(bx-b.x-BW));
+          const dyl=Math.min(Math.abs(by-b.y),Math.abs(by-b.y-BH));
+          if(dxl<dyl) vx=-vx; else vy=-vy;
+          if(rotos>=COLS*FILAS) return fin(true);
+          break;
+        }
+      }
+    }
+    dibujar();
+    raf=requestAnimationFrame(paso);
+  }
+  function mover(e){
+    e.preventDefault();
+    const rect=CV.getBoundingClientRect();
+    const t=e.touches?e.touches[0]:e;
+    px=Math.max(PW/2,Math.min(W-PW/2,(t.clientX-rect.left)*(W/rect.width)));
+    if(pegado && vivo && e.type==="touchstart") pegado=false;
+  }
+  CV.addEventListener("touchstart",e=>{ mover(e); if(vivo) pegado=false; },{passive:false});
+  CV.addEventListener("touchmove",mover,{passive:false});
+  CV.addEventListener("mousedown",e=>{ mover(e); if(vivo) pegado=false; });
+  CV.addEventListener("mousemove",e=>{ if(e.buttons) mover(e); });
+  document.getElementById("brBtn").addEventListener("click",function(){
+    this.style.display="none";
+    document.getElementById("brResult").textContent="";
+    armar(); vidas=VIDAS; pintarVidas();
+    document.getElementById("brPts").textContent="🧱 0";
+    reset(); vivo=true; raf=requestAnimationFrame(paso);
+  });
+  armar(); vidas=VIDAS; pintarVidas(); reset(); dibujar();
+  window._dbg=window._dbg||{}; window._dbg.breakout={win:()=>fin(true)};
+}
+
+/* ===== dosmil (2048 de corazones) ===== */
+function montarDosmil(a){
+  const META=parseInt(a.objetivo,10)||128;
+  const CORAZON={2:"🤍",4:"💛",8:"🧡",16:"❤️",32:"💖",64:"💗",128:"💞",256:"💕",512:"💘",1024:"💝",2048:"❤️‍🔥"};
+  cont.innerHTML=`
+    <div class="box" id="dmBox">
+      <div class="atrapar-hud"><span>llegá al ${META} ${CORAZON[META]||"💞"}</span><span id="dmBest"></span></div>
+      <div id="dmGrid"></div>
+      <p class="note" style="margin-top:10px">deslizá para juntar corazones iguales</p>
+      <div class="result" id="dmResult"></div>
+      <button class="btn" id="dmBtn" style="display:none">Jugar de nuevo</button>
+    </div>`;
+  let g,logrado=false,fin=false;
+  const best=()=>parseInt(leer("dosmil-best")||"0",10);
+  const pintarBest=()=>document.getElementById("dmBest").textContent="récord: "+best();
+  pintarBest();
+  function vacias(){ const v=[]; for(let i=0;i<16;i++) if(!g[i]) v.push(i); return v; }
+  function spawn(){
+    const v=vacias(); if(!v.length) return;
+    g[v[Math.floor(Math.random()*v.length)]]=Math.random()<0.9?2:4;
+  }
+  function pintar(nuevos){
+    const grid=document.getElementById("dmGrid");
+    grid.innerHTML="";
+    g.forEach((n,i)=>{
+      const d=document.createElement("div");
+      d.className="dm-cel"+((nuevos&&nuevos.has(i))?" nuevo":"");
+      if(n) d.innerHTML=`<span>${CORAZON[n]||"❤️‍🔥"}</span><b>${n}</b>`;
+      grid.appendChild(d);
+    });
+  }
+  function linea(idx){
+    const vals=idx.map(i=>g[i]).filter(Boolean);
+    const out=[]; let sumado=false, movio=false;
+    for(let i=0;i<vals.length;i++){
+      if(i<vals.length-1 && vals[i]===vals[i+1]){
+        out.push(vals[i]*2); i++; sumado=true;
+      } else out.push(vals[i]);
+    }
+    while(out.length<idx.length) out.push(0);
+    idx.forEach((gi,k)=>{
+      if(g[gi]!==out[k]) movio=true;
+      g[gi]=out[k]||0;
+    });
+    return movio||sumado;
+  }
+  function mover(dir){
+    if(fin) return;
+    let movio=false;
+    for(let f=0;f<4;f++){
+      let idx;
+      if(dir==="left")  idx=[0,1,2,3].map(c=>f*4+c);
+      if(dir==="right") idx=[3,2,1,0].map(c=>f*4+c);
+      if(dir==="up")    idx=[0,1,2,3].map(r=>r*4+f);
+      if(dir==="down")  idx=[3,2,1,0].map(r=>r*4+f);
+      if(linea(idx)) movio=true;
+    }
+    if(!movio) return;
+    spawn();
+    pintar();
+    const max=Math.max(...g);
+    if(max>best()){ guardar("dosmil-best",String(max)); pintarBest(); }
+    if(!logrado && max>=META){
+      logrado=true;
+      const r=document.getElementById("dmResult");
+      r.textContent=`¡${META}! Objetivo cumplido, podés seguir sumando amor.`;
+      r.className="result ok";
+      celebrar();
+    }
+    if(!vacias().length && !hayMovida()){
+      fin=true;
+      const r=document.getElementById("dmResult");
+      if(!logrado){ r.textContent="Sin movidas… se juega de nuevo."; r.className="result bad"; }
+      else { r.textContent="Tablero lleno. Gran cosecha."; r.className="result ok"; }
+      document.getElementById("dmBtn").style.display="inline-block";
+    }
+  }
+  function hayMovida(){
+    for(let f=0;f<4;f++)for(let c=0;c<4;c++){
+      const v=g[f*4+c];
+      if(c<3 && v===g[f*4+c+1]) return true;
+      if(f<3 && v===g[(f+1)*4+c]) return true;
+    }
+    return false;
+  }
+  function empezar(){
+    g=Array(16).fill(0); logrado=false; fin=false;
+    document.getElementById("dmResult").textContent="";
+    document.getElementById("dmBtn").style.display="none";
+    spawn(); spawn(); pintar();
+  }
+  const box=document.getElementById("dmBox");
+  box.style.touchAction="none";
+  box.addEventListener("touchmove",e=>{ e.preventDefault(); },{passive:false});
+  let tS=null;
+  box.addEventListener("touchstart",e=>{ if(e.target.tagName!=="BUTTON") tS=e.touches[0]; },{passive:true});
+  box.addEventListener("touchend",e=>{
+    if(!tS) return;
+    const dx=e.changedTouches[0].clientX-tS.clientX, dy=e.changedTouches[0].clientY-tS.clientY;
+    tS=null;
+    if(Math.abs(dx)<24 && Math.abs(dy)<24) return;
+    if(Math.abs(dx)>Math.abs(dy)) mover(dx>0?"right":"left");
+    else mover(dy>0?"down":"up");
+  },{passive:true});
+  document.addEventListener("keydown",e=>{
+    const m={ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down"};
+    if(m[e.key]){ e.preventDefault(); mover(m[e.key]); }
+  });
+  document.getElementById("dmBtn").addEventListener("click",empezar);
+  empezar();
+  window._dbg=window._dbg||{}; window._dbg.dosmil={win:()=>{g[0]=META;mover("left");}, mover};
+}
+
+/* ===== gala (gran final de temporada) ===== */
+function montarGala(){
+  const fechas=fechasTemporada();
+  const ganados=fechas.map(f=>leer("stk-"+f)).filter(Boolean);
+  const TOTAL=Math.max(20,fechas.length);
+  cont.innerHTML=`
+    <div class="gala-escena" id="galaEscena">
+      <div class="gala-titulo">${(CONFIG.temporada&&CONFIG.temporada.nombre)||"La temporada"}</div>
+      <div class="gala-sub" id="galaSub">juntaste ${ganados.length} de ${fechas.length} estrellas</div>
+      <div class="gala-btn-zona" id="galaBtnZona">
+        <button class="btn" id="galaBtn">✦ Ver el gran final</button>
+      </div>
+    </div>`;
+  const esc=document.getElementById("galaEscena");
+  const stars=[];
+  for(let i=0;i<TOTAL;i++){
+    const s=document.createElement("span");
+    s.className="gala-star";
+    s.textContent=ganados[i]||"✦";
+    s.style.fontSize=(ganados[i]?1.5:1.05)+"rem";
+    if(!ganados[i]) s.style.color="var(--acc)";
+    s.style.left=(5+Math.random()*86)+"%";
+    s.style.top=(12+Math.random()*70)+"%";
+    s.style.animationDelay=(-Math.random()*3)+"s";
+    esc.appendChild(s);
+    stars.push(s);
+  }
+  let hecho=false;
+  function final(){
+    if(hecho) return;
+    hecho=true;
+    document.getElementById("galaBtnZona").style.display="none";
+    const w=esc.offsetWidth, h=esc.offsetHeight;
+    const cx=w/2, cy=h*0.42, esc2=Math.min(w,h)/42;
+    stars.forEach((s,i)=>{
+      const t=Math.PI/2 - (i/TOTAL)*Math.PI*2;
+      const x=16*Math.pow(Math.sin(t),3);
+      const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+      s.style.left=(cx+x*esc2-10)+"px";
+      s.style.top=(cy-y*esc2-10)+"px";
+    });
+    setTimeout(()=>{
+      confetti();
+      try{ otorgarSticker(); }catch(e){}
+      const l=document.getElementById("letter");
+      l.style.display="block";
+      tipearCarta();
+      const ev=CONFIG.proximoEvento;
+      if(ev&&ev.fecha){
+        const n=Math.round((new Date(ev.fecha+"T00:00:00")-fechaHoyDate())/86400000);
+        if(n>0) document.getElementById("galaSub").textContent=
+          `y en ${n} días… tres cifras ✦`;
+      }
+      if(l.scrollIntoView) setTimeout(()=>l.scrollIntoView({behavior:"smooth",block:"center"}),400);
+    },2500);
+  }
+  document.getElementById("galaBtn").addEventListener("click",final);
+  window._dbg=window._dbg||{}; window._dbg.gala={fin:final};
 }
 </script>
 </body>

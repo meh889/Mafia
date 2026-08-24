@@ -122,15 +122,19 @@ const CONFIG = {
                              opciones:["A","B","C"], respuesta:1}, x3 ] }
                            (varias preguntas seguidas; "minimo" = aciertos
                             necesarios para ganar)
-       { tipo: "constelacion" }              unir estrellas en orden y ver
-                                             qué dibujan (spoiler: amor)
+       { tipo: "constelacion", forma: "torre" }
+                           (unir estrellas en orden y ver qué dibujan;
+                            forma: "corazon" (defecto) o "torre" Eiffel)
        { tipo: "globos",   palabra: "SIEMPRE" }
                            (reventar globos: algunos esconden las letras
                             de la palabra, otros son puro confetti)
-       { tipo: "flappy",   objetivo: 10 }    la estrellita voladora: tocá
-                                             para aletear y pasá los aros
-       { tipo: "runner",   objetivo: 12 }    la estrellita corre: tocá para
-                                             saltar los obstáculos
+       { tipo: "flappy",   objetivo: 10, emoji: "✈️" }
+                           (tocá para aletear y pasá los aros; "emoji"
+                            cambia a quien vuela, defecto ⭐)
+       { tipo: "runner",   objetivo: 12, jugador: "🚲",
+         obstaculo: "🧀", nombre: "quesos" }
+                           (correr y saltar tocando; jugador/obstaculo/
+                            nombre son opcionales, defecto ⭐ y 🌵)
        { tipo: "breakout", vidas: 3 }        rompebloques: arrastrá la
                                              paleta y rompé todo
        { tipo: "dosmil",   objetivo: 128 }   2048 de corazones: deslizá,
@@ -376,99 +380,109 @@ const CONFIG = {
       actividad: { tipo: "globos", palabra: "LOVEU" }
     },
     "2026-08-25": {
-      modo: "arcade",
+      modo: "cielo",
       sellado: true,
-      mensaje: "JUEGO NUEVO DESBLOQUEADO. Sí, la estrellita voladora sos vos. Sí, los obstáculos los puse yo. No, no me arrepiento de nada. Te amo.",
-      sticker: "🕹️",
-      actividad: { tipo: "flappy", objetivo: 10 }
+      sticker: "✈️",
+      mensaje: "PASAJERA SOFI: la app entró en modo aeropuerto. Valija lista, documentos a mano, estrellita reemplazada por un avión como corresponde. Hoy empiezan unas vacaciones que venimos esperando hace mucho. Abrochate el cinturón que despegamos. Te amo.",
+      actividad: { tipo: "flappy", objetivo: 10, emoji: "✈️" }
     },
     "2026-08-26": {
+      tema: { fondo: "#1A1408", acento: "#E8B84A" },
       sellado: true,
-      mensaje: "Aprobaste el examen más importante de tu carrera académica: Nosotros I. Igual ya sabía que aprobabas, venís cursando la materia hace 99 meses (dato que va a ser importante en 48 horas).",
-      sticker: "🧠",
+      sticker: "🥨",
+      mensaje: "Guten Tag! La app amaneció alemana y yo amanecí de viaje con vos, que es mi versión favorita de amanecer. Aprobaste el examen de alemán básico con lo único que hace falta saber: Ich liebe dich.",
       actividad: { tipo: "quiz", minimo: 2, preguntas: [
-        { pregunta: "¿Qué fecha es LA fecha?", opciones: ["28 de mayo", "25 de mayo", "28 de marzo"], respuesta: 1 },
-        { pregunta: "¿Dónde fuimos al cine juntos por primera vez?", opciones: ["Dot", "Unicenter", "Norcenter"], respuesta: 2 },
-        { pregunta: "¿Cuál de estos NO es un apodo tuyo?", opciones: ["Popi", "Pulga", "Cacahuate"], respuesta: 3 }
+        { pregunta: "¿Cómo se dice 'te amo' en alemán?", opciones: ["Ich liebe dich", "Je t'aime", "Guten Morgen"], respuesta: 1 },
+        { pregunta: "¿Cuál de estas cosas NO es alemana?", opciones: ["El pretzel", "La salchicha", "El croissant"], respuesta: 3 },
+        { pregunta: "¿Qué se grita al brindar con una cerveza gigante?", opciones: ["¡Prost!", "¡Salud!", "¡Oktoberfest!"], respuesta: 1 }
       ] }
     },
     "2026-08-27": {
       modo: "papel",
       sellado: true,
-      mensaje: "Encontraste todas las palabras, así que ya sabés de qué se trata: mañana no es un día cualquiera. Dormí bien que mañana hay fiesta en la app.",
-      sticker: "🔍",
-      actividad: { tipo: "sopa", palabras: ["NOVENTA", "NUEVE", "MESES", "FIESTA", "MAÑANA"] }
+      sticker: "🛶",
+      mensaje: "Hallo Amsterdam! Días de canales, casitas inclinadas, bicis por todos lados y nosotros en el medio. Encontraste todas las palabras, así que ya sabés el dato: mañana no es un día cualquiera. Ni siquiera estando de viaje. Sobre todo estando de viaje.",
+      actividad: { tipo: "sopa", palabras: ["CANALES", "TULIPAN", "MOLINO", "QUESO", "BICI"] }
     },
     "2026-08-28": {
       nombre: "mi amor",
       escribir: true,
       tema: { fondo: "#1A1206", acento: "#F2C14E" },
-      mensaje: "99 meses. NOVENTA Y NUEVE. Estamos a un mes exacto del escándalo de los 100 que te prometí (sigue en pie, ya estoy organizando). Gracias por cada uno de los 99: los de cine, los de sushi, los de aeropuerto y los de no hacer nada, que son mis favoritos. Te amo.",
       sticker: "💛",
-      actividad: { tipo: "rascar", premio: "99 meses ✦ y contando. El mes que viene: tres cifras y escándalo prometido." }
+      mensaje: "99 meses. NOVENTA Y NUEVE. Y los festejamos caminando canales del otro lado del océano, que es exactamente el nivel de festejo que te merecés. El mes que viene son 100 y el escándalo prometido sigue en pie. Gracias por los 99: los de cine, los de sushi, los de aeropuerto y estos, los de Amsterdam. Te amo.",
+      actividad: { tipo: "rascar", premio: "99 meses ✦ festejados en Amsterdam. El que viene: tres cifras y escándalo." }
     },
     "2026-08-29": {
-      mensaje: "Sábado. La ruleta de la Temporada 2 gira con tecnología de última generación (la misma de antes) y su decisión es inapelable. Reclamos: a la gerencia (yo), que acepta sobornos (besos).",
-      sticker: "🎡",
-      actividad: { tipo: "ruleta", titulo: "Plan del finde",
-        opciones: ["Maratón + pochoclos", "Caminata + helado", "Peli que elegís vos", "Peli que elijo yo (perdón)"] }
+      sellado: true,
+      sticker: "🚲",
+      mensaje: "Sábado en la ciudad con más bicis que gente. Acá hasta la app anda en dos ruedas, esquivando quesos por los canales. Pedaleá tranquila que yo te sigo a donde vayas. Te amo.",
+      actividad: { tipo: "runner", objetivo: 12, jugador: "🚲", obstaculo: "🧀", nombre: "quesos" }
     },
     "2026-08-30": {
-      sellado: true,
-      mensaje: "Domingo de recuerdos: armaste la foto, desbloqueaste el mimo. Esa tarde la tengo guardada acá arriba (señalo mi cabeza) y ahora también acá (señalo la app).",
-      sticker: "🧩",
-      actividad: { tipo: "fotopuzzle", archivo: "recuerdo16.jpeg", columnas: 4, filas: 4 }
+      sticker: "🌻",
+      mensaje: "Domingo de Van Gogh: girasoles, almendros en flor y noches estrelladas. Dato: esta app fue una noche estrellada desde el día uno, ahora ya sabés de dónde saqué la idea. Ninguna obra me gusta tanto como mirarte a vos mirando cuadros. (Cursi nivel museo. No lo borro.)",
+      actividad: { tipo: "memoria", emojis: ["🌻", "🌌", "🎨", "🖌️", "👨‍🎨", "⭐"] }
     },
     "2026-08-31": {
       sellado: true,
-      mensaje: "Último día de agosto y lo cerraste sumando corazones, que es exactamente como venimos cerrando todos los meses desde 2018. Mañana arranca septiembre y la app tiene planes.",
-      sticker: "💞",
-      actividad: { tipo: "dosmil", objetivo: 128 }
+      sticker: "🧀",
+      mensaje: "Último día de agosto y lo cerramos en modo granja holandesa: atrapaste todos los quesitos, que ya es más logro del que agosto me vio conseguir a mí. Un mes que empezó con nosotros y termina con nosotros de viaje. Así siempre, por favor. Te amo.",
+      actividad: { tipo: "atrapar", emoji: "🧀", titulo: "quesitos", objetivo: 14 }
     },
     "2026-09-01": {
       modo: "jardin",
-      mensaje: "Septiembre = mes de la primavera = la app se llenó de flores y no pienso disculparme. Juntá el ramo de hoy, que es todo tuyo.",
-      sticker: "🌸",
-      actividad: { tipo: "atrapar", emoji: "🌸", titulo: "flores", objetivo: 14 }
+      sellado: true,
+      sticker: "🌷",
+      mensaje: "Arranca septiembre, mes de la primavera, y justo en el país de los tulipanes. La app floreció en tu honor. La palabra de hoy era obvia, pero linda. Como este plan.",
+      actividad: { tipo: "wordle", palabra: "TULIPAN", intentos: 6 }
     },
     "2026-09-02": {
-      sellado: true,
-      mensaje: "CASPER… qué palabra tan misteriosa, quién sabe de dónde habrá salido. Te amo, fantasmita.",
-      sticker: "👻",
-      actividad: { tipo: "wordle", palabra: "CASPER", intentos: 6 }
+      tema: { fondo: "#20090D", acento: "#E86A7C" },
+      sticker: "🐀",
+      mensaje: "Bonjour París ✦ Nueva ciudad, nueva pregunta de cine. Fácil: estamos en la ciudad de esta película.",
+      actividad: { tipo: "emojis", emojis: "🐀👨‍🍳🍲",
+        opciones: ["Ratatouille", "La Dama y el Vagabundo", "Kung Fu Panda"],
+        respuesta: 1,
+        acierto: "Oui! Y hoy estamos en su ciudad. Cualquiera puede cocinar.",
+        error: "Non, mon amour. Es la de la ratita chef." }
     },
     "2026-09-03": {
-      mensaje: "Qué memoria la tuya. Yo en cambio me olvido de todo… menos de vos, de nuestra fecha, de tus apodos y de cada plan juntos. Bueno, parece que solo me olvido de las cosas que no importan.",
-      sticker: "🎴",
-      actividad: { tipo: "memoria", emojis: ["🦜", "🌸", "🍣", "🎬", "🧸", "🎧", "⭐", "🍕"] }
+      sellado: true,
+      sticker: "🗼",
+      mensaje: "Las estrellas de esta app dibujaron corazones toda la temporada, pero en París dibujan otra cosa. Andá a verla de verdad de mi parte y, si de noche brilla, pensá en mí que yo pienso en vos. Te amo.",
+      actividad: { tipo: "constelacion", forma: "torre" }
     },
     "2026-09-04": {
-      modo: "arcade",
       sellado: true,
-      mensaje: "Viernes de arcade. La estrellita corre y salta sin cansarse, igual que yo cuando te estoy por contar algo que me emociona. Te amo.",
-      sticker: "⚡",
-      actividad: { tipo: "runner", objetivo: 12 }
+      sticker: "🥐",
+      mensaje: "Viernes en París. Aprobaste el examen de francés con médaille d'or. Je t'aime: se dice así y lo digo en serio en todos los idiomas.",
+      actividad: { tipo: "quiz", minimo: 2, preguntas: [
+        { pregunta: "¿Cómo se dice 'te amo' en francés?", opciones: ["Je t'aime", "Ich liebe dich", "Bon appétit"], respuesta: 1 },
+        { pregunta: "¿Cuál de estas delicias NO es francesa?", opciones: ["El croissant", "La baguette", "El stroopwafel"], respuesta: 3 },
+        { pregunta: "En Ratatouille, ¿quién cocina de verdad abajo del gorro de Linguini?", opciones: ["Remy", "Anton Ego", "El chef Skinner"], respuesta: 1 }
+      ] }
     },
     "2026-09-05": {
-      mensaje: "Sábado. Misión de campo, nivel: fácil pero obligatoria.",
       sticker: "📷",
-      actividad: { tipo: "mision", texto: "Mandame AHORA una foto de exactamente lo que estás viendo. Literal. Levantá el teléfono y foto. Sin producción, sin ángulo bueno. Quiero ver tu ahora." }
+      mensaje: "Sábado parisino. Misión de campo, nivel: fácil pero obligatoria.",
+      actividad: { tipo: "mision", texto: "Selfie de los dos AHORA, donde sea que estemos. Sin producción, sin ángulo bueno. Va directo al álbum de los 100 meses." }
     },
     "2026-09-06": {
-      mensaje: "Domingo tranqui, puzzle tranqui. Otra joyita del archivo de nosotros.",
-      sticker: "🖼️",
-      actividad: { tipo: "deslizante", archivo: "recuerdo23.jpg", tam: 3 }
+      sellado: true,
+      sticker: "👨‍🍳",
+      mensaje: "Le petit chef dice que el domingo es para pasear despacio y comer rico. Le hacemos caso, que de cocina sabe más que nosotros.",
+      actividad: { tipo: "adivinanza", pista: "Es el chef más chiquito y más talentoso de todo París. ¿Quién es?", respuesta: "REMY" }
     },
     "2026-09-07": {
-      mensaje: "Lunes otra vez (¿quién los autoriza? ¿por qué son semanales?). Tomá, para el trámite:",
-      sticker: "🍣",
-      actividad: { tipo: "cupon", texto: "Vale por una noche de sushi + serie con los dos celulares en modo avión. Canjeable cuando digas." }
+      sticker: "🥖",
+      mensaje: "Lunes. Pero lunes en París, que es otra categoría de lunes. Igual tomá, cobertura anti-lunes édition française:",
+      actividad: { tipo: "cupon", texto: "Vale por un picnic de baguette + queso + algo dulce, canjeable en el primer parque lindo que encontremos (o en casa, versión nostalgia)." }
     },
     "2026-09-08": {
       sellado: true,
-      mensaje: "Le ganaste a mi número secreto. Era esperable: me conocés hasta los números. Te amo.",
-      sticker: "🎲",
-      actividad: { tipo: "numero", max: 100, intentos: 7 }
+      sticker: "🇫🇷",
+      mensaje: "Último día de la app en modo francés. La caja de hoy se abre con un número muy parisino: el año en que la torre se estrenó ante el mundo. Merci por estos días, mon amour. Lo que viene también va a ser lindo, porque venís vos incluida.",
+      actividad: { tipo: "cajafuerte", codigo: "1889", pista: "El año en que se inauguró la Torre Eiffel" }
     },
     "2026-09-09": {
       mensaje: "Día 9 del mes 9. Dejando la numerología de lado, pregunta seria:",
@@ -481,9 +495,9 @@ const CONFIG = {
     },
     "2026-09-10": {
       sellado: true,
-      mensaje: "La caja se abrió porque vos también sabés el número mágico. I love you 3000. Y los que se sigan sumando, que el contador no para.",
-      sticker: "🔐",
-      actividad: { tipo: "cajafuerte", codigo: "3000", pista: "I love you ____ (lo festejamos hace poquito)" }
+      sticker: "🎲",
+      mensaje: "Le ganaste a mi número secreto. Era esperable: me conocés hasta los números. (Aviso: no era el 3000. Ese es nuestro, no entra en el tablero.) Te amo.",
+      actividad: { tipo: "numero", max: 100, intentos: 7 }
     },
     "2026-09-11": {
       mensaje: "Viernes de revancha oficial: piedra, papel o tijera, al mejor de 5. Si me ganás, esta noche elegís vos la peli. Si te gano… también elegís vos, no soy tonto.",
@@ -4126,7 +4140,8 @@ function montarQuiz(a){
 }
 
 /* ===== constelación (unir estrellas en orden) ===== */
-function montarConstelacion(){
+function montarConstelacion(a){
+  a=a||{};
   cont.innerHTML=`
     <div class="box">
       <p class="note">uní las estrellas en orden, del 1 en adelante</p>
@@ -4134,13 +4149,24 @@ function montarConstelacion(){
       <div class="result" id="csResult"></div>
     </div>`;
   const CV=document.getElementById("constCanvas"), CX=CV.getContext("2d");
-  const N=12, pts=[];
-  for(let i=0;i<N;i++){
-    const t=Math.PI/2 - (i/N)*Math.PI*2;   /* arranca arriba y gira */
-    const x=16*Math.pow(Math.sin(t),3);
-    const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
-    pts.push({x:150+x*7.6, y:128-y*7.2});
+  let pts=[], txtFinal="Un corazón. Obvio que era un corazón.";
+  if(a.forma==="torre"){
+    /* silueta de la Torre Eiffel, con el arco de abajo */
+    pts=[
+      {x:78,y:288},{x:112,y:196},{x:132,y:120},{x:143,y:52},
+      {x:150,y:26},{x:157,y:52},{x:168,y:120},{x:188,y:196},
+      {x:222,y:288},{x:182,y:288},{x:150,y:232},{x:118,y:288}
+    ];
+    txtFinal="La Torre Eiffel ✦ ahora andá a verla de verdad.";
+  } else {
+    for(let i=0;i<12;i++){
+      const t=Math.PI/2 - (i/12)*Math.PI*2;   /* arranca arriba y gira */
+      const x=16*Math.pow(Math.sin(t),3);
+      const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+      pts.push({x:150+x*7.6, y:128-y*7.2});
+    }
   }
+  const N=pts.length;
   let prox=0, listo=false, err=0;
   function dibujar(){
     CX.clearRect(0,0,300,310);
@@ -4181,7 +4207,7 @@ function montarConstelacion(){
   function ganarC(){
     listo=true; clearInterval(anim); dibujar();
     const r=document.getElementById("csResult");
-    r.textContent="Un corazón. Obvio que era un corazón.";
+    r.textContent=txtFinal;
     r.className="result ok";
     celebrar();
   }
@@ -4276,6 +4302,7 @@ function montarGlobos(a){
 /* ===== flappy (la estrellita voladora) ===== */
 function montarFlappy(a){
   const META=Math.max(3,parseInt(a.objetivo,10)||10);
+  const EMO=a.emoji||"⭐";
   cont.innerHTML=`
     <div class="box" id="flBox">
       <div class="atrapar-hud"><span id="flPts">✦ 0 / ${META}</span><span id="flBest"></span></div>
@@ -4299,7 +4326,7 @@ function montarFlappy(a){
     if(pts>best()) guardar("flappy-best",String(pts));
     pintarBest();
     const r=document.getElementById("flResult");
-    if(!logrado){ r.textContent=`${pts} de ${META}… la estrellita cree en vos.`; r.className="result bad"; }
+    if(!logrado){ r.textContent=`${pts} de ${META}… ${EMO==="⭐"?"la estrellita cree en vos":"otro intento, que el vuelo recién empieza"}.`; r.className="result bad"; }
     else { r.textContent=`Fin con ${pts} aros. Vuelo estelar.`; r.className="result ok"; }
     const b=document.getElementById("flBtn");
     b.style.display="inline-block"; b.textContent="Jugar de nuevo";
@@ -4343,7 +4370,7 @@ function montarFlappy(a){
     CX.font="26px serif"; CX.textAlign="center"; CX.textBaseline="middle";
     CX.save();
     CX.translate(sx,y); CX.rotate(Math.max(-0.4,Math.min(0.6,vy*0.06)));
-    CX.fillText("⭐",0,0);
+    CX.fillText(EMO,0,0);
     CX.restore();
     raf=requestAnimationFrame(paso);
   }
@@ -4361,18 +4388,19 @@ function montarFlappy(a){
   });
   reset();
   CX.font="26px serif"; CX.textAlign="center"; CX.textBaseline="middle";
-  CX.fillText("⭐",70,H/2);
+  CX.fillText(EMO,70,H/2);
   window._dbg=window._dbg||{}; window._dbg.flappy={win:lograr};
 }
 
 /* ===== runner (la estrellita corre y salta) ===== */
 function montarRunner(a){
   const META=Math.max(3,parseInt(a.objetivo,10)||12);
+  const JUG=a.jugador||"⭐", OBS=a.obstaculo||"🌵", NOM=a.nombre||"cactus";
   cont.innerHTML=`
     <div class="box" id="runBox">
-      <div class="atrapar-hud"><span id="runPts">🌵 0 / ${META}</span><span id="runBest"></span></div>
+      <div class="atrapar-hud"><span id="runPts">${OBS} 0 / ${META}</span><span id="runBest"></span></div>
       <canvas id="runCanvas" width="300" height="190"></canvas>
-      <p class="note" style="margin-top:10px">tocá el tablero para saltar los cactus</p>
+      <p class="note" style="margin-top:10px">tocá el tablero para saltar los ${NOM}</p>
       <div class="result" id="runResult"></div>
       <button class="btn" id="runBtn">Jugar</button>
     </div>`;
@@ -4384,15 +4412,15 @@ function montarRunner(a){
   pintarBest();
   function reset(){
     y=SUELO; vy=0; obs=[]; pts=0; vel=3; frame=0; prox=50; logrado=false;
-    document.getElementById("runPts").textContent=`🌵 0 / ${META}`;
+    document.getElementById("runPts").textContent=`${OBS} 0 / ${META}`;
   }
   function fin(){
     vivo=false; cancelAnimationFrame(raf);
     if(pts>best()) guardar("runner-best",String(pts));
     pintarBest();
     const r=document.getElementById("runResult");
-    if(!logrado){ r.textContent=`${pts} de ${META}… ese cactus jugó sucio.`; r.className="result bad"; }
-    else { r.textContent=`Fin con ${pts} 🌵. Piernas de estrella.`; r.className="result ok"; }
+    if(!logrado){ r.textContent=`${pts} de ${META}… ese último jugó sucio.`; r.className="result bad"; }
+    else { r.textContent=`Fin con ${pts} ${OBS}. Qué piernas.`; r.className="result ok"; }
     const b=document.getElementById("runBtn");
     b.style.display="inline-block"; b.textContent="Jugar de nuevo";
   }
@@ -4400,7 +4428,7 @@ function montarRunner(a){
     if(logrado) return;
     logrado=true;
     const r=document.getElementById("runResult");
-    r.textContent=`¡${META} cactus saltados! Seguí por el récord.`;
+    r.textContent=`¡${META} ${NOM} saltados! Seguí por el récord.`;
     r.className="result ok";
     celebrar();
   }
@@ -4418,7 +4446,7 @@ function montarRunner(a){
     for(const o of obs){
       if(!o.pasado && o.x<SX-16){
         o.pasado=true; pts++;
-        document.getElementById("runPts").textContent=`🌵 ${pts} / ${META}`;
+        document.getElementById("runPts").textContent=`${OBS} ${pts} / ${META}`;
         if(pts>=META) lograr();
       }
       if(Math.abs(o.x-SX)<20 && y>SUELO-26) return fin();
@@ -4427,9 +4455,9 @@ function montarRunner(a){
     CX.strokeStyle="rgba(255,255,255,.35)"; CX.lineWidth=2;
     CX.beginPath(); CX.moveTo(0,SUELO+16); CX.lineTo(W,SUELO+16); CX.stroke();
     CX.font="24px serif"; CX.textAlign="center"; CX.textBaseline="middle";
-    obs.forEach(o=>CX.fillText("🌵",o.x,SUELO+2));
+    obs.forEach(o=>CX.fillText(OBS,o.x,SUELO+2));
     CX.font="26px serif";
-    CX.fillText("⭐",SX,y-6);
+    CX.fillText(JUG,SX,y-6);
     raf=requestAnimationFrame(paso);
   }
   function saltar(e){
@@ -4446,7 +4474,7 @@ function montarRunner(a){
   });
   reset();
   CX.font="26px serif"; CX.textAlign="center"; CX.textBaseline="middle";
-  CX.fillText("⭐",SX,SUELO-6);
+  CX.fillText(JUG,SX,SUELO-6);
   window._dbg=window._dbg||{}; window._dbg.runner={win:lograr};
 }
 

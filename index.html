@@ -535,7 +535,7 @@ const CONFIG = {
     "2026-10-24": {"mensaje": "Gachapooooooooooon", "evento": "gashapon"},
     /* 25 · domingo — Gran Premio de Olivos. Gran Premio de Olivos: carrera de Ponyta contra Rapidash, Snorlax y Psyduck (nuevo).
        Pista: domingo. */
-    "2026-10-25": {"mensaje": "", "actividad": {"tipo": "carrera", "vueltas": 2}},
+    "2026-10-25": {"mensaje": "Se viene el Leclercazo?", "actividad": {"tipo": "carrera", "vueltas": 2, "audio": false}},
     /* 26 · lunes — Caja fuerte. Caja fuerte (código 2805). Carta sellada. Mañana es tu cumple.
        Pista: la víspera de tu cumple. */
     "2026-10-26": {"mensaje": "", "sellado": true, "actividad": {"tipo": "cajafuerte", "codigo": "2805", "pista": "El día que empezó todo. Día y mes."}},
@@ -7238,7 +7238,7 @@ var P=PODIO[pos],tit=pos===1?TX.victoria:P.tit;var sub=pos===1?TX.victoriaSub:P.
 ya(function(){podio.classList.add("sube");sonar("pop",0.9);champagne(podio,final[0],rapido);if(rapido)titEl.textContent=tit;else U.escribir(titEl,tit,{vel:34});},tAterriza+650);ya(function(){podio.classList.add("sellado");sonar("sello",1);if(pos===1&&!celebrado){celebrado=true;if(T3.ponyta&&T3.ponyta.reaccionar)try{T3.ponyta.reaccionar("gano");}catch(e){}
 if(typeof celebrar==="function")celebrar();}
 if(pos===1)radioEnVivo();},tAterriza+2300);ya(function(){fin.hidden=false;if(!rapido){void fin.offsetWidth;fin.classList.add("cae");}},tAterriza+2300+450);}
-function radioEnVivo(){if(silencio||(T3.mudo&&T3.mudo()))return;var def=U.azar(LOROS,T3.hoy+"carrera");var propio=txt(a.audio,"").trim();if(propio&&propio!==def)sonarVoz(propio,def);else sonarVoz(def,null);}
+function radioEnVivo(){if(silencio||a.audio===false||(T3.mudo&&T3.mudo()))return;var def=U.azar(LOROS,T3.hoy+"carrera");var propio=txt(a.audio,"").trim();if(propio&&propio!==def)sonarVoz(propio,def);else sonarVoz(def,null);}
 function sonarVoz(n,respaldo){var au=null,arranco=false;function caer(){if(respaldo&&!arranco&&!muerto&&!terminadoVoz())sonarVoz(respaldo,null);}
 try{au=U.reproducir(n,{vol:1});if(!au){caer();return;}
 voz=au;au.addEventListener("playing",function(){if(muerto||voz!==au)return;arranco=true;radioGen++;radioEl.classList.add("en-vivo");radioTxt.textContent=TX.radioVivo;});["ended","error","pause"].forEach(function(ev){au.addEventListener(ev,function(){if(voz===au){voz=null;radioEl.classList.remove("en-vivo");}

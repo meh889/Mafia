@@ -44,8 +44,9 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   `d` avisos en la app · `d-envio` el envío (necesita `web-push`). Si se toca ese código, correr el que
   corresponda: `node .github/pruebas/a.cjs` (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
-  --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad. Las capturas
-  salen del registro: `gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>`.
+  --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad (`-f densidad=2`
+  para capturas nítidas). Las capturas salen del registro:
+  `gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>`.
 - Ya mordieron dos diferencias de Safari: `document.lastModified` viene en UTC (no en hora local) y
   `backface-visibility` no es confiable (las cartas se dan vuelta cambiando `visibility` a mitad del giro).
 

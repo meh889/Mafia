@@ -28,7 +28,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("el recorrido del sobre no tira errores de JavaScript",errores.length===0,errores);
   await ctx.close();
   // hoja de contacto con las 50 cartas
-  const ctx2=await b.newContext({viewport:{width:1500,height:900},deviceScaleFactor:1});
+  const ctx2=await b.newContext({viewport:{width:1500,height:900},deviceScaleFactor:process.env.DPR?+process.env.DPR:1});
   await ctx2.addInitScript(()=>{try{localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');}catch(e){}});
   const p2=await ctx2.newPage();await p2.route("**/*",r=>{const u=r.request().url();return (u.startsWith(base)||externo(u))?r.continue():r.abort();});
   await p2.goto(base+"/?fecha=2026-12-01");await p2.waitForTimeout(2500);

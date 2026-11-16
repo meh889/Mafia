@@ -1,5 +1,5 @@
 /* Laboratorio · avisos del lado de la app (solo Chromium: usa su service worker) */
-const {chromium}=require("playwright");const {servir,chequear,resumen}=require("./comun.cjs");
+const {chromium}=require("playwright");const {servir,chequear,resumen,externo}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 const SUB={endpoint:"https://web.push.apple.com/QFalsa123",keys:{p256dh:"BPubFalsa_-123",auth:"authFalso_-9"}};
 async function abrir(b,base,fecha,op){
@@ -12,7 +12,7 @@ async function abrir(b,base,fecha,op){
     if(o.fingir&&window.PushManager){PushManager.prototype.getSubscription=function(){return Promise.resolve(window.__sub||null);};PushManager.prototype.subscribe=function(op){window.__op=op;window.__sub={toJSON:function(){return o.sub;}};return Promise.resolve(window.__sub);};}
   }catch(e){}},{fecha,sinNoti:!!op.sinNoti,niega:!!op.niega,fingir:op.fingir!==false,sub:SUB});
   const pg=await ctx.newPage();const errores=[];pg.on("pageerror",e=>errores.push(String(e&&e.message||e)));
-  await pg.route("**/*",r=>r.request().url().startsWith(base)?r.continue():r.abort());
+  await pg.route("**/*",r=>{const u=r.request().url();return (u.startsWith(base)||externo(u))?r.continue():r.abort();});
   await pg.goto(base+"/?fecha="+fecha,{waitUntil:"load"});
   await pg.waitForFunction(()=>window.T3&&document.querySelector(".t3-cuaderno-hoja"),null,{timeout:15000});
   await pg.waitForTimeout(1500);await pg.evaluate(f=>T3.cuaderno.irA(f),fecha);await pg.waitForTimeout(900);

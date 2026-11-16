@@ -8,6 +8,8 @@
 # tipografías de verdad, y dejan capturas volcadas en el registro. Para bajarlas:
 #
 #   gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>
+#
+# Con "-f densidad=2" las capturas salen al doble de resolución (para mostrarlas).
 name: Laboratorio
 
 on:
@@ -17,6 +19,11 @@ on:
         description: "Volcar las capturas en el registro"
         type: boolean
         default: true
+      densidad:
+        description: "Densidad de las capturas (2 = más nítidas, registro más pesado)"
+        type: choice
+        options: ["1", "2"]
+        default: "1"
 
 permissions:
   contents: read
@@ -33,7 +40,7 @@ jobs:
     env:
       MOTOR: ${{ matrix.motor }}
       FUENTES: "1"
-      DPR: "1"
+      DPR: ${{ inputs.densidad || '1' }}
     steps:
       - uses: actions/checkout@v7
       - name: Instalar el navegador de prueba

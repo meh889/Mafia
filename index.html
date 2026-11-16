@@ -643,7 +643,7 @@ const CONFIG = {
     /* ----------------------- DICIEMBRE ----------------------- */
     /* 1 · martes — Trivia. ARRANCA EL CALENDARIO DE ADVIENTO (sale del cuaderno como un pop-up; una ventanita por día hasta el 24). Juego: trivia.
        Pista: arranca diciembre / el adviento. */
-    "2026-12-01": {"mensaje": "", "actividad": {"tipo": "trivia", "pregunta": "¿En qué colegio nos conocimos?", "opciones": ["San Andrés", "La Salle Florida", "Nacional Buenos Aires"], "respuesta": 2, "acierto": "La Salle Florida. Ahí empezó todo.", "error": "La Salle Florida, mi amor."}},
+    "2026-12-01": {"mensaje": "", "cartel": {"titulo": "Abierto de nuevo", "texto": "Volvió el programador. Y trajo cosas:", "lista": ["MafiaTCG: un sobre de cartas por día, en la pestaña dorada.", "Las cartas ahora se pueden contestar.", "Un talonario de pedidos, en la pestaña verde."]}, "actividad": {"tipo": "trivia", "pregunta": "¿En qué colegio nos conocimos?", "opciones": ["San Andrés", "La Salle Florida", "Nacional Buenos Aires"], "respuesta": 2, "acierto": "La Salle Florida. Ahí empezó todo.", "error": "La Salle Florida, mi amor."}},
     /* 2 · miércoles — Caja fuerte. Caja fuerte (código 1612: su cumple). Carta sellada.
        Pista: faltan dos semanas para su cumple. */
     "2026-12-02": {"mensaje": "", "sellado": true, "actividad": {"tipo": "cajafuerte", "codigo": "1612", "pista": "Una fecha que llega en dos semanas. Día y mes."}},
@@ -2846,6 +2846,62 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3x-taller-ok .t3x-taller-ojo{font:italic 500 14px/1.2 var(--t3-serif);color:var(--t3-sello)}
 .t3x-taller-msj{margin:6px 0 0;font:500 18px/1.15 var(--t3-mano);color:var(--t3-tinta-azul)}
 .t3x-taller-msj:empty{display:none}
+
+/* ---- contestarle: el renglón debajo de la firma ---- */
+.t3x-contestar{position:relative;display:flex;align-items:center;gap:6px;width:max-content;height:var(--t3-paso);margin:0 0 0 auto;padding:0 4px 0 8px;border:0;background:none;cursor:pointer;font:500 22px/var(--t3-paso) var(--t3-mano);color:var(--t3-tinta-azul);-webkit-tap-highlight-color:transparent;transition:opacity .5s ease .5s}
+.t3x-contestar::before{content:"";position:absolute;inset:-8px -6px}
+.t3x-contestar svg{width:22px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.t3x-contestar:active{opacity:.5}
+.t3-cuaderno-tapada .t3x-contestar,.t3-cuaderno-dorso .t3x-contestar{display:none}
+.t3-cuaderno-espera-firma~.t3x-contestar{opacity:0;pointer-events:none;transition:none}
+
+/* ---- la hoja para contestar ---- */
+.t3x-resp{padding:2px 18px 12px 30px}
+.t3x-resp-cita{margin:0 0 14px;padding:1px 0 1px 12px;border-left:2px solid rgba(43,33,24,.25);font:500 21px/1.12 var(--t3-mano);color:var(--t3-tinta-suave)}
+.t3x-resp-cita small{display:block;margin-top:4px;font:500 9px/1.4 var(--t3-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--t3-lapiz)}
+.t3x-resp-texto{display:block;width:100%;box-sizing:border-box;height:196px;margin:0;padding:0 12px;border:0;border-radius:1px;outline:none;resize:none;-webkit-appearance:none;appearance:none;font:500 26px/28px var(--t3-mano);color:var(--t3-tinta-azul);caret-color:var(--t3-sello);background-color:#FCF8EE;background-image:linear-gradient(180deg,transparent 27px,rgba(191,208,222,.85) 27px 28px);background-size:100% 28px;background-attachment:local;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.3);-webkit-user-select:text;user-select:text}
+.t3x-resp-texto::placeholder{color:var(--t3-lapiz);opacity:.85}
+.t3x-resp-texto[readonly]{color:var(--t3-tinta-azul);opacity:.8}
+.t3x-resp-nota{margin:12px 0 0;font:italic 500 15px/1.25 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-resp-acc{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.t3x-boton{display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;width:100%;min-height:50px;margin:0;padding:0 16px;border:0;border-radius:3px;cursor:pointer;text-decoration:none;font:500 11px/1.2 var(--t3-mono);letter-spacing:.18em;text-transform:uppercase;text-align:center;color:#FAEEDF;background:var(--t3-sello);box-shadow:var(--t3-sombra-dura);-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:transform .08s ease,opacity .2s ease}
+.t3x-boton:active{transform:translate(1px,1px)}
+.t3x-boton:disabled,.t3x-boton.t3x-inactivo{opacity:.4;pointer-events:none}
+.t3x-boton.t3x-hecho,.t3x-boton.t3x-hecho:disabled{background:var(--t3-ok);opacity:1}
+.t3x-boton-claro{background:var(--t3-papel-claro);color:var(--t3-tinta-azul);box-shadow:inset 0 0 0 1.5px var(--t3-tinta-azul),var(--t3-sombra-dura)}
+.t3x-boton i{font-style:normal;font-size:14px;letter-spacing:0}
+
+/* ---- vale del adviento: avisarle ---- */
+.t3x-vale-avisar{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;font:600 22px/1 var(--t3-mano);color:#F3D9A0;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;-webkit-tap-highlight-color:transparent}
+.t3x-vale-avisar i{font-style:normal;font-size:15px}
+
+/* ---- pestañas nuevas ---- */
+.t3-cuaderno-pestana-pedidos{background:#A6D8C4;color:#245345;min-height:78px;letter-spacing:.14em}
+.t3-cuaderno-pestana-pedidos.t3-cuaderno-activa{background:#CDEBDF;color:#1B4336}
+.t3-cuaderno-pestana-tcg{background:#C79430;color:#372405;background-image:linear-gradient(112deg,rgba(255,244,205,.0) 30%,rgba(255,244,205,.55) 47%,rgba(255,244,205,0) 62%),linear-gradient(180deg,rgba(255,255,255,.14),transparent 45%),var(--t3c-grano)!important;background-size:auto,auto,180px 180px!important}
+.t3-cuaderno-pestana-tcg.t3-cuaderno-activa{filter:brightness(1.1)}
+.t3-cuaderno-pestana-tcg.t3-cuaderno-con-sobre::after{content:"";position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--t3-sello);box-shadow:0 0 0 1.5px #F6E9C2}
+
+/* ---- talonario de pedidos ---- */
+.t3x-ped{padding:10px 16px 44px 28px}
+.t3x-ped-cab h2{margin:4px 0 0;font:700 34px/1 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-ped-cab p{margin:6px 0 18px;font:italic 500 16px/1.25 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-ped-lista{display:flex;flex-direction:column;gap:13px}
+.t3x-ticket{position:relative;display:grid;grid-template-columns:56px 1fr;min-height:76px;text-decoration:none;color:var(--t3-tinta);background:#FCF8EE;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.35);transform:rotate(var(--rot,0deg));-webkit-tap-highlight-color:transparent;transition:transform .55s var(--t3-curva),opacity .5s ease}
+.t3x-ticket:active{transform:rotate(var(--rot,0deg)) scale(.98)}
+.t3x-ticket-talon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-right:1.6px dashed rgba(43,33,24,.38);background:rgba(166,216,196,.5)}
+.t3x-ticket-talon i{font:500 7.5px/1 var(--t3-mono);font-style:normal;letter-spacing:.16em;text-transform:uppercase;color:var(--t3-tinta-suave)}
+.t3x-ticket-talon b{font:500 17px/1 var(--t3-mono);letter-spacing:.04em;color:var(--t3-sello)}
+.t3x-ticket-cuerpo{position:relative;display:block;padding:11px 12px 13px 56px}
+.t3x-ticket-dib{position:absolute;left:11px;top:50%;width:36px;height:36px;margin-top:-18px;color:var(--t3-tinta)}
+.t3x-ticket-t{display:block;font:700 24px/1.02 var(--t3-mano)}
+.t3x-ticket-d{display:block;margin-top:3px;padding-right:46px;font:italic 500 14.5px/1.2 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-ticket-ir{position:absolute;right:10px;bottom:9px;font:500 9px/1 var(--t3-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--t3-tinta-azul)}
+.t3x-ticket-ir i{font-style:normal;margin-left:3px}
+.t3x-ticket.t3x-arrancado{transform:translateX(62%) rotate(9deg);opacity:0;pointer-events:none}
+.t3x-ticket-libre{background:#FFF6D8}
+.t3x-ticket-libre .t3x-ticket-talon{background:rgba(199,148,48,.28)}
+.t3x-ped-pie{margin:22px 0 0;text-align:right;font:500 19px/1.15 var(--t3-mano);color:var(--t3-lapiz);transform:rotate(-1.2deg)}
 /*EXTRAS-CSS>>*/
 </style>
 </head>
@@ -12831,7 +12887,15 @@ X.DIB={
   campana:'<path d="M12 34c3-3 4-7 4-13a8 8 0 0 1 16 0c0 6 1 10 4 13z"/><path d="M21 38a3 3 0 0 0 6 0M24 9v4M7 16c1-3 3-5 5-6M41 16c-1-3-3-5-5-6"/>',
   sobre:'<rect x="7" y="13" width="34" height="23" rx="2"/><path d="M7 15l17 13 17-13M7 35l12-10M41 35L29 25"/>',
   corazon:'<path d="M24 39C12 31 8 25 8 19a8 8 0 0 1 16-3 8 8 0 0 1 16 3c0 6-4 12-16 20z"/>',
-  estrella:'<path d="M24 7l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/>'
+  estrella:'<path d="M24 7l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/>',
+  manos:'<path d="M17 42c-4-4-7-9-8-14-.5-2.6 2.6-3.6 3.7-1.3L15 31V14a2.5 2.5 0 0 1 5 0v10V11a2.5 2.5 0 0 1 5 0v13V13a2.5 2.5 0 0 1 5 0v12v-7a2.5 2.5 0 0 1 5 0v14c0 6-3 10-8 10z"/><path d="M38 7l1 3M43 11l-3 1"/>',
+  sushi:'<path d="M7 31c0-5 7-8 17-8s17 3 17 8-7 7-17 7-17-2-17-7z"/><path d="M8 28c2-7 8-11 16-11s14 4 16 11M16 20l3 6M24 17v8M32 20l-3 6"/>',
+  mila:'<circle cx="24" cy="25" r="18"/><path d="M12 25c0-6 5-9 12-9s12 3 12 9-5 8-12 8-12-2-12-8z"/><path d="M17 23c2-1.4 4 1.4 7 0s5 1.4 7 0"/><circle cx="20" cy="28" r=".9"/><circle cx="28" cy="27.5" r=".9"/>',
+  helado:'<path d="M14 23l10 20 10-20"/><path d="M12 23a12 12 0 0 1 24 0z"/><path d="M18 31l11-5M21 37l7-3.4"/><circle cx="19" cy="17" r=".9"/><circle cx="27" cy="15" r=".9"/><circle cx="24" cy="20" r=".9"/><circle cx="30" cy="20" r=".9"/>',
+  sanguche:'<path d="M6 29L24 11l18 18z"/><path d="M6 38h36l-1-4H7z"/><path d="M7 31.5c3-2 5 2 8.5 0s5 2 8.5 0 5 2 8.5 0 5 2 8.5 0"/>',
+  peli:'<rect x="6" y="12" width="36" height="23" rx="2"/><path d="M21 18.500l8 5-8 5zM16 41h16M24 35v6"/>',
+  cuadras:'<path d="M35 19a8 8 0 0 0-16 0c0 7 8 15 8 15s8-8 8-15z"/><circle cx="27" cy="19" r="2.4"/><path d="M8 41c7 0 6-7 13-7" stroke-dasharray="2 4.5"/><circle cx="7" cy="41" r="2"/>',
+  telefono:'<rect x="15" y="5" width="18" height="38" rx="3.5"/><path d="M21 10h6M22.5 38h3"/>'
 };
 X.dib=function(n,clase){
   return '<svg class="'+(clase||"t3x-dib")+'" viewBox="0 0 48 48" aria-hidden="true">'+(X.DIB[n]||"")+'</svg>';
@@ -13203,6 +13267,204 @@ function enganchar(nodo){
   });
 }
 T3.taller={html:html,enganchar:enganchar,_fila:fila};
+})();
+
+/* ------------------------------------------------------------
+   IDA Y VUELTA
+   El cuaderno deja de ser de una sola mano.
+   · "contestarle": debajo de cada carta aparece una hoja para
+     escribirle. Se guarda en el cuaderno (como una hoja más de
+     ese día, con su tinta) y/o sale por WhatsApp.
+   · vales del adviento: al canjear uno, un botón para avisarte.
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var X=T3.x,esc=X.esc;
+T3.JUEGOS.responder={nom:"Contestarle"};
+
+function hayCarta(f){return !!String((T3.dia(f)||{}).mensaje||"").trim();}
+function cuantas(f){return +T3.leer("resp-"+f,0)||0;}
+function recorte(t,n){
+  t=String(t||"").replace(/\s+/g," ").trim();
+  if(t.length<=n)return t;
+  var c=t.slice(0,n),e=c.lastIndexOf(" ");
+  return (e>n*.5?c.slice(0,e):c)+"…";
+}
+
+/* el renglón que va debajo de la firma */
+function pieCarta(f,carta,op){
+  op=op||{};
+  if(op.dorso||!X.estrenado()||f<T3.INICIO||!carta||carta.vacia||carta.de!==f||!hayCarta(f))return "";
+  return '<button type="button" class="t3x-contestar" data-t3x="contestar" data-f="'+f+'">'+
+    '<svg viewBox="0 0 24 16" aria-hidden="true"><path d="M22 3C12 3 7 6 4 12M4 12l-.6-6.400M4 12l6.2-1.3"/></svg>'+
+    (cuantas(f)?"contestarle otra vez":"contestarle")+'</button>';
+}
+X.acciones.contestar=function(b){
+  if(!T3.cuaderno||!T3.cuaderno.jugar||X.ocupado())return;
+  T3.cuaderno.jugar({tipo:"responder",f:b.getAttribute("data-f")},"Contestarle");
+};
+
+/* la hoja para escribir (se monta como un "juego" más: misma hoja suelta) */
+window.montarResponder=function(a){
+  var cont=document.getElementById("actividad");
+  if(!cont)return;
+  var f=a.f||T3.hoy;
+  var carta=String((T3.dia(f)||{}).mensaje||"").trim();
+  var LL="resp-borrador-"+f;
+  var guardada=-1;
+  cont.innerHTML='<div class="t3x-resp">'+
+    '<p class="t3x-resp-cita"><span>'+esc(recorte(carta,110))+'</span><small>'+esc(T3.firma(f))+' · '+esc(T3.f.media(f))+'</small></p>'+
+    '<textarea class="t3x-resp-texto" rows="6" maxlength="1500" placeholder="Escribile acá…" aria-label="Lo que le contestás"></textarea>'+
+    '<p class="t3x-resp-nota">Si la guardás, queda en el cuaderno como una hoja más de ese día, con tu tinta.</p>'+
+    '<div class="t3x-resp-acc">'+
+      '<button type="button" class="t3x-boton t3x-resp-guardar">Guardarla en el cuaderno</button>'+
+      '<a class="t3x-boton t3x-boton-claro t3x-resp-mandar" target="_blank" rel="noopener">Mandársela por WhatsApp<i aria-hidden="true">↗</i></a>'+
+    '</div></div>';
+  var ta=cont.querySelector("textarea"),bG=cont.querySelector(".t3x-resp-guardar"),bM=cont.querySelector(".t3x-resp-mandar");
+  ta.value=String(T3.leer(LL,"")||"");
+  function texto(){return ta.value.replace(/\s+$/,"");}
+  function pintar(){
+    var hay=!!texto().trim();
+    bG.disabled=!hay||guardada>=0;
+    bM.classList.toggle("t3x-inactivo",!hay);
+    bM.setAttribute("aria-disabled",String(!hay));
+    if(hay)bM.href=X.wa("💌 Respuesta a tu carta del "+T3.f.media(f)+":\n\n"+texto());
+    else bM.removeAttribute("href");
+  }
+  var t=0;
+  ta.addEventListener("input",function(){
+    pintar();
+    clearTimeout(t);t=setTimeout(function(){if(guardada<0)T3.guardar(LL,ta.value);},400);
+  });
+  ta.addEventListener("focus",function(){
+    setTimeout(function(){try{ta.scrollIntoView({block:"center",behavior:"smooth"});}catch(e){}},350);
+  });
+  bG.addEventListener("click",function(){
+    var tx=texto();
+    if(!tx.trim()||guardada>=0)return;
+    T3.agregarPagina(f,{autor:T3.nombre(f),texto:tx,tinta:"azul",titulo:"Mi respuesta"});
+    guardada=T3.paginasExtra(f).length-1;
+    T3.guardar("resp-"+f,cuantas(f)+1);
+    T3.borrar(LL);
+    T3.stat("respuestas");
+    T3.sonido("sello",.8);
+    ta.readOnly=true;
+    bG.textContent="Guardada en el cuaderno";
+    bG.classList.add("t3x-hecho");
+    bM.firstChild.textContent="Y mandársela también";
+    pintar();
+    var nota=cont.querySelector(".t3x-resp-nota");
+    if(nota)nota.textContent="Listo. Cerrá esta hoja y la vas a ver pegada después de la carta.";
+  });
+  bM.addEventListener("click",function(ev){
+    if(!texto().trim()){ev.preventDefault();return;}
+    T3.stat("respuestas-wa");
+  });
+  T3.alCerrarJuego(function(){
+    clearTimeout(t);
+    if(guardada<0){if(ta.value.trim())T3.guardar(LL,ta.value);return;}
+    var idx=guardada;
+    setTimeout(function(){try{T3.cuaderno.refrescar(f,idx);}catch(e){}},120);
+  });
+  pintar();
+};
+
+/* vale del adviento ya canjeado: link para avisarle */
+function enVale(velo,n,f,it,canjeado){
+  if(!canjeado||!velo)return;
+  var mesa=velo.querySelector(".t3-adviento-mesa");
+  if(!mesa||mesa.querySelector(".t3x-vale-avisar"))return;
+  var a=document.createElement("a");
+  a.className="t3x-vale-avisar";a.target="_blank";a.rel="noopener";
+  a.href=X.wa("🎟️ Canjeo mi vale Nº "+String(n).padStart(4,"0")+" del adviento: "+String((it&&it.que)||"")+".");
+  a.innerHTML='avisarle a Mati<i aria-hidden="true">↗</i>';
+  a.addEventListener("click",function(){T3.stat("vales-avisados");});
+  mesa.insertBefore(a,mesa.querySelector(".t3-adviento-guardar"));
+}
+
+T3.vuelta={pieCarta:pieCarta,enVale:enVale};
+})();
+
+/* ------------------------------------------------------------
+   TALONARIO DE PEDIDOS
+   Una pestaña con tickets: toca uno y se abre WhatsApp con el
+   pedido ya escrito. La lista se puede cambiar desde
+   CONFIG.t3.pedidos: [{t:"título", d:"letra chica", m:"mensaje"}]
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var X=T3.x,esc=X.esc,C=T3.config||{};
+var BASE=[
+  {id:"mimos",    t:"Mimos",                     d:"Sin horario. Sin tope.",             dib:"corazon"},
+  {id:"masajitos",t:"Masajitos",                 d:"El aporte semanal, pero al revés.",  dib:"manos"},
+  {id:"sushi",    t:"Sushitos de Fabric",        d:"Canjeable cualquier viernes. O hoy.",dib:"sushi"},
+  {id:"mila",     t:"Mila napo del Vecino",      d:"Obvio.",                             dib:"mila"},
+  {id:"helado",   t:"Helado de menta granizada", d:"Del tamaño que quieras.",            dib:"helado"},
+  {id:"chambu",   t:"Chambuchito",               d:"Y no se habla más.",                 dib:"sanguche"},
+  {id:"peli",     t:"Peli y sillón",             d:"Elegís vos. Yo llevo algo rico.",    dib:"peli"},
+  {id:"buscar",   t:"Vení a buscarme",           d:"Son diez cuadras.",                  dib:"cuadras"},
+  {id:"llamar",   t:"Llamame",                   d:"Cinco minutos. O cincuenta.",        dib:"telefono"}
+];
+var COMODIN={id:"comodin",t:"Comodín",d:"Lo que quieras: lo escribís vos.",dib:"estrella",libre:true};
+
+function lista(){
+  var propia=(Array.isArray(C.pedidos)?C.pedidos:[]).filter(function(p){return p&&String(p.t||"").trim();}).map(function(p,i){
+    return {id:"p"+i,t:String(p.t).trim(),d:String(p.d||"").trim(),m:String(p.m||"").trim(),dib:X.DIB[p.dib]?p.dib:"corazon"};
+  });
+  return (propia.length?propia:BASE).concat([COMODIN]);
+}
+function libro(){var l=T3.leer("pedidos",null);return l&&typeof l==="object"?{n:+l.n||0,log:Array.isArray(l.log)?l.log:[]}:{n:0,log:[]};}
+function nro(n){return String(n).padStart(4,"0");}
+function mensaje(p,n){
+  if(p.libre)return "🎟️ Pedido Nº "+nro(n)+" (comodín): ";
+  return "🎟️ Pedido Nº "+nro(n)+": "+(p.m||p.t)+".";
+}
+function pie(L){
+  if(!L.n)return "todavía no pediste nada. qué raro.";
+  var u=L.log[L.log.length-1];
+  return "pedidos hechos: "+L.n+(u?" · el último: "+String(u.t||"").toLowerCase()+", el "+T3.f.corta(u.f):"");
+}
+function pagina(host){
+  if(!host)return null;
+  var vivo=true;
+  function pintar(){
+    var L=libro(),sig=L.n+1,veces={};
+    L.log.forEach(function(x){veces[x.id]=(veces[x.id]||0)+1;});
+    host.innerHTML='<div class="t3x-ped">'+
+      '<header class="t3x-ped-cab"><h2>Talonario de pedidos</h2>'+
+      '<p>Tocá uno y me llega por WhatsApp. Se cumplen todos. (Casi todos.)</p></header>'+
+      '<div class="t3x-ped-lista">'+lista().map(function(p,i){
+        return '<a class="t3x-ticket'+(p.libre?" t3x-ticket-libre":"")+'" data-i="'+i+'" href="'+esc(X.wa(mensaje(p,sig)))+'" target="_blank" rel="noopener" style="--rot:'+X.giro("tk"+p.id,1.3)+'deg">'+
+          '<span class="t3x-ticket-talon"><i>veces</i><b>'+String(veces[p.id]||0).padStart(2,"0")+'</b></span>'+
+          '<span class="t3x-ticket-cuerpo">'+X.dib(p.dib,"t3x-dib t3x-ticket-dib")+
+          '<span class="t3x-ticket-t">'+esc(p.t)+'</span><span class="t3x-ticket-d">'+esc(p.d)+'</span></span>'+
+          '<span class="t3x-ticket-ir">pedir<i aria-hidden="true">↗</i></span></a>';
+      }).join("")+'</div>'+
+      '<p class="t3x-ped-pie">'+esc(pie(L))+'</p></div>';
+  }
+  function clic(ev){
+    var a=ev.target.closest(".t3x-ticket");
+    if(!a||a.classList.contains("t3x-arrancado"))return;
+    var p=lista()[+a.getAttribute("data-i")];
+    if(!p)return;
+    var L=libro();
+    L.n++;L.log.push({n:L.n,id:p.id,t:p.t,f:T3.hoy});
+    if(L.log.length>200)L.log=L.log.slice(-200);
+    T3.guardar("pedidos",L);
+    T3.stat("pedidos");T3.stat("pedido-"+p.id);
+    T3.sonido("papel",.8);
+    a.classList.add("t3x-arrancado");
+    setTimeout(function(){if(vivo)pintar();},1400);
+  }
+  host.addEventListener("click",clic);
+  pintar();
+  return {desmontar:function(){vivo=false;host.removeEventListener("click",clic);}};
+}
+T3.pedidos={activo:function(){return X.estrenado();},pagina:pagina,_prueba:{lista:lista,libro:libro,mensaje:mensaje}};
 })();
 /*EXTRAS-JS>>*/
 (function(){try{if(window.T3&&T3.activo&&T3.cuaderno&&T3.cuaderno.arrancar)T3.cuaderno.arrancar();}

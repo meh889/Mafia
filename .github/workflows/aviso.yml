@@ -1,0 +1,47 @@
+# Aviso diario: les manda a los celulares suscriptos la notificación de que ya
+# está la hoja del día. Si hoy no hay nada cargado (o son vacaciones) no manda.
+#
+# Para mandar algo a mano: Actions → "Aviso diario" → Run workflow, y escribir
+# el texto (o tildar "prueba").
+#
+# Necesita los secrets AVISOS_VAPID_PRIVADA y AVISOS_SUSCRIPCIONES
+# (Settings → Secrets and variables → Actions). Sin ellos corre y no hace nada.
+name: Aviso diario
+
+on:
+  schedule:
+    - cron: "17 12 * * *"   # 9:17 en Buenos Aires. GitHub usa UTC y puede demorarse unos minutos.
+  workflow_dispatch:
+    inputs:
+      texto:
+        description: "Texto para mandar ahora (vacío = el aviso normal de hoy)"
+        required: false
+        default: ""
+      prueba:
+        description: "Mandar un aviso de prueba"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aviso
+  cancel-in-progress: false
+
+jobs:
+  avisar:
+    name: Mandar el aviso
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar lo que hace falta para mandar
+        run: npm install --prefix "$RUNNER_TEMP/wp" --no-audit --no-fund web-push@4
+      - name: Mandar
+        env:
+          VAPID_PRIVADA: ${{ secrets.AVISOS_VAPID_PRIVADA }}
+          SUSCRIPCIONES: ${{ secrets.AVISOS_SUSCRIPCIONES }}
+          TEXTO: ${{ inputs.texto }}
+          PRUEBA: ${{ inputs.prueba }}
+        run: NODE_PATH="$RUNNER_TEMP/wp/node_modules" node .github/scripts/aviso.cjs

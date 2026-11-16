@@ -3050,6 +3050,23 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3x-ap-listo{flex:none;max-width:240px;margin-top:12px}
 .t3x-ap-listo[hidden],.t3x-ap-sobre[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.t3x-carta-brillo,.t3x-tcg-sobre,.t3x-ap-sobre,.t3x-ap-r-h .t3x-dorso,.t3x-ap-r-s .t3x-dorso{animation:none}}
+
+/* ---- avisos: la tarjeta de la campanita ---- */
+.t3x-campana{flex:1 0 100%;display:grid;grid-template-columns:36px 1fr;gap:4px 8px;align-items:start;box-sizing:border-box;max-width:322px;margin:2px 0 6px;padding:12px 14px 8px 12px;background:#FCF8EE;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.35);transition:opacity .4s ease,transform .4s var(--t3-curva)}
+.t3x-campana-dib{width:34px;height:34px;margin-top:2px;color:var(--t3-sello)}
+.t3x-campana-txt p{margin:0;font:italic 500 15px/1.25 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-campana-txt b{display:block;margin-bottom:3px;font:700 23px/1.02 var(--t3-mano);font-style:normal;color:var(--t3-tinta)}
+.t3x-campana-txt .t3x-campana-nota{margin-top:6px;color:var(--t3-sello)}
+.t3x-campana-acc{display:flex;flex-wrap:wrap;gap:0 16px;margin-top:2px}
+.t3x-campana-si,.t3x-campana-no{display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;cursor:pointer;white-space:nowrap;font:600 21px/1 var(--t3-mano);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;-webkit-tap-highlight-color:transparent}
+.t3x-campana-si{color:var(--t3-tinta-azul)}
+.t3x-campana-si i{font-style:normal;font-size:15px;margin-left:6px}
+.t3x-campana-no{color:var(--t3-lapiz)}
+.t3x-campana-si:disabled{opacity:.5}
+.t3x-campana.t3x-campana-chau{opacity:0;transform:translateY(-8px) rotate(var(--rot,0deg))}
+.t3x-taller-diag{margin:0;font:500 18px/1.25 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-taller-diag b{color:var(--t3-tinta-azul)}
+.t3x-taller-caja>.t3x-taller-ojo{margin:6px 0 4px;font:italic 500 14px/1.25 var(--t3-serif);color:var(--t3-tinta-suave)}
 /*EXTRAS-CSS>>*/
 </style>
 </head>
@@ -13317,12 +13334,15 @@ function fila(nombre,detalle,acciones){
       return '<button type="button" class="t3x-taller-btn" data-taller="'+a[0]+'">'+esc(a[1])+'</button>';
     }).join("")+'</div></div>';
 }
-function html(){
+function filas(){
   var acR=T3.preview?[]:[["guardar","guardar"],["restaurar","restaurar"]];
   if(!T3.preview&&T3.respaldo&&T3.respaldo.hayDeshacer())acR.push(["deshacer","deshacer"]);
-  var filas=fila("versión",textoVersion(),T3.preview?[]:[["version","buscar"]])+fila("respaldo",textoRespaldo(),acR);
-  if(T3.avisos&&T3.avisos.filaTaller)filas+=T3.avisos.filaTaller(fila);
-  return '<div class="t3-maquina-bloque t3x-taller"><h4>TALLER</h4>'+filas+
+  var h=fila("versión",textoVersion(),T3.preview?[]:[["version","buscar"]])+fila("respaldo",textoRespaldo(),acR);
+  if(T3.avisos&&T3.avisos.filaTaller)h+=T3.avisos.filaTaller(fila);
+  return h;
+}
+function html(){
+  return '<div class="t3-maquina-bloque t3x-taller"><h4>TALLER</h4><div class="t3x-taller-filas">'+filas()+'</div>'+
     '<div class="t3x-taller-caja" hidden></div><p class="t3x-taller-msj" role="status"></p></div>';
 }
 function enganchar(nodo){
@@ -13332,6 +13352,7 @@ function enganchar(nodo){
   var listo=null;        /* el código, preparado de antemano para que compartir salga en el mismo toque */
   function decir(t){msj.textContent=t||"";}
   function detalle(n,t){var s=raiz.querySelector('[data-detalle="'+n+'"]');if(s)s.textContent=t;}
+  function repintar(){var f=raiz.querySelector(".t3x-taller-filas");if(f)f.innerHTML=filas();}
   function preparar(){
     if(T3.preview||!T3.respaldo)return;
     T3.respaldo.exportar().then(function(c){listo=c;}).catch(function(){listo=null;});
@@ -13410,7 +13431,7 @@ function enganchar(nodo){
       T3.respaldo.deshacer().then(function(n){decir("deshecho ("+n+" datos). recargando…");recargarEn(900);})
         .catch(function(){decir("no había nada para deshacer.");});
     }else if(T3.avisos&&T3.avisos.clicTaller){
-      T3.avisos.clicTaller(que,{decir:decir,detalle:detalle,caja:caja,boton:b});
+      T3.avisos.clicTaller(que,{decir:decir,detalle:detalle,caja:caja,boton:b,repintar:repintar});
     }
   });
 }
@@ -14108,6 +14129,229 @@ T3.tcg={
   haySobre:haySobre,pagina:pagina,alGanar:alGanar,CARTAS:CARTAS,
   _prueba:{estado:estado,guardar:guardar,ponerAlDia:ponerAlDia,tirar:tirar,repes:repes,canjear:canjear,tengo:tengo,carta:carta,dorso:dorso,TOTAL:TOTAL}
 };
+})();
+
+/* ------------------------------------------------------------
+   AVISOS
+   Notificación diaria: "ya está la hoja de hoy". Cómo funciona:
+   1. En el celular, ella toca "sí, avisame" (o vos "activar" en el
+      taller). El celular pide permiso y devuelve un código
+      MAFIAPUSH1:… que identifica a ese celular.
+   2. Ese código se carga en el secret AVISOS_SUSCRIPCIONES del repo.
+   3. Todas las mañanas, .github/workflows/aviso.yml manda el aviso.
+   En iPhone solo funciona con la app agregada a la pantalla de
+   inicio. sw.js existe únicamente para mostrar estos avisos.
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var X=T3.x,esc=X.esc;
+/* llave pública de los avisos (la privada vive en el secret AVISOS_VAPID_PRIVADA) */
+var PUBLICA="BLR0DnA9AUFnDD6jMLV_6ExsXMm4mZ3BsCvYMZGR_Z_w0m8cv66dBHBKYkNLM_Tgo20SZec_q5IxOWMImpDH3UQ";
+var LL="avisos";
+
+function mio(){var a=T3.leer(LL,null);return a&&typeof a==="object"?a:{};}
+function soporte(){
+  var s={inicio:false,sw:false,push:false,noti:false,directo:false};
+  try{s.inicio=navigator.standalone===true||window.matchMedia("(display-mode: standalone)").matches;}catch(e){}
+  try{s.sw=!!navigator.serviceWorker;s.push=typeof window.PushManager==="function";s.noti=typeof window.Notification==="function";s.directo=!!window.pushManager;}catch(e){}
+  s.ok=s.noti&&((s.sw&&s.push)||s.directo);
+  return s;
+}
+function permiso(){try{return Notification.permission;}catch(e){return "default";}}
+function b64u(bytes){
+  var s="";
+  for(var i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function deB64u(t){
+  t=String(t).replace(/-/g,"+").replace(/_/g,"/");
+  while(t.length%4)t+="=";
+  var s=atob(t),a=new Uint8Array(s.length);
+  for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);
+  return a;
+}
+function codigoDe(sub){
+  var j=sub&&sub.toJSON?sub.toJSON():sub,k=(j&&j.keys)||{};
+  if(!j||!j.endpoint||!k.p256dh||!k.auth)throw new Error("suscripcion-rara");
+  return "MAFIAPUSH1:"+b64u(new TextEncoder().encode(JSON.stringify({e:j.endpoint,p:k.p256dh,a:k.auth})));
+}
+function registro(){
+  if(!("serviceWorker" in navigator))return Promise.resolve(null);
+  var listo=navigator.serviceWorker.register("sw.js").then(function(){return navigator.serviceWorker.ready;});
+  var tope=new Promise(function(r){setTimeout(function(){r(null);},8000);});
+  return Promise.race([listo,tope]).catch(function(){return null;});
+}
+function suscribir(){
+  var op={userVisibleOnly:true,applicationServerKey:deB64u(PUBLICA)};
+  return registro().then(function(reg){
+    if(reg&&reg.pushManager){
+      return reg.pushManager.getSubscription().then(function(s){return s||reg.pushManager.subscribe(op);});
+    }
+    if(window.pushManager)return window.pushManager.subscribe(op);
+    throw new Error("sin-push");
+  });
+}
+/* hay que llamarla desde un toque: el permiso solo se puede pedir así */
+function activar(){
+  if(T3.preview)return Promise.reject(new Error("maquina"));
+  if(!soporte().ok)return Promise.reject(new Error("no-soportado"));
+  var p;
+  try{p=Notification.requestPermission();}catch(e){return Promise.reject(e);}
+  return Promise.resolve(p).then(function(r){
+    if(r!=="granted")throw new Error(r==="denied"?"denegado":"sin-respuesta");
+    return suscribir();
+  }).then(function(sub){
+    var c=codigoDe(sub),a=mio();
+    if(a.codigo!==c)a.enviado=false;
+    a.activo=true;a.codigo=c;
+    if(!a.desde)a.desde=T3.hoy;
+    delete a.no;
+    T3.guardar(LL,a);
+    T3.stat("avisos-activados");
+    return c;
+  });
+}
+function mensajeCodigo(c){return "🔔 Activé los avisos de MafiApp. Esto es para vos:\n\n"+c;}
+function probar(){
+  if(!("serviceWorker" in navigator))return Promise.reject(new Error("sin-sw"));
+  return registro().then(function(reg){
+    if(!reg||!reg.showNotification)throw new Error("sin-sw");
+    return reg.showNotification("MafiApp",{body:"Así se va a ver el aviso de cada mañana.",icon:"icon.png",tag:"mafiapp"});
+  });
+}
+
+/* ---- la tarjeta en la hoja de hoy ---- */
+function tarjeta(modo,nota){
+  var a=mio();
+  var cuerpo;
+  if(modo==="lista"){
+    cuerpo='<p><b>Avisos activados.</b>Falta un paso: mandale este código a Mati, así los conecta.</p>'+
+      '<div class="t3x-campana-acc"><a class="t3x-campana-si" data-t3x="avisos-enviado" target="_blank" rel="noopener" href="'+esc(X.wa(mensajeCodigo(a.codigo||"")))+'">mandárselo<i aria-hidden="true">↗</i></a></div>';
+  }else{
+    cuerpo='<p><b>¿Te aviso cuando haya hoja nueva?</b>Un aviso por día, a la mañana. Nada más.</p>'+
+      (nota?'<p class="t3x-campana-nota">'+esc(nota)+'</p>':'')+
+      '<div class="t3x-campana-acc"><button type="button" class="t3x-campana-si" data-t3x="avisos-si">sí, avisame</button>'+
+      '<button type="button" class="t3x-campana-no" data-t3x="avisos-no">no, gracias</button></div>';
+  }
+  return '<div class="t3x-campana" style="--rot:'+X.giro("campana",1.2)+'deg">'+X.dib("campana","t3x-dib t3x-campana-dib")+'<div class="t3x-campana-txt">'+cuerpo+'</div></div>';
+}
+function quePieza(){
+  if(T3.preview||!X.estrenado())return "";
+  var a=mio();
+  if(a.activo&&a.codigo&&!a.enviado)return "lista";
+  if(a.activo||a.no||!soporte().ok||permiso()==="denied")return "";
+  return "invitar";
+}
+X.piezas.push(function(f){
+  if(f!==T3.hoy)return "";
+  var q=quePieza();
+  return q?tarjeta(q).replace('class="t3x-campana"','class="t3x-campana t3-cuaderno-espera"'):"";
+});
+function cambiar(b,html){
+  var c=b.closest(".t3x-campana");
+  if(!c)return;
+  if(!html){c.classList.add("t3x-campana-chau");setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},420);return;}
+  var n=T3.util.el(html);
+  c.parentNode.replaceChild(n,c);
+}
+X.acciones["avisos-si"]=function(b){
+  if(b.disabled)return;
+  b.disabled=true;
+  activar().then(function(){
+    T3.sonido("campana",.7);
+    cambiar(b,tarjeta("lista"));
+  }).catch(function(e){
+    b.disabled=false;
+    var m=e&&e.message;
+    cambiar(b,tarjeta("invitar",m==="denegado"?"Quedaron bloqueados. Se destraban desde Ajustes → Notificaciones → MafiApp.":
+      m==="sin-respuesta"?"No dijiste que sí. Cuando quieras, tocá de nuevo.":"No pude activarlos. Decile a Mati, que él sabe."));
+  });
+};
+X.acciones["avisos-no"]=function(b){
+  var a=mio();a.no=T3.hoy;T3.guardar(LL,a);
+  cambiar(b,"");
+};
+X.acciones["avisos-enviado"]=function(b){
+  var a=mio();a.enviado=true;T3.guardar(LL,a);
+  setTimeout(function(){cambiar(b,"");},900);
+};
+
+/* ---- la fila del taller ---- */
+function detalle(){
+  var s=soporte(),a=mio();
+  if(T3.preview)return "salí de la máquina para tocarlos";
+  if(!s.ok)return s.inicio?"este celular no los soporta":"solo andan con la app en la pantalla de inicio";
+  if(permiso()==="denied")return "bloqueados en los Ajustes del celular";
+  if(a.activo&&a.codigo)return "activos desde el "+T3.f.corta(a.desde||T3.hoy)+" · código "+(a.enviado?"enviado":"sin mandar");
+  return a.no?"dijo que no ("+T3.f.corta(a.no)+")":"sin activar";
+}
+function filaTaller(fila){
+  var s=soporte(),a=mio(),acc=[];
+  if(!T3.preview){
+    if(s.ok&&permiso()!=="denied"){
+      if(a.activo&&a.codigo)acc=[["avisos-copiar","copiar código"],["avisos-probar","probar acá"]];
+      else acc=[["avisos-activar","activar"]];
+    }
+    acc.push(["avisos-diag","ver por qué"]);
+  }
+  return fila("avisos",detalle(),acc);
+}
+function copiar(texto,ui){
+  var mostrar=function(){
+    ui.caja.hidden=false;
+    ui.caja.innerHTML='<label class="t3x-taller-lbl">el código de este celular</label><textarea class="t3x-taller-txt" rows="3" readonly></textarea>';
+    ui.caja.querySelector("textarea").value=texto;
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(texto).then(function(){ui.decir("código copiado. va en el secret AVISOS_SUSCRIPCIONES.");},function(){mostrar();ui.decir("copialo a mano.");});
+  }
+  mostrar();ui.decir("copialo a mano.");
+  return Promise.resolve();
+}
+function clicTaller(que,ui){
+  if(que==="avisos-activar"){
+    ui.decir("pidiendo permiso…");
+    activar().then(function(c){
+      var a=mio();a.enviado=true;T3.guardar(LL,a);      /* lo activó Mati: el código ya está en sus manos */
+      if(ui.repintar)ui.repintar();else ui.detalle("avisos",detalle());
+      return copiar(c,ui);
+    }).catch(function(e){
+      var m=e&&e.message;
+      ui.decir(m==="denegado"?"el celular los tiene bloqueados (Ajustes → Notificaciones).":m==="sin-respuesta"?"no se dio el permiso.":"no se pudo: "+(m||"error")+".");
+      ui.detalle("avisos",detalle());
+    });
+  }else if(que==="avisos-copiar"){
+    copiar(mio().codigo||"",ui);
+  }else if(que==="avisos-probar"){
+    probar().then(function(){ui.decir("mandado. tendría que aparecer ahora.");},function(){ui.decir("no pude mostrarlo desde acá.");});
+  }else if(que==="avisos-diag"){
+    var s=soporte(),si=function(v){return v?"sí":"no";};
+    ui.caja.hidden=false;
+    ui.caja.innerHTML='<label class="t3x-taller-lbl">qué ve este celular</label><p class="t3x-taller-diag">en la pantalla de inicio: <b>'+si(s.inicio)+'</b><br>notificaciones: <b>'+si(s.noti)+'</b> · push: <b>'+si(s.push||s.directo)+'</b> · service worker: <b>'+si(s.sw)+'</b><br>permiso: <b>'+esc(s.noti?permiso():"—")+'</b></p>'+
+      '<p class="t3x-taller-ojo">'+(s.ok?"Todo lo necesario está.":"Si dice «no» con la app abierta desde su ícono: guardá un respaldo, borrá el ícono, agregalo de nuevo desde Safari (Compartir → Agregar a inicio) y restaurá el respaldo.")+'</p>';
+    ui.decir("");
+  }
+}
+
+T3.avisos={soporte:soporte,permiso:permiso,activar:activar,probar:probar,filaTaller:filaTaller,clicTaller:clicTaller,
+  _prueba:{codigoDe:codigoDe,quePieza:quePieza,tarjeta:tarjeta,PUBLICA:PUBLICA}};
+
+/* si el celular cambió la suscripción por su cuenta, hay que volver a mandar el código */
+if(!T3.preview&&mio().activo&&soporte().ok&&permiso()==="granted"){
+  setTimeout(function(){
+    try{
+      navigator.serviceWorker.getRegistration().then(function(reg){
+        return reg&&reg.pushManager?reg.pushManager.getSubscription():null;
+      }).then(function(sub){
+        if(!sub)return;
+        var c=codigoDe(sub),a=mio();
+        if(a.codigo&&a.codigo!==c){a.codigo=c;a.enviado=false;T3.guardar(LL,a);}
+      }).catch(function(){});
+    }catch(e){}
+  },4000);
+}
 })();
 /*EXTRAS-JS>>*/
 (function(){try{if(window.T3&&T3.activo&&T3.cuaderno&&T3.cuaderno.arrancar)T3.cuaderno.arrancar();}

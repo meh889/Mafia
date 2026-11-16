@@ -58,7 +58,22 @@ function estaticos() {
     if (!fs.existsSync(p)) return;
     try { new vm.Script(fs.readFileSync(p, "utf8"), { filename: f }); } catch (e) { falla(f, "no compila: " + e.message); }
   });
-  if (!fallas.length) console.log("  ✓ " + n + " bloques de script compilan");
+  /* las fotos de las cartas de MafiaTCG tienen que existir */
+  const extras = (/\/\*<<EXTRAS-JS\*\/([\s\S]*?)\/\*EXTRAS-JS>>\*\//.exec(html) || [])[1] || "";
+  const fotos = Array.from(new Set(Array.from(extras.matchAll(/\bfoto:"([^"]+\.(?:jpe?g|png))"/g), (x) => x[1])));
+  fotos.forEach((f) => { if (!fs.existsSync(path.join(RAIZ, "fotos", "t3", "fotos", f))) falla("MafiaTCG", "falta la foto fotos/t3/fotos/" + f); });
+  /* el aviso diario: que el script lea la hoja sin romperse y use la misma llave que la app */
+  const pAviso = path.join(__dirname, "aviso.cjs");
+  if (fs.existsSync(pAviso)) {
+    try {
+      const A = require(pAviso);
+      const f = hoyBA(), h = A.leerHoja(f);
+      A.decidir(f, h.dia, h.estreno);
+      const enApp = (/var PUBLICA="([A-Za-z0-9_-]+)"/.exec(extras) || [])[1];
+      if (enApp && enApp !== A.PUBLICA) falla("avisos", "la llave pública de la app y la del script que manda no coinciden");
+    } catch (e) { falla("aviso.cjs", e.message); }
+  }
+  if (!fallas.length) console.log("  ✓ " + n + " bloques de script compilan" + (fotos.length ? " · " + fotos.length + " fotos de cartas en su lugar" : ""));
 }
 
 /* ---------- 2 · servidor local ---------- */

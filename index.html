@@ -2902,6 +2902,154 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3x-ticket-libre{background:#FFF6D8}
 .t3x-ticket-libre .t3x-ticket-talon{background:rgba(199,148,48,.28)}
 .t3x-ped-pie{margin:22px 0 0;text-align:right;font:500 19px/1.15 var(--t3-mano);color:var(--t3-lapiz);transform:rotate(-1.2deg)}
+
+/* ============================================================
+   MafiaTCG
+   ============================================================ */
+/* ---- la carta (se dibuja a cualquier tamaño: todo va en cqw) ---- */
+.t3x-carta{container-type:inline-size;position:relative;display:block;width:100%;aspect-ratio:5/7;margin:0;--palo:#2F4A7A;--papel:#FBF5E7;--tinta:#2B2118;--suave:#6E5C46}
+.t3x-carta-in{position:absolute;inset:0;display:flex;flex-direction:column;box-sizing:border-box;padding:4.4cqw 4.6cqw 3.2cqw;border-radius:5cqw;overflow:hidden;color:var(--tinta);background-color:var(--papel);background-image:var(--t3c-grano);background-size:180px 180px;box-shadow:inset 0 0 0 .4cqw rgba(43,33,24,.55),inset 0 0 0 2.2cqw var(--papel),inset 0 0 0 2.6cqw var(--palo),0 1px 2px rgba(0,0,0,.35)}
+.t3x-carta-cab{flex:none;display:flex;justify-content:space-between;align-items:center;height:5cqw;padding:0 .6cqw;font:500 2.75cqw/1 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--palo)}
+.t3x-carta-arte{flex:none;position:relative;height:72cqw;margin-top:1.4cqw;border-radius:1.6cqw;overflow:hidden;background:color-mix(in srgb,var(--palo) 13%,#FBF5E7);box-shadow:inset 0 0 0 .5cqw var(--palo)}
+.t3x-carta-arte img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none;-webkit-touch-callout:none}
+.t3x-carta-arte::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 .5cqw var(--palo);pointer-events:none}
+.t3x-carta-dib{position:absolute;left:50%;top:50%;width:46cqw;height:46cqw;margin:-23cqw 0 0 -23cqw;color:var(--palo);stroke-width:1.5}
+.t3x-arte-mafia{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:3cqw;color:var(--palo)}
+.t3x-arte-mafia b{font:600 italic 21cqw/1 var(--t3-serif)}
+.t3x-arte-mafia i{width:0;height:34cqw;border-left:.7cqw dashed currentColor;transform:rotate(12deg)}
+.t3x-carta-nom{flex:none;margin:3cqw 0 0;padding:0 .6cqw;font:600 7.8cqw/1.06 var(--t3-serif);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tinta)}
+.t3x-carta-lug{flex:none;margin-top:1cqw;padding:0 .6cqw;font:500 2.7cqw/1.2 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t3x-carta-epi{flex:none;margin:2.4cqw 0 0;padding:0 .6cqw;font:500 6.5cqw/1.03 var(--t3-mano);color:var(--tinta);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.t3x-carta-pod{margin:auto 0 0;padding:1.6cqw .6cqw 0;border-top:.35cqw solid color-mix(in srgb,var(--palo) 45%,transparent);font:italic 500 4.2cqw/1.14 var(--t3-serif);color:var(--suave);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.t3x-carta-pie{flex:none;display:flex;justify-content:space-between;margin-top:1.6cqw;padding:0 .6cqw;font:500 2.45cqw/1 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--palo)}
+.t3x-r-p .t3x-carta-in{box-shadow:inset 0 0 0 .4cqw rgba(43,33,24,.55),inset 0 0 0 2.2cqw var(--papel),inset 0 0 0 2.6cqw var(--palo),inset 0 0 0 3.2cqw var(--papel),inset 0 0 0 3.5cqw var(--palo),0 1px 2px rgba(0,0,0,.35)}
+.t3x-r-r .t3x-carta-in,.t3x-r-h .t3x-carta-in{box-shadow:inset 0 0 0 .4cqw rgba(43,33,24,.55),inset 0 0 0 1.2cqw var(--papel),inset 0 0 0 2.7cqw #D9B95E,inset 0 0 0 3.1cqw #9A7422,0 1px 2px rgba(0,0,0,.35)}
+.t3x-r-s{--papel:#2A2019;--tinta:#F6ECD6;--suave:#CDBB9A;--palo:#E3C676!important}
+.t3x-r-s .t3x-carta-in{background-image:none;box-shadow:inset 0 0 0 .4cqw #000,inset 0 0 0 1.2cqw var(--papel),inset 0 0 0 2.7cqw #E3C676,inset 0 0 0 3.1cqw #7A5A12,0 1px 2px rgba(0,0,0,.35)}
+.t3x-r-s .t3x-carta-arte{background:#1B1410}
+.t3x-r-h.t3x-carta-dibujo .t3x-carta-arte{background:radial-gradient(120% 90% at 30% 15%,color-mix(in srgb,var(--palo) 70%,#fff),var(--palo) 55%,color-mix(in srgb,var(--palo) 70%,#000))}
+.t3x-r-h.t3x-carta-dibujo .t3x-carta-dib{color:#FBF5E7}
+.t3x-mini.t3x-r-h.t3x-mini-dibujo .t3x-mini-arte{background:radial-gradient(120% 90% at 30% 15%,color-mix(in srgb,var(--palo) 70%,#fff),var(--palo) 55%,color-mix(in srgb,var(--palo) 70%,#000))}
+.t3x-mini.t3x-r-h.t3x-mini-dibujo .t3x-carta-dib{color:#FBF5E7}
+.t3x-carta-brillo{position:absolute;inset:0;border-radius:inherit;pointer-events:none;mix-blend-mode:color-dodge;opacity:.5;background-image:radial-gradient(circle at var(--bx,30%) var(--by,20%),rgba(255,255,255,.5),transparent 40%),linear-gradient(115deg,transparent 18%,rgba(255,80,140,.6) 34%,rgba(255,225,90,.6) 44%,rgba(90,255,180,.6) 54%,rgba(90,160,255,.6) 64%,transparent 80%);background-size:100% 100%,260% 260%;background-position:0 0,var(--bx,30%) var(--by,30%);animation:t3x-brillo 5.5s ease-in-out infinite alternate}
+@keyframes t3x-brillo{from{background-position:0 0,0% 0%}to{background-position:0 0,100% 100%}}
+
+/* ---- el dorso ---- */
+.t3x-dorso{position:absolute;inset:0;display:grid;place-items:center;border-radius:13px;background-color:#7E1D14;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 2px,transparent 2px 14px),repeating-linear-gradient(-45deg,rgba(0,0,0,.14) 0 2px,transparent 2px 14px);box-shadow:inset 0 0 0 1px rgba(43,33,24,.6),inset 0 0 0 9px #FBF5E7,inset 0 0 0 13px #7E1D14,inset 0 0 0 14.5px #E3C676,0 1px 3px rgba(0,0,0,.4)}
+.t3x-dorso-ovalo{display:flex;flex-direction:column;align-items:center;justify-content:center;width:64%;aspect-ratio:1.45;border-radius:50%;background:#FBF5E7;box-shadow:0 0 0 3px #E3C676,0 0 0 6px #7E1D14,0 0 0 7.5px #E3C676;transform:rotate(-8deg)}
+.t3x-dorso-ovalo b{font:600 italic 36px/1 var(--t3-serif);letter-spacing:.02em;color:#7E1D14}
+.t3x-dorso-ovalo i{margin-top:6px;font:500 10px/1 var(--t3-mono);font-style:normal;letter-spacing:.3em;text-indent:.3em;color:#7E1D14}
+
+/* ---- el sobre (se agranda con font-size) ---- */
+.t3x-sobre{position:relative;flex:none;display:block;box-sizing:content-box;width:8.6em;height:12.6em;margin:0;padding:0;border:0;background:none;font-size:10px;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 .45em .5em rgba(0,0,0,.4))}
+.t3x-sobre-tira,.t3x-sobre-cuerpo{position:absolute;left:0;right:0;display:block;background-color:#8CCDB6;background-image:repeating-linear-gradient(90deg,rgba(23,70,58,.13) 0 1px,transparent 1px .3em),linear-gradient(100deg,#6FB39B 0%,#C6EADC 18%,#83C7AF 36%,#EAF8F2 50%,#74B8A0 64%,#BDE5D6 84%,#6FB39B 100%)}
+.t3x-sobre-tira{top:0;height:1.5em;background-size:auto,100% 100%;clip-path:polygon(0.00% 22%,3.12% 0%,6.25% 22%,9.38% 0%,12.50% 22%,15.62% 0%,18.75% 22%,21.88% 0%,25.00% 22%,28.12% 0%,31.25% 22%,34.38% 0%,37.50% 22%,40.62% 0%,43.75% 22%,46.88% 0%,50.00% 22%,53.12% 0%,56.25% 22%,59.38% 0%,62.50% 22%,65.62% 0%,68.75% 22%,71.88% 0%,75.00% 22%,78.12% 0%,81.25% 22%,84.38% 0%,87.50% 22%,90.62% 0%,93.75% 22%,96.88% 0%,100.00% 22%,100% 100%,0% 100%);transition:transform .5s var(--t3-curva),opacity .4s ease .1s;transform-origin:0 100%}
+.t3x-sobre-cuerpo{top:1.45em;bottom:0;background-image:linear-gradient(180deg,rgba(23,70,58,.2),transparent .5em),repeating-linear-gradient(90deg,rgba(23,70,58,.13) 0 1px,transparent 1px .3em),linear-gradient(100deg,#6FB39B 0%,#C6EADC 18%,#83C7AF 36%,#EAF8F2 50%,#74B8A0 64%,#BDE5D6 84%,#6FB39B 100%);background-size:100% 100%,100% 1.1em,100% 100%;background-position:0 0,0 100%,0 0;background-repeat:no-repeat;clip-path:polygon(0% 0%,100% 0%,100.00% 94%,96.88% 100%,93.75% 94%,90.62% 100%,87.50% 94%,84.38% 100%,81.25% 94%,78.12% 100%,75.00% 94%,71.88% 100%,68.75% 94%,65.62% 100%,62.50% 94%,59.38% 100%,56.25% 94%,53.12% 100%,50.00% 94%,46.88% 100%,43.75% 94%,40.62% 100%,37.50% 94%,34.38% 100%,31.25% 94%,28.12% 100%,25.00% 94%,21.88% 100%,18.75% 94%,15.62% 100%,12.50% 94%,9.38% 100%,6.25% 94%,3.12% 100%,0.00% 94%);transition:transform .55s var(--t3-curva),opacity .45s ease}
+.t3x-sobre-cuerpo{display:flex;flex-direction:column;align-items:center;box-sizing:border-box;padding:.95em .5em 1.55em}
+.t3x-sobre-marca{display:block;font:600 italic 2em/1 var(--t3-serif);color:#17463A}
+.t3x-sobre-tcg{display:block;margin-top:.45em;padding:.3em .55em .22em;background:var(--t3-sello);color:#FAEEDF;font:500 .78em/1 var(--t3-mono);letter-spacing:.3em;text-indent:.3em}
+.t3x-sobre-dib{display:block;width:2.6em;height:2.6em;margin-top:.6em;color:#17463A;stroke-width:1.7}
+.t3x-sobre-set{display:block;margin-top:1em;font:500 .5em/1 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:#17463A;white-space:nowrap}
+.t3x-sobre-n{display:block;margin-top:auto;font:500 .46em/1 var(--t3-mono);letter-spacing:.16em;text-transform:uppercase;color:#17463A;opacity:.75;white-space:nowrap}
+.t3x-sobre-cuantos{position:absolute;right:-.9em;top:-.5em;z-index:2;min-width:2.5em;height:2.5em;box-sizing:border-box;padding:0 .4em;border-radius:1.25em;background:var(--t3-sello);color:#FAEEDF;font:500 1.15em/2.5em var(--t3-mono);text-align:center;box-shadow:0 0 0 2px var(--t3-papel)}
+.t3x-sobre-vacio{filter:none;cursor:default;border-radius:4px;box-shadow:inset 0 0 0 1.6px rgba(43,33,24,.22);background:repeating-linear-gradient(135deg,transparent 0 7px,rgba(43,33,24,.05) 7px 8px)}
+
+/* ---- la página del cuaderno ---- */
+.t3x-tcg{padding:6px 16px 48px 28px;text-align:left}
+.t3x-tcg-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:4px 0 12px}
+.t3x-tcg-cab h2{margin:0;font:600 italic 38px/1 var(--t3-serif);letter-spacing:-.01em;color:var(--t3-tinta)}
+.t3x-tcg-cab h2 b{display:inline-block;margin-left:6px;padding:4px 6px 3px;background:var(--t3-sello);color:#FAEEDF;font:500 11px/1 var(--t3-mono);font-style:normal;letter-spacing:.26em;text-indent:.26em;vertical-align:.75em}
+.t3x-tcg-cab p{margin:4px 0 0;font:500 9px/1 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--t3-tinta-suave)}
+.t3x-tcg-avance{position:relative;flex:none;min-width:86px;padding-bottom:10px;text-align:right;white-space:nowrap}
+.t3x-tcg-avance b{font:700 32px/1 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-tcg-avance span{font:500 12px/1 var(--t3-mono);color:var(--t3-tinta-suave)}
+.t3x-tcg-avance i{position:absolute;left:0;right:0;bottom:0;height:5px;border-radius:3px;background:rgba(43,33,24,.14);overflow:hidden}
+.t3x-tcg-avance i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--p,0%);background:var(--t3-oro)}
+.t3x-tcg-completo{margin:0 0 12px;padding:10px 12px;border:2px solid var(--t3-oro);outline:1px solid rgba(199,148,48,.5);outline-offset:-6px;text-align:center;font:500 9.5px/1.5 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--t3-tinta-suave)}
+.t3x-tcg-completo b{display:block;font:700 28px/1 var(--t3-mano);letter-spacing:0;text-transform:none;color:var(--t3-tinta)}
+.t3x-tcg-completo span{display:block;margin-top:4px;font:500 21px/1.1 var(--t3-mano);letter-spacing:0;text-transform:none;color:var(--t3-sello)}
+.t3x-tcg-mesa{display:flex;align-items:center;gap:20px;margin:6px 0 12px;padding:16px 14px 16px 18px;background:rgba(255,255,255,.32);border:1.2px dashed rgba(143,133,119,.75);border-radius:4px}
+.t3x-tcg-sobre{transform:rotate(-4deg);animation:t3x-late 2.4s ease-in-out infinite}
+.t3x-tcg-lado{flex:1;min-width:0}
+.t3x-tcg-hay{margin:0;font:700 27px/1 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-tcg-hay small{display:block;margin-top:5px;font:italic 500 15px/1.2 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-tcg-abrir{max-width:150px;min-height:46px;margin-top:12px}
+.t3x-tcg-nota{margin:0 0 12px;padding:10px 12px;background:#FFF3B8;font:500 20px/1.1 var(--t3-mano);color:#2E2616;box-shadow:0 1px 1px rgba(0,0,0,.1),3px 10px 10px -8px rgba(43,33,24,.5);transform:rotate(-.8deg)}
+.t3x-tcg-repes{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0 0 4px;font:700 22px/1.1 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-tcg-repes small{font:500 9px/1 var(--t3-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--t3-tinta-suave)}
+.t3x-tcg-canje{margin-left:auto;padding:8px 0;border:0;background:none;cursor:pointer;font:600 21px/1 var(--t3-mano);color:var(--t3-tinta-azul);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.t3x-tcg-palo{display:flex;align-items:baseline;gap:9px;margin:22px 0 11px;font:500 10px/1 var(--t3-mono);letter-spacing:.24em;text-transform:uppercase;color:var(--palo)}
+.t3x-tcg-palo::after{content:"";order:1;flex:1;border-bottom:1.2px dashed currentColor;opacity:.45;transform:translateY(-3px)}
+.t3x-tcg-palo small{order:2;font:inherit;letter-spacing:.1em;color:var(--t3-tinta-suave)}
+.t3x-tcg-grilla{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 11px}
+.t3x-tcg-pie{margin:26px 0 0;text-align:right;font:500 19px/1.15 var(--t3-mano);color:var(--t3-lapiz);transform:rotate(-1.2deg)}
+
+/* ---- cada lugar de la carpeta ---- */
+.t3x-mini{position:relative;display:block;min-width:0;margin:0;padding:0;border:0;background:none;text-align:center;font:inherit;color:var(--t3-tinta);cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.t3x-mini-arte{position:relative;display:block;aspect-ratio:5/7;box-sizing:border-box;border:4px solid #FBF5E7;border-radius:6px;overflow:hidden;background:color-mix(in srgb,var(--palo,#8B6B47) 14%,#FBF5E7);box-shadow:0 0 0 1px rgba(43,33,24,.45),2px 3px 0 rgba(43,33,24,.2)}
+.t3x-mini-arte img{display:block;width:100%;height:100%;object-fit:cover;border-radius:2px}
+.t3x-mini-arte .t3x-carta-dib{width:58%;height:auto;aspect-ratio:1;margin:0;transform:translate(-50%,-50%);stroke-width:1.9}
+.t3x-mini-arte .t3x-arte-mafia{gap:3px}
+.t3x-mini-arte .t3x-arte-mafia b{font-size:19px}
+.t3x-mini-arte .t3x-arte-mafia i{height:30px;border-left-width:1px}
+.t3x-mini-n{position:absolute;left:7px;top:7px;padding:2px 4px 1px;border-radius:2px;background:#FBF5E7;font:500 8px/1 var(--t3-mono);letter-spacing:.08em;color:var(--palo,#6E5C46)}
+.t3x-mini-x{position:absolute;right:-5px;top:-7px;min-width:21px;height:21px;box-sizing:border-box;padding:0 4px;border-radius:11px;background:var(--t3-sello);color:#FAEEDF;font:500 10px/21px var(--t3-mono);box-shadow:0 0 0 1.5px var(--t3-papel)}
+.t3x-mini-nom{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:31px;margin-top:6px;font:500 16px/.97 var(--t3-mano)}
+.t3x-mini:active .t3x-mini-arte{transform:scale(.97)}
+.t3x-mini.t3x-r-r .t3x-mini-arte,.t3x-mini.t3x-r-h .t3x-mini-arte{border-color:#E3C676}
+.t3x-mini.t3x-r-s .t3x-mini-arte{border-color:#2A2019;background:#1B1410;box-shadow:0 0 0 1px #E3C676,2px 3px 0 rgba(43,33,24,.2)}
+.t3x-mini.t3x-r-s{--palo:#E3C676!important}
+.t3x-hueco{cursor:default}
+.t3x-hueco .t3x-mini-arte{display:grid;place-items:center;border:1.6px dashed rgba(43,33,24,.3);background:transparent;box-shadow:none}
+.t3x-hueco .t3x-mini-arte b{font:500 30px/1 var(--t3-serif);color:rgba(43,33,24,.22)}
+.t3x-hueco .t3x-mini-n{background:none;color:var(--t3-lapiz)}
+.t3x-hueco .t3x-mini-nom{color:var(--t3-lapiz)}
+.t3x-recien .t3x-mini-arte{animation:t3x-recien .8s var(--t3-rebote)}
+@keyframes t3x-recien{0%{transform:scale(.4) rotate(-14deg);opacity:0}60%{transform:scale(1.12) rotate(3deg);opacity:1}100%{transform:none}}
+@keyframes t3x-late{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(-2.5deg) translateY(-3px)}}
+
+/* ---- ver una carta en grande ---- */
+.t3x-lupa{position:fixed;inset:0;z-index:74;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;background:radial-gradient(120% 70% at 28% -4%,rgba(255,198,122,.2),transparent 62%),rgba(18,13,9,.93);opacity:0;transition:opacity .22s ease;-webkit-user-select:none;user-select:none;touch-action:none}
+.t3x-lupa.t3x-ver{opacity:1}
+.t3x-lupa-carta{width:min(300px,78vw);perspective:900px;transform:scale(.88);transition:transform .32s var(--t3-rebote)}
+.t3x-lupa.t3x-ver .t3x-lupa-carta{transform:none}
+.t3x-lupa-carta .t3x-carta{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .14s ease-out;filter:drop-shadow(0 18px 22px rgba(0,0,0,.55))}
+.t3x-lupa-dato{margin:0;text-align:center;font:600 20px/1.15 var(--t3-mano);color:#E8D6AE}
+.t3x-lupa-cerrar{min-width:150px;min-height:46px;padding:15px 30px;border:1px solid rgba(255,240,215,.3);border-radius:2px;background:rgba(255,240,215,.06);color:#E8DAC2;cursor:pointer;font:500 11px/1 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase}
+
+/* ---- abrir un sobre ---- */
+.t3x-apertura{position:fixed;inset:0;z-index:75;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;padding:calc(env(safe-area-inset-top,0px) + 28px) 16px calc(env(safe-area-inset-bottom,0px) + 22px);overflow:hidden;background:radial-gradient(120% 70% at 28% -4%,rgba(255,198,122,.22),transparent 62%),rgba(18,13,9,.95);opacity:0;transition:opacity .28s ease;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.t3x-apertura.t3x-ver{opacity:1}
+.t3x-ap-rotulo{flex:none;margin:0;font:500 9.5px/1.5 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase;color:#CDBB9A}
+.t3x-ap-escena{position:relative;flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+.t3x-ap-sobre{font-size:21px;animation:t3x-late 1.8s ease-in-out infinite}
+.t3x-rasgado .t3x-ap-sobre{animation:none;transform:rotate(-2deg)}
+.t3x-rasgado .t3x-sobre-tira{transform:translate(1.6em,-2.6em) rotate(24deg);opacity:0}
+.t3x-rasgado .t3x-sobre-cuerpo{transform:translateY(2.2em) scale(.94);opacity:0;transition-delay:.28s}
+.t3x-ap-fila{position:absolute;left:0;right:0;bottom:4%;display:flex;justify-content:center;gap:12px;pointer-events:none}
+.t3x-ap-lugar{position:relative;flex:none;width:104px;height:146px;opacity:0;transform:translateY(46px) scale(.8)}
+.t3x-cartas .t3x-ap-fila{pointer-events:auto}
+.t3x-cartas .t3x-ap-lugar{opacity:1;transform:none;transition:opacity .3s ease,transform .5s var(--t3-rebote)}
+.t3x-cartas .t3x-ap-lugar:nth-child(2){transition-delay:.13s}
+.t3x-cartas .t3x-ap-lugar:nth-child(3){transition-delay:.26s}
+.t3x-ap-carta{position:absolute;left:0;top:0;z-index:1;width:260px;height:364px;transform-origin:0 0;transform:scale(.4);transition:transform .5s var(--t3-curva),opacity .3s ease;perspective:1000px;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.t3x-ap-carta.t3x-arriba{z-index:6;transform:translate(var(--dx,0),var(--dy,0)) scale(1)}
+.t3x-con-arriba .t3x-ap-carta:not(.t3x-arriba){opacity:.3}
+.t3x-ap-giro{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .62s var(--t3-curva)}
+.t3x-vuelta .t3x-ap-giro{transform:rotateY(180deg)}
+.t3x-ap-cara{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.t3x-ap-frente{transform:rotateY(180deg)}
+.t3x-ap-frente .t3x-carta{filter:drop-shadow(0 8px 14px rgba(0,0,0,.5))}
+.t3x-ap-r-r .t3x-dorso{box-shadow:inset 0 0 0 1px rgba(43,33,24,.6),inset 0 0 0 9px #FBF5E7,inset 0 0 0 13px #7E1D14,inset 0 0 0 14.5px #E3C676,0 0 22px 2px rgba(227,198,118,.45)}
+.t3x-ap-r-h .t3x-dorso,.t3x-ap-r-s .t3x-dorso{animation:t3x-aura 1.5s ease-in-out infinite alternate}
+@keyframes t3x-aura{from{box-shadow:inset 0 0 0 1px rgba(43,33,24,.6),inset 0 0 0 9px #FBF5E7,inset 0 0 0 13px #7E1D14,inset 0 0 0 14.5px #E3C676,0 0 18px 4px rgba(255,214,120,.5)}to{box-shadow:inset 0 0 0 1px rgba(43,33,24,.6),inset 0 0 0 9px #FBF5E7,inset 0 0 0 13px #7E1D14,inset 0 0 0 14.5px #E3C676,0 0 46px 16px rgba(160,235,255,.65)}}
+.t3x-ap-sello{position:absolute;right:2px;top:-40px;z-index:3;padding:6px 11px 5px;border:2.5px solid currentColor;border-radius:4px;background:rgba(251,245,231,.94);color:#8F8577;font:500 18px/1 var(--t3-mono);letter-spacing:.14em;text-indent:.14em;text-transform:uppercase;opacity:0;transform:rotate(9deg) scale(1.7);transition:transform .26s var(--t3-rebote),opacity .14s ease;pointer-events:none}
+.t3x-ap-nola{color:var(--t3-ok)}
+.t3x-sellada .t3x-ap-sello{opacity:1;transform:rotate(9deg) scale(1)}
+.t3x-ap-pista{flex:none;min-height:26px;margin:8px 0 0;text-align:center;font:600 22px/1.15 var(--t3-mano);color:#E8D6AE}
+.t3x-ap-listo{flex:none;max-width:240px;margin-top:12px}
+.t3x-ap-listo[hidden],.t3x-ap-sobre[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.t3x-carta-brillo,.t3x-tcg-sobre,.t3x-ap-sobre,.t3x-ap-r-h .t3x-dorso,.t3x-ap-r-s .t3x-dorso{animation:none}}
 /*EXTRAS-CSS>>*/
 </style>
 </head>
@@ -13465,6 +13613,501 @@ function pagina(host){
   return {desmontar:function(){vivo=false;host.removeEventListener("click",clic);}};
 }
 T3.pedidos={activo:function(){return X.estrenado();},pagina:pagina,_prueba:{lista:lista,libro:libro,mensaje:mensaje}};
+})();
+
+/* ------------------------------------------------------------
+   MAFIATCG
+   Un sobre de tres cartas por día (se juntan hasta 3 si no entra),
+   uno extra por ganar el juego del día, y 6 repetidas valen otro.
+   Con ese ritmo el álbum se completa en unas tres o cuatro semanas.
+   Las cartas son fotos y chistes de los dos. Vive en la pestaña
+   dorada del cuaderno.
+
+   PARA SUMAR O CAMBIAR CARTAS: tocar solo la lista CARTAS.
+     id    nombre interno, único, sin espacios (no cambiarlo después:
+           es con lo que se guarda qué cartas tiene ella)
+     p     palo: viaje · salida · casa · olivos · mafia
+     r     rareza: c común · p poco común · r rara · h holo · s secreta
+     t     título          l  renglón chico (lugar o chiste)
+     foto  archivo de fotos/t3/fotos/   (y: qué parte se ve, 0 arriba – 100 abajo)
+     dib   garabato de T3.x.DIB, para las que no llevan foto
+     e     epígrafe, en letra de mano   h  "poder", en letra chica
+   Las secretas van siempre al final de la lista.
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var X=T3.x,esc=X.esc,U=T3.util,C=T3.config||{};
+var LL="tcg";
+var TOPE=3;          /* sobres diarios que se acumulan sin abrir */
+var TOPE_TOTAL=6;    /* con los extra por ganar juegos */
+var BIENVENIDA=2;    /* sobres del primer día */
+var REPES=6;         /* repetidas que valen un sobre */
+var PESO_NUEVA=2;    /* cuánto más fácil sale una carta que todavía no tiene */
+var PIEDAD=3;        /* sobres seguidos sin nada nuevo antes de garantizar una que falte (común, poco común o rara) */
+var SEQUIA=10;       /* sobres seguidos sin holo ni secreta antes de garantizar una */
+
+var PALOS={
+  viaje:{n:"Viajes",col:"#2F4A7A"},
+  salida:{n:"Salidas",col:"#C2500F"},
+  casa:{n:"Nosotros",col:"#B33A2B"},
+  olivos:{n:"Olivos",col:"#3F7A4F"},
+  mafia:{n:"Mafia",col:"#9A6F1B"}
+};
+var RAREZAS={
+  c:{n:"común",m:"●"},
+  p:{n:"poco común",m:"◆"},
+  r:{n:"rara",m:"★"},
+  h:{n:"holo",m:"★★"},
+  s:{n:"secreta",m:"✦"}
+};
+var CARTAS=[
+  /* ---- viajes ---- */
+  {id:"tower",p:"viaje",r:"r",t:"Tower Bridge",l:"Londres",foto:"londres-tower-bridge.jpg",y:63,e:"El primero. El que nos enseñó que podíamos.",h:"Después de este, todos los viajes salen más fácil."},
+  {id:"cabina",p:"viaje",r:"c",t:"La cabina roja",l:"Londres",foto:"londres-cabina-roja.jpg",y:49,e:"Una cabina roja no se esconde.",h:"Nadie llamó a nadie. Era para la foto."},
+  {id:"trompitas-torre",p:"viaje",r:"c",t:"Trompitas bajo la torre",l:"París",foto:"paris-torre-eiffel-trompitas.jpg",y:77,e:"Dos trompitas y una torre. Pegadas.",h:"La torre sale cortada. Las trompitas, enteras."},
+  {id:"torre",p:"viaje",r:"p",t:"La torre entera",l:"París",foto:"paris-torre-eiffel-campo-marte.jpg",y:55,e:"La torre entera, y nosotros chiquititos abajo.",h:"Escala real: una torre, dos personas."},
+  {id:"gioconda",p:"viaje",r:"r",t:"La Gioconda",l:"París",foto:"paris-louvre-gioconda.jpg",y:69,e:"Ella también sonríe raro.",h:"En esta sala, la obra importante es la de boina roja."},
+  {id:"tintin",p:"viaje",r:"c",t:"Tintín y Milú",l:"Barcelona",foto:"barcelona-tintin.jpg",y:47,e:"Tintín con mapa. Nosotros, sin.",h:"Perderse también cuenta como paseo."},
+  {id:"akira",p:"viaje",r:"c",t:"Akira Comics",l:"Madrid",foto:"madrid-akira-comics.jpg",y:54,e:"Fachada roja: imposible errarle.",h:"Entrar es gratis. Salir con las manos vacías, imposible."},
+  {id:"arcoiris",p:"viaje",r:"p",t:"El banco arcoíris",l:"Valencia",foto:"valencia-banco-arcoiris.jpg",y:37,e:"Todos los colores, un solo par.",h:"Sentarse acá alarga las vacaciones un rato."},
+  {id:"gatitos",p:"viaje",r:"p",t:"Los gatitos de la suerte",l:"Tokio",foto:"tokio-templo-gatos-maneki.jpg",y:55,e:"Cientos de gatos. Ninguno es un perro.",h:"Todos saludan. Hay que devolver el saludo."},
+  {id:"tokyotower",p:"viaje",r:"c",t:"La Tokyo Tower",l:"Tokio",foto:"tokio-torre-naranja.jpg",y:85,e:"Sólo frentes y una torre naranja.",h:"Encuadre experimental. Aprobado."},
+  {id:"barandas",p:"viaje",r:"h",t:"Las barandas rojas",l:"Tokio",foto:"tokio-escaleras-rojas.jpg",y:64,e:"Las barandas rojas no mienten.",h:"Cruzamos el mundo para pararnos justo acá."},
+  {id:"kioto",p:"viaje",r:"h",t:"El Pabellón Dorado",l:"Kioto",foto:"kioto-pabellon-dorado.jpg",y:55,e:"Un cielo así de azul, y nosotros.",h:"Todo dorado. Esta carta también."},
+  {id:"osaka",p:"viaje",r:"c",t:"Media cara y un castillo",l:"Osaka",foto:"osaka-castillo.jpg",y:58,e:"Con media cara alcanza.",h:"Lema local: comer hasta fundirse. Cumplido."},
+  {id:"bean",p:"viaje",r:"c",t:"El Bean",l:"Chicago",foto:"chicago-bean.jpg",y:58,e:"El poroto gigante, al álbum.",h:"Refleja toda la ciudad. Y a nosotros dos."},
+  {id:"fuente",p:"viaje",r:"p",t:"La fuente",l:"Nueva York",foto:"nueva-york-rockefeller-fuente.jpg",y:39,e:"La fuente y la cara de sorpresa.",h:"El agua sale del piso sin avisar."},
+  {id:"vuelta",p:"viaje",r:"p",t:"La vuelta al mundo",l:"Santa Mónica",foto:"santa-monica-vuelta-al-mundo.jpg",y:47,e:"Dio toda la vuelta y volvió.",h:"De noche, las luces hacen todo el trabajo."},
+  {id:"disney",p:"viaje",r:"r",t:"Con Walt y Mickey",l:"Disneyland",foto:"disneyland-walt-y-mickey-2.jpg",y:49,e:"El castillo de atrás es de verdad. Casi.",h:"Edad mínima para entrar: ninguna. Máxima, tampoco."},
+  {id:"goldengate",p:"viaje",r:"h",t:"El beso del Golden Gate",l:"San Francisco",foto:"san-francisco-beso-golden-gate.jpg",y:68,e:"Esa se reconoce con los ojos cerrados.",h:"El puente se llama dorado y es naranja. El beso sí es lo que dice."},
+  /* ---- salidas ---- */
+  {id:"ponyo",p:"salida",r:"c",t:"Ponyo",l:"El cine",foto:"cine-ponyo.jpg",y:50,e:"Ponyo, no Ponyta. Igual vale.",h:"Tu cabeza en mi hombro: defensa +10."},
+  {id:"pochoclos",p:"salida",r:"c",t:"Pochoclos",l:"El cine",foto:"cine-stitch-pochoclos.jpg",y:45,e:"Balde grande y un polizón azul.",h:"El balde nunca llega a la mitad de la peli."},
+  {id:"legion",p:"salida",r:"p",t:"La Legión",l:"Anime-Con",foto:"anime-con-cosplay-titan.jpg",y:32,e:"De la Legión, los dos.",h:"La bufanda roja se ve de lejos."},
+  {id:"comiccon",p:"salida",r:"c",t:"Comic-Con",l:"Costa Salguero",foto:"comic-con-costa-salguero.jpg",y:50,e:"Antes de entrar. Todavía con plata.",h:"Se entra con la mochila vacía. Se sale distinto."},
+  {id:"eternauta",p:"salida",r:"p",t:"El camión nevado",l:"El Eternauta",foto:"eternauta-muestra-camion.jpg",y:40,e:"Con nieve y todo.",h:"De a dos se llega más lejos."},
+  {id:"papota",p:"salida",r:"p",t:"Gorro de peluche",l:"Papota",foto:"recital-papota.jpg",y:64,e:"El gorro de peluche te delató.",h:"Se canta todo. Lo que no se sabe, también."},
+  {id:"brindis",p:"salida",r:"c",t:"Brindis doble",l:"Café helado",foto:"cafe-helado-brindis.jpg",y:50,e:"Chocolate y latte. Brindis doble, literal.",h:"Se brinda con lo que haya."},
+  {id:"coreana",p:"salida",r:"c",t:"La sartén",l:"Comida coreana",foto:"comida-coreana-sarten.jpg",y:45,e:"Llegó a la mesa todavía chillando.",h:"El huevo de arriba no se negocia."},
+  {id:"seleccion",p:"salida",r:"p",t:"Tres estrellas",l:"La Selección",foto:"selfie-camiseta-argentina.jpg",y:28,e:"Tres estrellas. Y un par.",h:"Cábala comprobada: verlo juntos."},
+  {id:"colores",p:"salida",r:"p",t:"Polvo de colores",l:"Ladrillo visto",foto:"selfie-polvo-de-colores.jpg",y:27,e:"Con tanta pintura, y nos reconocimos igual.",h:"Sale con agua. El recuerdo, no."},
+  {id:"sobres",p:"salida",r:"r",t:"Sobres 151",l:"Los otros sobres",foto:"sobres-pokemon-151.jpg",y:52,e:"Trompita y Mew.",h:"Abrir sobres de a dos trae mejor suerte."},
+  /* ---- nosotros ---- */
+  {id:"duo",p:"casa",r:"c",t:"Trompita a dúo",l:"Pared azul",foto:"casa-trompita.jpg",y:32,e:"Dos trompitas, dos copias. Cierra.",h:"Efecto: se contagia."},
+  {id:"puchero",p:"casa",r:"c",t:"Trompita y puchero",l:"Al aire libre",foto:"selfie-trompita.jpg",y:34,e:"La trompita no falla.",h:"El puchero tampoco."},
+  {id:"risa",p:"casa",r:"r",t:"La risa",l:"Bajo un árbol",foto:"selfie-arbol-cielo.jpg",y:62,e:"Esa risa se reconoce de lejos.",h:"Cuando suena, se me pasa todo."},
+  {id:"espejo",p:"casa",r:"p",t:"Marco dorado",l:"Autorretrato",foto:"espejo-marco-dorado.jpg",y:36,e:"Ella saca la foto; él pone trompita.",h:"El marco venía con el espejo."},
+  {id:"fiesta",p:"casa",r:"p",t:"De fiesta",l:"Salón elegante",foto:"fiesta-salon-elegante.jpg",y:40,e:"Nosotros, de fiesta.",h:"Bien vestidos también salimos bien."},
+  {id:"living",p:"casa",r:"c",t:"Cabeza con cabeza",l:"El living",foto:"selfie-living-arana.jpg",y:50,e:"Buzo rojo de peluche, araña de caireles.",h:"Posición de descanso oficial."},
+  {id:"avion",p:"casa",r:"c",t:"Modo avión",l:"En vuelo",foto:"avion-selfie-trompitas.jpg",y:25,e:"Todavía no despegó y ya hay foto.",h:"Trompitas: obligatorias antes del despegue."},
+  /* ---- Olivos ---- */
+  {id:"cuadras",p:"olivos",r:"c",t:"Las diez cuadras",l:"Olivos",dib:"cuadras",e:"La distancia más corta que existe.",h:"Se caminan solas."},
+  {id:"mila",p:"olivos",r:"c",t:"Mila napo",l:"El Vecino",dib:"mila",e:"Mila napo. Obvio.",h:"Se pide sin mirar la carta."},
+  {id:"sushi",p:"olivos",r:"c",t:"Sushitos",l:"Fabric",dib:"sushi",e:"Canjeable cualquier viernes.",h:"La última pieza se ofrece. Y se acepta."},
+  {id:"menta",p:"olivos",r:"p",t:"Menta granizada",l:"La heladería",dib:"helado",e:"El nuestro. No hay discusión.",h:"Debilidad: ninguna."},
+  {id:"lasalle",p:"olivos",r:"p",t:"La Salle Florida",l:"Antes de 2018",dib:"escuela",e:"Ahí empezó todo.",h:"El colegio hizo su parte. El resto, nosotros."},
+  /* ---- Mafia ---- */
+  {id:"chambu",p:"mafia",r:"c",t:"Chambuchito",l:"La heladera",dib:"sanguche",e:"Chambuchito y no se habla más.",h:"Cura el hambre y el mal humor."},
+  {id:"tite",p:"mafia",r:"c",t:"Mati tite",l:"Respuesta incorrecta",dib:"tite",e:"Aparece cuando errás una pregunta.",h:"Se cura con un beso."},
+  {id:"loro",p:"mafia",r:"p",t:"El loro",l:"19 audios",dib:"loro",e:"Repite todo lo que digo.",h:"No se calla ni dormido."},
+  {id:"aporte",p:"mafia",r:"p",t:"Aporte semanal",l:"Masajitos",dib:"manos",e:"Este diario se mantiene gracias a sus aportes.",h:"Se paga en masajitos. No se fía."},
+  {id:"ticket",p:"mafia",r:"r",t:"Your Name",l:"Unicenter · 28·05·18",dib:"ticket",e:"Primera cita. Demasiado obvio para ser casualidad.",h:"Después, un Starbucks."},
+  {id:"dia3000",p:"mafia",r:"h",t:"Día 3000",l:"14·08·26",dib:"tresmil",e:"Tres mil días. Y contando.",h:"Suma uno por día. No tiene tope."},
+  {id:"programador",p:"mafia",r:"h",t:"El programador",l:"De vacaciones",dib:"palmera",e:"Cerró por vacaciones. Volvió con cartas.",h:"Aparece cuando menos lo esperás."},
+  /* ---- secretas ---- */
+  {id:"sueter",p:"casa",r:"s",t:"Suéter blanco",l:"2018",foto:"selfie-sueter-blanco-2018.jpg",y:40,e:"La más vieja del mazo.",h:"Carta fundadora. Todas las demás salen de acá."},
+  {id:"mafia",p:"mafia",r:"s",t:"Ma · Fia",l:"La carta secreta",dib:"mf",e:"MAtías + soFIA. Una palabra partida al medio.",h:"Siempre se llamó así por vos."}
+];
+var POR_ID={};
+CARTAS.forEach(function(c,i){c.n=i+1;POR_ID[c.id]=c;});
+var TOTAL=CARTAS.length;
+
+/* garabatos del mazo */
+X.DIB.escuela='<path d="M8 41V21l16-9 16 9v20z"/><path d="M20 41V30h8v11M13 26h5M30 26h5M24 12V5l6 2-6 2"/>';
+X.DIB.tite='<circle cx="24" cy="24" r="17"/><path d="M17 32c3-4 11-4 14 0"/><circle cx="18" cy="21" r="1.2"/><circle cx="30" cy="21" r="1.2"/><path d="M33 25c1.3 2 1.3 3.6 0 4.6-1.3-1-1.3-2.6 0-4.600z"/>';
+X.DIB.loro='<path d="M26 7c8 0 12 6 12 13 0 9-6 17-14 19-5 1-8-2-8-6 0-6 4-9 4-15 0-6 2-11 6-11z"/><path d="M24 8c-5 0-9 3-9 7 0 3 2 5 5 5"/><circle cx="29" cy="15" r="1.4"/><path d="M31 23c-3 3-4 7-4 11M21 39l-3 5M26 39l-1 5M9 44h30"/>';
+X.DIB.ticket='<path d="M5 15h38v6a3 3 0 0 0 0 6v6H5v-6a3 3 0 0 0 0-6z"/><path d="M16 15v18" stroke-dasharray="2 3.2"/><path d="M22 21h15M22 27h9"/>';
+X.DIB.palmera='<circle cx="37" cy="12" r="5"/><path d="M37 3.500v2M37 18.500v2M28.5 12h2M43.5 12h2M31 6l1.4 1.4M41.6 16.600L43 18M43 6l-1.4 1.4M32.4 16.600L31 18"/><path d="M17 41c1-9 2-15 4-21"/><path d="M21 20c-4-4-9-4-12-1M21 20c-2-5-6-7-10-6M21 20c2-5 6-7 10-5M21 20c4-2 8-1 10 2M21 20c-5 0-8 3-9 7"/><path d="M4 42c5-2.5 8-2.5 13 0s9 2.5 14 0 9-2.5 13 0"/>';
+X.DIB.tresmil='<path d="M24 4l5.8 12.9 14 1.3-10.6 9.3 3.2 13.700L24 34l-12.4 7.2 3.2-13.700L4.2 18.200l14-1.300z" stroke-dasharray=".1 3.3"/><path d="M24 17l2 4.6 5 .5-3.8 3.3 1.2 4.900L24 27.700l-4.4 2.6 1.2-4.9-3.8-3.3 5-.5z"/>';
+
+function nro3(n){return String(n).padStart(3,"0");}
+function arte(c){
+  if(c.foto){
+    var alt="";
+    try{alt=rutaFoto(c.foto);}catch(e){alt="";}
+    return '<img src="'+esc(U.foto(c.foto))+'" alt="" decoding="async" draggable="false" style="object-position:50% '+(c.y==null?50:c.y)+'%"'+
+      (alt?' onerror="this.onerror=null;this.src=\''+esc(alt)+'\'"':'')+'>';
+  }
+  if(c.dib==="mf")return '<span class="t3x-arte-mafia"><b>MA</b><i></i><b>FIA</b></span>';
+  return X.dib(c.dib,"t3x-dib t3x-carta-dib");
+}
+/* la carta entera */
+function carta(c){
+  var P=PALOS[c.p]||PALOS.mafia,R=RAREZAS[c.r]||RAREZAS.c;
+  return '<article class="t3x-carta t3x-r-'+c.r+(c.foto?"":" t3x-carta-dibujo")+'" style="--palo:'+P.col+'" data-id="'+c.id+'"><div class="t3x-carta-in">'+
+    '<div class="t3x-carta-cab"><span>'+esc(P.n)+'</span><span>'+nro3(c.n)+'/'+nro3(TOTAL)+'</span></div>'+
+    '<div class="t3x-carta-arte">'+arte(c)+'</div>'+
+    '<h3 class="t3x-carta-nom">'+esc(c.t)+'</h3>'+
+    '<div class="t3x-carta-lug">'+esc(c.l)+'</div>'+
+    '<p class="t3x-carta-epi">'+esc(c.e)+'</p>'+
+    '<p class="t3x-carta-pod">'+esc(c.h)+'</p>'+
+    '<div class="t3x-carta-pie"><span>'+R.m+' '+esc(R.n)+'</span><span>MafiaTCG · T1</span></div>'+
+    (c.r==="h"||c.r==="s"?'<i class="t3x-carta-brillo" aria-hidden="true"></i>':'')+
+    '</div></article>';
+}
+function dorso(){
+  return '<div class="t3x-dorso"><span class="t3x-dorso-ovalo"><b>MAFIA</b><i>T · C · G</i></span></div>';
+}
+function sobre(n){
+  return '<span class="t3x-sobre-tira" aria-hidden="true"></span>'+
+    '<span class="t3x-sobre-cuerpo"><span class="t3x-sobre-marca">Mafia</span><span class="t3x-sobre-tcg">TCG</span>'+
+    X.dib("corazon","t3x-dib t3x-sobre-dib")+
+    '<span class="t3x-sobre-set">set base · tomo 1</span>'+
+    '<span class="t3x-sobre-n">3 cartas'+(n?' · Nº '+String(n).padStart(4,"0"):'')+'</span></span>';
+}
+
+/* ---------------- estado y reglas ---------------- */
+function estado(){
+  var e=T3.leer(LL,null);
+  if(!e||typeof e!=="object")e={};
+  if(!e.cartas||typeof e.cartas!=="object")e.cartas={};
+  if(!Array.isArray(e.bonos))e.bonos=[];
+  e.sobres=Math.max(0,+e.sobres||0);
+  e.abiertos=+e.abiertos||0;
+  e.sinNueva=+e.sinNueva||0;
+  e.sinBrillo=+e.sinBrillo||0;
+  return e;
+}
+function guardar(e){T3.guardar(LL,e);}
+function bonosPendientes(e){
+  return T3.conjunto("ganados").filter(function(f){return f>=X.ESTRENO&&f<=T3.hoy&&e.bonos.indexOf(f)<0;});
+}
+/* entrega lo que corresponde: bienvenida, el sobre de cada día y los extra por juegos ganados */
+function ponerAlDia(e){
+  var hoy=T3.hoy,cambio=false;
+  if(!e.inicio){
+    e.inicio=hoy;e.entrega=hoy;e.sobres=Math.min(TOPE,e.sobres+BIENVENIDA);e.motivo="bienvenida";cambio=true;
+  }else if(e.entrega<hoy){
+    var dias=Math.max(0,T3.f.dif(e.entrega,hoy));
+    if(e.sobres<TOPE)e.sobres=Math.min(TOPE,e.sobres+dias);
+    e.entrega=hoy;e.motivo="diario";cambio=true;
+  }
+  bonosPendientes(e).forEach(function(f){
+    e.bonos.push(f);
+    if(e.sobres<TOPE_TOTAL){e.sobres++;e.motivo="juego";}
+    cambio=true;
+  });
+  return cambio;
+}
+function haySobre(){
+  try{
+    var e=estado();
+    return e.sobres>0||!e.inicio||e.entrega<T3.hoy||bonosPendientes(e).length>0;
+  }catch(x){return false;}
+}
+function tengo(e){return CARTAS.filter(function(c){return e.cartas[c.id]&&e.cartas[c.id].n>0;}).length;}
+function repes(e){
+  var n=0;
+  Object.keys(e.cartas).forEach(function(id){if(POR_ID[id])n+=Math.max(0,(+e.cartas[id].n||0)-1);});
+  return n;
+}
+/* saca tres cartas: común · común o poco común · la buena */
+function tirar(e,azar){
+  azar=azar||Math.random;
+  var usadas={};
+  function elegir(rarezas){
+    var pozo=CARTAS.filter(function(c){return rarezas.indexOf(c.r)>=0&&!usadas[c.id];});
+    if(!pozo.length)pozo=CARTAS.filter(function(c){return !usadas[c.id];});
+    var pesos=pozo.map(function(c){return e.cartas[c.id]?1:PESO_NUEVA;});
+    var x=azar()*pesos.reduce(function(a,b){return a+b;},0);
+    for(var i=0;i<pozo.length;i++){x-=pesos[i];if(x<0){usadas[pozo[i].id]=1;return pozo[i].id;}}
+    var u=pozo[pozo.length-1];usadas[u.id]=1;return u.id;
+  }
+  var x=azar();
+  var ids=[elegir(["c"]),elegir([azar()<.55?"c":"p"])];
+  if(!e.abiertos&&POR_ID.programador&&!e.cartas.programador){usadas.programador=1;ids.push("programador");}
+  else if(e.sinBrillo>=SEQUIA)ids.push(elegir([azar()<.25?"s":"h"]));     /* sequía: toca una brillante */
+  else ids.push(elegir([x<.48?"p":x<.83?"r":x<.96?"h":"s"]));
+  /* piedad: varios sobres seguidos sin nada nuevo → la última se cambia por una que falte (nunca holo ni secreta) */
+  var nueva=ids.some(function(id){return !e.cartas[id];});
+  if(!nueva&&e.sinNueva>=PIEDAD){
+    var faltan=CARTAS.filter(function(c){return !e.cartas[c.id]&&"cpr".indexOf(c.r)>=0;});
+    if(faltan.length){ids[2]=faltan[Math.floor(azar()*faltan.length)].id;nueva=true;}
+  }
+  var brillo=POR_ID[ids[2]].r==="h"||POR_ID[ids[2]].r==="s";
+  e.sinBrillo=brillo?0:e.sinBrillo+1;
+  var res=ids.map(function(id){
+    var tenia=e.cartas[id]&&e.cartas[id].n>0;
+    var a=e.cartas[id]||{n:0,f:T3.hoy};
+    a.n=(+a.n||0)+1;if(!a.f)a.f=T3.hoy;
+    e.cartas[id]=a;
+    return {id:id,nueva:!tenia};
+  });
+  e.abiertos++;
+  e.sobres=Math.max(0,e.sobres-1);
+  e.sinNueva=nueva?0:e.sinNueva+1;
+  if(!e.completo&&tengo(e)>=TOTAL)e.completo=T3.hoy;
+  return res;
+}
+function canjear(e){
+  if(repes(e)<REPES)return false;
+  var quedan=REPES;
+  Object.keys(e.cartas).sort(function(a,b){return e.cartas[b].n-e.cartas[a].n;}).forEach(function(id){
+    while(quedan>0&&e.cartas[id].n>1){e.cartas[id].n--;quedan--;}
+  });
+  e.sobres++;e.canjes=(+e.canjes||0)+1;e.motivo="repes";
+  return true;
+}
+
+/* ---------------- la pestaña del cuaderno ---------------- */
+function marcarPestana(){
+  try{
+    var b=document.querySelector(".t3-cuaderno-pestana-tcg");
+    if(b)b.classList.toggle("t3-cuaderno-con-sobre",haySobre());
+  }catch(e){}
+}
+function alGanar(f,primera){
+  if(!X.estrenado()||!primera||f<X.ESTRENO)return;
+  marcarPestana();
+  setTimeout(function(){X.aviso("ganaste un sobre de MafiaTCG. pestaña dorada.");},2600);
+}
+var MOTIVOS={bienvenida:"de bienvenida",diario:"el de hoy",juego:"por ganar el juego",repes:"por tus repetidas"};
+
+function pagina(host){
+  if(!host)return null;
+  var vivo=true,capa=null;
+  var e=estado();
+  if(ponerAlDia(e))guardar(e);
+  marcarPestana();
+
+  function mesa(){
+    var n=e.sobres,rp=repes(e);
+    var h='<section class="t3x-tcg-mesa">';
+    if(n>0){
+      h+='<button type="button" class="t3x-sobre t3x-tcg-sobre" data-tcg="abrir" aria-label="Abrir un sobre">'+sobre(e.abiertos+1)+
+        (n>1?'<span class="t3x-sobre-cuantos">×'+n+'</span>':'')+'</button>'+
+        '<div class="t3x-tcg-lado"><p class="t3x-tcg-hay">'+(n===1?"Hay un sobre":"Hay "+n+" sobres")+'<small>'+esc(MOTIVOS[e.motivo]||"esperándote")+'</small></p>'+
+        '<button type="button" class="t3x-boton t3x-tcg-abrir" data-tcg="abrir">Abrir</button></div>';
+    }else{
+      var d=T3.dia(T3.hoy)||{};
+      var falta=d.actividad&&!T3.tiene("ganados",T3.hoy);
+      h+='<span class="t3x-sobre t3x-sobre-vacio" aria-hidden="true"></span>'+
+        '<div class="t3x-tcg-lado"><p class="t3x-tcg-hay">Mañana hay otro<small>'+(falta?"ganá el juego de hoy y te doy uno extra":"uno por día. sin apuro.")+'</small></p></div>';
+    }
+    h+='</section>';
+    if(!e.abiertos)h+='<p class="t3x-tcg-nota">Lo prometido: MafiaTCG. Un sobre por día; si ganás el juego del día, otro. '+({5:"Cinco",6:"Seis",7:"Siete",8:"Ocho"}[REPES]||REPES)+' repetidas valen un sobre más.</p>';
+    if(rp>0){
+      h+='<p class="t3x-tcg-repes">'+(rp===1?"1 repetida":rp+" repetidas")+' <small>'+REPES+' = un sobre</small>'+
+        (rp>=REPES?'<button type="button" class="t3x-tcg-canje" data-tcg="canjear">canjear</button>':'')+'</p>';
+    }
+    return h;
+  }
+  function carpeta(){
+    var h="",palo="";
+    var secretas=CARTAS.filter(function(c){return c.r==="s";});
+    CARTAS.forEach(function(c){
+      var clave=c.r==="s"?"secretas":c.p;
+      if(clave!==palo){
+        if(palo)h+="</div>";
+        palo=clave;
+        var grupo=c.r==="s"?secretas:CARTAS.filter(function(x){return x.p===c.p&&x.r!=="s";});
+        var mias=grupo.filter(function(x){return e.cartas[x.id]&&e.cartas[x.id].n>0;}).length;
+        h+='<h3 class="t3x-tcg-palo" style="--palo:'+(c.r==="s"?"#2B2118":PALOS[c.p].col)+'">'+(c.r==="s"?"Secretas":esc(PALOS[c.p].n))+'<small>'+mias+'/'+grupo.length+'</small></h3><div class="t3x-tcg-grilla">';
+      }
+      var a=e.cartas[c.id];
+      if(a&&a.n>0){
+        h+='<button type="button" class="t3x-mini t3x-r-'+c.r+(c.foto?"":" t3x-mini-dibujo")+'" data-tcg="ver" data-id="'+c.id+'" style="--palo:'+PALOS[c.p].col+'" aria-label="'+esc(c.t)+'">'+
+          '<span class="t3x-mini-arte">'+arte(c).replace("<img ",'<img loading="lazy" ')+(c.r==="h"||c.r==="s"?'<i class="t3x-carta-brillo" aria-hidden="true"></i>':'')+'</span>'+
+          '<span class="t3x-mini-n">'+nro3(c.n)+'</span>'+(a.n>1?'<span class="t3x-mini-x">×'+a.n+'</span>':'')+
+          '<span class="t3x-mini-nom">'+esc(c.t)+'</span></button>';
+      }else{
+        h+='<span class="t3x-mini t3x-hueco"><span class="t3x-mini-arte"><b>?</b></span><span class="t3x-mini-n">'+nro3(c.n)+'</span>'+
+          '<span class="t3x-mini-nom">'+(c.r==="s"?"secreta":"nola")+'</span></span>';
+      }
+    });
+    if(palo)h+="</div>";
+    return h;
+  }
+  function pintar(){
+    var t=tengo(e),premio=String((C.tcg&&C.tcg.premio)||"").trim();
+    host.innerHTML='<div class="t3x-tcg">'+
+      '<header class="t3x-tcg-cab"><div><h2>Mafia<b>TCG</b></h2><p>set base · tomo 1</p></div>'+
+      '<div class="t3x-tcg-avance" role="img" aria-label="'+t+' de '+TOTAL+' cartas"><b>'+t+'</b><span>/'+TOTAL+'</span><i style="--p:'+(t/TOTAL*100).toFixed(1)+'%"></i></div></header>'+
+      (e.completo?'<p class="t3x-tcg-completo"><b>Álbum completo</b>'+esc(T3.f.media(e.completo))+(premio?'<span>'+esc(premio)+'</span>':'')+'</p>':'')+
+      mesa()+'<section class="t3x-tcg-carpeta">'+carpeta()+'</section>'+
+      '<p class="t3x-tcg-pie">las imprime Mati. no se venden, no se cambian.</p></div>';
+  }
+
+  /* ---- ver una carta en grande ---- */
+  function cerrarCapa(){
+    if(!capa)return;
+    var c=capa;capa=null;
+    c.classList.remove("t3x-ver");
+    setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},260);
+  }
+  function inclinar(el,ev){
+    var r=el.getBoundingClientRect();
+    var px=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)),py=Math.max(0,Math.min(1,(ev.clientY-r.top)/r.height));
+    el.style.setProperty("--rx",((.5-py)*16).toFixed(2)+"deg");
+    el.style.setProperty("--ry",((px-.5)*18).toFixed(2)+"deg");
+    el.style.setProperty("--bx",(px*100).toFixed(1)+"%");
+    el.style.setProperty("--by",(py*100).toFixed(1)+"%");
+  }
+  function ver(id){
+    var c=POR_ID[id],a=e.cartas[id];
+    if(!c||!a||capa)return;
+    capa=U.el('<div class="t3x-lupa t3x-ocupa" role="dialog" aria-label="'+esc(c.t)+'"><div class="t3x-lupa-carta">'+carta(c)+'</div>'+
+      '<p class="t3x-lupa-dato">'+(a.n>1?"la tenés ×"+a.n+" · ":"")+'te tocó el '+esc(T3.f.media(a.f||T3.hoy))+'</p>'+
+      '<button type="button" class="t3x-lupa-cerrar">cerrar</button></div>');
+    X.raiz().appendChild(capa);
+    var cc=capa.querySelector(".t3x-lupa-carta");
+    cc.addEventListener("pointermove",function(ev){inclinar(cc,ev);});
+    cc.addEventListener("pointerleave",function(){cc.style.removeProperty("--rx");cc.style.removeProperty("--ry");});
+    capa.addEventListener("click",function(ev){if(!ev.target.closest(".t3x-lupa-carta"))cerrarCapa();});
+    requestAnimationFrame(function(){if(capa)capa.classList.add("t3x-ver");});
+    T3.sonido("papel",.5);
+  }
+
+  /* ---- abrir un sobre ---- */
+  function abrir(){
+    if(capa||e.sobres<1)return;
+    var numero=e.abiertos+1;
+    var tirada=tirar(e);
+    guardar(e);                                   /* queda anotado antes de la animación */
+    T3.stat("tcg-sobres");
+    T3.stat("tcg-nuevas",tirada.filter(function(x){return x.nueva;}).length);
+    marcarPestana();
+    var R=U.reducido();
+    var ap=U.el('<div class="t3x-apertura t3x-ocupa" role="dialog" aria-label="Abrir un sobre">'+
+      '<p class="t3x-ap-rotulo">sobre Nº '+String(numero).padStart(4,"0")+' · set base</p>'+
+      '<div class="t3x-ap-escena"><button type="button" class="t3x-sobre t3x-ap-sobre" aria-label="Abrir el sobre">'+sobre(numero)+'</button>'+
+      '<div class="t3x-ap-fila">'+tirada.map(function(x,i){
+        var c=POR_ID[x.id];
+        return '<div class="t3x-ap-lugar"><div class="t3x-ap-carta t3x-ap-r-'+c.r+'" data-i="'+i+'" role="button" tabindex="0" aria-label="carta '+(i+1)+', boca abajo">'+
+          '<div class="t3x-ap-giro"><div class="t3x-ap-cara t3x-ap-atras">'+dorso()+'</div><div class="t3x-ap-cara t3x-ap-frente">'+carta(c)+'</div></div>'+
+          '<span class="t3x-ap-sello'+(x.nueva?" t3x-ap-nola":"")+'">'+(x.nueva?"¡nola!":"late")+'</span></div></div>';
+      }).join("")+'</div></div>'+
+      '<p class="t3x-ap-pista" role="status">tocá el sobre</p>'+
+      '<button type="button" class="t3x-boton t3x-ap-listo" hidden>A la carpeta</button></div>');
+    capa=ap;
+    X.raiz().appendChild(ap);
+    var pista=ap.querySelector(".t3x-ap-pista"),bSobre=ap.querySelector(".t3x-ap-sobre"),fila=ap.querySelector(".t3x-ap-fila"),listo=ap.querySelector(".t3x-ap-listo");
+    var cartasEl=[].slice.call(ap.querySelectorAll(".t3x-ap-carta"));
+    var fase="sobre",arriba=null,vistas=0,tt=[];
+    function luego(fn,ms){tt.push(setTimeout(function(){if(capa===ap)fn();},R?Math.min(ms,40):ms));}
+    requestAnimationFrame(function(){ap.classList.add("t3x-ver");});
+    T3.sonido("papel",.6);
+
+    bSobre.addEventListener("click",function(){
+      if(fase!=="sobre")return;
+      fase="rasgando";
+      ap.classList.add("t3x-rasgado");
+      T3.sonido("papel",1);U.vibrar(14);
+      luego(function(){
+        ap.classList.add("t3x-cartas");
+        cartasEl.forEach(function(_,i){luego(function(){T3.sonido("pop",.5);},140+i*130);});
+      },420);
+      luego(function(){fase="cartas";bSobre.hidden=true;pista.textContent="tocá una carta";},900);
+    });
+    function bajar(){
+      if(!arriba)return;
+      var el=arriba;arriba=null;
+      el.classList.remove("t3x-arriba");
+      ap.classList.remove("t3x-con-arriba");
+      if(vistas>=cartasEl.length){
+        var nuevas=tirada.filter(function(x){return x.nueva;}).length;
+        pista.textContent=nuevas===0?"todas repetidas. se canjean.":nuevas===1?"una nueva para la carpeta":nuevas+" nuevas para la carpeta";
+        listo.hidden=false;
+      }else pista.textContent="tocá otra";
+    }
+    function subir(el){
+      var i=+el.getAttribute("data-i"),x=tirada[i],c=POR_ID[x.id];
+      var r=el.parentNode.getBoundingClientRect();
+      var W=260,H=364,vw=window.innerWidth,vh=window.innerHeight;
+      el.style.setProperty("--dx",((vw-W)/2-r.left).toFixed(1)+"px");
+      el.style.setProperty("--dy",(Math.max(70,vh*.44-H/2)-r.top).toFixed(1)+"px");
+      arriba=el;
+      el.classList.add("t3x-arriba");
+      ap.classList.add("t3x-con-arriba");
+      if(!el.classList.contains("t3x-vuelta")){
+        vistas++;
+        el.setAttribute("aria-label",c.t+(x.nueva?", nueva":", repetida"));
+        luego(function(){
+          el.classList.add("t3x-vuelta");
+          T3.sonido("papel",.7);
+        },180);
+        luego(function(){
+          el.classList.add("t3x-sellada");
+          if(c.r==="s"){T3.sonido("exito",.9);U.confeti({x:.5,y:.4,cantidad:90});U.vibrar(30);}
+          else if(c.r==="h"){T3.sonido("deseo",1);U.vibrar(20);}
+          else if(c.r==="r")T3.sonido("campana",.6);
+          else T3.sonido(x.nueva?"sello":"tic",.7);
+          pista.textContent=c.r==="s"?"¡una secreta!":c.r==="h"?"¡holo!":x.nueva?"nola. ahora sí.":"late. va a las repetidas.";
+        },620);
+      }else pista.textContent=c.t;
+    }
+    ap.addEventListener("click",function(ev){
+      if(fase!=="cartas")return;
+      if(ev.target.closest(".t3x-ap-listo"))return;
+      if(arriba){bajar();return;}
+      var el=ev.target.closest(".t3x-ap-carta");
+      if(el)subir(el);
+    });
+    ap.addEventListener("keydown",function(ev){
+      if(ev.key!=="Enter"&&ev.key!==" ")return;
+      var el=ev.target.closest&&ev.target.closest(".t3x-ap-carta");
+      if(!el||fase!=="cartas")return;
+      ev.preventDefault();
+      if(arriba)bajar();else subir(el);
+    });
+    listo.addEventListener("click",function(){
+      tt.forEach(clearTimeout);
+      capa=null;
+      ap.classList.remove("t3x-ver");
+      setTimeout(function(){if(ap.parentNode)ap.parentNode.removeChild(ap);},300);
+      if(vivo){
+        pintar();
+        tirada.forEach(function(x){
+          if(!x.nueva)return;
+          var m=host.querySelector('.t3x-mini[data-id="'+x.id+'"]');
+          if(m)m.classList.add("t3x-recien");
+        });
+        if(e.completo===T3.hoy&&tengo(e)>=TOTAL&&!e.festejado){
+          e.festejado=true;guardar(e);
+          T3.sonido("exito",1);U.confeti({cantidad:160});
+          X.aviso("álbum completo. no lo puedo creer.");
+        }
+      }
+    });
+  }
+
+  function clic(ev){
+    var b=ev.target.closest("[data-tcg]");
+    if(!b||!vivo)return;
+    var que=b.getAttribute("data-tcg");
+    if(que==="abrir")abrir();
+    else if(que==="ver")ver(b.getAttribute("data-id"));
+    else if(que==="canjear"){
+      if(canjear(e)){guardar(e);T3.stat("tcg-canjes");T3.sonido("sello",.8);pintar();marcarPestana();}
+    }
+  }
+  host.addEventListener("click",clic);
+  pintar();
+  return {desmontar:function(){
+    vivo=false;
+    host.removeEventListener("click",clic);
+    if(capa&&capa.parentNode)capa.parentNode.removeChild(capa);
+    capa=null;
+  }};
+}
+
+T3.tcg={
+  activo:function(){return X.estrenado();},
+  haySobre:haySobre,pagina:pagina,alGanar:alGanar,CARTAS:CARTAS,
+  _prueba:{estado:estado,guardar:guardar,ponerAlDia:ponerAlDia,tirar:tirar,repes:repes,canjear:canjear,tengo:tengo,carta:carta,dorso:dorso,TOTAL:TOTAL}
+};
 })();
 /*EXTRAS-JS>>*/
 (function(){try{if(window.T3&&T3.activo&&T3.cuaderno&&T3.cuaderno.arrancar)T3.cuaderno.arrancar();}

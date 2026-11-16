@@ -1,0 +1,42 @@
+# Laboratorio (solo en esta rama): corre las pruebas con WebKit, el motor de Safari,
+# y con las tipografías de verdad, y vuelca capturas en el registro.
+name: Laboratorio WebKit
+on:
+  push:
+    branches: ["claude/prueba-permisos"]
+permissions:
+  contents: read
+jobs:
+  webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FUENTES: "1"
+      DPR: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar navegadores
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps webkit chromium
+          mkdir -p "$RUNNER_TEMP/out"
+      - name: Humo en WebKit
+        if: always()
+        run: MOTOR=webkit NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/scripts/probar.cjs
+      - name: Escenarios en WebKit
+        if: always()
+        run: |
+          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=webkit SALIDA="$RUNNER_TEMP/out"
+          cd lab
+          for t in a b c2 c1; do echo "=== $t"; node $t.cjs || echo "### $t terminó con error"; done
+      - name: Capturas con tipografías reales (Chromium)
+        if: always()
+        run: |
+          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=chromium SALIDA="$RUNNER_TEMP/out/cr"
+          mkdir -p "$SALIDA"; cd lab
+          node c1.cjs || echo "### c1 chromium terminó con error"
+      - name: Volcar capturas
+        if: always()
+        run: |
+          cd "$RUNNER_TEMP/out"
+          for f in *.jpg cr/*.jpg; do [ -f "$f" ] || continue; base64 -w 3000 "$f" | awk -v n="$f" '{print "###IMG " n " " NR " " $0}'; echo "###FIN $f"; done

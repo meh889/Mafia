@@ -181,7 +181,7 @@ async function publicada() {
 (async () => {
   estaticos();
   let chromium;
-  try { chromium = require("playwright").chromium; }
+  try { chromium = require("playwright")[process.env.MOTOR || "chromium"]; }
   catch (e) { console.log("No encuentro Playwright (npm i playwright)."); process.exit(2); }
   if (SITIO) await publicada();
   const srv = SITIO ? null : await servir();

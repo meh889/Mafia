@@ -73,7 +73,8 @@ function carga(titulo, cuerpo) {
   return JSON.stringify({ web_push: 8030, notification: { title: titulo, body: cuerpo, navigate: SITIO, lang: "es-AR", dir: "ltr", silent: false } });
 }
 
-async function main() {
+/* enviar: solo para las pruebas, que pasan un envío de mentira */
+async function main(enviar) {
   const f = hoyBA();
   const textoLibre = String(process.env.TEXTO || "").trim();
   const prueba = /^(1|true|si|sí)$/i.test(String(process.env.PRUEBA || "").trim());
@@ -96,25 +97,27 @@ async function main() {
     console.log("No mando nada: falta " + [!privada ? "el secret AVISOS_VAPID_PRIVADA" : "", !subs.length ? "algún código válido en AVISOS_SUSCRIPCIONES" : ""].filter(Boolean).join(" y ") + ".");
     return;
   }
-  const webpush = require("web-push");
+  if (!enviar) enviar = require("web-push").sendNotification;
   const opciones = { vapidDetails: { subject: SITIO, publicKey: PUBLICA, privateKey: privada }, TTL: 12 * 3600, urgency: "normal", topic: "mafiapp-hoja" };
   let bien = 0;
   for (let i = 0; i < subs.length; i++) {
     const donde = "celular " + (i + 1) + " (" + new URL(subs[i].endpoint).host + ")";
     try {
-      const r = await webpush.sendNotification(subs[i], carga("MafiApp", cuerpo), opciones);
+      const r = await enviar(subs[i], carga("MafiApp", cuerpo), opciones);
       bien++;
       console.log("  ✓ " + donde + ": aceptado (" + r.statusCode + ")");
     } catch (e) {
       const cod = e && e.statusCode;
-      const pista = cod === 404 || cod === 410 ? "la suscripción venció: en ese celular, taller → avisos → renovar, y cargar el código nuevo en AVISOS_SUSCRIPCIONES"
-        : cod === 403 || cod === 401 ? "el servicio rechazó la llave: revisar AVISOS_VAPID_PRIVADA"
+      const pista = cod === 404 || cod === 410 ? "la suscripción venció: en ese celular, taller → avisos → renovar, y reemplazar su código en AVISOS_SUSCRIPCIONES (o sacarlo, si ese celular ya no va)"
+        : cod === 403 || cod === 401 ? "el servicio rechazó la llave: revisar AVISOS_VAPID_PRIVADA (si la llave cambió, renovar en ese celular)"
         : "sin detalle";
       console.log("  ✗ " + donde + ": " + (cod || (e && e.message) || "error") + " — " + pista + (e && e.body ? " · " + String(e.body).slice(0, 160) : ""));
     }
   }
-  if (!bien) process.exitCode = 1;
+  /* si a algún celular no le llegó, la corrida queda en rojo: GitHub manda un mail y acá se ve cuál fue */
+  if (bien < subs.length) process.exitCode = 1;
+  return { enviados: bien, fallidos: subs.length - bien };
 }
 
 if (require.main === module) main().catch((e) => { console.error(e && e.message || e); process.exit(1); });
-module.exports = { decidir, suscripciones, carga, leerHoja, PUBLICA };
+module.exports = { decidir, suscripciones, carga, leerHoja, PUBLICA, main };

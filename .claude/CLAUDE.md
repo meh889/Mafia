@@ -56,8 +56,9 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 - Secrets del repo: `AVISOS_VAPID_PRIVADA` (la llave) y `AVISOS_SUSCRIPCIONES` (códigos `MAFIAPUSH1:…`,
   uno por renglón; los da la app al activar los avisos).
 - Mandar uno a mano: `gh workflow run aviso.yml -R meh889/Mafia --ref main -f texto="…"` (o `-f prueba=true`).
-- Si "Aviso diario" falla con 404/410, esa suscripción murió: en ese celular, taller → avisos → **renovar**
-  da un código nuevo para reemplazar en `AVISOS_SUSCRIPCIONES`.
+- "Aviso diario" queda en rojo si a algún celular no le llegó (el registro dice cuál). Con 404/410 esa
+  suscripción murió: en ese celular, taller → avisos → **renovar** da un código nuevo para reemplazar en
+  `AVISOS_SUSCRIPCIONES` (o se saca ese renglón).
 - La llave privada no está en el repo ni se puede leer del secret. Si se pierde: par nuevo con
   `npx web-push generate-vapid-keys`, cambiar `PUBLICA` en `T3.avisos` (index.html) y en `aviso.cjs` (la prueba
   exige que coincidan), cargar el secret y renovar en cada celular.

@@ -1,7 +1,8 @@
-# Cada vez que cambia algo en main, abre la app en un navegador de verdad y
-# revisa que arranque, que la hoja de hoy y las de los próximos días aparezcan,
-# y que los juegos y las pestañas abran. Si algo falla queda una ✗ roja en el
-# commit (y GitHub le manda un mail a quien hizo el cambio).
+# Cada vez que cambia algo en main, abre la app en dos navegadores de verdad
+# (Chromium y WebKit, que es el motor de Safari y el del iPhone) y revisa que
+# arranque, que la hoja de hoy y las de los próximos días aparezcan, y que los
+# juegos y las pestañas abran. Si algo falla queda una ✗ roja en el commit (y
+# GitHub le manda un mail a quien hizo el cambio).
 #
 # Publicación: mientras GitHub Pages esté en "Deploy from a branch", esta prueba
 # AVISA pero no frena, porque Pages publica por su cuenta. Si en
@@ -29,16 +30,26 @@ concurrency:
 
 jobs:
   probar:
-    name: Probar en un navegador
+    name: Probar en ${{ matrix.nombre }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - motor: chromium
+            nombre: Chromium
+          - motor: webkit
+            nombre: WebKit (Safari)
     steps:
       - uses: actions/checkout@v7
       - name: Instalar el navegador de prueba
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright
-          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps ${{ matrix.motor }}
       - name: Probar hoy y los próximos días
+        env:
+          MOTOR: ${{ matrix.motor }}
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/scripts/probar.cjs
 
   en-vivo:

@@ -2917,10 +2917,10 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3x-arte-mafia{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:3cqw;color:var(--palo)}
 .t3x-arte-mafia b{font:600 italic 21cqw/1 var(--t3-serif)}
 .t3x-arte-mafia i{width:0;height:34cqw;border-left:.7cqw dashed currentColor;transform:rotate(12deg)}
-.t3x-carta-nom{flex:none;margin:3cqw 0 0;padding:0 .6cqw;font:600 7.8cqw/1.06 var(--t3-serif);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tinta)}
-.t3x-carta-lug{flex:none;margin-top:1cqw;padding:0 .6cqw;font:500 2.7cqw/1.2 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.t3x-carta-epi{flex:none;margin:2.4cqw 0 0;padding:0 .6cqw;font:500 6.5cqw/1.03 var(--t3-mano);color:var(--tinta);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.t3x-carta-pod{margin:auto 0 0;padding:1.6cqw .6cqw 0;border-top:.35cqw solid color-mix(in srgb,var(--palo) 45%,transparent);font:italic 500 4.2cqw/1.14 var(--t3-serif);color:var(--suave);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.t3x-carta-nom{flex:none;margin:3cqw 0 0;padding:0 .6cqw;font:600 8.2cqw/1.06 var(--t3-serif);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tinta)}
+.t3x-carta-lug{flex:none;margin-top:1cqw;padding:0 .6cqw;font:500 2.9cqw/1.2 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t3x-carta-epi{flex:none;margin:2.4cqw 0 0;padding:0 .6cqw;font:500 7.4cqw/1.03 var(--t3-mano);color:var(--tinta);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.t3x-carta-pod{margin:auto 0 0;padding:1.6cqw .6cqw 0;border-top:.35cqw solid color-mix(in srgb,var(--palo) 45%,transparent);font:italic 500 4.8cqw/1.14 var(--t3-serif);color:var(--suave);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .t3x-carta-pie{flex:none;display:flex;justify-content:space-between;margin-top:1.6cqw;padding:0 .6cqw;font:500 2.45cqw/1 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--palo)}
 .t3x-r-p .t3x-carta-in{box-shadow:inset 0 0 0 .4cqw rgba(43,33,24,.55),inset 0 0 0 2.2cqw var(--papel),inset 0 0 0 2.6cqw var(--palo),inset 0 0 0 3.2cqw var(--papel),inset 0 0 0 3.5cqw var(--palo),0 1px 2px rgba(0,0,0,.35)}
 .t3x-r-r .t3x-carta-in,.t3x-r-h .t3x-carta-in{box-shadow:inset 0 0 0 .4cqw rgba(43,33,24,.55),inset 0 0 0 1.2cqw var(--papel),inset 0 0 0 2.7cqw #D9B95E,inset 0 0 0 3.1cqw #9A7422,0 1px 2px rgba(0,0,0,.35)}
@@ -3035,10 +3035,14 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3x-ap-carta{position:absolute;left:0;top:0;z-index:1;width:260px;height:364px;transform-origin:0 0;transform:scale(.4);transition:transform .5s var(--t3-curva),opacity .3s ease;perspective:1000px;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
 .t3x-ap-carta.t3x-arriba{z-index:6;transform:translate(var(--dx,0),var(--dy,0)) scale(1)}
 .t3x-con-arriba .t3x-ap-carta:not(.t3x-arriba){opacity:.3}
-.t3x-ap-giro{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .62s var(--t3-curva)}
-.t3x-vuelta .t3x-ap-giro{transform:rotateY(180deg)}
-.t3x-ap-cara{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.t3x-ap-frente{transform:rotateY(180deg)}
+.t3x-ap-giro{position:absolute;inset:0;transition:transform .25s cubic-bezier(.55,0,.85,.4)}
+.t3x-ap-giro.t3x-canto{transform:rotateY(90deg)}
+.t3x-ap-giro.t3x-entra{transition:none;transform:rotateY(-90deg)}
+.t3x-ap-giro.t3x-llega{transition:transform .32s cubic-bezier(.15,.6,.3,1);transform:none}
+.t3x-ap-cara{position:absolute;inset:0}
+.t3x-ap-frente{visibility:hidden}
+.t3x-vuelta .t3x-ap-frente{visibility:visible}
+.t3x-vuelta .t3x-ap-atras{visibility:hidden}
 .t3x-ap-frente .t3x-carta{filter:drop-shadow(0 8px 14px rgba(0,0,0,.5))}
 .t3x-ap-r-r .t3x-dorso{box-shadow:inset 0 0 0 1px rgba(43,33,24,.6),inset 0 0 0 9px #FBF5E7,inset 0 0 0 13px #7E1D14,inset 0 0 0 14.5px #E3C676,0 0 22px 2px rgba(227,198,118,.45)}
 .t3x-ap-r-h .t3x-dorso,.t3x-ap-r-s .t3x-dorso{animation:t3x-aura 1.5s ease-in-out infinite alternate}
@@ -13082,9 +13086,9 @@ X.cartel=function(f,c){
 /* ------------------------------------------------------------
    ACTUALIZACIÓN SOLA
    La app le pregunta al servidor de cuándo es la última versión
-   publicada (encabezado Last-Modified de la página). Si es más
-   nueva que la que está cargada, se recarga sola salteando el
-   caché. Nunca corta un juego o un evento: espera a que cierren.
+   publicada (encabezado Last-Modified de la página). Si no es la
+   que está cargada, se recarga sola salteando el caché. Nunca
+   corta un juego o un evento: espera a que cierren.
    A prueba de vueltas: solo recarga una vez por cada versión.
    ------------------------------------------------------------ */
 (function(){
@@ -13100,9 +13104,20 @@ var info={doc:0,servidor:0,cuando:0,estado:"sin chequear"};
 
 function ms(s){var t=Date.parse(s);return isNaN(t)?0:t;}
 function docMs(){try{return ms(document.lastModified);}catch(e){return 0;}}
-function decidir(D,G,S){
+/* ¿lo que está cargado ya es la versión S? document.lastModified debería venir en hora local,
+   pero WebKit (Safari) lo da en UTC: se aceptan las dos lecturas. También vale el sello ?v=
+   que deja la propia recarga. */
+function fresco(S){
+  try{if(+new URL(location.href).searchParams.get("v")===Math.round(S/1000))return true;}catch(e){}
+  var A=docMs();
+  if(!A)return false;
+  var B=A-new Date().getTimezoneOffset()*60000;
+  return Math.abs(A-S)<=GRACIA||Math.abs(B-S)<=GRACIA;
+}
+function decidir(S,G,esFresco){
   if(!S)return "sin-dato";
-  return S>Math.max(D,G)+GRACIA?"nueva":"al-dia";
+  if(esFresco)return "al-dia";
+  return S>G+GRACIA?"nueva":"al-dia";
 }
 function base(){var u=new URL(location.href);u.hash="";return u;}
 function consultar(){
@@ -13147,8 +13162,8 @@ function chequear(forzar){
   ultimo=ahora;enCurso=true;
   return consultar().then(function(S){
     enCurso=false;
-    var D=docMs(),G=+T3.leer(LLAVE,0)||0,que=decidir(D,G,S);
-    info={doc:D,servidor:S,cuando:Date.now(),estado:que};
+    var G=+T3.leer(LLAVE,0)||0,f=fresco(S),que=decidir(S,G,f);
+    info={doc:docMs(),servidor:S,cuando:Date.now(),estado:que,fresco:f};
     if(que==="al-dia"&&S>G)T3.guardar(LLAVE,S);
     if(que==="nueva")aplicar(S);
     return que;
@@ -13159,7 +13174,7 @@ T3.actualizar={
   chequear:chequear,
   info:function(){return info;},
   pendiente:function(){return pendiente;},
-  _prueba:{decidir:decidir,docMs:docMs,api:api,aplicar:aplicar}
+  _prueba:{decidir:decidir,fresco:fresco,docMs:docMs,api:api,aplicar:aplicar}
 };
 
 if(T3.preview||!window.fetch)return;   /* en la máquina del tiempo no se toca nada */
@@ -14055,10 +14070,15 @@ function pagina(host){
       if(!el.classList.contains("t3x-vuelta")){
         vistas++;
         el.setAttribute("aria-label",c.t+(x.nueva?", nueva":", repetida"));
+        /* se da vuelta en dos tiempos: gira hasta quedar de canto, ahí cambia de cara, y termina de girar */
+        var giro=el.querySelector(".t3x-ap-giro");
+        luego(function(){giro.classList.add("t3x-canto");T3.sonido("papel",.7);},180);
         luego(function(){
           el.classList.add("t3x-vuelta");
-          T3.sonido("papel",.7);
-        },180);
+          giro.classList.remove("t3x-canto");giro.classList.add("t3x-entra");
+          void giro.offsetWidth;
+          giro.classList.remove("t3x-entra");giro.classList.add("t3x-llega");
+        },430);
         luego(function(){
           el.classList.add("t3x-sellada");
           if(c.r==="s"){T3.sonido("exito",.9);U.confeti({x:.5,y:.4,cantidad:90});U.vibrar(30);}
@@ -14066,7 +14086,7 @@ function pagina(host){
           else if(c.r==="r")T3.sonido("campana",.6);
           else T3.sonido(x.nueva?"sello":"tic",.7);
           pista.textContent=c.r==="s"?"¡una secreta!":c.r==="h"?"¡holo!":x.nueva?"nola. ahora sí.":"late. va a las repetidas.";
-        },620);
+        },780);
       }else pista.textContent=c.t;
     }
     ap.addEventListener("click",function(ev){

@@ -1,0 +1,67 @@
+/* Laboratorio · ida y vuelta: cartel del 1/12, contestar cartas, pedidos y vales */
+const {servir,abrir,chequear,resumen,estado,motor}=require("./comun.cjs");
+const S=(process.env.SALIDA||require("os").tmpdir())+"/";
+(async()=>{
+  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await motor().launch();
+  console.log("ANTES DEL ESTRENO (30/11)");
+  let {ctx,pg,errores}=await abrir(b,base,"2026-11-30",{semilla:{"pv-t3-set-ganados":'["2026-10-26"]'}});
+  let r=await pg.evaluate(async()=>{await T3.cuaderno.irA("2026-10-26");await new Promise(r=>setTimeout(r,900));
+    return {pest:Array.from(document.querySelectorAll("[data-pest]")).map(x=>x.getAttribute("data-pest")),contestar:!!document.querySelector(".t3x-contestar"),carta:(document.querySelector(".t3-cuaderno-carta")||{}).textContent};});
+  chequear("antes del 1/12 no aparece nada nuevo",!r.pest.includes("pedidos")&&!r.pest.includes("tcg")&&!r.contestar&&/joven/.test(r.carta),r);
+  await ctx.close();
+
+  console.log("EL 1/12");
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-01",{dpr:2,semilla:{"pv-t3-set-ganados":'["2026-10-26"]',"pv-t3-set-escritas":'["2026-12-01"]',"pv-t3-set-abrio":'["2026-12-01"]'}}));
+  await pg.waitForTimeout(600);
+  await pg.screenshot({path:S+"b-1201.jpg"});
+  r=await pg.evaluate(()=>({cartel:(document.querySelector(".t3x-cartel")||{}).innerText,pest:Array.from(document.querySelectorAll("[data-pest]")).map(x=>x.getAttribute("data-pest"))}));
+  chequear("el 1/12 está el cartel de vuelta",/Abierto de nuevo/i.test(r.cartel||"")&&/MafiaTCG/.test(r.cartel||""),r.cartel);
+  chequear("aparece la pestaña de pedidos",r.pest.includes("pedidos"),r.pest);
+  await pg.evaluate(()=>T3.cuaderno.irA("2026-10-26"));await pg.waitForTimeout(1100);
+  await pg.screenshot({path:S+"b-contestar.jpg"});
+  r=await pg.evaluate(()=>{const c=document.querySelector(".t3x-contestar");return c?{t:c.innerText.trim(),vis:getComputedStyle(c).opacity,alto:c.getBoundingClientRect().height}:null;});
+  chequear("debajo de una carta aparece «contestarle»",r&&r.t==="contestarle"&&r.vis==="1",r);
+  await pg.click(".t3x-contestar");await pg.waitForTimeout(1100);
+  await pg.screenshot({path:S+"b-hoja.jpg"});
+  r=await pg.evaluate(()=>({nom:(document.querySelector(".t3-cuaderno-suelta-nombre")||{}).textContent,cita:(document.querySelector(".t3x-resp-cita")||{}).innerText,gDes:document.querySelector(".t3x-resp-guardar").disabled,mIna:document.querySelector(".t3x-resp-mandar").classList.contains("t3x-inactivo")}));
+  chequear("abre la hoja con la cita de la carta y los botones apagados",r.nom==="Contestarle"&&/joven/.test(r.cita)&&r.gDes&&r.mIna,r);
+  await pg.fill(".t3x-resp-texto","Viejo pero mío.\nTe amo más yo.");await pg.waitForTimeout(600);
+  r=await pg.evaluate(()=>({href:document.querySelector(".t3x-resp-mandar").href,borr:T3.leer("resp-borrador-2026-10-26","")}));
+  chequear("al escribir arma el link de WhatsApp y guarda el borrador",/^https:\/\/wa\.me\/\?text=/.test(r.href)&&decodeURIComponent(r.href).includes("Respuesta a tu carta del 26 de octubre")&&decodeURIComponent(r.href).includes("Te amo más yo.")&&/Viejo/.test(r.borr),r);
+  await pg.click(".t3x-resp-guardar");await pg.waitForTimeout(500);
+  await pg.screenshot({path:S+"b-guardada.jpg"});
+  await pg.click(".t3-cuaderno-suelta-cerrar");await pg.waitForTimeout(2600);
+  await pg.screenshot({path:S+"b-pagina.jpg"});
+  r=await pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-bloque > .t3-cuaderno-hoja.t3-cuaderno-visible");return {txt:h?h.innerText:"",extra:T3.paginasExtra("2026-10-26"),borr:T3.leer("resp-borrador-2026-10-26",null),n:T3.leer("resp-2026-10-26",0),stat:T3.stats().respuestas};});
+  chequear("la respuesta queda como hoja del cuaderno y se muestra",r.extra.length===1&&r.extra[0].autor==="Sofi"&&/Te amo más yo/.test(r.txt)&&/escrito por Sofi/i.test(r.txt)&&r.borr===null&&r.n===1&&r.stat===1,{txt:r.txt.slice(0,160),extra:r.extra,n:r.n});
+  await pg.evaluate(()=>T3.cuaderno.irA("2026-10-26"));await pg.waitForTimeout(1100);
+  r=await pg.evaluate(()=>document.querySelector(".t3x-contestar").innerText.trim());
+  chequear("después dice «contestarle otra vez»",r==="contestarle otra vez",r);
+
+  console.log("PEDIDOS");
+  await pg.evaluate(()=>T3.cuaderno.abrir("pedidos"));await pg.waitForTimeout(1200);
+  await pg.screenshot({path:S+"b-pedidos.jpg"});
+  r=await pg.evaluate(()=>{const t=Array.from(document.querySelectorAll(".t3x-ticket"));return {n:t.length,primero:decodeURIComponent(t[0].href),ultimo:decodeURIComponent(t[t.length-1].href),pie:document.querySelector(".t3x-ped-pie").innerText};});
+  chequear("el talonario trae los tickets con su mensaje armado",r.n===10&&/Pedido Nº 0001: Mimos\./.test(r.primero)&&/\(comodín\): $/.test(r.ultimo),r);
+  const [pop]=await Promise.all([ctx.waitForEvent("page").catch(()=>null),pg.click('.t3x-ticket[data-i="2"]')]);
+  await pg.waitForTimeout(1900);if(pop)await pop.close().catch(()=>{});
+  r=await pg.evaluate(()=>({L:T3.leer("pedidos",null),sig:document.querySelector(".t3x-ticket-talon b").textContent,sushi:document.querySelectorAll(".t3x-ticket-talon b")[2].textContent,pie:document.querySelector(".t3x-ped-pie").innerText,stat:T3.stats()["pedido-sushi"]}));
+  chequear("al tocar uno abre WhatsApp, lo anota y avanza el número",!!pop&&r.L.n===1&&r.L.log[0].id==="sushi"&&r.sig==="00"&&r.sushi==="01"&&/último: sushitos de fabric/.test(r.pie)&&r.stat===1,{pop:!!pop,r});
+  chequear("sin errores de JavaScript",errores.length===0,errores);
+  await ctx.close();
+
+  console.log("VALE DEL ADVIENTO (2/12)");
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-02",{dpr:2}));
+  await pg.evaluate(()=>T3.adviento.abrir("2026-12-02"));await pg.waitForTimeout(1800);
+  r=await pg.evaluate(()=>({talon:!!document.querySelector(".t3-adviento-vale-talon"),link:!!document.querySelector(".t3x-vale-avisar")}));
+  chequear("vale sin canjear: todavía no ofrece avisar",r.talon&&!r.link,r);
+  const caja=await pg.locator(".t3-adviento-vale-talon").boundingBox();
+  await pg.mouse.move(caja.x+caja.width/2,caja.y+caja.height/2);await pg.mouse.down();await pg.waitForTimeout(950);await pg.mouse.up();
+  await pg.waitForTimeout(1400);
+  await pg.screenshot({path:S+"b-vale.jpg"});
+  r=await pg.evaluate(()=>{const a=document.querySelector(".t3x-vale-avisar");return a?{t:a.innerText,href:decodeURIComponent(a.href)}:null;});
+  chequear("al canjear aparece «avisarle a Mati» con el vale en el mensaje",r&&/avisarle a Mati/.test(r.t)&&/Canjeo mi vale Nº 0002 del adviento: un helado de menta granizada\./.test(r.href),r);
+  chequear("sin errores de JavaScript",errores.length===0,errores);
+  await ctx.close();
+  await b.close();srv.close();process.exit(resumen()?1:0);
+})().catch(e=>{console.error(e);process.exit(1);});

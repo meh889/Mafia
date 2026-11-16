@@ -11,8 +11,11 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 - Git: `user.name Claude`, `user.email noreply@anthropic.com`.
 - Antes de pushear: `node .github/scripts/probar.cjs [AAAA-MM-DD …]` (usa Playwright). Sin fechas prueba
   hoy, los 10 días que siguen y las fechas importantes.
-- Después de pushear: `gh run list -R meh889/Mafia -L 3` y esperar "Prueba y publicación" en verde.
+- Después de pushear: `gh run list -R meh889/Mafia -L 3` y esperar "Prueba y publicación" en verde
+  (corre la misma prueba en Chromium y en WebKit, el motor del iPhone).
   Para revisar lo que quedó publicado: `gh workflow run prueba.yml -R meh889/Mafia --ref main -f vivo=true`.
+- Cada push es una publicación, y la app abierta se recarga sola cuando ve una nueva: mejor juntar los
+  cambios en un solo push.
 
 ## Mapa de `index.html`
 - `<head>`: arranque temprano (máquina del tiempo), `CONFIG` (todo el contenido editable) y los estilos.
@@ -35,6 +38,17 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   que además tiene el **taller**: versión publicada, respaldo del progreso y avisos.
 - El progreso de Sofi vive solo en su celular: `localStorage` con prefijo `pv-` (el cuaderno usa `pv-t3-`).
 
+## Pruebas largas (el laboratorio)
+- `.github/pruebas/*.cjs` son los escenarios de lo sumado en noviembre: `a` actualización, respaldo, taller y
+  sonido · `b` contestar, pedidos y vales · `c2` reglas y flujo del TCG · `c1` recorrido del TCG con capturas ·
+  `d` avisos en la app · `d-envio` el envío (necesita `web-push`). Si se toca ese código, correr el que
+  corresponda: `node .github/pruebas/a.cjs` (capturas en `SALIDA=carpeta`).
+- WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
+  --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad. Las capturas
+  salen del registro: `gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>`.
+- Ya mordieron dos diferencias de Safari: `document.lastModified` viene en UTC (no en hora local) y
+  `backface-visibility` no es confiable (las cartas se dan vuelta cambiando `visibility` a mitad del giro).
+
 ## Avisos (notificación diaria)
 - `.github/workflows/aviso.yml` corre todos los días 12:17 UTC y ejecuta `.github/scripts/aviso.cjs`,
   que lee la hoja de hoy en `index.html`; si no hay nada cargado no manda.
@@ -45,7 +59,7 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 
 ## Lo que una sesión de Claude no puede hacer acá
 - Cargar secrets ni cambiar la configuración de Pages: lo hace Mati en Settings.
-- Borrar ramas remotas.
+- Borrar ramas remotas (quedó `claude/prueba-permisos`, descartable: la puede borrar Mati).
 - Probar en un iPhone de verdad: instalación y avisos se confirman con Mati.
 
 ## Publicación

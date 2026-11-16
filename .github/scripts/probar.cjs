@@ -10,6 +10,7 @@
    Sin fechas: hoy (hora de Buenos Aires), los 10 días que siguen
    y las fechas marcadas de más abajo.
 
+   Con MOTOR=webkit usa el motor de Safari (el del iPhone).
    Con SITIO=https://… prueba la versión PUBLICADA en vez de la
    del repo: revisa que sea la misma que este commit y abre hoy
    y el día del estreno.
@@ -181,7 +182,7 @@ async function publicada() {
 (async () => {
   estaticos();
   let chromium;
-  try { chromium = require("playwright").chromium; }
+  try { chromium = require("playwright")[process.env.MOTOR || "chromium"]; }
   catch (e) { console.log("No encuentro Playwright (npm i playwright)."); process.exit(2); }
   if (SITIO) await publicada();
   const srv = SITIO ? null : await servir();

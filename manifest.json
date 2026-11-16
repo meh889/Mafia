@@ -1,0 +1,14 @@
+{
+  "name": "MafiApp",
+  "short_name": "MafiApp",
+  "lang": "es-AR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B1410",
+  "theme_color": "#1B1410",
+  "icons": [
+    { "src": "icon.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
+  ]
+}

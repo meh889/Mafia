@@ -107,7 +107,7 @@ async function main() {
       console.log("  ✓ " + donde + ": aceptado (" + r.statusCode + ")");
     } catch (e) {
       const cod = e && e.statusCode;
-      const pista = cod === 404 || cod === 410 ? "la suscripción venció: hay que activar los avisos de nuevo en ese celular y cargar el código nuevo"
+      const pista = cod === 404 || cod === 410 ? "la suscripción venció: en ese celular, taller → avisos → renovar, y cargar el código nuevo en AVISOS_SUSCRIPCIONES"
         : cod === 403 || cod === 401 ? "el servicio rechazó la llave: revisar AVISOS_VAPID_PRIVADA"
         : "sin detalle";
       console.log("  ✗ " + donde + ": " + (cod || (e && e.message) || "error") + " — " + pista + (e && e.body ? " · " + String(e.body).slice(0, 160) : ""));

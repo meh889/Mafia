@@ -13208,10 +13208,13 @@ var T3=window.T3;
 if(!T3||!T3.x)return;
 var PFX="pv-";                          /* todas las claves de la app empiezan así */
 var ANTES="mafia-antes-de-restaurar";   /* copia de lo que había, por si hay que deshacer */
+/* lo que es de este celular y no del progreso (la suscripción a los avisos, la última versión
+   que vio): no viaja en el respaldo ni se pisa al restaurar */
+var PROPIAS={"pv-t3-avisos":1,"pv-t3-version-vista":1};
 
 function claves(){
   var ks=[];
-  try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf(PFX)===0)ks.push(k);}}catch(e){}
+  try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf(PFX)===0&&!PROPIAS[k])ks.push(k);}}catch(e){}
   return ks.sort();
 }
 function juntar(){
@@ -13260,7 +13263,7 @@ function escribir(o){
   var n=0;
   claves().forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
   Object.keys(o.datos).forEach(function(k){
-    if(k.indexOf(PFX)!==0)return;
+    if(k.indexOf(PFX)!==0||PROPIAS[k])return;
     try{localStorage.setItem(k,String(o.datos[k]));n++;}catch(e){}
   });
   return n;
@@ -14203,25 +14206,40 @@ function registro(){
   var tope=new Promise(function(r){setTimeout(function(){r(null);},8000);});
   return Promise.race([listo,tope]).catch(function(){return null;});
 }
-function suscribir(){
-  var op={userVisibleOnly:true,applicationServerKey:deB64u(PUBLICA)};
+/* ¿la suscripción que ya tiene el celular se hizo con la llave de ahora? (si no se puede saber, sí) */
+function mismaLlave(sub){
+  try{
+    var k=sub&&sub.options&&sub.options.applicationServerKey;
+    return !k||b64u(new Uint8Array(k))===PUBLICA;
+  }catch(e){return true;}
+}
+function opciones(){return {userVisibleOnly:true,applicationServerKey:deB64u(PUBLICA)};}
+/* usa la suscripción que ya hay; pide otra si no hay, si es de una llave vieja o si se pide "nueva" */
+function suscribirEn(reg,nueva){
+  return reg.pushManager.getSubscription().then(function(s){
+    if(s&&!nueva&&mismaLlave(s))return s;
+    /* la vieja se da de baja antes: encima de una hecha con otra llave no deja suscribir */
+    var baja=s&&s.unsubscribe?Promise.resolve().then(function(){return s.unsubscribe();}).catch(function(){}):Promise.resolve();
+    return baja.then(function(){return reg.pushManager.subscribe(opciones());});
+  });
+}
+function suscribir(nueva){
   return registro().then(function(reg){
-    if(reg&&reg.pushManager){
-      return reg.pushManager.getSubscription().then(function(s){return s||reg.pushManager.subscribe(op);});
-    }
-    if(window.pushManager)return window.pushManager.subscribe(op);
+    if(reg&&reg.pushManager)return suscribirEn(reg,nueva);
+    if(window.pushManager)return window.pushManager.subscribe(opciones());
     throw new Error("sin-push");
   });
 }
-/* hay que llamarla desde un toque: el permiso solo se puede pedir así */
-function activar(){
+/* hay que llamarla desde un toque: el permiso solo se puede pedir así.
+   Con nueva=true tira la suscripción que hubiera y saca otra (cuando la vieja dejó de andar). */
+function activar(nueva){
   if(T3.preview)return Promise.reject(new Error("maquina"));
   if(!soporte().ok)return Promise.reject(new Error("no-soportado"));
   var p;
   try{p=Notification.requestPermission();}catch(e){return Promise.reject(e);}
   return Promise.resolve(p).then(function(r){
     if(r!=="granted")throw new Error(r==="denied"?"denegado":"sin-respuesta");
-    return suscribir();
+    return suscribir(nueva===true);
   }).then(function(sub){
     var c=codigoDe(sub),a=mio();
     if(a.codigo!==c)a.enviado=false;
@@ -14311,32 +14329,34 @@ function filaTaller(fila){
   var s=soporte(),a=mio(),acc=[];
   if(!T3.preview){
     if(s.ok&&permiso()!=="denied"){
-      if(a.activo&&a.codigo)acc=[["avisos-copiar","copiar código"],["avisos-probar","probar acá"]];
+      if(a.activo&&a.codigo)acc=[["avisos-copiar","copiar código"],["avisos-probar","probar acá"],["avisos-renovar","renovar"]];
       else acc=[["avisos-activar","activar"]];
     }
     acc.push(["avisos-diag","ver por qué"]);
   }
   return fila("avisos",detalle(),acc);
 }
-function copiar(texto,ui){
+function copiar(texto,ui,dicho){
   var mostrar=function(){
     ui.caja.hidden=false;
     ui.caja.innerHTML='<label class="t3x-taller-lbl">el código de este celular</label><textarea class="t3x-taller-txt" rows="3" readonly></textarea>';
     ui.caja.querySelector("textarea").value=texto;
   };
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    return navigator.clipboard.writeText(texto).then(function(){ui.decir("código copiado. va en el secret AVISOS_SUSCRIPCIONES.");},function(){mostrar();ui.decir("copialo a mano.");});
+    return navigator.clipboard.writeText(texto).then(function(){ui.decir(dicho||"código copiado. va en el secret AVISOS_SUSCRIPCIONES.");},function(){mostrar();ui.decir("copialo a mano.");});
   }
   mostrar();ui.decir("copialo a mano.");
   return Promise.resolve();
 }
 function clicTaller(que,ui){
-  if(que==="avisos-activar"){
-    ui.decir("pidiendo permiso…");
-    activar().then(function(c){
+  if(que==="avisos-activar"||que==="avisos-renovar"){
+    /* renovar: cuando los avisos dejaron de llegar a este celular. Tira la suscripción y saca otra. */
+    var otra=que==="avisos-renovar";
+    ui.decir(otra?"pidiendo una suscripción nueva…":"pidiendo permiso…");
+    activar(otra).then(function(c){
       var a=mio();a.enviado=true;T3.guardar(LL,a);      /* lo activó Mati: el código ya está en sus manos */
       if(ui.repintar)ui.repintar();else ui.detalle("avisos",detalle());
-      return copiar(c,ui);
+      return copiar(c,ui,otra?"código nuevo copiado. reemplazá el viejo en AVISOS_SUSCRIPCIONES.":"");
     }).catch(function(e){
       var m=e&&e.message;
       ui.decir(m==="denegado"?"el celular los tiene bloqueados (Ajustes → Notificaciones).":m==="sin-respuesta"?"no se dio el permiso.":"no se pudo: "+(m||"error")+".");
@@ -14356,22 +14376,23 @@ function clicTaller(que,ui){
 }
 
 T3.avisos={soporte:soporte,permiso:permiso,activar:activar,probar:probar,filaTaller:filaTaller,clicTaller:clicTaller,
-  _prueba:{codigoDe:codigoDe,quePieza:quePieza,tarjeta:tarjeta,PUBLICA:PUBLICA}};
+  _prueba:{codigoDe:codigoDe,quePieza:quePieza,tarjeta:tarjeta,PUBLICA:PUBLICA,repasar:function(){return repasar();},mismaLlave:mismaLlave}};
 
-/* si el celular cambió la suscripción por su cuenta, hay que volver a mandar el código */
-if(!T3.preview&&mio().activo&&soporte().ok&&permiso()==="granted"){
-  setTimeout(function(){
-    try{
-      navigator.serviceWorker.getRegistration().then(function(reg){
-        return reg&&reg.pushManager?reg.pushManager.getSubscription():null;
-      }).then(function(sub){
-        if(!sub)return;
-        var c=codigoDe(sub),a=mio();
-        if(a.codigo&&a.codigo!==c){a.codigo=c;a.enviado=false;T3.guardar(LL,a);}
-      }).catch(function(){});
-    }catch(e){}
-  },4000);
+/* si el celular perdió la suscripción o la cambió por su cuenta (o cambió la llave), se arma otra
+   y hay que volver a mandar el código: la tarjeta de la hoja de hoy lo pide de nuevo */
+function repasar(){
+  if(T3.preview||!mio().activo||!soporte().ok||permiso()!=="granted")return Promise.resolve(false);
+  return registro().then(function(reg){
+    if(!reg||!reg.pushManager)return false;      /* sin el service worker a mano no se toca nada */
+    return suscribirEn(reg,false).then(function(sub){
+      var c=codigoDe(sub),a=mio();
+      if(!a.activo||a.codigo===c)return false;
+      a.codigo=c;a.enviado=false;T3.guardar(LL,a);
+      return true;
+    });
+  }).catch(function(){return false;});
 }
+setTimeout(function(){try{repasar();}catch(e){}},4000);
 })();
 /*EXTRAS-JS>>*/
 (function(){try{if(window.T3&&T3.activo&&T3.cuaderno&&T3.cuaderno.arrancar)T3.cuaderno.arrancar();}

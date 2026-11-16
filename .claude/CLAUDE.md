@@ -56,6 +56,12 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 - Secrets del repo: `AVISOS_VAPID_PRIVADA` (la llave) y `AVISOS_SUSCRIPCIONES` (códigos `MAFIAPUSH1:…`,
   uno por renglón; los da la app al activar los avisos).
 - Mandar uno a mano: `gh workflow run aviso.yml -R meh889/Mafia --ref main -f texto="…"` (o `-f prueba=true`).
+- Si "Aviso diario" falla con 404/410, esa suscripción murió: en ese celular, taller → avisos → **renovar**
+  da un código nuevo para reemplazar en `AVISOS_SUSCRIPCIONES`.
+- La llave privada no está en el repo ni se puede leer del secret. Si se pierde: par nuevo con
+  `npx web-push generate-vapid-keys`, cambiar `PUBLICA` en `T3.avisos` (index.html) y en `aviso.cjs` (la prueba
+  exige que coincidan), cargar el secret y renovar en cada celular.
+- El respaldo del taller no lleva `pv-t3-avisos` ni `pv-t3-version-vista`: son de cada celular.
 - GitHub apaga los workflows programados si el repo pasa 60 días sin actividad.
 
 ## Lo que una sesión de Claude no puede hacer acá

@@ -33,9 +33,15 @@ jobs:
   avisar:
     name: Mandar el aviso
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
+      # solo hace falta el index.html y el script: no baja las fotos ni los audios
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            index.html
+            .github/scripts
+          sparse-checkout-cone-mode: false
       - name: Instalar lo que hace falta para mandar
         run: npm install --prefix "$RUNNER_TEMP/wp" --no-audit --no-fund web-push@4
       - name: Mandar

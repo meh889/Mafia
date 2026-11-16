@@ -10,7 +10,7 @@ const S=(process.env.SALIDA||".")+"/";
   let navs=0;pg.on("framenavigated",f=>{if(f===pg.mainFrame())navs++;});
   let i=await pg.evaluate(()=>({info:T3.actualizar.info(),g:T3.leer("version-vista",0),doc:T3.actualizar._prueba.docMs()}));
   chequear("al arrancar pregunta y queda al día",i.info.estado==="al-dia"&&i.g===T0,i);
-  chequear("lee la fecha del documento",i.doc===T0,i.doc);
+  chequear("reconoce que lo cargado es lo publicado",i.info.fresco===true,i.info);
   // versión nueva publicada
   estado.lmDoc=T0+60000;estado.lmHead=T0+60000;
   await pg.evaluate(()=>{T3.actualizar.chequear(true);});
@@ -36,8 +36,8 @@ const S=(process.env.SALIDA||".")+"/";
   chequear("con un juego abierto no recarga y deja la versión pendiente",navs===0&&i.pend===T0+400000&&i.suelta,{navs,i});
   await pg.evaluate(()=>T3.cuaderno.cerrarSuelta());
   await pg.waitForTimeout(3200);
-  i=await pg.evaluate(()=>({info:T3.actualizar.info(),doc:T3.actualizar._prueba.docMs()}));
-  chequear("al cerrar el juego entra la versión nueva",navs===1&&i.doc===T0+400000,{navs,i});
+  i=await pg.evaluate(()=>({info:T3.actualizar.info(),url:location.href}));
+  chequear("al cerrar el juego entra la versión nueva",navs===1&&i.info.estado==="al-dia"&&i.info.servidor===T0+400000&&i.url.includes("v="+Math.round((T0+400000)/1000)),{navs,i});
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 

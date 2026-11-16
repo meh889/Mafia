@@ -1,0 +1,103 @@
+# Cada vez que cambia algo en main, abre la app en un navegador de verdad y
+# revisa que arranque, que la hoja de hoy y las de los próximos días aparezcan,
+# y que los juegos y las pestañas abran. Si algo falla queda una ✗ roja en el
+# commit (y GitHub le manda un mail a quien hizo el cambio).
+#
+# Publicación: mientras GitHub Pages esté en "Deploy from a branch", esta prueba
+# AVISA pero no frena, porque Pages publica por su cuenta. Si en
+# Settings → Pages → Source se elige "GitHub Actions", publica este mismo
+# archivo y SOLO si la prueba pasó: una versión rota no llega nunca al celular.
+name: Prueba y publicación
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      vivo:
+        description: "Probar también la versión publicada (la que ve el celular)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prueba-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  probar:
+    name: Probar en un navegador
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar el navegador de prueba
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Probar hoy y los próximos días
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/scripts/probar.cjs
+
+  en-vivo:
+    name: Probar lo publicado
+    if: github.event_name == 'workflow_dispatch' && inputs.vivo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar el navegador de prueba
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Probar la versión publicada
+        env:
+          SITIO: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/scripts/probar.cjs
+
+  modo:
+    name: Ver cómo publica Pages
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: read
+    outputs:
+      tipo: ${{ steps.ver.outputs.tipo }}
+    steps:
+      - id: ver
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          tipo=$(gh api "repos/$REPO/pages" --jq .build_type 2>/dev/null) || tipo=desconocido
+          case "$tipo" in workflow|legacy) ;; *) tipo=desconocido ;; esac
+          echo "tipo=$tipo" >> "$GITHUB_OUTPUT"
+          echo "Pages publica en modo: $tipo  (legacy = desde la rama · workflow = desde este archivo)"
+      - name: Encabezados de la página publicada
+        env:
+          SITIO: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+        run: curl -sI "$SITIO" | grep -i -E '^(HTTP|last-modified|etag|cache-control|age):?' || true
+
+  publicar:
+    name: Publicar (solo si la prueba pasó)
+    needs: [probar, modo]
+    if: needs.modo.outputs.tipo == 'workflow'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deploy
+        uses: actions/deploy-pages@v4

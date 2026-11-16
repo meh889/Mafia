@@ -9,6 +9,10 @@
    Uso:   node .github/scripts/probar.cjs [AAAA-MM-DD ...]
    Sin fechas: hoy (hora de Buenos Aires), los 10 días que siguen
    y las fechas marcadas de más abajo.
+
+   Con SITIO=https://… prueba la versión PUBLICADA en vez de la
+   del repo: revisa que sea la misma que este commit y abre hoy
+   y el día del estreno.
    ============================================================ */
 const http = require("http");
 const fs = require("fs");
@@ -16,6 +20,7 @@ const path = require("path");
 const vm = require("vm");
 
 const RAIZ = path.resolve(__dirname, "..", "..");
+const SITIO = String(process.env.SITIO || "").replace(/\/+$/, "");
 const DIAS_ADELANTE = 10;
 const MARCADAS = ["2026-12-01", "2026-12-16", "2026-12-24", "2026-12-25", "2026-12-31", "2027-01-01"];
 const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json",
@@ -154,16 +159,41 @@ async function probarFecha(browser, base, fecha, op) {
   await ctx.close();
 }
 
+/* ---------- 4 · la versión publicada ---------- */
+async function publicada() {
+  console.log("Publicado · " + SITIO);
+  const local = fs.readFileSync(path.join(RAIZ, "index.html"));
+  let r, remoto;
+  try {
+    r = await fetch(SITIO + "/index.html?_=" + Date.now(), { cache: "no-store" });
+    remoto = Buffer.from(await r.arrayBuffer());
+  } catch (e) { falla("publicado", "no pude bajar la página: " + e.message); return; }
+  const lm = r.headers.get("last-modified") || "(sin fecha)";
+  if (!r.ok) falla("publicado", "la página responde " + r.status);
+  else if (Buffer.compare(local, remoto) !== 0) falla("publicado", "lo que está publicado no es este commit (publicado: " + remoto.length + " bytes, del " + lm + "; repo: " + local.length + " bytes). Puede que todavía se esté publicando.");
+  else console.log("  ✓ lo publicado es idéntico a este commit (" + remoto.length + " bytes, del " + lm + ")");
+  for (const f of ["manifest.json", "sw.js", "audios/win.wav", "icon.png"]) {
+    try { const x = await fetch(SITIO + "/" + f + "?_=" + Date.now(), { method: "HEAD", cache: "no-store" }); if (!x.ok) falla("publicado", f + " responde " + x.status); }
+    catch (e) { falla("publicado", f + ": " + e.message); }
+  }
+}
+
 (async () => {
   estaticos();
   let chromium;
   try { chromium = require("playwright").chromium; }
   catch (e) { console.log("No encuentro Playwright (npm i playwright)."); process.exit(2); }
-  const srv = await servir();
-  const base = "http://127.0.0.1:" + srv.address().port;
+  if (SITIO) await publicada();
+  const srv = SITIO ? null : await servir();
+  const base = SITIO || "http://127.0.0.1:" + srv.address().port;
   const browser = await chromium.launch();
   let fechas = process.argv.slice(2).filter((a) => /^\d{4}-\d{2}-\d{2}$/.test(a));
-  if (!fechas.length) {
+  if (SITIO && !fechas.length) {
+    const html = fs.readFileSync(path.join(RAIZ, "index.html"), "utf8");
+    const estreno = (/estreno:\s*"(\d{4}-\d{2}-\d{2})"/.exec(html) || [])[1];
+    fechas = [hoyBA()].concat(estreno && estreno !== hoyBA() ? [estreno] : []);
+    console.log("Navegador · " + fechas.join(", "));
+  } else if (!fechas.length) {
     const hoy = hoyBA();
     fechas = [];
     for (let i = 0; i <= DIAS_ADELANTE; i++) fechas.push(sumar(hoy, i));
@@ -173,7 +203,7 @@ async function probarFecha(browser, base, fecha, op) {
     await probarFecha(browser, base, hoy, { deCero: true });
   } else console.log("Navegador · " + fechas.join(", "));
   for (const f of fechas) await probarFecha(browser, base, f);
-  await browser.close(); srv.close();
+  await browser.close(); if (srv) srv.close();
   console.log("");
   if (avisos.length) console.log(avisos.length + " aviso(s) que no frenan nada.");
   if (fallas.length) { console.log("FALLÓ: " + fallas.length + " problema(s)."); process.exit(1); }

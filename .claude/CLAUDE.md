@@ -1,0 +1,53 @@
+# MafiApp — guía para trabajar en este repo
+
+App web romántica de un solo archivo (`index.html`) que Mati le hizo a Sofi. GitHub Pages la publica
+desde `main` en https://meh889.github.io/Mafia/ y ella la usa como ícono en la pantalla de inicio de
+su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
+
+## Cómo se trabaja
+- Mati pide cambios cortos en castellano rioplatense ("cargá esta carta para hoy"). Se edita, se prueba
+  en un navegador, se hace commit y push directo a `main`, y se le cuenta en pocas líneas, en voseo.
+- Los textos que él dicta van literales; solo se corrigen errores de tipeo.
+- Git: `user.name Claude`, `user.email noreply@anthropic.com`.
+- Antes de pushear: `node .github/scripts/probar.cjs [AAAA-MM-DD …]` (usa Playwright). Sin fechas prueba
+  hoy, los 10 días que siguen y las fechas importantes.
+- Después de pushear: `gh run list -R meh889/Mafia -L 3` y esperar "Prueba y publicación" en verde.
+  Para revisar lo que quedó publicado: `gh workflow run prueba.yml -R meh889/Mafia --ref main -f vivo=true`.
+
+## Mapa de `index.html`
+- `<head>`: arranque temprano (máquina del tiempo), `CONFIG` (todo el contenido editable) y los estilos.
+- `CONFIG.dias["AAAA-MM-DD"]`: una línea por día, con un comentario arriba. Campos: `mensaje` (la carta),
+  `sellado` (la carta se destapa al ganar), `actividad:{tipo,…}`, `evento`, `eventoArgs`, `nota`, `ponyta`,
+  `foto`, `lugar`, `cartel` (texto = cartel de vacaciones · objeto `{titulo,texto,lista}` = cartel verde).
+  Un día sin `actividad` no tiene juego.
+- `CONFIG.t3`: la temporada actual, "el cuaderno" (1/10/2026 → 1/1/2027): `pin`, `estreno`, `whatsapp`,
+  `pedidos`, `tcg.premio`, datos del cumple del 16/12, etc.
+- Scripts del `<body>`: el motor viejo con los juegos (`montarAlgo(a)`) y el cuaderno (`T3.*`: ponyta, mapa,
+  adviento, maquina, eventos con `T3.registrarEvento`, cuaderno). Vienen minificados en líneas larguísimas:
+  conviene buscar con Python y reemplazar cadenas exactas con `assert h.count(viejo) == 1`.
+- Entre `/*<<EXTRAS-JS*/` y `/*EXTRAS-JS>>*/` (y `EXTRAS-CSS` en los estilos) está lo sumado en noviembre
+  de 2026, legible y comentado: `T3.x` (base), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
+  (contestar cartas, vales), `T3.pedidos`, `T3.tcg` (MafiaTCG: la lista `CARTAS`) y `T3.avisos`.
+  Lo que es para Sofi (TCG, pedidos, contestar, avisos) aparece recién desde `CONFIG.t3.estreno`.
+
+## Para ver una fecha
+- `?fecha=AAAA-MM-DD` en la URL, o la máquina del tiempo (5 toques rápidos en el número de hoja → PIN),
+  que además tiene el **taller**: versión publicada, respaldo del progreso y avisos.
+- El progreso de Sofi vive solo en su celular: `localStorage` con prefijo `pv-` (el cuaderno usa `pv-t3-`).
+
+## Avisos (notificación diaria)
+- `.github/workflows/aviso.yml` corre todos los días 12:17 UTC y ejecuta `.github/scripts/aviso.cjs`,
+  que lee la hoja de hoy en `index.html`; si no hay nada cargado no manda.
+- Secrets del repo: `AVISOS_VAPID_PRIVADA` (la llave) y `AVISOS_SUSCRIPCIONES` (códigos `MAFIAPUSH1:…`,
+  uno por renglón; los da la app al activar los avisos).
+- Mandar uno a mano: `gh workflow run aviso.yml -R meh889/Mafia --ref main -f texto="…"` (o `-f prueba=true`).
+- GitHub apaga los workflows programados si el repo pasa 60 días sin actividad.
+
+## Lo que una sesión de Claude no puede hacer acá
+- Cargar secrets ni cambiar la configuración de Pages: lo hace Mati en Settings.
+- Borrar ramas remotas.
+- Probar en un iPhone de verdad: instalación y avisos se confirman con Mati.
+
+## Publicación
+Pages publica desde la rama (`legacy`): la prueba automática avisa pero no frena. Si Mati cambia
+Settings → Pages → Source a "GitHub Actions", `prueba.yml` pasa a publicar solo cuando la prueba pasa.

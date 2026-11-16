@@ -1,6 +1,8 @@
-/* utilidades para las pruebas de escenario */
+/* Utilidades de las pruebas de escenario (el "laboratorio").
+   Variables: MOTOR=chromium|webkit · FUENTES=1 (deja bajar las tipografías de Google)
+              DPR=1|2 · SALIDA=carpeta para las capturas */
 const http=require("http"),fs=require("fs"),path=require("path");
-const RAIZ=process.env.RAIZ||path.resolve(__dirname,"..");
+const RAIZ=process.env.RAIZ||path.resolve(__dirname,"..","..");
 const externo=u=>!!process.env.FUENTES&&/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(u);
 function motor(){return require("playwright")[process.env.MOTOR||"chromium"];}
 const TIPOS={".html":"text/html; charset=utf-8",".js":"text/javascript",".json":"application/json",".png":"image/png",".jpg":"image/jpeg",".svg":"image/svg+xml",".m4a":"audio/mp4",".wav":"audio/wav",".mp3":"audio/mpeg"};

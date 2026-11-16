@@ -1,5 +1,5 @@
-# Laboratorio (solo en esta rama): corre las pruebas con WebKit, el motor de Safari,
-# y con las tipografías de verdad, y vuelca capturas en el registro.
+# Laboratorio (solo en esta rama descartable): capturas en alta densidad con las
+# tipografías de verdad, para armar la imagen resumen de las novedades.
 name: Laboratorio WebKit
 on:
   push:
@@ -7,36 +7,31 @@ on:
 permissions:
   contents: read
 jobs:
-  webkit:
+  capturas:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       FUENTES: "1"
-      DPR: "1"
+      DPR: "2"
     steps:
       - uses: actions/checkout@v7
       - name: Instalar navegadores
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps webkit chromium
-          mkdir -p "$RUNNER_TEMP/out"
-      - name: Humo en WebKit
-        if: always()
-        run: MOTOR=webkit NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/scripts/probar.cjs
-      - name: Escenarios en WebKit
+          mkdir -p "$RUNNER_TEMP/out/webkit" "$RUNNER_TEMP/out/chromium"
+      - name: WebKit
         if: always()
         run: |
-          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=webkit SALIDA="$RUNNER_TEMP/out"
-          cd lab
-          for t in a b c2 c1; do echo "=== $t"; node $t.cjs || echo "### $t terminó con error"; done
-      - name: Capturas con tipografías reales (Chromium)
+          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=webkit SALIDA="$RUNNER_TEMP/out/webkit"
+          for t in b c1; do echo "=== $t"; node .github/pruebas/$t.cjs || echo "### $t terminó con error"; done
+      - name: Chromium (avisos y taller)
         if: always()
         run: |
-          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=chromium SALIDA="$RUNNER_TEMP/out/cr"
-          mkdir -p "$SALIDA"; cd lab
-          node c1.cjs || echo "### c1 chromium terminó con error"
+          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=chromium SALIDA="$RUNNER_TEMP/out/chromium"
+          for t in d a; do echo "=== $t"; node .github/pruebas/$t.cjs || echo "### $t terminó con error"; done
       - name: Volcar capturas
         if: always()
         run: |
           cd "$RUNNER_TEMP/out"
-          for f in *.jpg cr/*.jpg; do [ -f "$f" ] || continue; base64 -w 3000 "$f" | awk -v n="$f" '{print "###IMG " n " " NR " " $0}'; echo "###FIN $f"; done
+          for f in webkit/*.jpg chromium/*.jpg; do [ -f "$f" ] || continue; base64 -w 3000 "$f" | awk -v n="$f" '{print "###IMG " n " " NR " " $0}'; done

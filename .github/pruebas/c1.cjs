@@ -1,7 +1,8 @@
-const {chromium}=require("playwright");const {servir,abrir,chequear,resumen}=require("./comun.cjs");
-const S=(process.env.SALIDA||".")+"/";
+/* Laboratorio · MafiaTCG, recorrido con capturas y hoja con las 50 cartas */
+const {servir,abrir,chequear,resumen,motor,externo}=require("./comun.cjs");
+const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 (async()=>{
-  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await require("./comun.cjs").motor().launch();
+  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await motor().launch();
   let {ctx,pg,errores}=await abrir(b,base,"2026-12-01",{dpr:2,semilla:{"pv-t3-set-escritas":'["2026-12-01"]',"pv-t3-set-abrio":'["2026-12-01"]',"pv-t3-vio-indice":"true"}});
   await pg.screenshot({path:S+"c-pestana.jpg",clip:{x:0,y:0,width:390,height:120}});
   await pg.evaluate(()=>T3.cuaderno.abrir("tcg"));await pg.waitForTimeout(1300);
@@ -24,19 +25,18 @@ const S=(process.env.SALIDA||".")+"/";
   await pg.evaluate(()=>{const m=document.querySelector('.t3x-mini[data-id="programador"]');m.scrollIntoView({block:"center"});});await pg.waitForTimeout(400);
   await pg.click('.t3x-mini[data-id="programador"]',{force:true});await pg.waitForTimeout(900);
   await pg.screenshot({path:S+"c-lupa.jpg"});
-  console.log("errores:",errores);
+  chequear("el recorrido del sobre no tira errores de JavaScript",errores.length===0,errores);
   await ctx.close();
   // hoja de contacto con las 50 cartas
-  const ctx2=await b.newContext({viewport:{width:1500,height:900},deviceScaleFactor:1});
+  const ctx2=await b.newContext({viewport:{width:1500,height:900},deviceScaleFactor:process.env.DPR?+process.env.DPR:1});
   await ctx2.addInitScript(()=>{try{localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');}catch(e){}});
-  const p2=await ctx2.newPage();await p2.route("**/*",r=>{const u=r.request().url();return (u.startsWith(base)||require("./comun.cjs").externo(u))?r.continue():r.abort();});
+  const p2=await ctx2.newPage();await p2.route("**/*",r=>{const u=r.request().url();return (u.startsWith(base)||externo(u))?r.continue():r.abort();});
   await p2.goto(base+"/?fecha=2026-12-01");await p2.waitForTimeout(2500);
   await p2.evaluate(()=>{const d=document.createElement("div");d.id="hoja";d.className="t3-cuaderno";d.style.cssText="position:absolute;left:0;top:0;width:1500px;z-index:99999;background:#3a2b20;padding:14px;display:grid;grid-template-columns:repeat(7,1fr);gap:12px;box-sizing:border-box";d.innerHTML=T3.tcg.CARTAS.map(c=>"<div>"+T3.tcg._prueba.carta(c)+"</div>").join("");document.body.style.overflow="auto";document.body.style.height="auto";document.documentElement.style.overflow="auto";document.body.appendChild(d);});
   await p2.waitForTimeout(3500);
   const alto=await p2.evaluate(()=>document.getElementById("hoja").offsetHeight);
-  const h=await p2.$("#hoja");
   for(let i=0;i<3;i++){await p2.screenshot({path:S+"c-mazo"+i+".jpg",clip:{x:0,y:i*Math.ceil(alto/3),width:1500,height:Math.ceil(alto/3)},fullPage:true});}
   const desb=await p2.evaluate(()=>Array.from(document.querySelectorAll("#hoja .t3x-carta")).map(a=>{const i=a.querySelector(".t3x-carta-in");const n=a.querySelector(".t3x-carta-nom"),e=a.querySelector(".t3x-carta-epi"),p=a.querySelector(".t3x-carta-pod"),pie=a.querySelector(".t3x-carta-pie");return {id:a.dataset.id,nomCorta:n.scrollWidth>n.clientWidth+1,epiCorta:e.scrollHeight>e.clientHeight+1,podCorta:p.scrollHeight>p.clientHeight+1,pieFuera:pie.getBoundingClientRect().bottom>i.getBoundingClientRect().bottom-2};}).filter(x=>x.nomCorta||x.epiCorta||x.podCorta||x.pieFuera));
-  console.log("cartas con texto cortado:",JSON.stringify(desb));
-  await b.close();srv.close();
+  chequear("ninguna de las 50 cartas corta su texto",desb.length===0,desb);
+  await b.close();srv.close();process.exit(resumen()?1:0);
 })().catch(e=>{console.error(e);process.exit(1);});

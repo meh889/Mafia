@@ -10,6 +10,7 @@
    Sin fechas: hoy (hora de Buenos Aires), los 10 días que siguen
    y las fechas marcadas de más abajo.
 
+   Con MOTOR=webkit usa el motor de Safari (el del iPhone).
    Con SITIO=https://… prueba la versión PUBLICADA en vez de la
    del repo: revisa que sea la misma que este commit y abre hoy
    y el día del estreno.

@@ -1,7 +1,8 @@
-const {chromium}=require("playwright");const {servir,abrir,chequear,resumen}=require("./comun.cjs");
-const S=(process.env.SALIDA||".")+"/";
+/* Laboratorio · MafiaTCG, reglas, simulación y flujo completo */
+const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
+const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 (async()=>{
-  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await require("./comun.cjs").motor().launch();
+  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await motor().launch();
   console.log("REGLAS");
   let {ctx,pg,errores}=await abrir(b,base,"2026-12-01");
   let r=await pg.evaluate(()=>{

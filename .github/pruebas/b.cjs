@@ -1,7 +1,8 @@
-const {chromium}=require("playwright");const {servir,abrir,chequear,resumen,estado}=require("./comun.cjs");
-const S=(process.env.SALIDA||".")+"/";
+/* Laboratorio · ida y vuelta: cartel del 1/12, contestar cartas, pedidos y vales */
+const {servir,abrir,chequear,resumen,estado,motor}=require("./comun.cjs");
+const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 (async()=>{
-  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await require("./comun.cjs").motor().launch();
+  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await motor().launch();
   console.log("ANTES DEL ESTRENO (30/11)");
   let {ctx,pg,errores}=await abrir(b,base,"2026-11-30",{semilla:{"pv-t3-set-ganados":'["2026-10-26"]'}});
   let r=await pg.evaluate(async()=>{await T3.cuaderno.irA("2026-10-26");await new Promise(r=>setTimeout(r,900));

@@ -1,7 +1,8 @@
-const {chromium}=require("playwright");const {servir,abrir,chequear,resumen,estado}=require("./comun.cjs");
-const S=(process.env.SALIDA||".")+"/";
+/* Laboratorio · actualización sola, respaldo, taller y sonido de victoria */
+const {servir,abrir,chequear,resumen,estado,motor}=require("./comun.cjs");
+const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 (async()=>{
-  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await require("./comun.cjs").motor().launch();
+  const srv=await servir(),base="http://127.0.0.1:"+srv.address().port,b=await motor().launch();
   const T0=Date.UTC(2026,10,16,15,0,0);
 
   console.log("ACTUALIZACIÓN");

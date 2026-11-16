@@ -1,0 +1,71 @@
+# Las pruebas largas ("escenarios") de lo que se sumó en noviembre de 2026:
+# actualización sola, respaldo, taller, ida y vuelta por WhatsApp, MafiaTCG y avisos.
+# No corren solas: se piden a mano cuando se toca ese código (o cuando hay dudas).
+#
+#   gh workflow run laboratorio.yml -R meh889/Mafia --ref main
+#
+# Corren en WebKit (el motor de Safari, el del iPhone) y en Chromium, con las
+# tipografías de verdad, y dejan capturas volcadas en el registro. Para bajarlas:
+#
+#   gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>
+name: Laboratorio
+
+on:
+  workflow_dispatch:
+    inputs:
+      capturas:
+        description: "Volcar las capturas en el registro"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  escenarios:
+    name: Escenarios en ${{ matrix.motor }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        motor: [webkit, chromium]
+    env:
+      MOTOR: ${{ matrix.motor }}
+      FUENTES: "1"
+      DPR: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar el navegador de prueba
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright web-push@4
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps ${{ matrix.motor }}
+          mkdir -p "$RUNNER_TEMP/capturas"
+      - name: Actualización, respaldo, taller y sonido
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/a.cjs
+      - name: Ida y vuelta (contestar, pedidos, vales)
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/b.cjs
+      - name: MafiaTCG, reglas y flujo
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c2.cjs
+      - name: MafiaTCG, recorrido con capturas
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c1.cjs
+      # Los avisos se prueban con herramientas que solo tiene Chromium (el permiso de
+      # notificaciones y la entrega de un push de mentira al service worker).
+      - name: Avisos, del lado de la app
+        if: always() && matrix.motor == 'chromium'
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/d.cjs
+      - name: Avisos, el envío
+        if: always() && matrix.motor == 'chromium'
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/pruebas/d-envio.cjs
+      - name: Volcar capturas
+        if: always() && inputs.capturas
+        run: |
+          cd "$RUNNER_TEMP/capturas"
+          for f in *.jpg; do
+            [ -f "$f" ] || continue
+            base64 -w 3000 "$f" | awk -v n="${{ matrix.motor }}/$f" '{print "###IMG " n " " NR " " $0}'
+          done

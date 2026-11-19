@@ -99,7 +99,10 @@ const correr=async(pg,ms)=>{await pg.click(".t3-ponyta-correr",{force:true});awa
   o=await abrir(b,base,"2026-12-01",{semilla:semilla(["2026-11-18","2026-11-19"],2,"2026-11-19")});
   r=await hoja(o.pg);
   chequear("el 1/12 la hoja tiene su dibujo, con gorro, y dice que volvió",r.fecha==="2026-12-01"&&r.dibujo&&r.gorro&&/volví\. traje gorro\./.test(r.frase),r);
-  await o.pg.screenshot({path:S+"e-vuelta-hoja.jpg",fullPage:false});
+  await o.pg.screenshot({path:S+"e-vuelta-hoja.jpg"});
+  await o.pg.evaluate(()=>{const p=document.querySelector(".t3-cuaderno-hoja.t3-cuaderno-visible .t3-cuaderno-pony");if(p)p.scrollIntoView({block:"center"});});await o.pg.waitForTimeout(500);
+  await o.pg.screenshot({path:S+"e-vuelta-dibujo.jpg"});
+  await o.pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-hoja.t3-cuaderno-visible");if(h){h.scrollTop=0;}window.scrollTo(0,0);});await o.pg.waitForTimeout(300);
   r=await o.pg.evaluate(()=>({sola:document.querySelector(".t3-ponyta-dije").classList.contains("t3-ponyta-dije-sola")||document.documentElement.classList.contains("t3x-pony-lejos"),gorro:!!document.querySelector(".t3-ponyta-dije .t3x-gorro")}));
   chequear("volvió al señalador, con gorro",!r.sola&&r.gorro,r);
   await solapa(o.pg);await o.pg.waitForTimeout(2600);r=await foto(o.pg);

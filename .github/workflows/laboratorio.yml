@@ -1,5 +1,6 @@
 # Las pruebas largas ("escenarios") de lo que se sumó en noviembre de 2026:
-# actualización sola, respaldo, taller, ida y vuelta por WhatsApp, MafiaTCG y avisos.
+# actualización sola, respaldo, taller, ida y vuelta por WhatsApp, MafiaTCG, avisos
+# y el viaje de Ponyta.
 # No corren solas: se piden a mano cuando se toca ese código (o cuando hay dudas).
 #
 #   gh workflow run laboratorio.yml -R meh889/Mafia --ref main
@@ -60,6 +61,9 @@ jobs:
       - name: MafiaTCG, recorrido con capturas
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c1.cjs
+      - name: Ponyta se va de vacaciones y vuelve con gorro
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/e.cjs
       # Los avisos se prueban con herramientas que solo tiene Chromium (el permiso de
       # notificaciones y la entrega de un push de mentira al service worker).
       - name: Avisos, del lado de la app

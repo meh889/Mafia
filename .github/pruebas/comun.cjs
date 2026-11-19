@@ -23,7 +23,7 @@ function servir(){
 }
 async function abrir(browser,base,fecha,op){
   op=op||{};
-  const ctx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:process.env.DPR?+process.env.DPR:(op.dpr||1),locale:"es-AR",timezoneId:"America/Argentina/Buenos_Aires",hasTouch:true,isMobile:true,permissions:op.permisos||[]});
+  const ctx=await browser.newContext(Object.assign({viewport:{width:390,height:844},deviceScaleFactor:process.env.DPR?+process.env.DPR:(op.dpr||1),locale:"es-AR",timezoneId:"America/Argentina/Buenos_Aires",hasTouch:true,isMobile:true,permissions:op.permisos||[]},op.contexto||{}));
   await ctx.addInitScript((semilla)=>{try{if(!sessionStorage.getItem("__sembrado")){sessionStorage.setItem("__sembrado","1");localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');Object.keys(semilla||{}).forEach(k=>localStorage.setItem(k,semilla[k]));}}catch(e){}},op.semilla||{});
   const pg=await ctx.newPage(); const errores=[];
   pg.on("pageerror",e=>errores.push(String(e&&e.message||e)));

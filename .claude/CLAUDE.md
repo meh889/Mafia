@@ -30,8 +30,13 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   conviene buscar con Python y reemplazar cadenas exactas con `assert h.count(viejo) == 1`.
 - Entre `/*<<EXTRAS-JS*/` y `/*EXTRAS-JS>>*/` (y `EXTRAS-CSS` en los estilos) está lo sumado en noviembre
   de 2026, legible y comentado: `T3.x` (base), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
-  (contestar cartas, vales), `T3.pedidos`, `T3.tcg` (MafiaTCG: la lista `CARTAS`) y `T3.avisos`.
+  (contestar cartas, vales), `T3.pedidos`, `T3.tcg` (MafiaTCG: la lista `CARTAS`), `T3.avisos` y `T3.viaje`.
   Lo que es para Sofi (TCG, pedidos, contestar, avisos) aparece recién desde `CONFIG.t3.estreno`.
+- `T3.viaje` (noviembre 2026): Ponyta se va de vacaciones. Desde `SALE`, la próxima corrida en su solapa es la
+  de la ida: deja la herradura del día, no vuelve y queda una nota (los textos están arriba del bloque). Mientras
+  no está, tampoco sale en el señalador, en "Ponyta dice" ni en el mapa de Olivos. Vuelve el día `VUELVE`
+  (primer día del adviento) con el gorro de la ventanita 1, hasta `GORRO_HASTA`. Se guarda en `pv-t3-ponyta-viaje`.
+  El módulo minificado de Ponyta solo pregunta: `T3.viaje.toca()`, `.ausente(f)`, `.conGorro(f)`, `.poner(…)`.
 
 ## Para ver una fecha
 - `?fecha=AAAA-MM-DD` en la URL, o la máquina del tiempo (5 toques rápidos en el número de hoja → PIN),
@@ -41,7 +46,7 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 ## Pruebas largas (el laboratorio)
 - `.github/pruebas/*.cjs` son los escenarios de lo sumado en noviembre: `a` actualización, respaldo, taller y
   sonido · `b` contestar, pedidos y vales · `c2` reglas y flujo del TCG · `c1` recorrido del TCG con capturas ·
-  `d` avisos en la app · `d-envio` el envío (necesita `web-push`). Si se toca ese código, correr el que
+  `d` avisos en la app · `d-envio` el envío (necesita `web-push`) · `e` el viaje de Ponyta. Si se toca ese código, correr el que
   corresponda: `node .github/pruebas/a.cjs` (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
   --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad (`-f densidad=2`

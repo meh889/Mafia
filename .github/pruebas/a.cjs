@@ -56,12 +56,22 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     const vuelta={ganados:T3.conjunto("ganados"),nueva:localStorage.getItem("pv-nueva")};
     let malo="";try{await T3.respaldo.leer("MAFIA1:esto no es");}catch(e){malo=e.message;}
     let ajeno="";try{await T3.respaldo.leer("hola");}catch(e){ajeno=e.message;}
-    return {prefijo:codigo.slice(0,7),largo:codigo.length,res,antes,n,tras,des,vuelta,malo,ajeno};
+    /* los avisos y la versión vista son de cada celular */
+    const eran={a:localStorage.getItem("pv-t3-avisos"),v:localStorage.getItem("pv-t3-version-vista")};
+    T3.guardar("avisos",{activo:true,codigo:"MAFIAPUSH1:este-celular"});T3.guardar("version-vista",123);
+    const o2=await T3.respaldo.leer(await T3.respaldo.exportar());
+    const viaja=Object.keys(o2.datos).filter(k=>/avisos|version-vista/.test(k));
+    o2.datos["pv-t3-avisos"]=JSON.stringify({activo:true,codigo:"MAFIAPUSH1:otro-celular"});
+    await T3.respaldo.restaurar(o2);
+    const propio={avisos:T3.leer("avisos",null),version:T3.leer("version-vista",null),ganados:T3.conjunto("ganados")};
+    [["pv-t3-avisos",eran.a],["pv-t3-version-vista",eran.v]].forEach(([k,v])=>{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);});
+    return {prefijo:codigo.slice(0,7),largo:codigo.length,res,antes,n,tras,des,vuelta,malo,ajeno,viaja,propio};
   });
   chequear("el respaldo se comprime y se puede volver a leer",r.prefijo==="MAFIA1:"&&r.res.ganados===2,r);
   chequear("restaurar pisa lo que había y no toca claves ajenas",r.tras.ganados.length===2&&r.tras.nueva===null&&r.tras.otra==="no tocar"&&r.tras.stk==="⭐",r.tras);
   chequear("deshacer devuelve lo que había antes",r.des&&r.vuelta.ganados.join()==="2026-11-01"&&r.vuelta.nueva==="x",r.vuelta);
   chequear("rechaza códigos rotos o ajenos",!!r.malo&&r.ajeno==="formato",[r.malo,r.ajeno]);
+  chequear("lo que es de este celular (avisos, versión vista) no viaja ni se pisa",r.viaja.length===0&&r.propio.avisos&&r.propio.avisos.codigo==="MAFIAPUSH1:este-celular"&&r.propio.version===123&&r.propio.ganados.join()==="2026-11-01",{viaja:r.viaja,propio:r.propio});
 
   console.log("TALLER");
   await pg.evaluate(()=>T3.maquina.abrir());

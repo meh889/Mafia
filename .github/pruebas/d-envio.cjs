@@ -30,4 +30,18 @@ let j=null;try{j=JSON.parse(claro);}catch(e){}
 ch("el celular puede descifrar el aviso",!!j,claro.slice(0,80));
 ch("el aviso viene en formato declarativo, con título, texto y a dónde abre",j&&j.web_push===8030&&j.notification.title==="MafiApp"&&j.notification.body==="Ya está la hoja de hoy."&&j.notification.navigate==="https://meh889.github.io/Mafia/",j);
 ch("pesa menos que el límite de un push (4 KB)",det.body.length<4000,det.body.length);
-console.log("\n"+ok+" bien, "+mal+" mal");process.exit(mal?1:0);
+// la corrida entera, con el envío de mentira: un celular recibe y al otro se le venció la suscripción
+(async()=>{
+  const cod=(e)=>"MAFIAPUSH1:"+Buffer.from(JSON.stringify({e,p:sub.keys.p256dh,a:sub.keys.auth})).toString("base64url");
+  const VIVA="https://web.push.apple.com/viva",MUERTA="https://web.push.apple.com/muerta";
+  const dicho=[],log=console.log;
+  const enviar=async(s)=>{if(s.endpoint===MUERTA){const e=new Error("gone");e.statusCode=410;throw e;}return {statusCode:201};};
+  const correr=async(subs)=>{Object.assign(process.env,{PRUEBA:"true",TEXTO:"",SECO:"",VAPID_PRIVADA:llaves.privada,SUSCRIPCIONES:subs.join("\n")});process.exitCode=0;
+    console.log=(...a)=>dicho.push(a.join(" "));let r;try{r=await A.main(enviar);}finally{console.log=log;}const c=process.exitCode;process.exitCode=0;return {r,c};};
+  const todo=await correr([cod(VIVA)]);
+  ch("si a todos les llega, la corrida termina bien",todo.r&&todo.r.enviados===1&&todo.r.fallidos===0&&!todo.c,todo);
+  dicho.length=0;
+  const parte=await correr([cod(VIVA),cod(MUERTA)]);
+  ch("si a un celular no le llega, la corrida queda en rojo y dice cuál y cómo se arregla",parte.r&&parte.r.enviados===1&&parte.r.fallidos===1&&parte.c===1&&dicho.some(l=>/✗ celular 2/.test(l)&&/410/.test(l)&&/renovar/.test(l)),{parte,dicho});
+  console.log("\n"+ok+" bien, "+mal+" mal");process.exit(mal?1:0);
+})().catch(e=>{console.error(e);process.exit(1);});

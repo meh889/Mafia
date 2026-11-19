@@ -9,7 +9,18 @@ async function abrir(b,base,fecha,op){
     if(!sessionStorage.getItem("__s")){sessionStorage.setItem("__s","1");localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');localStorage.setItem("pv-t3-vio-indice","true");localStorage.setItem("pv-t3-set-escritas",JSON.stringify([o.fecha]));localStorage.setItem("pv-t3-set-abrio",JSON.stringify([o.fecha]));}
     if(o.sinNoti){delete window.Notification;try{Object.defineProperty(window,"Notification",{value:undefined,configurable:true});}catch(e){}  delete window.PushManager;}
     if(o.niega&&window.Notification){try{Object.defineProperty(Notification,"permission",{get:function(){return window.__perm||"default";},configurable:true});Notification.requestPermission=function(){window.__perm="denied";return Promise.resolve("denied");};}catch(e){}}
-    if(o.fingir&&window.PushManager){PushManager.prototype.getSubscription=function(){return Promise.resolve(window.__sub||null);};PushManager.prototype.subscribe=function(op){window.__op=op;window.__sub={toJSON:function(){return o.sub;}};return Promise.resolve(window.__sub);};}
+    if(o.fingir&&window.PushManager){
+      /* una suscripción de mentira que, como la de verdad, sobrevive a recargar: se guarda con su número y su llave */
+      const LS="__sub_falsa";
+      const leer=function(){try{return JSON.parse(localStorage.getItem(LS)||"null");}catch(e){return null;}};
+      const armar=function(g){return {toJSON:function(){const j=JSON.parse(JSON.stringify(o.sub));if(g.n>1)j.endpoint+="-"+g.n;return j;},options:{applicationServerKey:new Uint8Array(g.llave).buffer},
+        unsubscribe:function(){localStorage.removeItem(LS);window.__bajas=(window.__bajas||0)+1;return Promise.resolve(true);}};};
+      PushManager.prototype.getSubscription=function(){const g=leer();return Promise.resolve(g?armar(g):null);};
+      PushManager.prototype.subscribe=function(op){
+        if(leer())return Promise.reject(new DOMException("ya hay una suscripción","InvalidStateError"));
+        window.__op=op;const n=(+localStorage.getItem("__sub_cuenta")||0)+1;localStorage.setItem("__sub_cuenta",String(n));
+        const g={n:n,llave:Array.from(new Uint8Array(op.applicationServerKey.buffer||op.applicationServerKey))};localStorage.setItem(LS,JSON.stringify(g));return Promise.resolve(armar(g));};
+    }
   }catch(e){}},{fecha,sinNoti:!!op.sinNoti,niega:!!op.niega,fingir:op.fingir!==false,sub:SUB});
   const pg=await ctx.newPage();const errores=[];pg.on("pageerror",e=>errores.push(String(e&&e.message||e)));
   await pg.route("**/*",r=>{const u=r.request().url();return (u.startsWith(base)||externo(u))?r.continue():r.abort();});
@@ -88,6 +99,27 @@ async function abrir(b,base,fecha,op){
   chequear("activar desde el taller copia el código para el secret",/^MAFIAPUSH1:/.test(r.porta)&&r.porta===r.a.codigo&&/AVISOS_SUSCRIPCIONES/.test(r.msj)&&/activos desde/.test(r.det)&&r.a.enviado===true,r);
   await pg.evaluate(()=>document.querySelector(".t3x-taller").scrollIntoView({block:"end"}));await pg.waitForTimeout(300);
   await pg.screenshot({path:S+"d-taller.jpg"});
+
+  console.log("CUANDO DEJAN DE LLEGAR");
+  chequear("con los avisos activos, el taller ofrece renovar",await pg.evaluate(()=>!!document.querySelector('.t3x-taller [data-taller="avisos-renovar"]')));
+  const c1=r.a.codigo;
+  await pg.click('[data-taller="avisos-renovar"]');await pg.waitForTimeout(1600);
+  r=await pg.evaluate(async()=>({msj:document.querySelector(".t3x-taller-msj").innerText,porta:await navigator.clipboard.readText().catch(()=>"(sin acceso)"),a:T3.leer("avisos"),bajas:window.__bajas||0}));
+  chequear("renovar da de baja la suscripción vieja y copia un código nuevo",r.bajas===1&&/^MAFIAPUSH1:/.test(r.a.codigo)&&r.a.codigo!==c1&&r.porta===r.a.codigo&&/reemplazá el viejo/.test(r.msj)&&r.a.enviado===true,r);
+  const c2=r.a.codigo;
+  r=await pg.evaluate(async()=>({cambio:await T3.avisos._prueba.repasar(),a:T3.leer("avisos"),bajas:window.__bajas||0}));
+  chequear("si está todo en orden, al abrir no toca nada",r.cambio===false&&r.a.codigo===c2&&r.a.enviado===true&&r.bajas===1,r);
+  await pg.evaluate(()=>localStorage.removeItem("__sub_falsa"));      /* el celular la pierde por su cuenta */
+  r=await pg.evaluate(async()=>({cambio:await T3.avisos._prueba.repasar(),a:T3.leer("avisos")}));
+  chequear("si el celular pierde la suscripción, arma otra y deja pendiente mandar el código",r.cambio===true&&r.a.codigo!==c2&&r.a.enviado===false,r);
+  const c3=r.a.codigo;
+  await pg.reload();await pg.waitForTimeout(2600);
+  r=await pg.evaluate(()=>{const c=document.querySelector(".t3x-campana");const a=c&&c.querySelector("a");return {txt:c?c.innerText:"",href:a?decodeURIComponent(a.href):""};});
+  chequear("…y la hoja de hoy vuelve a pedir que se lo mande",/Avisos activados/.test(r.txt)&&r.href.includes(c3),r);
+  await pg.waitForTimeout(2600);                                       /* que pase el repaso automático del arranque */
+  await pg.evaluate(()=>{const g=JSON.parse(localStorage.getItem("__sub_falsa"));g.llave=[4,1,2,3];localStorage.setItem("__sub_falsa",JSON.stringify(g));});
+  r=await pg.evaluate(async()=>({cambio:await T3.avisos._prueba.repasar(),a:T3.leer("avisos"),bajas:window.__bajas||0,llave:window.__op&&window.__op.applicationServerKey.length}));
+  chequear("si la suscripción es de una llave vieja, la da de baja y saca otra con la de ahora",r.cambio===true&&r.bajas===1&&r.a.codigo!==c3&&r.llave===65,r);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
   await b.close();srv.close();process.exit(resumen()?1:0);

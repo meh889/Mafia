@@ -1,5 +1,5 @@
-# Laboratorio (solo en esta rama descartable): capturas en alta densidad con las
-# tipografías de verdad, para armar la imagen resumen de las novedades.
+# Laboratorio (solo en esta rama descartable): prueba lo que todavía no se publicó,
+# en WebKit y Chromium, con las tipografías de verdad y capturas nítidas.
 name: Laboratorio WebKit
 on:
   push:
@@ -7,31 +7,38 @@ on:
 permissions:
   contents: read
 jobs:
-  capturas:
+  previo:
+    name: Previo en ${{ matrix.motor }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        motor: [webkit, chromium]
     env:
+      MOTOR: ${{ matrix.motor }}
       FUENTES: "1"
       DPR: "2"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar navegadores
+      - name: Instalar navegador
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright
-          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps webkit chromium
-          mkdir -p "$RUNNER_TEMP/out/webkit" "$RUNNER_TEMP/out/chromium"
-      - name: WebKit
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps ${{ matrix.motor }}
+          mkdir -p "$RUNNER_TEMP/out"
+      - name: Ponyta se va y vuelve
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/out" node .github/pruebas/e.cjs
+      - name: Prueba de humo
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/scripts/probar.cjs
+      - name: Los demás escenarios
         if: always()
         run: |
-          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=webkit SALIDA="$RUNNER_TEMP/out/webkit"
-          for t in b c1; do echo "=== $t"; node .github/pruebas/$t.cjs || echo "### $t terminó con error"; done
-      - name: Chromium (avisos y taller)
-        if: always()
-        run: |
-          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" MOTOR=chromium SALIDA="$RUNNER_TEMP/out/chromium"
-          for t in d a; do echo "=== $t"; node .github/pruebas/$t.cjs || echo "### $t terminó con error"; done
+          export NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/out2"; mkdir -p "$SALIDA"; mal=0
+          for t in a b c2; do echo "=== $t"; node .github/pruebas/$t.cjs || mal=1; done; exit $mal
       - name: Volcar capturas
         if: always()
         run: |
           cd "$RUNNER_TEMP/out"
-          for f in webkit/*.jpg chromium/*.jpg; do [ -f "$f" ] || continue; base64 -w 3000 "$f" | awk -v n="$f" '{print "###IMG " n " " NR " " $0}'; done
+          for f in *.jpg; do [ -f "$f" ] || continue; base64 -w 3000 "$f" | awk -v n="${{ matrix.motor }}/$f" '{print "###IMG " n " " NR " " $0}'; done

@@ -1,5 +1,6 @@
 # Las pruebas largas ("escenarios") de lo que se sumó en noviembre de 2026:
-# actualización sola, respaldo, taller, ida y vuelta por WhatsApp, MafiaTCG y avisos.
+# actualización sola, respaldo, taller, ida y vuelta por WhatsApp, MafiaTCG, avisos
+# y el viaje de Ponyta.
 # No corren solas: se piden a mano cuando se toca ese código (o cuando hay dudas).
 #
 #   gh workflow run laboratorio.yml -R meh889/Mafia --ref main
@@ -8,6 +9,8 @@
 # tipografías de verdad, y dejan capturas volcadas en el registro. Para bajarlas:
 #
 #   gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>
+#
+# Con "-f densidad=2" las capturas salen al doble de resolución (para mostrarlas).
 name: Laboratorio
 
 on:
@@ -17,6 +20,11 @@ on:
         description: "Volcar las capturas en el registro"
         type: boolean
         default: true
+      densidad:
+        description: "Densidad de las capturas (2 = más nítidas, registro más pesado)"
+        type: choice
+        options: ["1", "2"]
+        default: "1"
 
 permissions:
   contents: read
@@ -33,7 +41,7 @@ jobs:
     env:
       MOTOR: ${{ matrix.motor }}
       FUENTES: "1"
-      DPR: "1"
+      DPR: ${{ inputs.densidad || '1' }}
     steps:
       - uses: actions/checkout@v7
       - name: Instalar el navegador de prueba
@@ -53,6 +61,9 @@ jobs:
       - name: MafiaTCG, recorrido con capturas
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c1.cjs
+      - name: Ponyta se va de vacaciones y vuelve con gorro
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/e.cjs
       # Los avisos se prueban con herramientas que solo tiene Chromium (el permiso de
       # notificaciones y la entrega de un push de mentira al service worker).
       - name: Avisos, del lado de la app

@@ -24,19 +24,45 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   `foto`, `lugar`, `cartel` (texto = cartel de vacaciones · objeto `{titulo,texto,lista}` = cartel verde).
   Un día sin `actividad` no tiene juego.
 - `CONFIG.t3`: la temporada actual, "el cuaderno" (1/10/2026 → 1/1/2027): `pin`, `estreno`, `whatsapp`,
-  `pedidos`, `tcg.premio`, datos del cumple del 16/12, etc.
+  `pedidos`, `tcg` (`premio`, `duelosPorDia`), datos del cumple del 16/12, etc.
 - Scripts del `<body>`: el motor viejo con los juegos (`montarAlgo(a)`) y el cuaderno (`T3.*`: ponyta, mapa,
   adviento, maquina, eventos con `T3.registrarEvento`, cuaderno). Vienen minificados en líneas larguísimas:
   conviene buscar con Python y reemplazar cadenas exactas con `assert h.count(viejo) == 1`.
 - Entre `/*<<EXTRAS-JS*/` y `/*EXTRAS-JS>>*/` (y `EXTRAS-CSS` en los estilos) está lo sumado en noviembre
   de 2026, legible y comentado: `T3.x` (base), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
-  (contestar cartas, vales), `T3.pedidos`, `T3.tcg` (MafiaTCG: la lista `CARTAS`), `T3.avisos` y `T3.viaje`.
-  Lo que es para Sofi (TCG, pedidos, contestar, avisos) aparece recién desde `CONFIG.t3.estreno`.
+  (contestar cartas, vales), `T3.pedidos`, MafiaTCG (`T3.tcg` y cuatro módulos más: ver abajo), `T3.avisos` y
+  `T3.viaje`. Lo que es para Sofi (TCG, pedidos, contestar, avisos) aparece recién desde `CONFIG.t3.estreno`.
 - `T3.viaje` (noviembre 2026): Ponyta se va de vacaciones. Desde `SALE`, la próxima corrida en su solapa es la
   de la ida: deja la herradura del día, no vuelve y queda una nota (los textos están arriba del bloque). Mientras
   no está, tampoco sale en el señalador, en "Ponyta dice" ni en el mapa de Olivos. Vuelve el día `VUELVE`
   (primer día del adviento) con el gorro de la ventanita 1, hasta `GORRO_HASTA`. Se guarda en `pv-t3-ponyta-viaje`.
   El módulo minificado de Ponyta solo pregunta: `T3.viaje.toca()`, `.ausente(f)`, `.conGorro(f)`, `.poner(…)`.
+
+## MafiaTCG (las cartas y el duelo)
+Rehecho en noviembre de 2026: las cartas son fotos de ellos, de la familia y de los bichos, con vidas y ataques,
+y con 10 cartas se juega un duelo contra "el programador". Todo está en los EXTRAS:
+- `T3.tcg` es la pestaña: la lista **`CARTAS`** (buscar "PARA SUMAR O CAMBIAR CARTAS": ahí está explicado cada
+  campo), los sobres (tres cartas: dos normales y una tercera que a veces es full art), la carpeta, la lupa y los
+  MafiaPoints. Guarda en `pv-t3-tcg2`, y el duelo a medio jugar en `pv-t3-tcg2-duelo`. Las cartas nuevas van al
+  final de la lista (el número de cada una es su lugar) y el `id` no se cambia nunca.
+- `MafiaCarta` dibuja una carta (clases `mt-`), `MafiaDuelo` tiene las reglas, los efectos de los ataques y al
+  rival (no toca la pantalla), `MafiaSonido` fabrica los efectos y la música con WebAudio y `MafiaArena` es la
+  pantalla del duelo (clases `ar-`). Las clases de la pestaña son `mq-` y `t3x-`: `tq-` ya lo usa un juego viejo.
+- Mati manda cada carta así: formato (normal, que él llama "común", o full art), nombre, foto y nombres de los
+  ataques. Tipo, vidas, costos, daño y efectos los decide Claude. **"Perro de Mierda" pega 0: lo pidió él.**
+- Fotos: `fotos/t3/tcg/<foto>` (hasta 900 px de ancho) y la misma, chica, en `fotos/t3/tcg/mini/` (360 px, para
+  la carpeta y la mesa del duelo), sin datos EXIF. El repo es público: si en una foto hay un chico con poca ropa
+  se sube solo el recorte que muestra la carta (así está la de Joaquito). `logo.webp` es el logo que hizo Mati:
+  va tal cual en el dorso, en el sobre y en la pestaña.
+- En una full art la foto se tiene que ver lo más entera posible (pedido de Mati). Si los ataques tapan una cara,
+  el campo `sube` corre la foto hacia arriba.
+- La tipografía de las cartas (Barlow Condensed, licencia libre) está en `fuentes/`, no en Google Fonts.
+- El rival se ajusta solo (`torpeza`: si ella gana, la próxima juega mejor; si pierde, peor). Suman MafiaPoints
+  los primeros `CONFIG.t3.tcg.duelosPorDia` duelos de cada día. Para qué se usan los puntos todavía no está hecho
+  (la idea de Mati: skins para Ponyta y cosas de la vida real).
+- Al 20/11/2026 Mati seguía mandando cartas y los números eran provisorios: cuando diga que están todas hay que
+  cerrar tipos, vidas, costos y daños. `node .github/pruebas/c4.cjs` juega miles de duelos y dice cuánto pesa
+  cada carta.
 
 ## Para ver una fecha
 - `?fecha=AAAA-MM-DD` en la URL, o la máquina del tiempo (5 toques rápidos en el número de hoja → PIN),
@@ -45,15 +71,18 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 
 ## Pruebas largas (el laboratorio)
 - `.github/pruebas/*.cjs` son los escenarios de lo sumado en noviembre: `a` actualización, respaldo, taller y
-  sonido · `b` contestar, pedidos y vales · `c2` reglas y flujo del TCG · `c1` recorrido del TCG con capturas ·
-  `d` avisos en la app · `d-envio` el envío (necesita `web-push`) · `e` el viaje de Ponyta. Si se toca ese código, correr el que
-  corresponda: `node .github/pruebas/a.cjs` (capturas en `SALIDA=carpeta`).
+  sonido · `b` contestar, pedidos y vales · `c2` cartas, sobres y carpeta del TCG · `c1` recorrido del TCG con
+  capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla · `c4` reglas del duelo y
+  equilibrio de las cartas (sin navegador) · `d` avisos en la app · `d-envio` el envío (necesita `web-push`) ·
+  `e` el viaje de Ponyta. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
+  (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
   --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad (`-f densidad=2`
   para capturas nítidas). Las capturas salen del registro:
   `gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>`.
-- Ya mordieron dos diferencias de Safari: `document.lastModified` viene en UTC (no en hora local) y
-  `backface-visibility` no es confiable (las cartas se dan vuelta cambiando `visibility` a mitad del giro).
+- Diferencias de Safari que ya mordieron: `document.lastModified` viene en UTC (no en hora local), y
+  `backface-visibility` falla en el WebKit de Linux del laboratorio (en el iPhone de verdad anda: lo confirmó
+  Mati el 19/11). Por las dudas, las cartas se dan vuelta cambiando `visibility` a mitad del giro.
 
 ## Avisos (notificación diaria)
 - `.github/workflows/aviso.yml` corre todos los días 12:17 UTC y ejecuta `.github/scripts/aviso.cjs`,

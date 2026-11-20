@@ -25,8 +25,8 @@ const SITIO = String(process.env.SITIO || "").replace(/\/+$/, "");
 const DIAS_ADELANTE = 10;
 const MARCADAS = ["2026-12-01", "2026-12-16", "2026-12-24", "2026-12-25", "2026-12-31", "2027-01-01"];
 const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json",
-  ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml",
-  ".m4a": "audio/mp4", ".mp3": "audio/mpeg", ".wav": "audio/wav", ".mp4": "video/mp4", ".ttf": "font/ttf" };
+  ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml",
+  ".m4a": "audio/mp4", ".mp3": "audio/mpeg", ".wav": "audio/wav", ".mp4": "video/mp4", ".ttf": "font/ttf", ".woff2": "font/woff2" };
 
 const fallas = [];
 const avisos = [];
@@ -64,10 +64,15 @@ function estaticos() {
     if (!fs.existsSync(p)) return;
     try { new vm.Script(fs.readFileSync(p, "utf8"), { filename: f }); } catch (e) { falla(f, "no compila: " + e.message); }
   });
-  /* las fotos de las cartas de MafiaTCG tienen que existir */
+  /* las fotos de las cartas de MafiaTCG tienen que existir: la grande, la chica (mini/) y el logo del dorso */
   const extras = (/\/\*<<EXTRAS-JS\*\/([\s\S]*?)\/\*EXTRAS-JS>>\*\//.exec(html) || [])[1] || "";
-  const fotos = Array.from(new Set(Array.from(extras.matchAll(/\bfoto:"([^"]+\.(?:jpe?g|png))"/g), (x) => x[1])));
-  fotos.forEach((f) => { if (!fs.existsSync(path.join(RAIZ, "fotos", "t3", "fotos", f))) falla("MafiaTCG", "falta la foto fotos/t3/fotos/" + f); });
+  const fotos = Array.from(new Set(Array.from(extras.matchAll(/\bfoto:"([^"]+\.(?:jpe?g|png|webp))"/g), (x) => x[1])));
+  const TCG = path.join(RAIZ, "fotos", "t3", "tcg");
+  fotos.forEach((f) => {
+    if (!fs.existsSync(path.join(TCG, f))) falla("MafiaTCG", "falta la foto fotos/t3/tcg/" + f);
+    if (!fs.existsSync(path.join(TCG, "mini", f))) falla("MafiaTCG", "falta la foto chica fotos/t3/tcg/mini/" + f);
+  });
+  if (fotos.length && !fs.existsSync(path.join(TCG, "logo.webp"))) falla("MafiaTCG", "falta el logo del dorso: fotos/t3/tcg/logo.webp");
   /* el aviso diario: que el script lea la hoja sin romperse y use la misma llave que la app */
   const pAviso = path.join(__dirname, "aviso.cjs");
   if (fs.existsSync(pAviso)) {

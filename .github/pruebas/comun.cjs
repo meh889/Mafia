@@ -5,7 +5,7 @@ const http=require("http"),fs=require("fs"),path=require("path");
 const RAIZ=process.env.RAIZ||path.resolve(__dirname,"..","..");
 const externo=u=>!!process.env.FUENTES&&/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(u);
 function motor(){return require("playwright")[process.env.MOTOR||"chromium"];}
-const TIPOS={".html":"text/html; charset=utf-8",".js":"text/javascript",".json":"application/json",".png":"image/png",".jpg":"image/jpeg",".svg":"image/svg+xml",".m4a":"audio/mp4",".wav":"audio/wav",".mp3":"audio/mpeg"};
+const TIPOS={".html":"text/html; charset=utf-8",".js":"text/javascript",".json":"application/json",".png":"image/png",".jpg":"image/jpeg",".webp":"image/webp",".woff2":"font/woff2",".svg":"image/svg+xml",".m4a":"audio/mp4",".wav":"audio/wav",".mp3":"audio/mpeg"};
 const estado={lmDoc:null,lmHead:null,pedidos:[]};
 function servir(){
   const srv=http.createServer((req,res)=>{

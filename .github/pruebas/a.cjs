@@ -97,6 +97,52 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 
+  console.log("LA MÁQUINA DEL TIEMPO");
+  {
+    /* sin ?fecha=: se entra a la máquina y se viaja como lo hace Mati */
+    const c2=await b.newContext({viewport:{width:390,height:844},locale:"es-AR",timezoneId:"America/Argentina/Buenos_Aires",hasTouch:true,isMobile:true});
+    await c2.addInitScript(()=>{try{if(!sessionStorage.getItem("__s")){sessionStorage.setItem("__s","1");localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');localStorage.setItem("pv-t3-set-ganados",'["2026-11-01"]');}}catch(e){}});
+    const p=await c2.newPage(),err=[];p.on("pageerror",e=>err.push(String(e&&e.message||e)));
+    await p.route("**/*",x=>{const u=x.request().url();return u.startsWith(base)?x.continue():x.abort();});
+    const listo=async()=>{await p.waitForFunction(()=>window.T3&&(document.querySelector(".t3-cuaderno-hoja")||document.querySelector(".t3-cuaderno-evento")),null,{timeout:15000});await p.waitForTimeout(1200);};
+    const viajar=async(f,cero)=>{await p.evaluate(()=>T3.maquina.abrir());await p.waitForTimeout(400);
+      await Promise.all([p.waitForNavigation({waitUntil:"load"}),p.evaluate(([f,cero])=>{const c=T3.maquina._capa();c.sel.limpio=!!cero;c.ponerFecha(f);c.viajar();},[f,cero])]);await listo();};
+    const ver=()=>p.evaluate(()=>({hoy:T3.hoy,maquina:!!T3.preview,marca:(T3.leer("prueba-maquina",null)||{}).n||0,ganados:T3.conjunto("ganados").join()}));
+    const marcar=n=>p.evaluate(n=>{T3.guardar("prueba-maquina",{n:n});T3.agregar("ganados",T3.hoy);},n);
+    await p.goto(base+"/",{waitUntil:"load"});await listo();
+    await viajar("2026-12-10");let v=await ver();
+    chequear("viajar lleva a ese día, con lo que hay en el celular",v.hoy==="2026-12-10"&&v.maquina&&v.marca===0&&v.ganados==="2026-11-01",v);
+    await marcar(1);
+    await viajar("2026-12-12");v=await ver();
+    chequear("viajando hacia adelante, lo hecho en la máquina sigue",v.hoy==="2026-12-12"&&v.marca===1&&v.ganados==="2026-11-01,2026-12-10",v);
+    await viajar("2026-12-12");v=await ver();
+    chequear("volver a viajar al mismo día tampoco lo borra",v.marca===1,v);
+    t=await p.evaluate(()=>{T3.maquina.abrir();const x=document.querySelector(".t3x-taller");return {botones:Array.from(x.querySelectorAll("[data-taller]")).map(b=>b.getAttribute("data-taller")),nota:(x.querySelector(".t3x-taller-nota")||{}).innerText||"",cartas:(x.querySelector('[data-detalle="cartas"]')||{}).innerText||""};});
+    chequear("en la máquina, el taller ofrece el duelo de prueba y todas las cartas, y explica cómo viajar",t.botones.includes("tcg-duelo")&&t.botones.includes("tcg-todas")&&/hacia adelante/.test(t.nota)&&/en este viaje, 0 de \d+/.test(t.cartas),t);
+    await p.click('[data-taller="tcg-todas"]');await p.waitForTimeout(300);
+    t=await p.evaluate(()=>({tengo:Object.keys(T3.leer("tcg2").cartas).length,total:T3.tcg.CARTAS.length,msj:document.querySelector(".t3x-taller-msj").innerText,sigue:!!document.querySelector('[data-taller="tcg-todas"]')}));
+    chequear("«darme todas» llena la carpeta de ese viaje",t.tengo===t.total&&/tenés todas/.test(t.msj)&&!t.sigue,t);
+    await p.evaluate(()=>T3.maquina.cerrar(true));
+    await viajar("2026-12-11");v=await ver();
+    chequear("viajando hacia atrás arranca limpio",v.hoy==="2026-12-11"&&v.marca===0&&v.ganados==="2026-11-01"&&await p.evaluate(()=>T3.leer("tcg2",null)===null),v);
+    await marcar(2);
+    await viajar("2026-12-13",true);v=await ver();
+    chequear("«de cero» arranca limpio y sin lo del celular",v.marca===0&&v.ganados==="",v);
+    await marcar(3);
+    await viajar("2026-12-14",true);v=await ver();
+    chequear("«de cero» hacia adelante también conserva lo hecho",v.marca===3&&v.ganados==="2026-12-13",v);
+    await viajar("2026-12-14",true);v=await ver();
+    chequear("«de cero» al mismo día vuelve a empezar",v.marca===0&&v.ganados==="",v);
+    await marcar(4);
+    await Promise.all([p.waitForNavigation({waitUntil:"load"}),p.evaluate(()=>{T3.maquina.volverAHoy();})]);await listo();
+    v=await ver();
+    t=await p.evaluate(()=>{T3.maquina.abrir();const x=document.querySelector(".t3x-taller");return Array.from(x.querySelectorAll("[data-taller]")).map(b=>b.getAttribute("data-taller"));});
+    chequear("al salir de la máquina no queda nada de lo hecho adentro",!v.maquina&&v.marca===0&&v.ganados==="2026-11-01"&&await p.evaluate(()=>T3.leer("tcg2",null)===null),v);
+    chequear("fuera de la máquina el taller ofrece el duelo de prueba, pero no regalar cartas",t.includes("tcg-duelo")&&!t.includes("tcg-todas"),t);
+    chequear("sin errores de JavaScript",err.length===0,err);
+    await c2.close();
+  }
+
   console.log("SONIDO DE VICTORIA");
   estado.pedidos.length=0;
   ({ctx,pg,errores}=await abrir(b,base,"2026-12-01"));

@@ -1,4 +1,4 @@
-/* Laboratorio · Ponyta se va de vacaciones y vuelve con gorro (T3.viaje) */
+/* Laboratorio · Ponyta se va de vacaciones y vuelve; el gorro se lo pone cuando Sofi abre la ventanita 1 del adviento (T3.viaje) */
 const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 const K={viaje:"pv-t3-ponyta-viaje",dias:"pv-t3-set-ponyta-huellas-dias",stats:"pv-t3-stats"};
@@ -102,15 +102,42 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
   console.log("LA VUELTA");
   o=await abrir(b,base,"2026-12-01",{semilla:semilla(["2026-11-18","2026-11-19"],2,"2026-11-19")});
   r=await hoja(o.pg);
-  chequear("el 1/12 la hoja tiene su dibujo, con gorro, y dice que volvió",r.fecha==="2026-12-01"&&r.dibujo&&r.gorro&&/volví\. traje gorro\./.test(r.frase),r);
+  chequear("el 1/12 la hoja tiene su dibujo, todavía sin gorro, y dice que volvió sin contar la sorpresa",r.fecha==="2026-12-01"&&r.dibujo&&!r.gorro&&/volví\. traje algo de las vacaciones\. está en la ventanita 1\./.test(r.frase)&&!/gorro/i.test(r.frase),r);
   await o.pg.screenshot({path:S+"e-vuelta-hoja.jpg"});
   await o.pg.evaluate(()=>{const p=document.querySelector(".t3-cuaderno-hoja.t3-cuaderno-visible .t3-cuaderno-pony");if(p)p.scrollIntoView({block:"center"});});await o.pg.waitForTimeout(500);
   await o.pg.screenshot({path:S+"e-vuelta-dibujo.jpg"});
   await o.pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-hoja.t3-cuaderno-visible");if(h){h.scrollTop=0;}window.scrollTo(0,0);});await o.pg.waitForTimeout(300);
   r=await o.pg.evaluate(()=>({sola:document.querySelector(".t3-ponyta-dije").classList.contains("t3-ponyta-dije-sola")||document.documentElement.classList.contains("t3x-pony-lejos"),gorro:!!document.querySelector(".t3-ponyta-dije .t3x-gorro")}));
-  chequear("volvió al señalador, con gorro",!r.sola&&r.gorro,r);
+  chequear("volvió al señalador, sin gorro todavía",!r.sola&&!r.gorro,r);
+  r=await o.pg.evaluate(()=>[T3.viaje.gorroPuesto(),T3.viaje.conGorro("2026-12-01"),T3.viaje.conGorro("2026-12-20")]);
+  chequear("antes de abrir la ventanita 1 no hay gorro ningún día",r.join()==="false,false,false",r);
   await solapa(o.pg);await o.pg.waitForTimeout(2600);r=await foto(o.pg);
-  chequear("está de nuevo en su solapa, con gorro, y lo dice",!r.ausente&&r.pony&&r.gorro&&r.conGorro&&!r.nota&&!r.apagado&&/volví\. traje gorro\. no me lo saco ni para dormir\./.test(r.globo),r);
+  chequear("en su solapa tampoco lo lleva, y no lo nombra",!r.ausente&&r.pony&&!r.gorro&&!r.conGorro&&!r.nota&&/traje algo de las vacaciones/.test(r.globo)&&!/gorro/i.test(r.globo),r);
+  // el calendario: la Ponyta que lo adorna tampoco tiene gorro hasta que se abre la ventanita 1
+  await o.pg.click('[data-pest="adviento"]',{force:true});
+  await o.pg.waitForTimeout(1300);
+  r=await o.pg.evaluate(()=>{const p=document.querySelector(".t3-adviento-pag"),pie=document.querySelector(".t3-adviento-pie");return {popeando:!!p&&p.classList.contains("t3-adviento-popeando"),pie:pie?+getComputedStyle(pie).opacity:-1};});
+  chequear("mientras la caja del calendario está cerrada, el renglón del pie no asoma",!r.popeando||r.pie<.05,r);
+  await o.pg.waitForFunction(()=>{const p=document.querySelector(".t3-adviento-pag");return !!p&&p.classList.contains("t3-adviento-listo");},null,{timeout:15000});
+  await o.pg.waitForTimeout(300);
+  await o.pg.screenshot({path:S+"e-adviento-antes.jpg"});
+  r=await o.pg.evaluate(()=>{const c=document.querySelector(".t3-adviento-pop-centro"),pie=document.querySelector(".t3-adviento-pie");return {pony:!!c&&!!c.querySelector("svg"),gorro:!!c&&!!c.querySelector(".t3-adviento-gorro"),pie:+getComputedStyle(pie).opacity,dije:!!document.querySelector(".t3-ponyta-dije .t3x-gorro")};});
+  chequear("la Ponyta del calendario está, pero sin gorro (y el pie ya se ve)",r.pony&&!r.gorro&&r.pie>.95&&!r.dije,r);
+  await o.pg.evaluate(()=>{document.querySelector('.t3-adviento-v[data-n="1"]').scrollIntoView({block:"center"});});await o.pg.waitForTimeout(400);
+  await o.pg.click('.t3-adviento-v[data-n="1"]',{force:true});
+  await o.pg.waitForFunction(()=>!!document.querySelector(".t3-adviento-velo .t3-adviento-gorro"),null,{timeout:10000});
+  await o.pg.waitForTimeout(2200);
+  await o.pg.screenshot({path:S+"e-adviento-ventanita1.jpg"});
+  r=await o.pg.evaluate(()=>({sorpresa:(document.querySelector(".t3-adviento-velo")||{}).innerText||"",calendario:!!document.querySelector(".t3-adviento-pop-centro .t3-adviento-gorro"),dije:!!document.querySelector(".t3-ponyta-dije .t3x-gorro"),puesto:T3.viaje.gorroPuesto()}));
+  chequear("al abrir la ventanita 1 sale Ponyta con gorro, y se lo pone en el calendario y en el señalador",/ya se puso el gorro/.test(r.sorpresa)&&r.calendario&&r.dije&&r.puesto,r);
+  await o.pg.evaluate(()=>{const b=Array.from(document.querySelectorAll(".t3-adviento-velo button")).find(x=>/guardar/i.test(x.textContent));if(b)b.click();});
+  await o.pg.waitForFunction(()=>!document.querySelector(".t3-adviento-velo"),null,{timeout:8000});
+  await o.pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-especial-host");if(h)h.scrollTop=0;});await o.pg.waitForTimeout(400);
+  await o.pg.screenshot({path:S+"e-adviento-despues.jpg"});
+  await o.pg.evaluate(()=>T3.cuaderno.irA("2026-12-01"));await o.pg.waitForTimeout(1500);r=await hoja(o.pg);
+  chequear("de vuelta en la hoja, el dibujo ya tiene gorro y lo dice",r.fecha==="2026-12-01"&&r.dibujo&&r.gorro&&/volví\. traje gorro\./.test(r.frase),r);
+  await solapa(o.pg);await o.pg.waitForTimeout(2600);r=await foto(o.pg);
+  chequear("está en su solapa, con gorro, y lo dice",!r.ausente&&r.pony&&r.gorro&&r.conGorro&&!r.nota&&!r.apagado&&/volví\. traje gorro\. no me lo saco ni para dormir\./.test(r.globo),r);
   await o.pg.screenshot({path:S+"e-vuelta.jpg"});
   r=await o.pg.evaluate(()=>{const g=document.querySelector(".t3-ponyta-globo").getBoundingClientRect(),h=document.querySelector(".t3-ponyta-postura .t3x-gorro").getBoundingClientRect();return {globoAbajo:Math.round(g.bottom),gorroArriba:Math.round(h.top)};});
   chequear("el globo no pisa el gorro",r.globoAbajo<=r.gorroArriba+1,r);
@@ -119,18 +146,33 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
   await o.pg.evaluate(()=>T3.cuaderno.irA("2026-11-15"));await o.pg.waitForTimeout(1800);r=await hoja(o.pg);
   chequear("las hojas de noviembre siguen con su dibujo, sin gorro",r.fecha==="2026-11-15"&&r.dibujo&&!r.gorro,r);
   r=await o.pg.evaluate(()=>[T3.viaje.conGorro("2026-11-30"),T3.viaje.conGorro("2026-12-01"),T3.viaje.conGorro("2027-01-06"),T3.viaje.conGorro("2027-01-07")]);
-  chequear("el gorro va del 1/12 a Reyes",r.join()==="false,true,true,false",r);
+  chequear("una vez abierta la ventanita 1, el gorro va del 1/12 a Reyes",r.join()==="false,true,true,false",r);
   chequear("sin errores de JavaScript",o.errores.length===0,o.errores);
   await o.ctx.close();
 
   o=await abrir(b,base,"2026-12-01",{semilla:semilla(["2026-11-18"],1)});
   await solapa(o.pg);await o.pg.waitForTimeout(2600);r=await foto(o.pg);
-  chequear("si nunca se fue, el 1/12 igual tiene gorro y dice otra cosa",r.gorro&&/arrancó diciembre\. me puse el gorro\./.test(r.globo)&&r.viaje===null,r);
+  chequear("si nunca se fue, el 1/12 tampoco tiene gorro todavía y manda a la ventanita 1",!r.gorro&&/arrancó diciembre\. en la ventanita 1 hay algo para mí\. abrila\./.test(r.globo)&&r.viaje===null,r);
   await correr(o.pg,"vuelta");r=await foto(o.pg);
   chequear("…y ya no se va",!r.ausente&&r.pony&&r.viaje===null&&!r.nota,r);
   await o.ctx.close();
 
-  o=await abrir(b,base,"2026-12-02",{semilla:Object.assign(semilla(["2026-11-19"],1,"2026-11-19"),{"pv-t3-ponyta-evolucion":'"rapidash"'})});
+  o=await abrir(b,base,"2026-12-01",{semilla:Object.assign(semilla(["2026-11-18"],1),{"pv-t3-set-adviento":'["2026-12-01"]'})});
+  await solapa(o.pg);await o.pg.waitForTimeout(2600);r=await foto(o.pg);
+  chequear("si nunca se fue y ya abrió la ventanita 1, tiene gorro y lo dice",r.gorro&&/arrancó diciembre\. me puse el gorro\./.test(r.globo)&&r.viaje===null,r);
+  await o.ctx.close();
+
+  // la ventanita 1 abierta tarde (el 3/12): hasta ese momento, nada; después, gorro
+  o=await abrir(b,base,"2026-12-03",{semilla:semilla(["2026-11-19"],1,"2026-11-19")});
+  r=await o.pg.evaluate(()=>({dije:!!document.querySelector(".t3-ponyta-dije .t3x-gorro"),con:T3.viaje.conGorro()}));
+  chequear("el 3/12, si todavía no abrió la ventanita 1, sigue sin gorro",!r.dije&&!r.con,r);
+  await o.pg.evaluate(()=>T3.adviento.abrir("2026-12-01"));await o.pg.waitForTimeout(2300);
+  r=await o.pg.evaluate(()=>({dije:!!document.querySelector(".t3-ponyta-dije .t3x-gorro"),con:T3.viaje.conGorro(),sorpresa:!!document.querySelector(".t3-adviento-velo .t3-adviento-gorro")}));
+  chequear("…y cuando la abre, se lo pone",r.dije&&r.con&&r.sorpresa,r);
+  chequear("sin errores de JavaScript",o.errores.length===0,o.errores);
+  await o.ctx.close();
+
+  o=await abrir(b,base,"2026-12-02",{semilla:Object.assign(semilla(["2026-11-19"],1,"2026-11-19"),{"pv-t3-ponyta-evolucion":'"rapidash"',"pv-t3-set-adviento":'["2026-12-01"]'})});
   await solapa(o.pg);r=await o.pg.evaluate(()=>({gorro:!!document.querySelector(".t3-ponyta-postura .t3x-gorro-rapi .t3x-gorro"),titulo:document.querySelector(".t3-ponyta-titulo").innerText}));
   chequear("si evolucionó, Rapidash también lleva el gorro",r.gorro&&r.titulo==="Rapidash",r);
   chequear("sin errores de JavaScript",o.errores.length===0,o.errores);

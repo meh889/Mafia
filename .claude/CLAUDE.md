@@ -35,8 +35,11 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 - `T3.viaje` (noviembre 2026): Ponyta se va de vacaciones. Desde `SALE`, la próxima corrida en su solapa es la
   de la ida: deja la herradura del día, no vuelve y queda una nota (los textos están arriba del bloque). Mientras
   no está, tampoco sale en el señalador, en "Ponyta dice" ni en el mapa de Olivos. Vuelve el día `VUELVE`
-  (primer día del adviento) con el gorro de la ventanita 1, hasta `GORRO_HASTA`. Se guarda en `pv-t3-ponyta-viaje`.
-  El módulo minificado de Ponyta solo pregunta: `T3.viaje.toca()`, `.ausente(f)`, `.conGorro(f)`, `.poner(…)`.
+  (primer día del adviento). **El gorro es la sorpresa de la ventanita 1 del adviento: se lo pone recién cuando
+  Sofi la abre** (antes no lo lleva en ningún lado, tampoco la Ponyta que adorna el calendario, y lo que dice ese
+  día no lo nombra) y le dura hasta `GORRO_HASTA`. Se guarda en `pv-t3-ponyta-viaje`.
+  El módulo minificado de Ponyta solo pregunta: `T3.viaje.toca()`, `.ausente(f)`, `.conGorro(f)`, `.poner(…)`;
+  el del adviento avisa con `T3.viaje.seAbrio(n,f)` y pregunta `T3.viaje.gorroPuesto()`.
 
 ## MafiaTCG (las cartas y el duelo)
 Rehecho en noviembre de 2026: las cartas son fotos de ellos, de la familia y de los bichos, con vidas y ataques,
@@ -66,15 +69,19 @@ y con 10 cartas se juega un duelo contra "el programador". Todo está en los EXT
 
 ## Para ver una fecha
 - `?fecha=AAAA-MM-DD` en la URL, o la máquina del tiempo (5 toques rápidos en el número de hoja → PIN),
-  que además tiene el **taller**: versión publicada, respaldo del progreso y avisos.
+  que además tiene el **taller**: versión publicada, respaldo del progreso, avisos y las cartas (un duelo de
+  prueba sin tener cartas y, adentro de la máquina, "darme todas").
+- En la máquina nada toca el progreso de verdad: lo que se hace va a una sombra que se tira al salir. Viajando
+  **hacia adelante** esa sombra se conserva (como si pasaran los días: así se prueba lo que lleva varios, como
+  juntar 10 cartas); hacia atrás, o "de cero" al mismo día, arranca limpio.
 - El progreso de Sofi vive solo en su celular: `localStorage` con prefijo `pv-` (el cuaderno usa `pv-t3-`).
 
 ## Pruebas largas (el laboratorio)
-- `.github/pruebas/*.cjs` son los escenarios de lo sumado en noviembre: `a` actualización, respaldo, taller y
-  sonido · `b` contestar, pedidos y vales · `c2` cartas, sobres y carpeta del TCG · `c1` recorrido del TCG con
+- `.github/pruebas/*.cjs` son los escenarios de lo sumado en noviembre: `a` actualización, respaldo, taller, máquina
+  del tiempo y sonido · `b` contestar, pedidos y vales · `c2` cartas, sobres y carpeta del TCG · `c1` recorrido del TCG con
   capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla · `c4` reglas del duelo y
   equilibrio de las cartas (sin navegador) · `d` avisos en la app · `d-envio` el envío (necesita `web-push`) ·
-  `e` el viaje de Ponyta. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
+  `e` el viaje de Ponyta y el gorro. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
   (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
   --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad (`-f densidad=2`

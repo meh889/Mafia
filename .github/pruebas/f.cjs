@@ -1,6 +1,7 @@
 /* Laboratorio · la tienda (pestaña verde), la ropa de Ponyta y el modo Pou.
    Precios, canjear un pedido por WhatsApp, comprar y ponerle cosas a Ponyta, la camiseta con el escudo,
-   cuidarla (nigiris, baño, dormir y el paso de las horas) y el paquete "Subite a la Franconeta". */
+   cuidarla (nigiris, baño, dormir y el paso de las horas), el paquete "Subite a la Franconeta"
+   y canjear herraduras (50 por un sobre con una nola o por 250 MafiaPoints). */
 const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
 const fs=require("fs"),path=require("path");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
@@ -344,6 +345,113 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 
+  console.log("CANJEAR HERRADURAS");
+  /* las herraduras son las marcas que deja Ponyta al correr: una por día */
+  const diasDesde=(n)=>{const l=[];for(let d=new Date(2026,9,1);l.length<n;d.setDate(d.getDate()+1))l.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"));return l;};
+  const conHuellas=(n,mas)=>Object.assign({"pv-t3-tcg2":tcg(30),"pv-t3-set-ponyta-huellas-dias":JSON.stringify(diasDesde(n)),"pv-t3-stats":JSON.stringify({huellas:n})},base5,mas||{});
+  const herr=pg=>pg.evaluate(()=>{const d=document.querySelector(".t3x-herr"),b=d&&d.querySelector('[data-herr="abrir"]');
+    return {hay:!!d,n:d?d.querySelector(".t3x-herr-n b").innerText:"",boton:b?b.innerText.trim():"",apagado:!!b&&b.getAttribute("aria-disabled")==="true",nota:d?d.querySelector(".t3x-herr-nota").innerText:"",
+      marcas:document.querySelectorAll(".t3-ponyta-huellas-svg .t3-ponyta-huella").length,tapas:document.querySelectorAll(".t3-ponyta-huellas-svg .t3x-herr-tapa").length,
+      sueltas:T3.herraduras.sueltas(),total:T3.herraduras.total(),L:T3.leer("herraduras",null),mp:T3.tcg.puntos(),nolas:T3.leer("tcg2").nolas||0}});
+  const hojaH=pg=>pg.evaluate(()=>{const h=document.querySelector(".t3x-herr-hoja.t3x-ver");return h?{txt:h.querySelector(".t3x-compra-papel").innerText.replace(/\s+/g," ").trim(),
+    botones:Array.from(h.querySelectorAll("[data-herr]")).map(x=>x.getAttribute("data-herr")+(x.disabled?"(no)":"")).join()}:null;});
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:conHuellas(53)}));
+  await reloj(pg);await aPonyta(pg);
+  r=await herr(pg);
+  chequear("en su solapa, arriba del rastro, dice cuántas herraduras tiene y ofrece canjear 50",r.hay&&r.n==="53"&&/canjear 50/i.test(r.boton)&&!r.apagado&&/50 = un sobre con una nola, o 250 MafiaPoints/.test(r.nota)&&r.marcas===53&&r.tapas===0&&r.total===53,r);
+  chequear("los números están en CONFIG",await pg.evaluate(()=>T3.config.herraduras.cada===50&&T3.config.herraduras.puntos===250&&T3.herraduras.CADA===50&&T3.herraduras.PUNTOS===250));
+  await tocar(pg,'[data-herr="abrir"]');
+  r=await hojaH(pg);
+  await pg.screenshot({path:S+"f-herraduras.jpg"});
+  chequear("la hoja deja elegir: un sobre con una nola o 250 MafiaPoints",r&&/50 herraduras/i.test(r.txt)&&/tenés 53/i.test(r.txt)&&r.botones==="nola,puntos,cerrar",r);
+  await tocar(pg,'.t3x-herr-hoja [data-herr="cerrar"]');
+  r=await herr(pg);
+  chequear("«mejor no» no gasta nada",r.n==="53"&&r.L===null&&r.mp===30,r);
+  await tocar(pg,'[data-herr="abrir"]');await tocar(pg,'.t3x-herr-hoja [data-herr="puntos"]');
+  r=await hojaH(pg);l=await herr(pg);
+  chequear("canjear por puntos: suma 250 MafiaPoints y gasta 50 herraduras",/\+250 MafiaPoints/.test(r.txt)&&/ahora tenés 280/i.test(r.txt)&&l.mp===280&&l.L.canjes===1&&l.L.log[0].por==="puntos"&&l.L.log[0].f==="2026-12-05"&&l.sueltas===3&&l.n==="3",{r,l});
+  chequear("las marcas no se borran: quedan las 53, y las 50 canjeadas se apagan",l.marcas===53&&l.tapas===50&&l.total===53,l);
+  await tocar(pg,'.t3x-herr-hoja [data-herr="cerrar"]');
+  r=await herr(pg);
+  chequear("con 3 no alcanza: el botón dice cuántas faltan",/faltan 47/i.test(r.boton)&&r.apagado,r);
+  await tocar(pg,'[data-herr="abrir"]');
+  chequear("y no abre la hoja ni deja canjear por adentro",await hojaH(pg)===null&&await pg.evaluate(()=>T3.herraduras.canjear("puntos")===false&&T3.herraduras.canjear("nola")===false&&T3.tcg.puntos()===280));
+  await pg.evaluate(()=>T3.cuaderno.abrir("pedidos"));await pg.waitForTimeout(1300);
+  chequear("los puntos canjeados son los mismos de la tienda",await pg.evaluate(()=>document.querySelector(".t3x-saldo b").innerText==="280"));
+  chequear("sin errores de JavaScript",errores.length===0,errores);
+  await ctx.close();
+
+  // el sobre de una carta
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:conHuellas(104)}));
+  await reloj(pg);await aPonyta(pg);
+  r=await herr(pg);
+  chequear("con 104 herraduras alcanza para dos canjes",r.n==="104"&&r.marcas===104,r);
+  await tocar(pg,'[data-herr="abrir"]');await tocar(pg,'.t3x-herr-hoja [data-herr="nola"]');
+  r=await hojaH(pg);l=await herr(pg);
+  chequear("canjear por el sobre: queda un sobre de herraduras esperando en el TCG",/hay sobre/i.test(r.txt)&&/una sola carta/i.test(r.txt)&&/nola seguro/i.test(r.txt)&&l.nolas===1&&l.L.canjes===1&&l.L.log[0].por==="nola"&&l.sueltas===54&&l.mp===30,{r,l});
+  await pg.click('.t3x-herr-hoja [data-herr="ir-tcg"]',{force:true});await pg.waitForTimeout(2600);
+  r=await pg.evaluate(()=>{const m=document.querySelector(".t3x-tcg-mesa-nola");return {mesa:!!m,txt:m?m.innerText.replace(/\s+/g," "):"",sobre:m?m.querySelector(".t3x-sobre-set").innerText:"",punto:document.querySelector(".t3-cuaderno-pestana-tcg").classList.contains("t3-cuaderno-con-sobre"),e:T3.leer("tcg2")};});
+  await pg.screenshot({path:S+"f-herr-tcg.jpg"});
+  chequear("«ir a abrirlo» lleva al TCG, donde está el sobre de herraduras (una carta, nola segura)",r.mesa&&/sobre de herraduras/i.test(r.txt)&&/nola, seguro/i.test(r.txt)&&/1 nola/i.test(r.sobre)&&r.punto,r);
+  const antesN=Object.keys(r.e.cartas).length,antesAb=r.e.abiertos;
+  await tocar(pg,".t3x-tcg-abrir-nola");
+  await pg.click(".t3x-ap-sobre",{force:true});await pg.waitForTimeout(1700);
+  r=await pg.evaluate(()=>({cartas:document.querySelectorAll(".t3x-ap-carta").length,rotulo:document.querySelector(".t3x-ap-rotulo").innerText}));
+  chequear("el sobre de herraduras trae una sola carta",r.cartas===1&&/sobre de herraduras/i.test(r.rotulo),r);
+  await pg.click('.t3x-ap-carta[data-i="0"]',{force:true});await pg.waitForTimeout(1500);
+  await pg.screenshot({path:S+"f-herr-nola.jpg"});
+  r=await pg.evaluate(()=>({sello:document.querySelector(".t3x-ap-sello").innerText,nola:document.querySelector(".t3x-ap-sello").classList.contains("t3x-ap-nola")}));
+  await pg.mouse.click(195,790);await pg.waitForTimeout(800);
+  await pg.click(".t3x-ap-listo",{force:true});await pg.waitForTimeout(900);
+  l=await pg.evaluate(()=>{const e=T3.leer("tcg2");return {n:Object.keys(e.cartas).length,nolas:e.nolas,abiertos:e.abiertos,nolasAbiertas:e.nolasAbiertas,mesa:!!document.querySelector(".t3x-tcg-mesa-nola"),recien:document.querySelectorAll(".t3x-recien").length};});
+  chequear("y es una nola: suma una carta nueva a la carpeta, y no cuenta como sobre común",/nola/i.test(r.sello)&&r.nola&&l.n===antesN+1&&l.nolas===0&&l.abiertos===antesAb&&l.nolasAbiertas===1&&!l.mesa&&l.recien===1,{r,l});
+  r=await pg.evaluate(()=>{
+    const P=T3.tcg._prueba,C=T3.tcg.CARTAS,out={malas:0,largos:0,gastaNola:0};
+    /* muchos sobres de herraduras, con carpetas al azar: siempre una carta, siempre nueva */
+    for(let k=0;k<400;k++){
+      const e={cartas:{},bonos:[],sobres:0,nolas:1,abiertos:5,sinNueva:1,sinFull:1};
+      C.forEach(c=>{if(Math.random()<.8)e.cartas[c.id]={n:1,f:"x"};});
+      const antes=P.tengo(e);if(antes>=P.TOTAL)continue;
+      const t=P.tirarNola(e);
+      if(t.length!==1)out.largos++;
+      if(!t[0].nueva||P.tengo(e)!==antes+1)out.malas++;
+      if(e.nolas!==0||e.abiertos!==5)out.gastaNola++;
+    }
+    /* con una sola carta por conseguir, sale esa */
+    const casi={cartas:{},bonos:[],sobres:0,nolas:1,abiertos:9,sinNueva:0,sinFull:0};C.slice(1).forEach(c=>{casi.cartas[c.id]={n:1,f:"x"};});
+    const u=P.tirarNola(casi);out.ultima=u[0].id===C[0].id&&u[0].nueva&&casi.completo===T3.hoy;
+    return out;
+  });
+  chequear("un sobre de herraduras siempre trae una carta que no tenía (400 pruebas), hasta la última del álbum",r.malas===0&&r.largos===0&&r.gastaNola===0&&r.ultima,r);
+  // con el álbum completo no hay nola posible
+  r=await pg.evaluate(()=>{
+    const P=T3.tcg._prueba,e=P.estado();T3.tcg.CARTAS.slice(1).forEach(c=>{if(!e.cartas[c.id])e.cartas[c.id]={n:1,f:T3.hoy};});delete e.cartas[T3.tcg.CARTAS[0].id];e.nolas=1;P.guardar(e);
+    const out={faltanConUnaPendiente:T3.tcg.faltan(),otra:T3.tcg.darNola(),canje:T3.herraduras.canjear("nola"),canjes:T3.leer("herraduras").canjes};
+    e.nolas=0;e.cartas[T3.tcg.CARTAS[0].id]={n:1,f:T3.hoy};P.guardar(e);
+    out.faltanCompleto=T3.tcg.faltan();out.nolaCompleto=T3.tcg.darNola();
+    return out;
+  });
+  chequear("si la única que falta ya viene en un sobre sin abrir, o si el álbum está completo, no da otro (ni gasta herraduras)",r.faltanConUnaPendiente===0&&r.otra===false&&r.canje===false&&r.canjes===1&&r.faltanCompleto===0&&r.nolaCompleto===false,r);
+  await pg.evaluate(()=>T3.cuaderno.abrir("ponyta"));await pg.waitForTimeout(3200);
+  await tocar(pg,'[data-herr="abrir"]');
+  r=await hojaH(pg);
+  chequear("con el álbum completo la hoja solo ofrece los puntos",r&&/ya tenés todas/i.test(r.txt)&&r.botones==="nola(no),puntos,cerrar",r);
+  await tocar(pg,'.t3x-herr-hoja [data-herr="puntos"]');await tocar(pg,'.t3x-herr-hoja [data-herr="cerrar"]');
+  l=await herr(pg);
+  chequear("segundo canje, por puntos: quedan 4 herraduras y 100 marcas apagadas",l.mp===280&&l.L.canjes===2&&l.sueltas===4&&l.marcas===104&&l.tapas===100,l);
+  await pg.reload();await pg.waitForFunction(()=>window.T3&&document.querySelector(".t3-cuaderno-hoja"),null,{timeout:15000});await pg.waitForTimeout(1500);
+  chequear("queda guardado al recargar",await pg.evaluate(()=>T3.herraduras.sueltas()===4&&T3.leer("herraduras").canjes===2&&T3.tcg.puntos()===280));
+  chequear("sin errores de JavaScript",errores.length===0,errores);
+  await ctx.close();
+
+  // antes del estreno no hay nada que canjear (el TCG todavía no existe para ella)
+  ({ctx,pg,errores}=await abrir(b,base,"2026-11-12",{semilla:Object.assign(conHuellas(42),{"pv-t3-set-escritas":'["2026-11-12"]',"pv-t3-set-abrio":'["2026-11-12"]'})}));
+  await reloj(pg);await aPonyta(pg);
+  r=await pg.evaluate(()=>({pag:!!document.querySelector(".t3-ponyta-pag"),herr:!!document.querySelector(".t3x-herr"),activo:T3.herraduras.activo(),canje:T3.herraduras.canjear("puntos"),marcas:document.querySelectorAll(".t3-ponyta-huellas-svg .t3-ponyta-huella").length}));
+  chequear("antes del estreno la solapa no ofrece canjear nada (las marcas están como siempre)",r.pag&&!r.herr&&!r.activo&&r.canje===false&&r.marcas===42,r);
+  chequear("sin errores de JavaScript",errores.length===0,errores);
+  await ctx.close();
+
   console.log("RAPIDASH, Y LOS PUNTOS DE PRUEBA DEL TALLER");
   ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:Object.assign({"pv-t3-tcg2":tcg(50),"pv-t3-ponyta-evolucion":'"rapidash"',
     "pv-t3-tienda":JSON.stringify({cosas:{pou:"2026-12-03",racing:"2026-12-03",corona:"2026-12-04"},puesto:{cuerpo:"racing",cabeza:"corona"},n:0,log:[]})},base5)}));
@@ -358,7 +466,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("y come igual",(await pou(pg)).v.panza===55);
   await pg.evaluate(()=>T3.maquina.abrir());await pg.waitForTimeout(700);
   r=await pg.evaluate(()=>Array.from(document.querySelectorAll(".t3x-taller [data-taller]")).map(x=>x.getAttribute("data-taller")));
-  chequear("fuera de la máquina del tiempo, el taller no regala puntos",!r.includes("tcg-puntos"),r);
+  chequear("fuera de la máquina del tiempo, el taller no regala puntos ni herraduras",!r.includes("tcg-puntos")&&!r.includes("tcg-herraduras"),r);
   await Promise.all([pg.waitForNavigation({waitUntil:"load"}),pg.evaluate(()=>{const c=T3.maquina._capa();c.sel.limpio=false;c.ponerFecha("2026-12-07");c.viajar();})]);
   await pg.waitForFunction(()=>window.T3&&(document.querySelector(".t3-cuaderno-hoja")||document.querySelector(".t3-cuaderno-evento")),null,{timeout:15000});await pg.waitForTimeout(1500);
   await pg.evaluate(()=>T3.maquina.abrir());await pg.waitForTimeout(700);
@@ -366,6 +474,9 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.click('[data-taller="tcg-puntos"]');await pg.waitForTimeout(400);
   r=await pg.evaluate(()=>({mp:T3.tcg.puntos(),msj:(document.querySelector(".t3x-taller-msj")||{}).innerText,maquina:!!T3.preview}));
   chequear("adentro de la máquina, «+1000 puntos» suma para probar la tienda",r.maquina&&r.mp===1050&&/1000 MafiaPoints/.test(r.msj),r);
+  await pg.click('[data-taller="tcg-herraduras"]');await pg.waitForTimeout(400);
+  r=await pg.evaluate(()=>({sueltas:T3.herraduras.sueltas(),msj:(document.querySelector(".t3x-taller-msj")||{}).innerText,fila:(document.querySelector('[data-detalle="cartas"]')||{}).innerText}));
+  chequear("y «+50 herraduras» da para probar el canje",r.sueltas===50&&/50 herraduras/.test(r.msj)&&/50 herraduras/.test(r.fila),r);
   await pg.evaluate(()=>T3.maquina.cerrar(true));await pg.waitForTimeout(300);
   await pg.evaluate(()=>T3.cuaderno.irA(T3.hoy));await pg.waitForTimeout(1000);
   await aTienda(pg);
@@ -374,8 +485,8 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("y con esos puntos se compra, adentro de la máquina",r.mp===930&&r.boina,r);
   await Promise.all([pg.waitForNavigation({waitUntil:"load"}),pg.evaluate(()=>{T3.maquina.volverAHoy();})]);
   await pg.waitForFunction(()=>window.T3&&(document.querySelector(".t3-cuaderno-hoja")||document.querySelector(".t3-cuaderno-evento")),null,{timeout:15000});await pg.waitForTimeout(1200);
-  r=await pg.evaluate(()=>({maquina:!!T3.preview,mp:T3.tcg.puntos(),boina:T3.tienda.tiene("boina"),pou:T3.tienda.tiene("pou"),panza:Math.round(T3.pou._prueba.estado().panza)}));
-  chequear("al salir de la máquina no queda nada: ni los puntos regalados, ni lo comprado, ni el nigiri que comió ahí",!r.maquina&&r.mp===50&&!r.boina&&r.pou,r);
+  r=await pg.evaluate(()=>({maquina:!!T3.preview,mp:T3.tcg.puntos(),boina:T3.tienda.tiene("boina"),pou:T3.tienda.tiene("pou"),panza:Math.round(T3.pou._prueba.estado().panza),herr:T3.herraduras.total()}));
+  chequear("al salir de la máquina no queda nada: ni los puntos ni las herraduras regaladas, ni lo comprado",!r.maquina&&r.mp===50&&!r.boina&&r.pou&&r.herr===0,r);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
   await b.close();srv.close();process.exit(resumen()?1:0);

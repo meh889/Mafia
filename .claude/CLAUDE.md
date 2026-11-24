@@ -24,15 +24,16 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   `foto`, `lugar`, `cartel` (texto = cartel de vacaciones · objeto `{titulo,texto,lista}` = cartel verde).
   Un día sin `actividad` no tiene juego.
 - `CONFIG.t3`: la temporada actual, "el cuaderno" (1/10/2026 → 1/1/2027): `pin`, `estreno`, `whatsapp`,
-  `tcg` (`premio`, `duelosPorDia`, `puntosPorVictoria`), `tienda` (`precios`: pisa cualquier precio), `pedidos`
-  (talonario propio), datos del cumple del 16/12, etc.
+  `tcg` (`premio`, `duelosPorDia`, `puntosPorVictoria`), `tienda` (`precios`: pisa cualquier precio), `herraduras`
+  (`cada`, `puntos`), `pedidos` (talonario propio), datos del cumple del 16/12, etc.
 - Scripts del `<body>`: el motor viejo con los juegos (`montarAlgo(a)`) y el cuaderno (`T3.*`: ponyta, mapa,
   adviento, maquina, eventos con `T3.registrarEvento`, cuaderno). Vienen minificados en líneas larguísimas:
   conviene buscar con Python y reemplazar cadenas exactas con `assert h.count(viejo) == 1`.
 - Entre `/*<<EXTRAS-JS*/` y `/*EXTRAS-JS>>*/` (y `EXTRAS-CSS` en los estilos) está lo sumado en noviembre
   de 2026, legible y comentado: `T3.x` (base), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
   (contestar cartas, vales), `T3.tienda` (la pestaña verde; el cuaderno la sigue llamando `pedidos`), MafiaTCG
-  (`T3.tcg` y cuatro módulos más: ver abajo), `T3.ropa` y `T3.pou` (ver "La tienda"), `T3.avisos` y `T3.viaje`.
+  (`T3.tcg` y cuatro módulos más: ver abajo), `T3.ropa`, `T3.pou` y `T3.herraduras` (ver "La tienda"), `T3.avisos` y
+  `T3.viaje`.
   Lo que es para Sofi (TCG, tienda, contestar, avisos) aparece recién desde `CONFIG.t3.estreno`.
 - `T3.viaje` (noviembre 2026): Ponyta se va de vacaciones. Desde `SALE`, la próxima corrida en su solapa es la
   de la ida: deja la herradura del día, no vuelve y queda una nota (los textos están arriba del bloque). Mientras
@@ -99,11 +100,17 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   mimos) que bajan con las horas, y tres botones: nigiri, baño y a dormir. No pasa nada malo si llegan a cero: ella
   avisa. De noche duerme sola. Guarda en `pv-t3-pou`. El módulo minificado de Ponyta le avisa con
   `T3.pou.montar/alDormir/alDespertar/alMimo`.
+- `T3.herraduras`, **canjear herraduras** (pedido de Mati, 24/11): las herraduras son las marcas que Ponyta deja en su
+  solapa al correr, **una por día** (la primera corrida). Cada 50 se canjean, a elección, por un **sobre de herraduras**
+  (una sola carta, sí o sí una nola: `T3.tcg.darNola()`, se abre en la pestaña del TCG) o por 250 MafiaPoints
+  (`T3.tcg.sumar()`). Las marcas no se borran: las canjeadas quedan apagadas. Guarda en `pv-t3-herraduras`. Si ya no
+  le faltan cartas, solo ofrece los puntos.
 
 ## Para ver una fecha
 - `?fecha=AAAA-MM-DD` en la URL, o la máquina del tiempo (5 toques rápidos en el número de hoja → PIN),
   que además tiene el **taller**: versión publicada, respaldo del progreso, avisos y las cartas (un duelo de
-  prueba sin tener cartas y, adentro de la máquina, "darme todas" y "+1000 puntos" para probar la tienda).
+  prueba sin tener cartas y, adentro de la máquina, "darme todas", "+1000 puntos" y "+50 herraduras" para probar la
+  tienda y el canje).
 - En la máquina nada toca el progreso de verdad: lo que se hace va a una sombra que se tira al salir. Viajando
   **hacia adelante** esa sombra se conserva (como si pasaran los días: así se prueba lo que lleva varios, como
   juntar 10 cartas); hacia atrás, o "de cero" al mismo día, arranca limpio.
@@ -114,8 +121,8 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   del tiempo y sonido · `b` contestar, la tienda sin puntos y vales · `c2` cartas, sobres y carpeta del TCG · `c1`
   recorrido del TCG con capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla, y el tope
   de 2 por día · `c4` reglas del duelo y equilibrio de las cartas (sin navegador) · `d` avisos en la app · `d-envio` el
-  envío (necesita `web-push`) · `e` el viaje de Ponyta y el gorro · `f` la tienda con puntos, la ropa de Ponyta y el
-  modo Pou. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
+  envío (necesita `web-push`) · `e` el viaje de Ponyta y el gorro · `f` la tienda con puntos, la ropa de Ponyta, el
+  modo Pou y canjear herraduras. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
   (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
   --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad (`-f densidad=2`

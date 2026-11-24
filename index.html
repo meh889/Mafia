@@ -469,6 +469,8 @@ const CONFIG = {
     tienda: {
       precios: {}               /* ej.: { mimos: 30, helado: 200, boina: 90, racing: 500, pou: 800 } */
     },
+    /* CANJEAR HERRADURAS (en la solapa de Ponyta; deja una por día): cada tantas, un sobre con una nola o tantos puntos */
+    herraduras: { cada: 50, puntos: 250 },
     pedidos: []                 /* talonario propio: [{t:"Mimos", d:"Sin tope.", m:"lo que te llega", p:40}] (p = precio).
                                    Vacío = los que ya vienen */
   },
@@ -3052,6 +3054,15 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-sobre-set{display:block;margin-top:.5em;padding:.26em .7em .3em;border-radius:.3em;background:var(--li3,#5B3FB8);box-shadow:0 0 0 .12em #12163F;font:800 italic 1em/1 var(--f,sans-serif);letter-spacing:.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
 .t3x-sobre-n{display:block;margin-top:auto;font:700 .62em/1 var(--f,sans-serif);letter-spacing:.18em;text-transform:uppercase;color:#D8CBFF;white-space:nowrap}
 .t3x-sobre-cuantos{position:absolute;right:-.9em;top:-.5em;z-index:2;min-width:2.5em;height:2.5em;box-sizing:border-box;padding:0 .4em;border-radius:1.25em;background:var(--li3);color:#fff;font:800 italic 1.3em/2.5em var(--f);text-align:center;box-shadow:0 0 0 2px var(--t3-papel)}
+/* el sobre de herraduras (una carta, nola segura): el mismo sobre, en lila */
+.t3x-sobre-nola .t3x-sobre-cuerpo{background-image:linear-gradient(180deg,rgba(8,10,34,.4),transparent .55em),
+    linear-gradient(100deg,#E3A200 0%,#FFE477 18%,#FECA0B 36%,#FFF3B8 50%,#F0B400 64%,#FFE477 84%,#E3A200 100%),
+    repeating-conic-gradient(from 6deg at 50% 38%,rgba(255,255,255,.13) 0 7.5deg,transparent 7.5deg 15deg),
+    linear-gradient(100deg,#4A2F9E 0%,#8C6FE6 20%,#5B3FB8 38%,#B9A4F6 50%,#4F35A6 64%,#7C5FD9 84%,#4A2F9E 100%)}
+.t3x-sobre-nola .t3x-sobre-set{background:#FECA0B;color:#12163F}
+.t3x-sobre-nola .t3x-sobre-n{color:#F1EAFF}
+.t3x-tcg-mesa-nola{background:rgba(185,164,246,.2);border-color:rgba(91,63,184,.55)}
+.t3x-tcg-abrir-nola{max-width:150px;min-height:46px;margin-top:12px}
 .t3x-sobre-vacio{filter:none;cursor:default;border-radius:4px;box-shadow:inset 0 0 0 1.6px rgba(43,33,24,.22);background:repeating-linear-gradient(135deg,transparent 0 7px,rgba(43,33,24,.05) 7px 8px)}
 
 /* ---- la mesa de los sobres (sobre el papel del cuaderno) ---- */
@@ -3621,6 +3632,23 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-pou-banio.t3-ponyta-shiny .t3-ponyta-fl-y{fill:#79AADA}
 .t3x-pou-banio .t3-ponyta-rapidash img{filter:saturate(.78)}
 @media (prefers-reduced-motion:reduce){.t3x-pou-nigiri,.t3x-pou-burbuja,.t3x-pou-miga,.t3x-pou-brillo,.t3x-pou-poco span{animation-duration:.01s;animation-iteration-count:1}}
+
+/* ---- canjear herraduras: el renglón arriba del rastro, en la solapa de Ponyta ---- */
+.t3x-herr{margin:12px 0 4px}
+.t3x-herr-fila{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.t3x-herr-n{display:flex;align-items:baseline;gap:7px;min-width:0;color:var(--t3-tinta)}
+.t3x-herr-dib{align-self:center;flex:none;width:28px;height:28px}
+.t3x-herr-n b{font:700 31px/1 var(--t3-mano)}
+.t3x-herr-n i{font:500 9px/1.2 var(--t3-mono);font-style:normal;letter-spacing:.16em;text-transform:uppercase;color:var(--t3-tinta-suave)}
+.t3x-herr-boton{flex:none;min-height:42px;margin:0;padding:0 16px;font:500 10.5px/1 var(--t3-mono);letter-spacing:.16em;text-transform:uppercase;color:#FAEEDF;background:var(--t3-sello);border:0;border-radius:3px;box-shadow:var(--t3-sombra-dura);cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transform:rotate(.8deg);transition:transform .08s ease}
+.t3x-herr-boton:active{transform:rotate(.8deg) translate(1px,1px)}
+.t3x-herr-falta{color:var(--t3-tinta-suave);background:var(--t3-papel-claro);box-shadow:inset 0 0 0 1.5px rgba(43,33,24,.3),var(--t3-sombra-dura)}
+.t3x-herr-nota{margin:7px 0 0;font-size:16.5px}
+.t3x-herr-tapa{fill:var(--t3-papel);opacity:.66}
+.t3x-herr-opciones{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:16px}
+.t3x-herr-opciones .t3x-boton+.t3x-boton{margin-top:0}
+.t3x-herr-hoja .t3x-compra-papel>.t3x-boton{margin-top:16px}
+.t3x-herr-hoja .t3x-compra-papel>.t3x-boton+.t3x-boton{margin-top:10px}
 
 /* ---- avisos: la tarjeta de la campanita ---- */
 .t3x-campana{flex:1 0 100%;display:grid;grid-template-columns:36px 1fr;gap:4px 8px;align-items:start;box-sizing:border-box;max-width:322px;margin:2px 0 6px;padding:12px 14px 8px 12px;background:#FCF8EE;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.35);transition:opacity .4s ease,transform .4s var(--t3-curva)}
@@ -10092,7 +10120,7 @@ function tr(p){return'transform="translate('+p.x+" "+p.y+") rotate("+p.rot+") sc
 function pintarHuellas(fresca,hueco){var RR=rastro(),n=RR.n;if(!n){cajaH.innerHTML='<p class="t3-ponyta-vacio">todavía ninguna. hacela correr y mirá acá.</p>';return;}
 var W=Math.round(cajaH.clientWidth)||320;var desde=Math.max(0,n-MAX_H),D=camino(n-desde,W);var halos=[],halosAz=[],carbones=[],carbonesAz=[],suelas=[],detalles=[],encima=[];for(var i=desde;i<n;i++){var h=RR.L[i],p=D.pos(i-desde),t=tr(p),hs=T3.util.hash("brasa"+i),az=h.az?" t3-ponyta-azul":"";var chispa='<circle class="t3-ponyta-h-chispa" cx="'+(-9-hs%4)+'" cy="'+((hs>>>3)%9-4)+'" r=".9"/>';var ranilla='<path class="t3-ponyta-h-ranilla" d="'+RANILLA+'"/>';var centro=h.amor?'<path class="t3-ponyta-h-amor" d="'+CORAZONCITO+'" transform="translate(-1.6 0) rotate('+(-p.rot)+') scale(.95)"/>':'<g class="t3-ponyta-h-clavos">'+CLAVOS.map(function(c){return'<circle cx="'+c[0]+'" cy="'+c[1]+'" r=".55"/>';}).join("")+"</g>";if(i===hueco){encima.push('<g '+t+' data-hueco="'+i+'"><rect x="-9" y="-9" width="18" height="18" fill="none"/></g>');}else if(i===fresca&&!R){encima.push('<g '+t+' data-i="'+i+'"><g class="t3-ponyta-huella t3-ponyta-fresca'+az+'">'+'<ellipse class="t3-ponyta-h-halo" cx="0" rx="14" ry="13" fill="url(#'+uid+(h.az?"ga":"g")+')"/>'+'<path class="t3-ponyta-h-brillo" d="'+PISADA+'" filter="url(#'+uid+'b)"/>'+'<g class="t3-ponyta-h-suela">'+SUELA+"</g>"+'<path class="t3-ponyta-h-carbon" d="'+PISADA+'" filter="url(#'+uid+'f)"/>'+
 (h.amor?"":ranilla)+centro+'<path class="t3-ponyta-h-ascua" d="'+PISADA_ASCUA+'"/>'+chispa+"</g></g>"+'<g transform="translate('+p.x+" "+(p.y-6)+')"><path class="t3-ponyta-h-humo" d="M0 0C-5-7 4-12 0-19-4-25 3-30 0-37"/></g>');}else{(h.az?halosAz:halos).push('<ellipse '+t+' cx="0" rx="14" ry="13"/>');(h.az?carbonesAz:carbones).push('<path '+t+' d="'+PISADA+'"/>');suelas.push('<g '+t+(h.az?' class="t3-ponyta-azul"':"")+">"+SUELA+"</g>");detalles.push('<g '+t+' data-i="'+i+'" class="t3-ponyta-huella'+az+'">'+(h.amor?"":ranilla)+centro+'<path class="t3-ponyta-h-ascua" d="'+PISADA_ASCUA+'"/>'+chispa+"</g>");}}
-cajaH.innerHTML='<svg class="t3-ponyta-huellas-svg" viewBox="0 0 '+W+" "+D.H+'" width="'+W+'" height="'+D.H+'" aria-label="huellas quemadas en la hoja" role="img">'+"<defs>"+'<radialGradient id="'+uid+'g"><stop offset="0" stop-color="#6E3A14" stop-opacity=".34"/><stop offset=".5" stop-color="#9A6230" stop-opacity=".16"/><stop offset="1" stop-color="#9A6230" stop-opacity="0"/></radialGradient>'+'<radialGradient id="'+uid+'ga"><stop offset="0" stop-color="#1E2F5E" stop-opacity=".34"/><stop offset=".5" stop-color="#5C8DF0" stop-opacity=".2"/><stop offset="1" stop-color="#8FC9FF" stop-opacity="0"/></radialGradient>'+'<filter id="'+uid+'f" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="1.8" xChannelSelector="R" yChannelSelector="G"/></filter>'+'<filter id="'+uid+'b" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.6"/></filter>'+"</defs>"+'<path class="t3-ponyta-sendero" d="'+D.linea+'"/>'+'<g class="t3-ponyta-h-halos" fill="url(#'+uid+'g)">'+halos.join("")+"</g>"+'<g class="t3-ponyta-h-halos" fill="url(#'+uid+'ga)">'+halosAz.join("")+"</g>"+'<g class="t3-ponyta-h-suelas" filter="url(#'+uid+'f)">'+suelas.join("")+"</g>"+'<g class="t3-ponyta-h-carbones" filter="url(#'+uid+'f)">'+carbones.join("")+"</g>"+'<g class="t3-ponyta-h-carbones t3-ponyta-h-carbones-az" filter="url(#'+uid+'f)">'+carbonesAz.join("")+"</g>"+
+try{if(T3.herraduras&&T3.herraduras.tapas)encima.unshift(T3.herraduras.tapas(desde,n,function(k){return tr(D.pos(k-desde));}));}catch(e){}cajaH.innerHTML='<svg class="t3-ponyta-huellas-svg" viewBox="0 0 '+W+" "+D.H+'" width="'+W+'" height="'+D.H+'" aria-label="huellas quemadas en la hoja" role="img">'+"<defs>"+'<radialGradient id="'+uid+'g"><stop offset="0" stop-color="#6E3A14" stop-opacity=".34"/><stop offset=".5" stop-color="#9A6230" stop-opacity=".16"/><stop offset="1" stop-color="#9A6230" stop-opacity="0"/></radialGradient>'+'<radialGradient id="'+uid+'ga"><stop offset="0" stop-color="#1E2F5E" stop-opacity=".34"/><stop offset=".5" stop-color="#5C8DF0" stop-opacity=".2"/><stop offset="1" stop-color="#8FC9FF" stop-opacity="0"/></radialGradient>'+'<filter id="'+uid+'f" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="1.8" xChannelSelector="R" yChannelSelector="G"/></filter>'+'<filter id="'+uid+'b" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.6"/></filter>'+"</defs>"+'<path class="t3-ponyta-sendero" d="'+D.linea+'"/>'+'<g class="t3-ponyta-h-halos" fill="url(#'+uid+'g)">'+halos.join("")+"</g>"+'<g class="t3-ponyta-h-halos" fill="url(#'+uid+'ga)">'+halosAz.join("")+"</g>"+'<g class="t3-ponyta-h-suelas" filter="url(#'+uid+'f)">'+suelas.join("")+"</g>"+'<g class="t3-ponyta-h-carbones" filter="url(#'+uid+'f)">'+carbones.join("")+"</g>"+'<g class="t3-ponyta-h-carbones t3-ponyta-h-carbones-az" filter="url(#'+uid+'f)">'+carbonesAz.join("")+"</g>"+
 detalles.join("")+encima.join("")+"</svg>";}
 pintarHuellas(-1);var ro=null,anchoH=cajaH.clientWidth;if(window.ResizeObserver){ro=new ResizeObserver(function(){var w=cajaH.clientWidth;if(Math.abs(w-anchoH)>2){anchoH=w;pintarHuellas(-1);}});ro.observe(cajaH);}
 var volver=raiz.querySelector(".t3-ponyta-volver");if(volver)volver.addEventListener("click",function(){if(st.corriendo)return;clase("desevoluciona",true);T3.sonido("deseo",.6);luego(function(){evolucionar(false);var nueva=pagina(host,op);if(nueva&&nueva._raiz){nueva._raiz.classList.add("t3-ponyta-recien");}},R?50:900);});function destello(){var pts=[[40,40],[150,10],[250,60],[270,170],[20,150],[130,230],[205,120]];T3.sonido("deseo",.8);pts.forEach(function(q,i){luego(function(){var p=puntoPony(q[0],q[1]);particula(ESTRELLA,"t3-ponyta-estrella",p[0]-10,p[1]-10,900);},i*95);});}
@@ -10103,7 +10131,7 @@ if(t>st.proxCola){colita();st.proxCola=t+azarN(6500,12000);}},250);var io=null;i
 if(AUS){}else if(T3.esDeNoche()){st.duerme=true;clase("duerme",true);}
 else{if(shiny&&!R)luego(destello,350);luego(function(){decir();},shiny?1300:650);}
 function desmontar(){if(!st.vivo)return;st.vivo=false;terminarGesto();if(st.estela)st.estela();clearInterval(vida);st.timers.forEach(clearTimeout);st.timers=[];st.anims.forEach(function(a){try{a.cancel();}catch(e){}});if(io)io.disconnect();if(ro)ro.disconnect();vivos=vivos.filter(function(v){return v!==yo;});if(host._t3ponyta===ctl)host._t3ponyta=null;}
-var yo={raiz:raiz,saltar:function(){if(!st.duerme&&!st.corriendo)saltar();},orejita:orejita};vivos.push(yo);var ctl={_raiz:raiz,desmontar:desmontar,correr:correr,dormir:dormir,despertar:despertar,decir:decir,callar:callar,_congelar:function(){st.congelado=true;raiz.getAnimations&&raiz.getAnimations({subtree:true}).forEach(function(a){try{a.pause();}catch(e){}});st.anims.forEach(function(a){try{a.pause();}catch(e){}});st.timers.forEach(clearTimeout);st.timers=[];clase("congelada",true);},_estado:st};host._t3ponyta=ctl;ctl._pou={particula:particula,rectEn:rectEn,pulso:pulso,saltar:saltar,bicho:bicho,esRapi:esRapi};try{if(T3.pou&&T3.pou.montar)T3.pou.montar(ctl,host,op);}catch(e){}try{if(T3.ropa&&T3.ropa.adornar)T3.ropa.adornar(ctl,host,op);}catch(e){}return ctl;}
+var yo={raiz:raiz,saltar:function(){if(!st.duerme&&!st.corriendo)saltar();},orejita:orejita};vivos.push(yo);var ctl={_raiz:raiz,desmontar:desmontar,correr:correr,dormir:dormir,despertar:despertar,decir:decir,callar:callar,_congelar:function(){st.congelado=true;raiz.getAnimations&&raiz.getAnimations({subtree:true}).forEach(function(a){try{a.pause();}catch(e){}});st.anims.forEach(function(a){try{a.pause();}catch(e){}});st.timers.forEach(clearTimeout);st.timers=[];clase("congelada",true);},_estado:st};host._t3ponyta=ctl;ctl._pou={particula:particula,rectEn:rectEn,pulso:pulso,saltar:saltar,bicho:bicho,esRapi:esRapi,rastro:function(){pintarHuellas(-1);}};try{if(T3.pou&&T3.pou.montar)T3.pou.montar(ctl,host,op);}catch(e){}try{if(T3.ropa&&T3.ropa.adornar)T3.ropa.adornar(ctl,host,op);}catch(e){}try{if(T3.herraduras&&T3.herraduras.montar)T3.herraduras.montar(ctl,host,op);}catch(e){}return ctl;}
 function dibujosEscena(shiny,esRapi){var s=[];[[40,338,1],[104,352,.8],[168,346,.7],[238,330,1],[300,350,.9],[330,322,.7],[20,360,.6]].forEach(function(t){var x=t[0],y=t[1],k=t[2];s.push('<path class="t3-ponyta-pasto" d="M'+(x-7*k)+" "+y+"q"+(2*k)+" "+(-7*k)+" "+(4*k)+" "+(-11*k)+"M"+(x-1)+" "+y+"q"+(-1*k)+" "+(-9*k)+" "+(1*k)+" "+(-15*k)+"M"+(x+4*k)+" "+y+"q"+(1*k)+" "+(-6*k)+" "+(6*k)+" "+(-9*k)+'"/>');});s.push('<g class="t3-ponyta-flor" transform="translate(322 334) rotate(-8)"><path d="M0 2V18"/><circle r="2.2"/>'+
 [0,60,120,180,240,300].map(function(a){return'<ellipse rx="2.3" ry="4.4" transform="rotate('+a+') translate(0 -6)"/>';}).join("")+"</g>");if(!esRapi){var crin=aEscena(106,34),lomo=aEscena(168,142),nariz=aEscena(10,124),cabeza=aEscena(40,70);s.push('<g class="t3-ponyta-nota t3-ponyta-de-dia">'+'<text x="232" y="52" transform="rotate(-2 232 52)"><tspan class="t3-ponyta-nota-t">la melena</tspan>'+
 (shiny?'<tspan x="232" dy="19">hoy salió azul.</tspan><tspan x="232" dy="19">pasale el dedo</tspan>':'<tspan x="232" dy="19">pasale el dedo</tspan>')+"</text>"+
@@ -14515,6 +14543,8 @@ T3.pedidos=T3.tienda;
      Dos sobres de bienvenida, uno por día (se juntan hasta 3 si no
      entra), uno extra por ganar el juego del día, y 6 repetidas
      valen otro.
+     Aparte están los SOBRES DE HERRADURAS (T3.herraduras los da con
+     T3.tcg.darNola()): traen una sola carta, y sí o sí es una nola.
    DUELO · con 10 cartas distintas se puede jugar contra "el
      programador". El mazo son 10 de sus cartas, al azar; él juega
      con cartas que ella ya tiene (no le adelanta ninguna).
@@ -14641,11 +14671,12 @@ function opc(mas){
 function carta(c){return M().cartaHTML(c,opc());}
 function mini(c){return M().cartaHTML(c,opc({solo:true,perezosa:true,fotos:U.asset("tcg/mini/")}));}
 function dorso(){return M().dorsoHTML(opc());}
-function sobre(n){
+/* nola: el sobre de herraduras (una carta, que no tiene) */
+function sobre(n,nola){
   return '<span class="t3x-sobre-tira" aria-hidden="true"></span>'+
     '<span class="t3x-sobre-cuerpo"><img class="t3x-sobre-logo" src="'+esc(opc().logo)+'" alt="Mafia TCG" draggable="false">'+
-    '<span class="t3x-sobre-set">'+POR_SOBRE+' cartas</span>'+
-    '<span class="t3x-sobre-n">'+(n?'sobre Nº '+String(n).padStart(4,"0"):'MafiaTCG')+'</span></span>';
+    '<span class="t3x-sobre-set">'+(nola?'1 nola':POR_SOBRE+' cartas')+'</span>'+
+    '<span class="t3x-sobre-n">'+(nola?'de herraduras':n?'sobre Nº '+String(n).padStart(4,"0"):'MafiaTCG')+'</span></span>';
 }
 
 /* ---------------- estado y reglas ---------------- */
@@ -14655,6 +14686,7 @@ function estado(){
   if(!e.cartas||typeof e.cartas!=="object")e.cartas={};
   if(!Array.isArray(e.bonos))e.bonos=[];
   e.sobres=Math.max(0,+e.sobres||0);
+  e.nolas=Math.max(0,Math.floor(+e.nolas||0));      /* sobres de herraduras sin abrir */
   e.abiertos=+e.abiertos||0;
   e.sinNueva=+e.sinNueva||0;
   e.sinFull=+e.sinFull||0;
@@ -14689,7 +14721,7 @@ function ponerAlDia(e){
 function haySobre(){
   try{
     var e=estado();
-    return e.sobres>0||!e.inicio||e.entrega<T3.hoy||bonosPendientes(e).length>0;
+    return e.sobres>0||e.nolas>0||!e.inicio||e.entrega<T3.hoy||bonosPendientes(e).length>0;
   }catch(x){return false;}
 }
 function tiene(e,id){return !!(e.cartas[id]&&e.cartas[id].n>0);}
@@ -14740,6 +14772,24 @@ function tirar(e,azar){
   if(!e.completo&&tengo(e)>=TOTAL)e.completo=T3.hoy;
   return res;
 }
+/* el sobre de herraduras: una sola carta, que sí o sí es una que no tiene (cualquiera, normal o full art).
+   Si ya las tiene todas (no debería pasar: darNola no deja), sale una cualquiera. */
+function tirarNola(e,azar){
+  azar=azar||Math.random;
+  var faltan=CARTAS.filter(function(c){return !tiene(e,c.id);});
+  var pozo=faltan.length?faltan:CARTAS;
+  var c=pozo[Math.min(pozo.length-1,Math.floor(azar()*pozo.length))];
+  var tenia=tiene(e,c.id);
+  var a=e.cartas[c.id]||{n:0,f:T3.hoy};
+  a.n=(+a.n||0)+1;if(!a.f)a.f=T3.hoy;
+  e.cartas[c.id]=a;
+  e.nolas=Math.max(0,(+e.nolas||0)-1);
+  e.nolasAbiertas=(+e.nolasAbiertas||0)+1;
+  if(!tenia)e.sinNueva=0;
+  if(c.formato==="full")e.sinFull=0;
+  if(!e.completo&&tengo(e)>=TOTAL)e.completo=T3.hoy;
+  return [{id:c.id,nueva:!tenia}];
+}
 function canjear(e){
   if(repes(e)<REPES)return false;
   var quedan=REPES;
@@ -14774,6 +14824,28 @@ function anotarDuelo(e,r){
 }
 /* ---- los MafiaPoints: lo que usa la tienda ---- */
 function puntos(){try{return estado().mp;}catch(x){return 0;}}
+/* suma puntos que no vienen de un duelo (canjear herraduras). Devuelve cuántos tiene ahora */
+function sumar(n){
+  n=Math.max(0,Math.round(+n||0));
+  var e=estado();
+  e.mp+=n;e.mpTotal=(+e.mpTotal||0)+n;
+  guardar(e);
+  if(paginaViva)paginaViva();
+  return e.mp;
+}
+/* ---- los sobres de herraduras ---- */
+/* cuántas cartas le faltan, sin contar las que ya le van a tocar en los sobres de herraduras que tiene sin abrir */
+function faltan(){try{var e=estado();return Math.max(0,TOTAL-tengo(e)-e.nolas);}catch(x){return 0;}}
+/* le deja un sobre de herraduras en la pestaña. No lo da si ya no le quedan cartas por conseguir */
+function darNola(){
+  if(faltan()<1)return false;
+  var e=estado();
+  e.nolas++;
+  guardar(e);
+  marcarPestana();
+  if(paginaViva)paginaViva();
+  return true;
+}
 function gastar(n){
   n=Math.max(0,Math.round(+n||0));
   var e=estado();
@@ -14843,7 +14915,9 @@ function filaTaller(fila){
   var e=estado(),ac=[["tcg-duelo","duelo de prueba"]];
   if(enMaquina()&&tengo(e)<TOTAL)ac.push(["tcg-todas","darme todas"]);
   if(enMaquina())ac.push(["tcg-puntos","+1000 puntos"]);
-  return fila("cartas",(enMaquina()?"en este viaje, ":"")+tengo(e)+" de "+TOTAL+" · "+e.mp+" MafiaPoints",ac);
+  var H=T3.herraduras;
+  if(enMaquina()&&H&&H.activo&&H.activo())ac.push(["tcg-herraduras","+50 herraduras"]);
+  return fila("cartas",(enMaquina()?"en este viaje, ":"")+tengo(e)+" de "+TOTAL+" · "+e.mp+" MafiaPoints"+(H&&H.sueltas?" · "+H.sueltas()+" herraduras":""),ac);
 }
 function clicTaller(que,t){
   if(que==="tcg-duelo"){
@@ -14855,6 +14929,12 @@ function clicTaller(que,t){
   }else if(que==="tcg-puntos"){
     if(darPuntos(1000)){t.decir("listo, 1000 MafiaPoints más para probar la tienda. se van cuando salgas de la máquina.");if(t.repintar)t.repintar();}
     else t.decir("eso anda solo adentro de la máquina: viajá a un día primero.");
+  }else if(que==="tcg-herraduras"){
+    /* herraduras de regalo, para probar el canje: solo adentro de la máquina */
+    if(enMaquina()&&T3.herraduras){
+      var s=T3.leer("stats",{});s.huellas=T3.herraduras.total()+50;T3.guardar("stats",s);
+      t.decir("listo, 50 herraduras más. se canjean en la solapa de Ponyta, y se van cuando salgas de la máquina.");if(t.repintar)t.repintar();
+    }else t.decir("eso anda solo adentro de la máquina: viajá a un día primero.");
   }
 }
 
@@ -14900,6 +14980,12 @@ function pagina(host){
         '<div class="t3x-tcg-lado"><p class="t3x-tcg-hay">Mañana hay otro<small>'+(falta?"ganá el juego de hoy y te doy uno extra":"uno por día. sin apuro.")+'</small></p></div>';
     }
     h+='</section>';
+    if(e.nolas>0){
+      h+='<section class="t3x-tcg-mesa t3x-tcg-mesa-nola"><button type="button" class="t3x-sobre t3x-sobre-nola t3x-tcg-sobre" data-tcg="abrir-nola" aria-label="Abrir un sobre de herraduras">'+sobre(0,true)+
+        (e.nolas>1?'<span class="t3x-sobre-cuantos">×'+e.nolas+'</span>':'')+'</button>'+
+        '<div class="t3x-tcg-lado"><p class="t3x-tcg-hay">'+(e.nolas===1?"Un sobre de herraduras":e.nolas+" sobres de herraduras")+'<small>una carta sola. nola, seguro.</small></p>'+
+        '<button type="button" class="mq-boton t3x-tcg-abrir-nola" data-tcg="abrir-nola">Abrir</button></div></section>';
+    }
     if(!e.abiertos)h+='<p class="t3x-tcg-nota">Lo prometido: MafiaTCG. Un sobre por día; si ganás el juego del día, otro. Con '+MINIMO+' cartas se puede jugar. '+({5:"Cinco",6:"Seis",7:"Siete",8:"Ocho"}[REPES]||REPES)+' repetidas valen un sobre más.</p>';
     if(rp>0){
       h+='<p class="t3x-tcg-repes">'+(rp===1?"1 repetida":rp+" repetidas")+' <small>'+REPES+' = un sobre</small>'+
@@ -15015,19 +15101,20 @@ function pagina(host){
   }
 
   /* ---- abrir un sobre ---- */
-  function abrir(){
-    if(capa||arena||e.sobres<1)return;
+  /* nola = true: abre un sobre de herraduras (una carta) en vez de uno común */
+  function abrir(nola){
+    if(capa||arena||(nola?e.nolas<1:e.sobres<1))return;
     var numero=e.abiertos+1;
     var antes=tengo(e);
-    var tirada=tirar(e);
+    var tirada=nola?tirarNola(e):tirar(e);
     guardar(e);                                   /* queda anotado antes de la animación */
-    T3.stat("tcg-sobres");
+    T3.stat(nola?"tcg-nolas":"tcg-sobres");
     T3.stat("tcg-nuevas",tirada.filter(function(x){return x.nueva;}).length);
     marcarPestana();
     var R=U.reducido();
     var ap=U.el('<div class="t3x-apertura t3x-ocupa" role="dialog" aria-label="Abrir un sobre">'+
-      '<p class="t3x-ap-rotulo">sobre Nº '+String(numero).padStart(4,"0")+' · MafiaTCG</p>'+
-      '<div class="t3x-ap-escena"><button type="button" class="t3x-sobre t3x-ap-sobre" aria-label="Abrir el sobre">'+sobre(numero)+'</button>'+
+      '<p class="t3x-ap-rotulo">'+(nola?'sobre de herraduras':'sobre Nº '+String(numero).padStart(4,"0"))+' · MafiaTCG</p>'+
+      '<div class="t3x-ap-escena"><button type="button" class="t3x-sobre t3x-ap-sobre'+(nola?" t3x-sobre-nola":"")+'" aria-label="Abrir el sobre">'+sobre(numero,nola)+'</button>'+
       '<div class="t3x-ap-fila">'+tirada.map(function(x,i){
         var c=POR_ID[x.id];
         return '<div class="t3x-ap-lugar"><div class="t3x-ap-carta t3x-ap-'+c.formato+'" data-i="'+i+'" role="button" tabindex="0" aria-label="carta '+(i+1)+', boca abajo">'+
@@ -15140,6 +15227,7 @@ function pagina(host){
     if(!b||!vivo)return;
     var que=b.getAttribute("data-tcg");
     if(que==="abrir")abrir();
+    else if(que==="abrir-nola")abrir(true);
     else if(que==="ver")ver(b.getAttribute("data-id"));
     else if(que==="duelo")jugar(true);
     else if(que==="duelo-nuevo")jugar(false);
@@ -15164,8 +15252,8 @@ T3.tcg={
   activo:function(){return X.estrenado();},
   haySobre:haySobre,pagina:pagina,alGanar:alGanar,CARTAS:CARTAS,
   probarDuelo:probarDuelo,filaTaller:filaTaller,clicTaller:clicTaller,
-  puntos:puntos,gastar:gastar,POR_VICTORIA:POR_VICTORIA,DUELOS_POR_DIA:DUELOS_POR_DIA,
-  _prueba:{opciones:PRUEBA,estado:estado,guardar:guardar,ponerAlDia:ponerAlDia,tirar:tirar,repes:repes,canjear:canjear,tengo:tengo,carta:carta,dorso:dorso,
+  puntos:puntos,gastar:gastar,sumar:sumar,darNola:darNola,faltan:faltan,POR_VICTORIA:POR_VICTORIA,DUELOS_POR_DIA:DUELOS_POR_DIA,
+  _prueba:{opciones:PRUEBA,estado:estado,guardar:guardar,ponerAlDia:ponerAlDia,tirar:tirar,tirarNola:tirarNola,repes:repes,canjear:canjear,tengo:tengo,carta:carta,dorso:dorso,
     anotarDuelo:anotarDuelo,duelosHoy:duelosHoy,quedanDuelos:quedanDuelos,arrancarDuelo:arrancarDuelo,darPuntos:darPuntos,
     repintar:function(){if(paginaViva)paginaViva();},
     TOTAL:TOTAL,MINIMO:MINIMO,DUELOS_POR_DIA:DUELOS_POR_DIA,POR_SOBRE:POR_SOBRE,POR_VICTORIA:POR_VICTORIA,LL:LL,LL_DUELO:LL_DUELO}
@@ -17159,6 +17247,166 @@ function alMimo(){
 
 T3.pou={activo:activo,montar:montar,alDespertar:alDespertar,alDormir:alDormir,alMimo:alMimo,
   _prueba:{estado:estado,guardar:guardar,alDia:alDia,horasDeNoche:horasDeNoche,peor:peor,BAJA:BAJA,DESCANSA:DESCANSA,NIGIRI:NIGIRI,CORAZON:CORAZON,POCO:POCO,DE_ENTRADA:DE_ENTRADA,ORDEN:ORDEN,LL:LL}};
+})();
+
+/* ------------------------------------------------------------
+   CANJEAR HERRADURAS · T3.herraduras  (pedido de Mati, 24/11/2026)
+   Las herraduras son las marcas que Ponyta deja quemadas en su
+   solapa ("Lo que va dejando"): UNA POR DÍA, la primera vez que
+   la hacen correr ese día.
+   Cada CADA (50) se canjean por una de dos cosas, a elección:
+     · un sobre de MafiaTCG con una sola carta, que sí o sí es
+       una nola (T3.tcg.darNola()), o
+     · PUNTOS (250) MafiaPoints (T3.tcg.sumar()).
+   Las marcas no se borran de la hoja: las que ya se canjearon
+   (las más viejas) quedan apagadas, y la cuenta dice cuántas hay
+   sin canjear.
+   Los dos números se cambian en CONFIG.t3.herraduras.
+   Guarda en pv-t3-herraduras: {canjes, log:[{f, por}]}
+
+   El módulo de Ponyta (minificado) avisa cuando arma su solapa
+   (T3.herraduras.montar) y cada vez que vuelve a dibujar las
+   marcas (T3.herraduras.tapas, que además refresca la cuenta).
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var X=T3.x,U=T3.util,esc=X.esc,CH=(T3.config||{}).herraduras||{};
+var LL="herraduras";
+var CADA=CH.cada>0?Math.round(+CH.cada):50;
+var PUNTOS=CH.puntos>=0?Math.round(+CH.puntos):250;
+var HERRADURA='<g transform="translate(24 25) scale(2.1)" stroke-width=".86"><path d="M-6.2 6.8C-8.7 .4-6.9-8.4 0-8.9 6.9-8.4 8.7.4 6.2 6.8"/><circle cx="-6.6" cy="3" r=".5"/><circle cx="-6" cy="-3.6" r=".5"/><circle cx="6.6" cy="3" r=".5"/><circle cx="6" cy="-3.6" r=".5"/></g>';
+X.DIB.herradura=HERRADURA;
+
+function activo(){return X.estrenado()&&!!(T3.tcg&&T3.tcg.sumar&&T3.tcg.darNola);}
+/* cuántas dejó en total (lo mismo que cuenta su solapa) */
+function total(){
+  var n=0,d=0;
+  try{n=+(T3.stats().huellas)||0;}catch(e){}
+  try{d=T3.conjunto("ponyta-huellas-dias").length;}catch(e){}
+  return Math.max(n,d);
+}
+function libro(){
+  var l=null;
+  try{l=T3.leer(LL,null);}catch(e){}
+  if(!l||typeof l!=="object")l={};
+  l.canjes=Math.max(0,Math.floor(+l.canjes||0));
+  if(!Array.isArray(l.log))l.log=[];
+  return l;
+}
+function gastadas(){return Math.min(total(),libro().canjes*CADA);}
+function sueltas(){return Math.max(0,total()-libro().canjes*CADA);}
+function puede(){return sueltas()>=CADA;}
+function hayNola(){try{return T3.tcg.faltan()>0;}catch(e){return false;}}
+/* por: "nola" (el sobre de una carta) o "puntos". Devuelve true si se hizo */
+function canjear(por){
+  if(!activo()||!puede())return false;
+  if(por==="nola"){if(!T3.tcg.darNola())return false;}
+  else if(por==="puntos")T3.tcg.sumar(PUNTOS);
+  else return false;
+  var l=libro();
+  l.canjes++;l.log.push({f:T3.hoy,por:por});
+  if(l.log.length>100)l.log=l.log.slice(-100);
+  T3.guardar(LL,l);
+  T3.stat("herraduras-canjes");T3.stat("herraduras-"+por);
+  return true;
+}
+/* las marcas ya canjeadas quedan apagadas: un velo del color del papel encima de cada una.
+   Lo pide el módulo de Ponyta al dibujarlas: de qué índice a cuál dibuja, y cómo se ubica cada una */
+function tapas(desde,n,tr){
+  var g=gastadas(),h="";
+  for(var i=desde;i<n&&i<g;i++)h+='<circle class="t3x-herr-tapa" '+tr(i)+' r="13"/>';
+  setTimeout(refrescar,0);
+  return h;
+}
+
+/* ---- el renglón en su solapa ---- */
+function fila(){
+  var s=sueltas(),ok=s>=CADA;
+  return '<span class="t3x-herr-n">'+X.dib("herradura","t3x-dib t3x-herr-dib")+'<b>'+s+'</b><i>sin canjear</i></span>'+
+    '<button type="button" class="t3x-herr-boton'+(ok?"":" t3x-herr-falta")+'" data-herr="abrir"'+(ok?"":' aria-disabled="true"')+'>'+(ok?"Canjear "+CADA:"faltan "+(CADA-s))+'</button>';
+}
+function refrescar(){
+  try{
+    [].forEach.call(document.querySelectorAll(".t3x-herr"),function(d){
+      var f=d.querySelector(".t3x-herr-fila");
+      if(f)f.innerHTML=fila();
+    });
+  }catch(e){}
+}
+var capa=null;
+function cerrar(){
+  if(!capa)return;
+  var c=capa;capa=null;
+  c.classList.remove("t3x-ver");
+  setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},240);
+}
+function hoja(){
+  cerrar();
+  var s=sueltas(),nola=hayNola();
+  capa=U.el('<div class="t3x-compra t3x-herr-hoja t3x-ocupa" role="dialog" aria-label="Canjear herraduras"><div class="t3x-compra-papel">'+
+    '<p class="t3x-compra-rot">'+CADA+' herraduras</p>'+X.dib("herradura","t3x-dib t3x-compra-dib")+
+    '<h3>¿Por qué las cambiás?</h3><p class="t3x-compra-dice">Tenés '+s+' sin canjear. Las marcas quedan en la hoja: no se borran.</p>'+
+    '<div class="t3x-herr-opciones">'+
+    '<button type="button" class="t3x-boton'+(nola?"":" t3x-inactivo")+'" data-herr="nola"'+(nola?"":" disabled")+'>'+(nola?"Un sobre con una nola":"Un sobre con una nola (ya tenés todas)")+'</button>'+
+    '<button type="button" class="t3x-boton" data-herr="puntos">'+PUNTOS+' MafiaPoints</button>'+
+    '<button type="button" class="t3x-boton t3x-boton-claro" data-herr="cerrar">Mejor no</button></div></div></div>');
+  X.raiz().appendChild(capa);
+  var c=capa;
+  capa.addEventListener("click",function(ev){
+    if(capa!==c)return;
+    if(!ev.target.closest(".t3x-compra-papel")){cerrar();return;}
+    var b=ev.target.closest("[data-herr]");
+    if(!b||b.disabled)return;
+    var que=b.getAttribute("data-herr"),papel=c.querySelector(".t3x-compra-papel");
+    if(que==="cerrar"){cerrar();return;}
+    if(que==="ir-tcg"||que==="ir-tienda"){cerrar();try{T3.cuaderno.abrir(que==="ir-tcg"?"tcg":"pedidos");}catch(e){}return;}
+    if(que!=="nola"&&que!=="puntos")return;
+    if(!canjear(que)){cerrar();refrescar();return;}
+    T3.sonido("exito",.9);U.vibrar(24);
+    try{U.confeti({cantidad:70});}catch(e){}
+    try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+    papel.innerHTML='<p class="t3x-compra-rot">'+CADA+' herraduras</p>'+X.dib("herradura","t3x-dib t3x-compra-dib")+
+      (que==="nola"
+        ?'<h3>Hay sobre</h3><p class="t3x-compra-dice">Te espera en el TCG: trae una sola carta, y es nola seguro.</p>'+
+          '<button type="button" class="t3x-boton" data-herr="ir-tcg">Ir a abrirlo</button>'
+        :'<h3>+'+PUNTOS+' MafiaPoints</h3><p class="t3x-compra-dice">Ahora tenés '+T3.tcg.puntos()+'.</p>'+
+          '<button type="button" class="t3x-boton" data-herr="ir-tienda">Ir a la tienda</button>')+
+      '<button type="button" class="t3x-boton t3x-boton-claro" data-herr="cerrar">Seguir acá</button>';
+    refrescar();
+    /* las marcas canjeadas se apagan: se vuelve a dibujar el rastro */
+    try{window.dispatchEvent(new Event("t3x-herraduras"));}catch(e){}
+  });
+  requestAnimationFrame(function(){if(capa===c)c.classList.add("t3x-ver");});
+  T3.sonido("papel",.6);
+}
+/* el módulo de Ponyta avisa cuando arma su solapa: se suma el renglón arriba del rastro */
+function montar(ctl,host,op){
+  if(!ctl||!ctl._raiz||(op&&op.papel===false)||!activo())return;
+  if(T3.viaje&&T3.viaje.ausente&&T3.viaje.ausente())return;
+  var rastro=ctl._raiz.querySelector(".t3-ponyta-rastro"),rot=rastro&&rastro.querySelector(".t3-ponyta-rotulo");
+  if(!rot||rastro.querySelector(".t3x-herr"))return;
+  rot.insertAdjacentHTML("afterend",'<div class="t3x-herr"><div class="t3x-herr-fila">'+fila()+'</div>'+
+    '<p class="t3x-herr-nota t3-ponyta-lapiz">'+CADA+' = un sobre con una nola, o '+PUNTOS+' MafiaPoints</p></div>');
+  var caja=rastro.querySelector(".t3x-herr");
+  caja.addEventListener("click",function(ev){
+    var b=ev.target.closest('[data-herr="abrir"]');
+    if(!b)return;
+    if(!puede()){
+      T3.sonido("tic",.5);
+      X.aviso("te faltan "+(CADA-sueltas())+". deja una por día, la primera vez que corre.");
+      return;
+    }
+    hoja();
+  });
+  /* después de un canje, que el rastro se vuelva a dibujar (así se apagan las canjeadas) */
+  var repintar=function(){if(!caja.isConnected){window.removeEventListener("t3x-herraduras",repintar);return;}try{if(ctl._pou&&ctl._pou.rastro)ctl._pou.rastro();}catch(e){}};
+  window.addEventListener("t3x-herraduras",repintar);
+}
+
+T3.herraduras={activo:activo,montar:montar,tapas:tapas,refrescar:refrescar,total:total,sueltas:sueltas,gastadas:gastadas,canjear:canjear,CADA:CADA,PUNTOS:PUNTOS,
+  _prueba:{libro:libro,puede:puede,hayNola:hayNola,LL:LL}};
 })();
 
 /* ------------------------------------------------------------

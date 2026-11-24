@@ -1,5 +1,6 @@
 /* Laboratorio · MafiaTCG: el duelo contra el programador, jugado tocando la pantalla como lo haría ella.
-   Duelos enteros, MafiaPoints, salir y seguir después (también tras recargar), rendirse y el tope de duelos con puntos. */
+   Duelos enteros, MafiaPoints (10 por ganar, 0 por perder), salir y seguir después (también tras recargar), rendirse
+   y el tope de 2 duelos por día (el duelo se cuenta cuando arranca). */
 const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 (async()=>{
@@ -13,7 +14,9 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   const alTcg=async pg=>{await pg.evaluate(()=>T3.cuaderno.abrir("tcg"));await pg.waitForTimeout(1300);};
   const opciones=(pg,o)=>pg.evaluate(o=>{const P=T3.tcg._prueba.opciones;Object.keys(P).forEach(k=>delete P[k]);Object.assign(P,o);window.__son=[];P.alSonar=function(n){window.__son.push(n);};},o);
   const leer=pg=>pg.evaluate(()=>({e:T3.leer("tcg2"),duelo:!!T3.leer("tcg2-duelo",null),boton:((document.querySelector('.mq-boton[data-tcg="duelo"]')||{}).innerText||"").trim(),
-    otro:!!document.querySelector('[data-tcg="duelo-nuevo"]'),puntos:((document.querySelector(".mq-puntos b")||{}).innerText||"").trim(),chico:((document.querySelector(".mq-chico")||{}).innerText||"").trim(),arena:!!document.querySelector(".ar-capa")}));
+    otro:!!document.querySelector('[data-tcg="duelo-nuevo"]'),manana:((document.querySelector(".mq-manana")||{}).innerText||"").trim(),puntos:((document.querySelector(".mq-puntos b")||{}).innerText||"").trim(),chico:((document.querySelector(".mq-chico")||{}).innerText||"").trim(),arena:!!document.querySelector(".ar-capa")}));
+  /* para las pruebas que necesitan arrancar varios duelos: deja en n los que ya se jugaron hoy y vuelve a pintar la pestaña */
+  const jugadosHoy=async(pg,n)=>{await pg.evaluate(n=>{const P=T3.tcg._prueba,e=P.estado();e.dia=T3.hoy;e.diaN=n;P.guardar(e);P.repintar();},n);await pg.waitForTimeout(150);};
   /* juega hasta el final con una estrategia simple: bajar cartas, poner la energía, pegar con lo más caro que se pueda */
   async function jugar(pg){
     let vueltas=0,ataques=0,energias=0,bajadas=0,subidas=0;
@@ -39,7 +42,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     return {vueltas,ataques,energias,bajadas,subidas,gano:/ganaste/i.test(await pg.locator(".ar-final h2").innerText()),
       cuenta:await pg.locator(".ar-cuenta").count(),total:await pg.locator(".ar-total b").count()?parseInt((await pg.locator(".ar-total b").innerText()).replace(/\D+/g,""),10):null,
       tenes:await pg.locator(".ar-f-tenes").count()?parseInt((await pg.locator(".ar-f-tenes").innerText()).replace(/\D+/g,""),10):null,
-      nota:await pg.locator(".ar-f-nota").count()?await pg.locator(".ar-f-nota").innerText():"",sub:await pg.locator(".ar-f-sub").innerText(),
+      nota:await pg.locator(".ar-f-nota").count()?await pg.locator(".ar-f-nota").innerText():"",sub:await pg.locator(".ar-f-sub").innerText(),otro:await pg.locator('.ar-final [data-ar="otro"]').count(),
       son:await pg.evaluate(()=>{const c={};(window.__son||[]).forEach(n=>{c[n]=(c[n]||0)+1;});return c;})};
   }
 
@@ -47,7 +50,8 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   let {ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:semilla()});
   await alTcg(pg);
   let r=await leer(pg);
-  chequear("con 12 cartas el duelo está habilitado",/A DUELO/i.test(r.boton)&&!r.otro&&/suman puntos tres duelos más/i.test(r.chico)&&/ganaste 1 de 2/i.test(r.chico)&&r.puntos==="40",r);
+  chequear("con 12 cartas el duelo está habilitado y dice que hoy quedan dos",/A DUELO/i.test(r.boton)&&!r.otro&&/hoy te quedan dos duelos/i.test(r.chico)&&/ganaste 1 de 2/i.test(r.chico)&&r.puntos==="40",r);
+  chequear("el panel dice lo que vale ganar",/Cada victoria, 10 MafiaPoints/i.test(await pg.locator(".mq-jugar").innerText()));
   await opciones(pg,{semilla:11,empieza:0});
   await pg.click('.mq-boton[data-tcg="duelo"]');
   await pg.locator(".ar-banda-duelo").waitFor({timeout:8000});
@@ -75,19 +79,21 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.evaluate(()=>{T3.tcg._prueba.opciones.rapido=.03;});
   await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="salir"]').click();await pg.waitForTimeout(700);
   r=await leer(pg);
-  chequear("salir del duelo vuelve a la carpeta y ofrece seguirlo",!r.arena&&r.duelo&&/SEGUIR EL DUELO/i.test(r.boton)&&r.otro&&r.e.jugados===2,r);
+  chequear("salir del duelo vuelve a la carpeta y ofrece seguirlo; el duelo ya gastó uno de los dos del día",!r.arena&&r.duelo&&/SEGUIR EL DUELO/i.test(r.boton)&&r.otro&&r.e.jugados===2&&r.e.diaN===1&&/hoy te queda un duelo/i.test(r.chico),r);
   await pg.click('.mq-boton[data-tcg="duelo"]');await libre(pg);
   let fin=await jugar(pg);
   await pg.screenshot({path:S+"c3-final.jpg"});
   r=await leer(pg);
   console.log("   "+(fin.gano?"ganó":"perdió")+" en "+fin.vueltas+" jugadas · "+fin.ataques+" ataques · +"+fin.total+" MafiaPoints · sonidos "+JSON.stringify(fin.son));
   chequear("el duelo se juega hasta el final",fin.ataques>=3&&fin.energias>=3&&/noque|sin cartas|tiempo/i.test(fin.sub),fin);
-  chequear("da MafiaPoints (20 o más si gana, 5 si pierde) y los suma a los que tenía",fin.cuenta===1&&(fin.gano?fin.total>=20:fin.total===5)&&fin.tenes===40+fin.total&&r.e.mp===40+fin.total,{fin:fin,mp:r.e.mp});
+  const gano1=fin.gano?10:0;
+  chequear("ganar da 10 MafiaPoints y perder no da nada",fin.gano?(fin.cuenta===1&&fin.total===10&&fin.tenes===50&&r.e.mp===50):(fin.cuenta===0&&r.e.mp===40),{fin:fin,mp:r.e.mp});
+  chequear("como queda otro duelo hoy, el final ofrece jugarlo",fin.otro===1&&!fin.nota,{otro:fin.otro,nota:fin.nota});
   chequear("anota el duelo y ajusta al rival: si ella gana juega mejor; si pierde, peor",r.e.jugados===3&&r.e.ganados===(fin.gano?2:1)&&(fin.gano?r.e.torpeza<.34:r.e.torpeza>.34)&&r.e.dia==="2026-12-05"&&r.e.diaN===1&&!r.duelo,r.e);
   chequear("suena lo que tiene que sonar",fin.son.ataque>=3&&fin.son.energia>=3&&(fin.son.golpe||0)+(fin.son.debil||0)+(fin.son.golpecito||0)>=3&&fin.son.noqueo>=2&&(fin.son.gana===1)!==(fin.son.pierde===1),fin.son);
   await pg.locator('[data-ar="cerrar"]').click();await pg.waitForTimeout(700);
   r=await leer(pg);
-  chequear("al volver, la carpeta muestra los puntos nuevos",!r.arena&&r.puntos===String(40+fin.total)&&/A DUELO/i.test(r.boton)&&/dos duelos más/i.test(r.chico)&&new RegExp("ganaste "+(fin.gano?2:1)+" de 3","i").test(r.chico),r);
+  chequear("al volver, la carpeta muestra los puntos y que queda un duelo",!r.arena&&r.puntos===String(40+gano1)&&/A DUELO/i.test(r.boton)&&/hoy te queda un duelo/i.test(r.chico)&&new RegExp("ganaste "+(fin.gano?2:1)+" de 3","i").test(r.chico),r);
 
   console.log("SALIR, RECARGAR, SEGUIR Y RENDIRSE");
   const mpAntes=r.e.mp;
@@ -98,7 +104,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.reload();await pg.waitForFunction(()=>window.T3&&document.querySelector(".t3-cuaderno-hoja"),null,{timeout:15000});await pg.waitForTimeout(1800);
   await alTcg(pg);
   r=await leer(pg);
-  chequear("un duelo a medias sobrevive a una recarga de la app",r.duelo&&/SEGUIR EL DUELO/i.test(r.boton)&&r.otro,r);
+  chequear("un duelo a medias sobrevive a una recarga de la app; como es el último del día, no ofrece dejarlo por otro",r.duelo&&/SEGUIR EL DUELO/i.test(r.boton)&&!r.otro&&r.e.diaN===2&&/es el último de hoy/i.test(r.chico),r);
   await opciones(pg,{rapido:.03});
   await pg.click('.mq-boton[data-tcg="duelo"]');await libre(pg);
   r=await pg.evaluate(()=>{const d=T3.leer("tcg2-duelo");return {turno:d.turno,activa:d.jug[0].activa.id,en:d.jug[0].activa.en,rival:d.jug[1].activa.id,banda:!!document.querySelector(".ar-banda-duelo"),energiaPuesta:!!document.querySelector(".ar-energia[disabled]")};});
@@ -113,17 +119,36 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.locator('[data-ar="reglas"]').click();
   chequear("las reglas se pueden leer desde la pausa",await pg.locator(".ar-menu ol li").count()>=6);
   await pg.locator('[data-ar="menu-cerrar"]').click();await pg.locator(".ar-pausa").click();
-  await pg.locator('[data-ar="rendirse"]').click();await pg.locator('[data-ar="rendirse-si"]').click();
+  await pg.locator('[data-ar="rendirse"]').click();
+  chequear("al rendirse avisa que el duelo cuenta igual",/cuenta como uno de los de hoy/i.test(await pg.locator(".ar-menu").innerText()));
+  await pg.locator('[data-ar="rendirse-si"]').click();
   await pg.locator(".ar-final").waitFor({timeout:8000});await pg.waitForTimeout(200);
   r=await leer(pg);
-  const rend={titulo:await pg.locator(".ar-final h2").innerText(),sub:await pg.locator(".ar-f-sub").innerText(),cuenta:await pg.locator(".ar-cuenta").count()};
-  chequear("rendirse: cuenta como duelo perdido, sin puntos y sin gastar uno de los del día",/perdiste/i.test(rend.titulo)&&/rendiste/i.test(rend.sub)&&rend.cuenta===0&&r.e.mp===mpAntes&&r.e.jugados===4&&r.e.diaN===1&&!r.duelo,{rend:rend,e:r.e});
+  const rend={titulo:await pg.locator(".ar-final h2").innerText(),sub:await pg.locator(".ar-f-sub").innerText(),cuenta:await pg.locator(".ar-cuenta").count(),
+    otro:await pg.locator('.ar-final [data-ar="otro"]').count(),nota:await pg.locator(".ar-f-nota").count()?await pg.locator(".ar-f-nota").innerText():""};
+  chequear("rendirse: cuenta como duelo perdido, sin puntos, y el duelo del día queda gastado",/perdiste/i.test(rend.titulo)&&/rendiste/i.test(rend.sub)&&rend.cuenta===0&&r.e.mp===mpAntes&&r.e.jugados===4&&r.e.diaN===2&&!r.duelo,{rend:rend,e:r.e});
+  chequear("era el último del día: el final lo dice y no ofrece revancha",rend.otro===0&&/último duelo de hoy/i.test(rend.nota)&&/mañana hay más/i.test(rend.nota),rend);
+  await pg.screenshot({path:S+"c3-ultimo.jpg"});
+  await pg.locator('[data-ar="cerrar"]').click();await pg.waitForTimeout(700);
+  r=await leer(pg);
+  chequear("con los dos duelos jugados, la carpeta no deja arrancar otro hasta mañana",!r.arena&&!r.boton&&!r.otro&&/por hoy ya está/i.test(r.manana)&&/mañana hay más/i.test(r.manana)&&/dos duelos por día/i.test(r.chico),r);
+  await pg.screenshot({path:S+"c3-manana.jpg"});
+  chequear("y por adentro tampoco: no se puede gastar un duelo que no queda",await pg.evaluate(()=>{const P=T3.tcg._prueba,e=P.estado();return P.quedanDuelos(e)===0&&P.arrancarDuelo(e)===false&&e.diaN===2;}));
+
+  console.log("REVANCHA, DEJARLO POR OTRO Y UN DUELO GUARDADO QUE YA NO SIRVE");
+  // (para estas pruebas se le devuelven duelos del día)
+  await jugadosHoy(pg,0);
+  await opciones(pg,{semilla:29,empieza:0,rapido:.03});
+  await pg.click('.mq-boton[data-tcg="duelo"]');await libre(pg);
+  await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="rendirse"]').click();await pg.locator('[data-ar="rendirse-si"]').click();
+  await pg.locator(".ar-final").waitFor({timeout:8000});await pg.waitForTimeout(200);
+  chequear("si queda otro duelo, rendirse ofrece revancha",await pg.locator('.ar-final [data-ar="otro"]').count()===1&&/revancha/i.test(await pg.locator('.ar-final [data-ar="otro"]').innerText()));
   // revancha desde el final
   await opciones(pg,{semilla:31,empieza:0,rapido:.03});
   await pg.locator('[data-ar="otro"]').click();
   await pg.waitForFunction(()=>!document.querySelector(".ar-final")&&document.querySelector('.ar[data-ocupada="0"]'),null,{timeout:20000});
-  r=await pg.evaluate(()=>({turno:T3.leer("tcg2-duelo").turno,arenas:document.querySelectorAll(".ar-capa.ar-ver").length}));
-  chequear("«revancha» arranca otro duelo de cero",r.turno<=2&&r.arenas===1,r);
+  r=await pg.evaluate(()=>({turno:T3.leer("tcg2-duelo").turno,arenas:document.querySelectorAll(".ar-capa.ar-ver").length,diaN:T3.leer("tcg2").diaN}));
+  chequear("«revancha» arranca otro duelo de cero, que gasta el segundo del día",r.turno<=2&&r.arenas===1&&r.diaN===2,r);
   /* para distinguir un duelo nuevo del que estaba a medias: al que está a medias le pongo la energía (la del frente queda con 2) */
   const ponerEnergia=async()=>{if(await pg.locator(".ar.ar-subiendo").count())return;await pg.locator(".ar-energia").click();await pg.locator(".ar.ar-energizando").waitFor();await pg.locator(".ar-ficha.ar-mia.ar-activa").click();await libre(pg);};
   const delFrente=()=>pg.evaluate(()=>{const d=T3.leer("tcg2-duelo");return {turno:d.turno,en:d.jug[0].activa?d.jug[0].activa.en:-1,usada:!!document.querySelector(".ar-energia[disabled]"),raro:JSON.stringify(d).indexOf("una-que-ya-no-existe")>=0};});
@@ -131,12 +156,15 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await ponerEnergia();r=await delFrente();
   chequear("(la energía quedó puesta en el duelo a medias)",r.en===2&&r.usada,r);
   await salir();
+  chequear("sin duelos para hoy no ofrece dejarlo por otro",!(await leer(pg)).otro);
   // dejarlo y empezar otro
+  await jugadosHoy(pg,1);
   await opciones(pg,{semilla:37,empieza:0,rapido:.03});
   await pg.click('[data-tcg="duelo-nuevo"]');await libre(pg);
   r=await delFrente();
-  chequear("«dejarlo y empezar otro» descarta el que estaba a medias",r.turno===1&&r.en===1&&!r.usada,r);
+  chequear("«dejarlo y empezar otro» descarta el que estaba a medias y gasta otro duelo",r.turno===1&&r.en===1&&!r.usada&&await pg.evaluate(()=>T3.leer("tcg2").diaN===2),r);
   await ponerEnergia();await salir();
+  await jugadosHoy(pg,1);
   // un duelo guardado con una carta que ya no existe (se cambió la lista) no rompe nada
   await pg.evaluate(()=>{const d=T3.leer("tcg2-duelo");d.jug[0].mazo.push("una-que-ya-no-existe");T3.guardar("tcg2-duelo",d);});
   await opciones(pg,{semilla:41,empieza:0,rapido:.03});
@@ -144,29 +172,40 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await delFrente();
   chequear("un duelo guardado con una carta que ya no está se descarta y empieza otro",r.turno===1&&r.en===1&&!r.usada&&!r.raro,r);
   await salir();
+  // lo mismo, pero sin duelos para hoy: se descarta y no arranca nada
+  await pg.evaluate(()=>{const d=T3.leer("tcg2-duelo");d.jug[0].mazo.push("una-que-ya-no-existe");T3.guardar("tcg2-duelo",d);});
+  await pg.click('.mq-boton[data-tcg="duelo"]');await pg.waitForTimeout(600);
+  r=await leer(pg);
+  chequear("y si no quedan duelos, se descarta y no arranca otro",!r.arena&&!r.duelo&&!r.boton&&/por hoy ya está/i.test(r.manana),r);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 
-  console.log("EL TOPE DE DUELOS CON PUNTOS");
-  ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:semilla({dia:"2026-12-05",diaN:3,mp:90})}));
+  console.log("EL ÚLTIMO DUELO DEL DÍA, JUGADO HASTA EL FINAL");
+  /* con un rival torpe, los dos mazos fijos y esta semilla, el duelo sale siempre igual y la estrategia de la prueba gana:
+     así se ve también la pantalla de la victoria (sin fijar los mazos se barajan al azar y el resultado cambia) */
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:semilla({dia:"2026-12-05",diaN:1,mp:90,torpeza:.6})}));
   await alTcg(pg);
   r=await leer(pg);
-  chequear("con los duelos del día ya jugados, la carpeta avisa que hoy no suman más",/ya sumaste todo/i.test(r.chico)&&/A DUELO/i.test(r.boton),r.chico);
-  await opciones(pg,{semilla:7,empieza:1,rapido:.03});
+  chequear("con un duelo ya jugado hoy, la carpeta dice que queda uno",/A DUELO/i.test(r.boton)&&/hoy te queda un duelo/i.test(r.chico),r.chico);
+  await opciones(pg,{semilla:5,empieza:0,rapido:.03,mazo:mias.slice(0,10),mazoRival:mias.slice(2,12)});
   await pg.click('.mq-boton[data-tcg="duelo"]');await libre(pg);
   fin=await jugar(pg);
   r=await leer(pg);
-  chequear("ese duelo se juega igual, pero no da puntos y lo dice",fin.cuenta===0&&/mañana hay más/i.test(fin.nota)&&r.e.mp===90&&r.e.jugados===3&&r.e.diaN===3,{fin:fin,e:r.e});
-  await pg.screenshot({path:S+"c3-sin-puntos.jpg"});
+  console.log("   "+(fin.gano?"ganó":"perdió")+" en "+fin.vueltas+" jugadas · +"+fin.total+" MafiaPoints");
+  chequear("el último duelo del día da sus puntos, lo avisa y no ofrece otro",(fin.gano?(fin.cuenta===1&&fin.total===10&&r.e.mp===100):(fin.cuenta===0&&r.e.mp===90))&&fin.otro===0&&/último duelo de hoy/i.test(fin.nota)&&r.e.jugados===3&&r.e.diaN===2,{fin:fin,e:r.e});
+  chequear("esta vez gana: la victoria muestra +10 y cuántos tiene ahora (100)",fin.gano&&fin.total===10&&fin.tenes===100&&await pg.locator(".ar-cuenta > div").count()===1,{gano:fin.gano,total:fin.total,tenes:fin.tenes});
+  await pg.screenshot({path:S+"c3-ultimo-final.jpg"});
   await pg.locator('[data-ar="cerrar"]').click();await pg.waitForTimeout(600);
+  r=await leer(pg);
+  chequear("después, la carpeta queda cerrada hasta mañana",!r.boton&&/por hoy ya está/i.test(r.manana),r);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 
   console.log("AL DÍA SIGUIENTE");
-  ({ctx,pg,errores}=await abrir(b,base,"2026-12-06",{semilla:Object.assign(semilla({dia:"2026-12-05",diaN:3,mp:90}),{"pv-t3-set-escritas":'["2026-12-06"]',"pv-t3-set-abrio":'["2026-12-06"]'})}));
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-06",{semilla:Object.assign(semilla({dia:"2026-12-05",diaN:2,mp:90}),{"pv-t3-set-escritas":'["2026-12-06"]',"pv-t3-set-abrio":'["2026-12-06"]'})}));
   await alTcg(pg);
   r=await leer(pg);
-  chequear("al otro día vuelven a sumar tres duelos",/tres duelos más/i.test(r.chico),r.chico);
+  chequear("al otro día vuelve a haber dos duelos",/A DUELO/i.test(r.boton)&&/hoy te quedan dos duelos/i.test(r.chico),r.chico);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 

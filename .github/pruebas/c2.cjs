@@ -39,26 +39,28 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     let e=P.estado();out.hayAntes=T3.tcg.haySobre();
     P.ponerAlDia(e);out.dia1={sobres:e.sobres,motivo:e.motivo,inicio:e.inicio};
     const t1=P.tirar(e);out.primero={formatos:t1.map(x=>porId[x.id].formato).join(),nuevas:t1.every(x=>x.nueva),sobres:e.sobres,abiertos:e.abiertos};
-    // el tercer lugar del sobre, y que no repita adentro
-    let full=0,repetido=0,malo=0,N=4000;
+    // cuántas trae, el último lugar del sobre, y que no repita adentro
+    out.porSobre=P.POR_SOBRE;
+    let full=0,repetido=0,malo=0,otroLargo=0,N=4000;
     for(let i=0;i<N;i++){
       const x={cartas:{},bonos:[],sobres:1,abiertos:3,sinNueva:0,sinFull:0};const t=P.tirar(x);
-      if(new Set(t.map(y=>y.id)).size<3)repetido++;
-      if(porId[t[2].id].formato==="full")full++;
-      if(porId[t[0].id].formato!=="normal"||porId[t[1].id].formato!=="normal")malo++;
+      if(t.length!==2)otroLargo++;
+      if(new Set(t.map(y=>y.id)).size<t.length)repetido++;
+      if(porId[t[t.length-1].id].formato==="full")full++;
+      if(t.slice(0,-1).some(y=>porId[y.id].formato!=="normal"))malo++;
     }
-    out.tercero=+(full/N).toFixed(3);out.repetido=repetido;out.malo=malo;
+    out.ultima=+(full/N).toFixed(3);out.repetido=repetido;out.malo=malo;out.otroLargo=otroLargo;
     // sequía: tres sobres sin full art → el que sigue trae una
-    let seq=0;for(let i=0;i<300;i++){const x={cartas:{},bonos:[],sobres:1,abiertos:9,sinNueva:0,sinFull:3};const t=P.tirar(x);if(porId[t[2].id].formato==="full"&&x.sinFull===0)seq++;}
+    let seq=0;for(let i=0;i<300;i++){const x={cartas:{},bonos:[],sobres:1,abiertos:9,sinNueva:0,sinFull:3};const t=P.tirar(x);if(porId[t[t.length-1].id].formato==="full"&&x.sinFull===0)seq++;}
     out.sequia=seq;
     // piedad: dos sobres sin nada nuevo → el que sigue trae una que falta (una normal, si le falta alguna)
     const normales=C.filter(c=>c.formato==="normal"),fulls=C.filter(c=>c.formato==="full"),falta=normales[normales.length-1].id;
     const casi={cartas:{},bonos:[],sobres:1,abiertos:9,sinNueva:2,sinFull:0};normales.forEach(c=>{if(c.id!==falta)casi.cartas[c.id]={n:1,f:"2026-12-01"};});
     const tp=P.tirar(JSON.parse(JSON.stringify(casi)),()=>0.5);
-    out.piedad={tercera:tp[2].id,falta:falta,nueva:tp[2].nueva};
+    out.piedad={primera:tp[0].id,falta:falta,nueva:tp[0].nueva,largo:tp.length};
     const soloFull={cartas:{},bonos:[],sobres:1,abiertos:9,sinNueva:2,sinFull:0};normales.forEach(c=>{soloFull.cartas[c.id]={n:1,f:"2026-12-01"};});
     const tf=P.tirar(JSON.parse(JSON.stringify(soloFull)),()=>0.5);
-    out.piedadFull={formato:porId[tf[2].id].formato,nueva:tf[2].nueva};
+    out.piedadFull={formato:porId[tf[tf.length-1].id].formato,nueva:tf[tf.length-1].nueva,primera:porId[tf[0].id].formato};
     const sinPiedad=JSON.parse(JSON.stringify(casi));sinPiedad.sinNueva=0;
     const ts=P.tirar(sinPiedad,()=>0.5);out.sinPiedad={nuevas:ts.filter(y=>y.nueva).length,sinNueva:sinPiedad.sinNueva};
     // repetidas y canje (una carta que ya no existe en la lista no cuenta)
@@ -77,11 +79,12 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     return out;
   });
   chequear("el primer día hay 2 sobres de bienvenida",r.hayAntes&&r.dia1.sobres===2&&r.dia1.motivo==="bienvenida",r.dia1);
-  chequear("el primer sobre trae dos normales y una full art, todas nuevas",r.primero.formatos==="normal,normal,full"&&r.primero.nuevas&&r.primero.sobres===1&&r.primero.abiertos===1,r.primero);
-  chequear("la tercera carta sale full art ~30% de las veces; las otras dos, siempre normales",Math.abs(r.tercero-.30)<.035&&r.malo===0,[r.tercero,r.malo]);
+  chequear("cada sobre trae 2 cartas (pedido de Mati)",r.porSobre===2&&r.otroLargo===0,[r.porSobre,r.otroLargo]);
+  chequear("el primer sobre trae una normal y una full art, las dos nuevas",r.primero.formatos==="normal,full"&&r.primero.nuevas&&r.primero.sobres===1&&r.primero.abiertos===1,r.primero);
+  chequear("la segunda carta sale full art ~30% de las veces; la primera, siempre normal",Math.abs(r.ultima-.30)<.035&&r.malo===0,[r.ultima,r.malo]);
   chequear("nunca repite una carta dentro del mismo sobre",r.repetido===0,r.repetido);
   chequear("tras 3 sobres sin full art, el siguiente trae una",r.sequia===300,r.sequia);
-  chequear("tras 2 sobres sin nada nuevo garantiza una que falta (la normal, antes que una full art)",r.piedad.tercera===r.piedad.falta&&r.piedad.nueva&&r.piedadFull.formato==="full"&&r.piedadFull.nueva&&r.sinPiedad.nuevas===0&&r.sinPiedad.sinNueva===1,[r.piedad,r.piedadFull,r.sinPiedad]);
+  chequear("tras 2 sobres sin nada nuevo garantiza una que falta (la normal, antes que una full art)",r.piedad.primera===r.piedad.falta&&r.piedad.nueva&&r.piedad.largo===2&&r.piedadFull.formato==="full"&&r.piedadFull.nueva&&r.piedadFull.primera==="normal"&&r.sinPiedad.nuevas===0&&r.sinPiedad.sinNueva===1,[r.piedad,r.piedadFull,r.sinPiedad]);
   chequear("6 repetidas se canjean por un sobre",r.repes===6&&r.tengo===3&&r.canje===true&&r.trasCanje.sobres===1&&r.trasCanje.repes===0&&r.trasCanje.a===1&&r.trasCanje.b===1&&r.canje2===false,r);
   chequear("un sobre por día, se juntan hasta 3",r.dia2===1&&r.dia9===3,[r.dia2,r.dia9]);
   chequear("sobre extra por cada juego ganado desde el estreno, una sola vez",r.conBonos.sobres===5&&r.conBonos.bonos.join()==="2026-12-03,2026-12-09"&&r.sinDobleBono===5,r.conBonos);
@@ -101,7 +104,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     return {total:P.TOTAL,diaJugar:med(res.map(x=>x.jugar)),diaJugar90:p90(res.map(x=>x.jugar)),diasFin:med(res.map(x=>x.fin)),diasFin90:p90(res.map(x=>x.fin)),sobresFin:med(res.map(x=>x.sobres)),sinTerminar:res.filter(x=>!x.fin).length};
   });
   console.log("   mediana: puede jugar el día",sim.diaJugar,"(90% antes del día "+sim.diaJugar90+") · álbum de",sim.total,"completo al día",sim.diasFin,"(90% antes del día",sim.diasFin90+") ·",sim.sobresFin,"sobres");
-  chequear("llega a las 10 cartas para jugar en los primeros días",sim.diaJugar>=2&&sim.diaJugar<=3&&sim.diaJugar90<=4,sim);
+  chequear("llega a las 10 cartas para jugar en los primeros días",sim.diaJugar>=2&&sim.diaJugar<=4&&sim.diaJugar90<=5,sim);
   chequear("el álbum se completa en un plazo razonable (ni en una semana ni en meses)",sim.sinTerminar===0&&sim.diasFin>=sim.total/5&&sim.diasFin<=sim.total*1.5&&sim.diasFin90<=sim.total*2.5,sim);
   await ctx.close();
 
@@ -132,7 +135,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   for(let k=0;k<2;k++){
     await pg.click(".t3x-tcg-abrir",{force:true});await pg.waitForTimeout(800);
     await pg.click(".t3x-ap-sobre",{force:true});await pg.waitForTimeout(1700);
-    for(const i of [0,1,2]){await pg.click('.t3x-ap-carta[data-i="'+i+'"]',{force:true});await pg.waitForTimeout(1300);await pg.mouse.click(195,790);await pg.waitForTimeout(700);}
+    for(const i of [0,1]){await pg.click('.t3x-ap-carta[data-i="'+i+'"]',{force:true});await pg.waitForTimeout(1300);await pg.mouse.click(195,790);await pg.waitForTimeout(700);}
     if(k===0)await pg.screenshot({path:S+"c-fin2.jpg"});
     await pg.click(".t3x-ap-listo",{force:true});await pg.waitForTimeout(900);
   }
@@ -142,7 +145,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await leer();
   const extra=await pg.evaluate(()=>({stat:T3.stats()["tcg-sobres"],punto:document.querySelector(".t3-cuaderno-pestana-tcg").classList.contains("t3-cuaderno-con-sobre"),capa:!!document.querySelector(".t3x-apertura")}));
   const totalCartas=Object.keys(r.e.cartas).filter(id=>id!=="una-que-ya-no-existe").reduce((a,id)=>a+r.e.cartas[id].n,0);
-  chequear("al abrir descuenta sobres, suma cartas y avisa que mañana hay otro",/Mañana hay otro/.test(r.hay)&&/ganá el juego de hoy/.test(r.hay)&&r.e.sobres===0&&r.e.abiertos===6&&totalCartas===14&&extra.stat===2&&!extra.punto&&!extra.capa,{hay:r.hay,sobres:r.e.sobres,abiertos:r.e.abiertos,totalCartas});
+  chequear("al abrir descuenta sobres, suma cartas y avisa que mañana hay otro",/Mañana hay otro/.test(r.hay)&&/ganá el juego de hoy/.test(r.hay)&&r.e.sobres===0&&r.e.abiertos===6&&totalCartas===12&&extra.stat===2&&!extra.punto&&!extra.capa,{hay:r.hay,sobres:r.e.sobres,abiertos:r.e.abiertos,totalCartas});
   chequear("al llegar a 10 cartas se habilita el duelo y avisa",r.minis>=10&&r.boton&&/contra el programador/i.test(r.rotulo)&&r.diez===0&&/habilitó el duelo/.test(avisoDuelo),{minis:r.minis,boton:r.boton,rotulo:r.rotulo,aviso:avisoDuelo});
   // ganar el juego del día → sobre extra
   await pg.evaluate(()=>T3.cuaderno.irA("2026-12-03"));await pg.waitForTimeout(1000);

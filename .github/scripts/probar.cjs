@@ -73,6 +73,11 @@ function estaticos() {
     if (!fs.existsSync(path.join(TCG, "mini", f))) falla("MafiaTCG", "falta la foto chica fotos/t3/tcg/mini/" + f);
   });
   if (fotos.length && !fs.existsSync(path.join(TCG, "logo.webp"))) falla("MafiaTCG", "falta el logo del dorso: fotos/t3/tcg/logo.webp");
+  /* las imágenes de la tienda (lo que manda Mati para la ropa de Ponyta: escudos, logos) también tienen que estar */
+  const deTienda = Array.from(new Set(Array.from(extras.matchAll(/\b(?:src|logo):"([^"]+\.(?:jpe?g|png|webp|svg))"/g), (x) => x[1])));
+  deTienda.forEach((f) => {
+    if (!fs.existsSync(path.join(RAIZ, "fotos", "t3", "tienda", f))) falla("la tienda", "falta la imagen fotos/t3/tienda/" + f);
+  });
   /* el aviso diario: que el script lea la hoja sin romperse y use la misma llave que la app */
   const pAviso = path.join(__dirname, "aviso.cjs");
   if (fs.existsSync(pAviso)) {

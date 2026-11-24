@@ -22,17 +22,15 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.screenshot({path:S+"c-fila.jpg"});
   r=await pg.evaluate(()=>({dorsos:document.querySelectorAll(".t3x-ap-atras .mt-dorso img.mt-logo").length,full:document.querySelectorAll(".t3x-ap-carta.t3x-ap-full").length,
     tapadas:Array.from(document.querySelectorAll(".t3x-ap-frente")).every(f=>getComputedStyle(f).visibility==="hidden")}));
-  chequear("las tres cartas salen boca abajo, con el logo en el dorso; la full art del primer sobre es la tercera",r.dorsos===3&&r.full===1&&r.tapadas,r);
+  chequear("las dos cartas salen boca abajo, con el logo en el dorso; la full art del primer sobre es la segunda",r.dorsos===2&&r.full===1&&r.tapadas&&await pg.evaluate(()=>document.querySelector('.t3x-ap-carta[data-i="1"]').classList.contains("t3x-ap-full")),r);
   await pg.click('.t3x-ap-carta[data-i="0"]',{force:true});await pg.waitForTimeout(1500);
   await pg.screenshot({path:S+"c-carta1.jpg"});
   r=await pg.evaluate(()=>{const c=document.querySelector('.t3x-ap-carta[data-i="0"]');return {vuelta:c.classList.contains("t3x-vuelta"),frente:getComputedStyle(c.querySelector(".t3x-ap-frente")).visibility,atras:getComputedStyle(c.querySelector(".t3x-ap-atras")).visibility,sello:c.querySelector(".t3x-ap-sello").textContent};});
   chequear("al tocarla se da vuelta y se sella como nueva",r.vuelta&&r.frente==="visible"&&r.atras==="hidden"&&/nola/.test(r.sello),r);
   await pg.mouse.click(195,790);await pg.waitForTimeout(800);
-  await pg.click('.t3x-ap-carta[data-i="2"]',{force:true});await pg.waitForTimeout(1600);
-  await pg.screenshot({path:S+"c-carta3.jpg"});
+  await pg.click('.t3x-ap-carta[data-i="1"]',{force:true});await pg.waitForTimeout(1600);
+  await pg.screenshot({path:S+"c-carta2.jpg"});
   chequear("la full art lo dice al darse vuelta",/full art/i.test(await pg.locator(".t3x-ap-pista").innerText()));
-  await pg.mouse.click(195,790);await pg.waitForTimeout(700);
-  await pg.click('.t3x-ap-carta[data-i="1"]',{force:true});await pg.waitForTimeout(1400);
   await pg.mouse.click(195,790);await pg.waitForTimeout(900);
   await pg.screenshot({path:S+"c-fin.jpg"});
   await pg.click(".t3x-ap-listo",{force:true});await pg.waitForTimeout(1300);
@@ -40,7 +38,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await pg.evaluate(()=>({minis:document.querySelectorAll(".t3x-mini:not(.t3x-hueco)").length,full:document.querySelectorAll(".t3x-mini-full").length,recien:document.querySelectorAll(".t3x-recien").length,
     jugar:document.querySelector(".mq-jugar").innerText,si:document.querySelectorAll(".mq-diez i.mq-si").length,
     chicas:Array.from(document.querySelectorAll(".t3x-mini .mt-carta img")).every(i=>/\/tcg\/mini\//.test(i.getAttribute("src")))}));
-  chequear("las tres quedan en la carpeta (con la foto chica) y el duelo cuenta cuántas faltan",r.minis===3&&r.full===1&&r.recien===3&&/Tenés 3: te faltan 7/i.test(r.jugar)&&r.si===3&&r.chicas,r);
+  chequear("las dos quedan en la carpeta (con la foto chica) y el duelo cuenta cuántas faltan",r.minis===2&&r.full===1&&r.recien===2&&/Tenés 2: te faltan 8/i.test(r.jugar)&&r.si===2&&r.chicas,r);
   // la lupa: una normal y la full art
   await pg.evaluate(()=>{document.querySelector(".t3x-mini:not(.t3x-hueco):not(.t3x-mini-full)").scrollIntoView({block:"center"});});await pg.waitForTimeout(400);
   await pg.click(".t3x-mini:not(.t3x-hueco):not(.t3x-mini-full)",{force:true});await pg.waitForTimeout(900);

@@ -1,4 +1,5 @@
-/* Laboratorio · ida y vuelta: cartel del 1/12, contestar cartas, pedidos y vales */
+/* Laboratorio · ida y vuelta: cartel del 1/12, contestar cartas, la tienda el primer día (sin puntos) y vales.
+   La tienda con puntos, la ropa de Ponyta y el modo Pou están en f.cjs. */
 const {servir,abrir,chequear,resumen,estado,motor}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 (async()=>{
@@ -15,8 +16,8 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.waitForTimeout(600);
   await pg.screenshot({path:S+"b-1201.jpg"});
   r=await pg.evaluate(()=>({cartel:(document.querySelector(".t3x-cartel")||{}).innerText,pest:Array.from(document.querySelectorAll("[data-pest]")).map(x=>x.getAttribute("data-pest"))}));
-  chequear("el 1/12 está el cartel de vuelta",/Abierto de nuevo/i.test(r.cartel||"")&&/MafiaTCG/.test(r.cartel||""),r.cartel);
-  chequear("aparece la pestaña de pedidos",r.pest.includes("pedidos"),r.pest);
+  chequear("el 1/12 está el cartel de vuelta, que anuncia el TCG y la tienda",/Abierto de nuevo/i.test(r.cartel||"")&&/MafiaTCG/.test(r.cartel||"")&&/tienda, en la pestaña verde/i.test(r.cartel||"")&&!/talonario de pedidos/i.test(r.cartel||""),r.cartel);
+  chequear("aparece la pestaña de la tienda",r.pest.includes("pedidos")&&/tienda/i.test(await pg.evaluate(()=>document.querySelector('[data-pest="pedidos"]').innerText)),r.pest);
   await pg.evaluate(()=>T3.cuaderno.irA("2026-10-26"));await pg.waitForTimeout(1100);
   await pg.screenshot({path:S+"b-contestar.jpg"});
   r=await pg.evaluate(()=>{const c=document.querySelector(".t3x-contestar");return c?{t:c.innerText.trim(),vis:getComputedStyle(c).opacity,alto:c.getBoundingClientRect().height}:null;});
@@ -38,15 +39,18 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await pg.evaluate(()=>document.querySelector(".t3x-contestar").innerText.trim());
   chequear("después dice «contestarle otra vez»",r==="contestarle otra vez",r);
 
-  console.log("PEDIDOS");
+  console.log("LA TIENDA, EL PRIMER DÍA (sin MafiaPoints)");
   await pg.evaluate(()=>T3.cuaderno.abrir("pedidos"));await pg.waitForTimeout(1200);
-  await pg.screenshot({path:S+"b-pedidos.jpg"});
-  r=await pg.evaluate(()=>{const t=Array.from(document.querySelectorAll(".t3x-ticket"));return {n:t.length,primero:decodeURIComponent(t[0].href),ultimo:decodeURIComponent(t[t.length-1].href),pie:document.querySelector(".t3x-ped-pie").innerText};});
-  chequear("el talonario trae los tickets con su mensaje armado",r.n===10&&/Pedido Nº 0001: Mimos\./.test(r.primero)&&/\(comodín\): $/.test(r.ultimo),r);
-  const [pop]=await Promise.all([ctx.waitForEvent("page").catch(()=>null),pg.click('.t3x-ticket[data-i="2"]')]);
-  await pg.waitForTimeout(1900);if(pop)await pop.close().catch(()=>{});
-  r=await pg.evaluate(()=>({L:T3.leer("pedidos",null),sig:document.querySelector(".t3x-ticket-talon b").textContent,sushi:document.querySelectorAll(".t3x-ticket-talon b")[2].textContent,pie:document.querySelector(".t3x-ped-pie").innerText,stat:T3.stats()["pedido-sushi"]}));
-  chequear("al tocar uno abre WhatsApp, lo anota y avanza el número",!!pop&&r.L.n===1&&r.L.log[0].id==="sushi"&&r.sig==="00"&&r.sushi==="01"&&/último: sushitos de fabric/.test(r.pie)&&r.stat===1,{pop:!!pop,r});
+  await pg.screenshot({path:S+"b-tienda.jpg"});
+  r=await pg.evaluate(()=>{const t=Array.from(document.querySelectorAll(".t3x-ticket"));return {n:t.length,titulo:document.querySelector(".t3x-tie h2").innerText,saldo:document.querySelector(".t3x-saldo b").innerText,
+    links:t.filter(x=>x.hasAttribute("href")).length,lejos:t.filter(x=>x.classList.contains("t3x-ticket-lejos")).length,precios:t.map(x=>+x.querySelector(".t3x-ticket-talon b").textContent),
+    pie:document.querySelector(".t3x-ped-pie").innerText,cosas:document.querySelectorAll(".t3x-cosa").length,viejo:localStorage.getItem("pv-t3-pedidos")};});
+  chequear("la pestaña verde es la tienda: diez tickets con precio, ninguno gratis y ninguno al alcance sin puntos",r.n===10&&/la tienda/i.test(r.titulo)&&r.saldo==="0"&&r.links===0&&r.lejos===10&&r.precios.every(p=>p>0)&&/todavía no pediste nada/.test(r.pie)&&r.cosas>=12,r);
+  await pg.click('.t3x-ticket[data-id="mimos"]');await pg.waitForTimeout(700);
+  r=await pg.evaluate(()=>({hoja:!!document.querySelector(".t3x-compra.t3x-ver"),txt:((document.querySelector(".t3x-compra-papel")||{}).innerText||"").replace(/\s+/g," "),canjear:!!document.querySelector('.t3x-compra [data-tie="pedir"]'),wa:document.querySelectorAll('.t3x-compra a[href*="wa.me"]').length,L:T3.leer("tienda",null)}));
+  await pg.screenshot({path:S+"b-sin-puntos.jpg"});
+  chequear("sin puntos, el ticket dice cuánto falta y no ofrece canjear ni manda nada",r.hoja&&/te faltan 40/i.test(r.txt)&&!r.canjear&&r.wa===0&&(r.L===null||!r.L.n),r);
+  await pg.click('.t3x-compra [data-tie="cerrar"]');await pg.waitForTimeout(400);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 

@@ -147,8 +147,9 @@ const at=(E,i)=>D.jugar(E,{t:"atacar",a:i});
 { // tercer noqueo gana
   const E=armado(["pequepsy",2],["sushito",0],{b1:["disney","bebes"]});E.jug[1].activa.pv=30;E.jug[0].noqueos=2;
   at(E,1);t("tres noqueos",E.fase==="fin"&&E.ganador===0&&E.motivo==="noqueos");
-  const P=D.puntos(E,0);t("puntos de ganar",P.total>=20&&P.renglones[0].t==="Victoria",JSON.stringify(P));
-  t("puntos de perder",D.puntos(E,1).total===5);
+  const P=D.puntos(E,0);t("ganar da 10 MafiaPoints, sin bonos (lo pidió Mati)",P.total===10&&P.renglones.length===1&&P.renglones[0].t==="Victoria",JSON.stringify(P));
+  t("perder no da nada",D.puntos(E,1).total===0&&D.puntos(E,1).renglones.length===0);
+  const P2=D.puntos(E,0,{victoria:25,derrota:3,debil:0,corto:0,invicta:0,turnosCorto:0});t("la tabla de puntos se puede cambiar desde afuera",P2.total===25&&D.puntos(E,1,{victoria:25,derrota:3}).total===3,JSON.stringify(P2));
 }
 { // daño a la banca y noqueo en la banca
   const E=armado(["luacuatica",3],["disney",0],{b1:["sushito","bebes"]});E.jug[1].banca[0].pv=10;

@@ -455,15 +455,22 @@ const CONFIG = {
     regalosNavidad: [],
 
     /* ---- lo que se sumó en noviembre: estrena para ella el día de "estreno" ---- */
-    estreno: "2026-12-01",      /* desde este día aparecen MafiaTCG, pedidos, "contestarle" y avisos */
+    estreno: "2026-12-01",      /* desde este día aparecen MafiaTCG, la tienda, "contestarle" y avisos */
     whatsapp: "",               /* tu número con código de país, solo dígitos (ej. "5491155554444").
                                    Vacío = WhatsApp le pregunta a quién mandarlo. Ojo: este archivo es público. */
-    pedidos: [],                /* talonario propio: [{t:"Mimos", d:"Sin tope.", m:"lo que te llega"}]. Vacío = los que ya vienen */
     /* MafiaTCG. Las cartas se editan más abajo, en la lista CARTAS (buscá "PARA SUMAR O CAMBIAR CARTAS") */
     tcg: {
       premio: "",               /* qué se gana por completar el álbum ("" = solo el festejo) */
-      duelosPorDia: 3           /* cuántos duelos por día suman MafiaPoints (los demás se juegan igual, sin puntos) */
-    }
+      duelosPorDia: 2,          /* cuántos duelos se pueden jugar por día */
+      puntosPorVictoria: 10     /* MafiaPoints por ganar un duelo (perder no da nada) */
+    },
+    /* LA TIENDA (pestaña verde): todo se paga con MafiaPoints. Los precios están más abajo, en la lista TICKETS
+       (buscá "PARA CAMBIAR UN PRECIO") y en las PRENDAS de Ponyta; acá se puede pisar cualquiera sin ir a buscarlo. */
+    tienda: {
+      precios: {}               /* ej.: { mimos: 30, helado: 200, boina: 90, racing: 500, pou: 800 } */
+    },
+    pedidos: []                 /* talonario propio: [{t:"Mimos", d:"Sin tope.", m:"lo que te llega", p:40}] (p = precio).
+                                   Vacío = los que ya vienen */
   },
 
   dias: {
@@ -647,7 +654,7 @@ const CONFIG = {
     /* ----------------------- DICIEMBRE ----------------------- */
     /* 1 · martes — Trivia. ARRANCA EL CALENDARIO DE ADVIENTO (sale del cuaderno como un pop-up; una ventanita por día hasta el 24). Juego: trivia.
        Pista: arranca diciembre / el adviento. */
-    "2026-12-01": {"mensaje": "", "cartel": {"titulo": "Abierto de nuevo", "texto": "Volvió el programador. Y trajo cosas:", "lista": ["MafiaTCG: un sobre de cartas por día, en la pestaña amarilla. Con diez cartas, duelos.", "Las cartas ahora se pueden contestar.", "Un talonario de pedidos, en la pestaña verde."]}, "actividad": {"tipo": "trivia", "pregunta": "¿En qué colegio nos conocimos?", "opciones": ["San Andrés", "La Salle Florida", "Nacional Buenos Aires"], "respuesta": 2, "acierto": "La Salle Florida. Ahí empezó todo.", "error": "La Salle Florida, mi amor."}},
+    "2026-12-01": {"mensaje": "", "cartel": {"titulo": "Abierto de nuevo", "texto": "Volvió el programador. Y trajo cosas:", "lista": ["MafiaTCG: un sobre de cartas por día, en la pestaña amarilla. Con diez cartas, duelos.", "Las cartas ahora se pueden contestar.", "Una tienda, en la pestaña verde: lo que ganás en los duelos se gasta ahí."]}, "actividad": {"tipo": "trivia", "pregunta": "¿En qué colegio nos conocimos?", "opciones": ["San Andrés", "La Salle Florida", "Nacional Buenos Aires"], "respuesta": 2, "acierto": "La Salle Florida. Ahí empezó todo.", "error": "La Salle Florida, mi amor."}},
     /* 2 · miércoles — Caja fuerte. Caja fuerte (código 1612: su cumple). Carta sellada.
        Pista: faltan dos semanas para su cumple. */
     "2026-12-02": {"mensaje": "", "sellado": true, "actividad": {"tipo": "cajafuerte", "codigo": "1612", "pista": "Una fecha que llega en dos semanas. Día y mes."}},
@@ -2820,7 +2827,7 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 /*<<EXTRAS-CSS*/
 /* ============================================================
    EXTRAS · estilos de lo que se sumó en noviembre de 2026
-   (taller, cartel de vuelta, contestar, pedidos, MafiaTCG, avisos)
+   (taller, cartel de vuelta, contestar, la tienda, MafiaTCG, la ropa de Ponyta, el modo Pou, avisos)
    ============================================================ */
 .t3x-dib{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
@@ -2887,7 +2894,7 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3-cuaderno-pestana-tcg.t3-cuaderno-activa{filter:brightness(1.1)}
 .t3-cuaderno-pestana-tcg.t3-cuaderno-con-sobre::after{content:"";position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#5B3FB8;box-shadow:0 0 0 1.5px #FFF3B8}
 
-/* ---- talonario de pedidos ---- */
+/* ---- el talonario de la tienda: los tickets (lo demás de la tienda está más abajo, en su bloque) ---- */
 .t3x-ped{padding:10px 16px 44px 28px}
 .t3x-ped-cab h2{margin:4px 0 0;font:700 34px/1 var(--t3-mano);color:var(--t3-tinta)}
 .t3x-ped-cab p{margin:6px 0 18px;font:italic 500 16px/1.25 var(--t3-serif);color:var(--t3-tinta-suave)}
@@ -2907,6 +2914,81 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3x-ticket-libre{background:#FFF6D8}
 .t3x-ticket-libre .t3x-ticket-talon{background:rgba(199,148,48,.28)}
 .t3x-ped-pie{margin:22px 0 0;text-align:right;font:500 19px/1.15 var(--t3-mano);color:var(--t3-lapiz);transform:rotate(-1.2deg)}
+
+/* ---- la tienda (pestaña verde): saldo, talonario pago y la vidriera de Ponyta ---- */
+.t3x-tie-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.t3x-tie-cab>div{min-width:0;text-align:left}
+.t3x-tie-cab p{margin-bottom:10px}
+.t3x-moneda{display:inline-grid;place-items:center;flex:none;width:1.5em;height:1.5em;border-radius:50%;background:radial-gradient(circle at 34% 30%,#FFE98A,#F2C230 58%,#C79430);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6),0 0 0 1.6px var(--t3-tinta);font:700 italic .82em/1 Georgia,serif;color:var(--t3-tinta)}
+.t3x-saldo{flex:none;display:grid;grid-template-columns:auto auto;align-items:center;column-gap:7px;margin:2px 0 0;padding:8px 12px 7px 9px;border:0;border-radius:2px;background:#FFF6D8;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.35);color:var(--t3-tinta);transform:rotate(2.2deg);cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.t3x-saldo .t3x-moneda{font-size:17px}
+.t3x-saldo b{font:700 32px/1 var(--t3-mano);letter-spacing:.01em}
+.t3x-saldo i{grid-column:1/-1;margin-top:3px;font:500 8px/1 var(--t3-mono);font-style:normal;letter-spacing:.2em;text-transform:uppercase;text-align:center;color:var(--t3-tinta-suave)}
+.t3x-saldo:active{transform:rotate(2.2deg) translate(1px,1px)}
+.t3x-tie-como{margin:0 0 4px;font:500 9px/1.5 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--t3-lapiz)}
+.t3x-tie-palo{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:26px 0 0;padding-top:16px;border-top:1.6px dashed rgba(43,33,24,.3);font:700 29px/1 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-tie-palo small{font:500 9px/1.3 var(--t3-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--t3-lapiz)}
+.t3x-tie-nota{margin:6px 0 16px;font:italic 500 16px/1.25 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-tie-fin{margin:26px 0 0;text-align:center;font:500 19px/1.15 var(--t3-mano);color:var(--t3-lapiz);transform:rotate(-1deg)}
+
+/* los tickets ahora son botones y dicen lo que salen */
+button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none}
+.t3x-tie .t3x-ticket-talon i{font-size:7px}
+.t3x-tie .t3x-ticket-talon b{font:700 25px/1 var(--t3-mano);letter-spacing:0;color:var(--t3-tinta)}
+.t3x-ticket-veces{position:absolute;right:9px;top:8px;padding:3px 6px 2px;border-radius:2px;box-shadow:inset 0 0 0 1.3px var(--t3-sello);font:500 9px/1 var(--t3-mono);letter-spacing:.06em;color:var(--t3-sello);transform:rotate(5deg);opacity:.85}
+.t3x-ticket-lejos .t3x-ticket-ir{color:var(--t3-lapiz)}
+.t3x-ticket-lejos .t3x-ticket-talon{background:rgba(143,133,119,.2)}
+.t3x-ticket-lejos .t3x-ticket-talon b{color:var(--t3-tinta-suave)}
+.t3x-ticket-lejos .t3x-ticket-dib{opacity:.6}
+
+/* la vidriera */
+.t3x-vid{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;margin-top:16px}
+.t3x-cosa{position:relative;display:flex;flex-direction:column;min-width:0;margin:0;padding:8px 8px 10px;border:0;border-radius:1px;background:#FCF8EE;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.35);color:var(--t3-tinta);font:inherit;text-align:left;transform:rotate(var(--rot,0deg));cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:transform .12s ease}
+.t3x-cosa:active{transform:rotate(var(--rot,0deg)) scale(.98)}
+.t3x-cosa-foto{position:relative;display:block;box-sizing:border-box;padding:16% 6% 2% 12%;background:#F3E9D6;background-image:radial-gradient(rgba(43,33,24,.07) 1px,transparent 1.4px);background-size:9px 9px;overflow:hidden}
+.t3x-muestra,.t3x-cosa-foto .t3-ponyta-svg,.t3x-compra-foto .t3-ponyta-svg{display:block;width:100%;height:auto;margin:0;animation:none!important;pointer-events:none;cursor:default}
+.t3x-cosa-foto .t3-ponyta-rapidash,.t3x-compra-foto .t3-ponyta-rapidash{filter:none}
+.t3x-cosa-txt{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;padding:8px 2px 0}
+.t3x-cosa-nom{font:700 21px/1.02 var(--t3-mano)}
+.t3x-cosa-dice{font:italic 500 14.5px/1.2 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-cosa-precio{display:inline-flex;align-items:center;gap:6px;margin-top:2px;font:700 22px/1 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-cosa-precio .t3x-moneda{font-size:13px}
+.t3x-cosa-lejos{color:var(--t3-tinta-suave)}
+.t3x-cosa-lejos .t3x-moneda{filter:grayscale(.75);opacity:.8}
+.t3x-cosa-estado{margin-top:3px;font:500 8.5px/1.3 var(--t3-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--t3-lapiz)}
+.t3x-cosa-si{color:var(--t3-ok)}
+.t3x-cosa-si::before{content:"✓ "}
+.t3x-cosa-puesta{box-shadow:0 0 0 2px var(--t3-ok),var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.35)}
+.t3x-cosa-grande{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;padding:10px 12px 10px 10px}
+.t3x-cosa-grande .t3x-cosa-foto{flex:none;width:118px;padding:12px 8px 4px 12px}
+.t3x-cosa-grande .t3x-cosa-txt{flex:1;padding:0}
+.t3x-cosa-grande .t3x-cosa-nom{font-size:25px}
+.t3x-cosa-especial .t3x-cosa-foto{display:grid;place-items:center;width:84px;height:84px;padding:0;background-color:rgba(166,216,196,.5)}
+.t3x-cosa-dib{width:50px;height:50px;color:var(--t3-tinta)}
+.t3x-cosa-pronto{background:#F6EEDD;box-shadow:inset 0 0 0 1.5px rgba(43,33,24,.22)}
+.t3x-cosa-pronto .t3x-cosa-foto{background-color:rgba(143,133,119,.16)}
+.t3x-cosa-pronto .t3x-cosa-dib{opacity:.55}
+.t3x-cosa-pronto::after{content:"pronto";position:absolute;right:8px;top:8px;padding:3px 7px 2px;border-radius:2px;box-shadow:inset 0 0 0 1.3px var(--t3-tinta-azul);font:500 8.5px/1 var(--t3-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--t3-tinta-azul);transform:rotate(4deg)}
+
+/* la hoja que confirma una compra */
+.t3x-compra{position:fixed;inset:0;z-index:74;display:grid;place-items:center;box-sizing:border-box;padding:calc(env(safe-area-inset-top,0px) + 18px) 22px calc(env(safe-area-inset-bottom,0px) + 18px);background:rgba(27,20,16,.62);opacity:0;transition:opacity .22s ease;overflow:auto;-webkit-user-select:none;user-select:none}
+.t3x-compra.t3x-ver{opacity:1}
+.t3x-compra-papel{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;box-sizing:border-box;width:100%;max-width:312px;padding:20px 20px 18px;background:#FCF8EE;box-shadow:var(--t3-sombra-papel);color:var(--t3-tinta);text-align:center;transform:rotate(-1deg) translateY(14px) scale(.96);transition:transform .32s var(--t3-rebote)}
+.t3x-compra.t3x-ver .t3x-compra-papel{transform:rotate(-1deg)}
+.t3x-compra-papel::before{content:"";position:absolute;left:50%;top:-11px;width:86px;height:24px;margin-left:-43px;background:rgba(166,216,196,.82);box-shadow:0 1px 2px rgba(43,33,24,.2);transform:rotate(-2.5deg)}
+.t3x-compra-rot{margin:4px 0 8px;font:500 10px/1 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--t3-sello)}
+.t3x-compra-dib{width:62px;height:62px;color:var(--t3-tinta)}
+.t3x-compra-foto{box-sizing:border-box;width:190px;max-width:100%;margin-top:4px;padding:26px 10px 2px 20px;background:#F3E9D6;background-image:radial-gradient(rgba(43,33,24,.07) 1px,transparent 1.4px);background-size:9px 9px;overflow:hidden}
+.t3x-compra-icono{display:grid;place-items:center;width:104px;height:104px;padding:0;background-color:rgba(166,216,196,.5)}
+.t3x-compra-icono .t3x-cosa-dib{width:62px;height:62px}
+.t3x-compra-papel h3{margin:10px 0 0;font:700 33px/1 var(--t3-mano)}
+.t3x-compra-dice{margin:6px 0 0;font:italic 500 16.5px/1.25 var(--t3-serif);color:var(--t3-tinta-suave)}
+.t3x-compra-cuenta{width:100%;margin:14px 0 16px;padding:10px 0 9px;border-top:1.4px dashed rgba(43,33,24,.3);border-bottom:1.4px dashed rgba(43,33,24,.3);font:500 10px/1.4 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--t3-tinta-suave)}
+.t3x-compra-cuenta b{font:700 22px/1 var(--t3-mano);letter-spacing:0;text-transform:none;color:var(--t3-tinta)}
+.t3x-compra-cuenta span{display:block;margin-top:4px;color:var(--t3-ok)}
+.t3x-compra-falta span{color:var(--t3-sello)}
+.t3x-compra-papel .t3x-boton+.t3x-boton{margin-top:10px}
+.t3x-compra-otra{display:block;margin-top:14px;font:500 17px/1.15 var(--t3-mano);color:var(--t3-tinta-azul);text-decoration:underline;text-underline-offset:3px}
 
 /* ============================================================
    MafiaTCG · la pestaña del cuaderno: el panel azul (logo, puntos
@@ -2933,7 +3015,9 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .mq-lado{display:grid;justify-items:end;gap:7px;min-width:0}
 .mq-tenes{font:700 11px/1 var(--f);letter-spacing:.18em;text-transform:uppercase;color:var(--li);white-space:nowrap}
 .mq-tenes b{font-weight:700;color:#fff}
-.mq-puntos{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 6px;border-radius:99px;background:rgba(9,11,38,.7);box-shadow:inset 0 0 0 2px var(--am);font:700 10.5px/1 var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--am2);white-space:nowrap}
+.mq-puntos{display:flex;align-items:center;gap:7px;margin:0;padding:5px 12px 5px 6px;border:0;border-radius:99px;background:rgba(9,11,38,.7);box-shadow:inset 0 0 0 2px var(--am);font:700 10.5px/1 var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--am2);white-space:nowrap;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.mq-a-tienda{margin:-1px 0 0;padding:3px 2px;border:0;background:none;font:700 10px/1 var(--f);letter-spacing:.16em;text-transform:uppercase;color:var(--li);white-space:nowrap;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.mq-puntos:active{transform:translateY(1px)}
 .mq-puntos b{font:800 italic 24px/1 var(--f);letter-spacing:0;color:#fff}
 .mq-moneda{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(150deg,#FFE98A,var(--am) 50%,var(--am3));box-shadow:inset 0 0 0 2px rgba(255,255,255,.75),0 0 0 2px #12163F;font:800 italic 15px/1 var(--f);color:var(--az3)}
 .mq-completo{margin:0 0 12px;padding:9px 12px 10px;border-radius:10px;text-align:center;background:rgba(254,202,11,.14);box-shadow:inset 0 0 0 1.5px var(--am);font:700 11px/1.4 var(--f);letter-spacing:.18em;text-transform:uppercase;color:var(--am2)}
@@ -2945,6 +3029,8 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .mq-jugar p b{font-weight:700;color:#fff}
 .mq-jugar .mq-boton{margin-top:14px}
 .mq-jugar p.mq-chico{margin-top:13px;text-align:center;font:600 11px/1.35 var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--li)}
+.mq-jugar p.mq-manana{margin-top:14px;padding:13px 14px 12px;border-radius:10px;background:rgba(9,11,38,.55);box-shadow:inset 0 0 0 1.5px rgba(185,164,246,.5);text-align:center;font-size:15.5px}
+.mq-jugar p.mq-manana b{color:var(--am)}
 .mq-otro{display:block;margin:12px auto 0;padding:6px 10px;border:0;background:none;cursor:pointer;-webkit-appearance:none;appearance:none;font:600 12px/1 var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--li);text-decoration:underline;text-underline-offset:3px}
 .mq-diez{display:flex;gap:5px;margin-top:12px}
 .mq-diez i{flex:1;aspect-ratio:5/7;border-radius:4px;background:rgba(9,11,38,.6);box-shadow:inset 0 0 0 1.5px rgba(185,164,246,.45)}
@@ -3020,13 +3106,13 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 .t3x-rasgado .t3x-ap-sobre{animation:none;transform:rotate(-2deg)}
 .t3x-rasgado .t3x-sobre-tira{transform:translate(1.6em,-2.6em) rotate(24deg);opacity:0}
 .t3x-rasgado .t3x-sobre-cuerpo{transform:translateY(2.2em) scale(.94);opacity:0;transition-delay:.28s}
-.t3x-ap-fila{position:absolute;left:0;right:0;bottom:4%;display:flex;justify-content:center;gap:12px;pointer-events:none}
-.t3x-ap-lugar{position:relative;flex:none;width:104px;height:146px;opacity:0;transform:translateY(46px) scale(.8)}
+.t3x-ap-fila{position:absolute;left:0;right:0;bottom:4%;display:flex;justify-content:center;gap:18px;pointer-events:none}
+.t3x-ap-lugar{position:relative;flex:none;width:130px;height:182px;opacity:0;transform:translateY(46px) scale(.8)}
 .t3x-cartas .t3x-ap-fila{pointer-events:auto}
 .t3x-cartas .t3x-ap-lugar{opacity:1;transform:none;transition:opacity .3s ease,transform .5s var(--t3-rebote)}
 .t3x-cartas .t3x-ap-lugar:nth-child(2){transition-delay:.13s}
 .t3x-cartas .t3x-ap-lugar:nth-child(3){transition-delay:.26s}
-.t3x-ap-carta{position:absolute;left:0;top:0;z-index:1;width:260px;height:364px;transform-origin:0 0;transform:scale(.4);transition:transform .5s var(--t3-curva),opacity .3s ease;perspective:1000px;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.t3x-ap-carta{position:absolute;left:0;top:0;z-index:1;width:260px;height:364px;transform-origin:0 0;transform:scale(.5);transition:transform .5s var(--t3-curva),opacity .3s ease;perspective:1000px;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
 .t3x-ap-carta.t3x-arriba{z-index:6;transform:translate(var(--dx,0),var(--dy,0)) scale(1)}
 .t3x-con-arriba .t3x-ap-carta:not(.t3x-arriba){opacity:.3}
 /* se da vuelta en dos tiempos (de canto, cambia de cara, termina): backface-visibility no es confiable en todos los WebKit */
@@ -3473,6 +3559,68 @@ body.mafios .fugaz,body.mafios .nube,body.mafios .flor{ display:none !important;
 @media (prefers-reduced-motion:reduce){
   .ar-energia .mt-sello,.ar-rayos,.ar-energizando .ar-mia .mt-in,.ar-subiendo .ar-mia:not(.ar-activa) .mt-in{animation:none}
 }
+
+/* ---- la ropa de Ponyta: la camiseta de Rapidash (una capa encima de su imagen) acompaña cuando duerme o se baña ---- */
+.t3-ponyta-duerme .t3x-ropa-cuerpo{filter:saturate(.7) brightness(.97)}
+.t3x-pou-banio .t3x-ropa-cuerpo{filter:saturate(.78)}
+
+/* ---- su pared: las fotos que Ponyta tiene pegadas con cinta en su solapa (y en la vidriera de la tienda) ---- */
+.t3x-pared{position:relative;z-index:3;margin-top:18px;padding-top:12px;border-top:1.5px dashed var(--t3-papel-borde)}
+.t3x-pared .t3-ponyta-rotulo{display:flex;align-items:baseline;gap:12px}
+.t3x-pared .t3-ponyta-rotulo .t3-ponyta-lapiz{display:inline-block;font-size:16.5px;transform:rotate(-2deg)}
+.t3x-pared-fotos{display:flex;flex-wrap:wrap;gap:18px 20px;margin-top:18px;padding-left:6px}
+.t3x-pegada{position:relative;flex:none;box-sizing:border-box;width:124px;margin:0;padding:7px 7px 7px;background:#FDFBF5;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.4);transform:rotate(var(--rot,-2deg))}
+.t3x-pegada::before{content:"";position:absolute;left:50%;top:-9px;width:54px;height:18px;margin-left:-27px;background:rgba(166,216,196,.85);box-shadow:0 1px 2px rgba(43,33,24,.2);transform:rotate(-3deg)}
+.t3x-pegada img{display:block;width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 10%;background:#E4DDCD}
+.t3x-pegada figcaption{margin-top:6px;text-align:center;font:700 19px/1 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-cosa-de-pared .t3x-cosa-foto{display:grid;place-items:center;padding:16px 8px 10px}
+.t3x-cosa-de-pared .t3x-pegada{width:78%}
+.t3x-cosa-de-pared .t3x-pegada figcaption{font-size:16px}
+/* el emblema de un paquete: el logo que mandó Mati, tal cual, sobre blanco */
+.t3x-cosa-foto.t3x-con-logo,.t3x-compra-foto.t3x-con-logo{background:#fff;background-image:none;box-shadow:inset 0 0 0 1.4px rgba(43,33,24,.14)}
+.t3x-cosa-logo{display:block;width:86%;height:auto}
+
+/* ---- modo Pou: cuidar a Ponyta, en su solapa (abajo de "Hacela correr") ---- */
+.t3x-pou{position:relative;z-index:3;margin-top:18px;padding-top:12px;border-top:1.5px dashed var(--t3-papel-borde)}
+.t3x-pou .t3-ponyta-rotulo{display:flex;align-items:baseline;gap:12px}
+.t3x-pou .t3-ponyta-rotulo .t3-ponyta-lapiz{display:inline-block;font-size:16.5px;transform:rotate(-2deg)}
+.t3x-pou-barras{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-top:11px}
+.t3x-pou-barra{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:6px}
+.t3x-pou-barra i{font:700 19px/1 var(--t3-mano);font-style:normal;color:var(--t3-tinta)}
+.t3x-pou-barra span{position:relative;display:block;height:11px;border:1.6px solid var(--t3-tinta);border-radius:2px;background:rgba(251,245,231,.7);box-shadow:1.5px 1.5px 0 rgba(43,33,24,.2);overflow:hidden}
+.t3x-pou-barra b{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--c);transition:width .5s var(--t3-curva)}
+.t3x-pou-barra[data-k="panza"]{--c:#FF8A65}
+.t3x-pou-barra[data-k="suenio"]{--c:#8C93DD}
+.t3x-pou-barra[data-k="limpia"]{--c:#6FBCEB}
+.t3x-pou-barra[data-k="mimos"]{--c:#E8779A}
+.t3x-pou-poco i{color:var(--t3-sello)}
+.t3x-pou-poco span{border-color:var(--t3-sello);animation:t3x-pou-late 1.4s ease-in-out infinite}
+@keyframes t3x-pou-late{50%{transform:scale(1.035)}}
+.t3x-pou-botones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.t3x-pou-botones button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:66px;margin:0;padding:7px 2px 8px;font:500 9px/1.1 var(--t3-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--t3-tinta);background:var(--t3-papel-claro);border:1.8px solid var(--t3-tinta);border-radius:2px;box-shadow:3px 3px 0 rgba(43,33,24,.24);cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:transform .1s ease,box-shadow .1s ease,opacity .2s ease}
+.t3x-pou-botones button:nth-child(1){transform:rotate(-.9deg)}
+.t3x-pou-botones button:nth-child(3){transform:rotate(.8deg)}
+.t3x-pou-botones button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(43,33,24,.24)}
+.t3x-pou-botones svg{width:30px;height:30px}
+.t3x-pou-duerme [data-pou="comer"],.t3x-pou-duerme [data-pou="banar"],.t3x-pou-ocupada button{opacity:.42}
+.t3x-pou-nota{min-height:18px;margin:10px 0 0;text-align:center}
+.t3x-suelta{display:block;width:100%;height:100%;overflow:visible}
+/* lo que vuela por la escena */
+.t3x-pou-nigiri{width:44px;height:26px;z-index:2;animation:t3x-pou-vuela .56s cubic-bezier(.3,.7,.3,1) forwards}
+@keyframes t3x-pou-vuela{from{transform:translate(var(--dx),var(--dy)) rotate(-22deg) scale(1.2)}70%{transform:translate(calc(var(--dx)*.1),calc(var(--dy)*.04 - 14px)) rotate(8deg) scale(1)}to{transform:translate(0,0) rotate(0deg) scale(.45)}}
+.t3x-pou-miga{width:5px;height:5px;border-radius:50%;background:#FBF9F4;box-shadow:0 0 0 1.2px #0d131a;animation:t3x-pou-cae .7s ease-in forwards}
+@keyframes t3x-pou-cae{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.t3x-pou-burbuja{border-radius:50%;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95) 0 13%,rgba(196,230,250,.5) 30%,rgba(150,205,242,.26) 62%,rgba(255,255,255,.5) 72%,rgba(120,190,235,.5) 100%);box-shadow:inset 0 0 0 1.4px rgba(60,120,170,.6);animation:t3x-pou-sube var(--t,1.2s) ease-out forwards}
+@keyframes t3x-pou-sube{from{transform:translate(0,0) scale(.3);opacity:0}18%{opacity:1;transform:translate(calc(var(--dx)*.2),calc(var(--dy)*.15)) scale(1)}85%{opacity:.95}to{transform:translate(var(--dx),var(--dy)) scale(1.12);opacity:0}}
+.t3x-pou-brillo{width:18px;height:18px;background:linear-gradient(135deg,#fff,#BFE4FA);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);animation:t3x-pou-brilla var(--t,.7s) ease-out forwards}
+@keyframes t3x-pou-brilla{from{transform:scale(0) rotate(-30deg);opacity:0}45%{transform:scale(1.2) rotate(8deg);opacity:1}to{transform:scale(0) rotate(40deg);opacity:0}}
+/* mojada: el fuego baja un poco mientras dura el baño */
+.t3x-pou-banio .t3-ponyta-fl-o{fill:#C2531C}
+.t3x-pou-banio .t3-ponyta-fl-y{fill:#EDB44A}
+.t3x-pou-banio.t3-ponyta-shiny .t3-ponyta-fl-o{fill:#2A4CA6}
+.t3x-pou-banio.t3-ponyta-shiny .t3-ponyta-fl-y{fill:#79AADA}
+.t3x-pou-banio .t3-ponyta-rapidash img{filter:saturate(.78)}
+@media (prefers-reduced-motion:reduce){.t3x-pou-nigiri,.t3x-pou-burbuja,.t3x-pou-miga,.t3x-pou-brillo,.t3x-pou-poco span{animation-duration:.01s;animation-iteration-count:1}}
 
 /* ---- avisos: la tarjeta de la campanita ---- */
 .t3x-campana{flex:1 0 100%;display:grid;grid-template-columns:36px 1fr;gap:4px 8px;align-items:start;box-sizing:border-box;max-width:322px;margin:2px 0 6px;padding:12px 14px 8px 12px;background:#FCF8EE;box-shadow:var(--t3-sombra-dura),0 8px 14px -8px rgba(43,33,24,.35);transition:opacity .4s ease,transform .4s var(--t3-curva)}
@@ -9852,9 +10000,9 @@ function svg(op){op=op||{};var linea=!!op.linea;var f=op.forma||forma();var shin
 var c=[],fill=p.f;var cola=COLA.indexOf(i)>=0;if(p.r==="crin"||p.r==="cola"||p.r==="patas"){var am=p.f.toLowerCase()===FUEGO.y;fill=shiny?(am?HIELO.y:HIELO.o):p.f;c.push("t3-ponyta-fl",am?"t3-ponyta-fl-y":"t3-ponyta-fl-o");brasas.push('<path class="t3-ponyta-brasa t3-ponyta-b'+brasas.length+(am?" t3-ponyta-fl-y-b":" t3-ponyta-fl-o-b")+
 (cola?" t3-ponyta-cola":"")+'" d="'+p.d+'" fill="'+(am?(shiny?BRASA.sy:BRASA.y):(shiny?BRASA.so:BRASA.o))+'" opacity="0"/>');}
 if(OJO.indexOf(i)>=0)c.push("t3-ponyta-ojo");if(OREJA.indexOf(i)>=0)c.push("t3-ponyta-oreja");if(cola)c.push("t3-ponyta-cola");cuerpo.push('<path d="'+p.d+'" fill="'+fill+'" data-r="'+p.r+'"'+(c.length?' class="'+c.join(" ")+'"':"")+"/>");});var borde=op.borde&&!linea?'<g class="t3-ponyta-borde" aria-hidden="true">'+
-P.filter(function(p){return p.r==="tinta";}).map(function(p){return'<path d="'+p.d+'"/>';}).join("")+"</g>":"";var extra=linea?"":(op.quieta?"":'<g class="t3-ponyta-brasas" aria-hidden="true">'+brasas.join("")+"</g>")+'<path class="t3-ponyta-ojo-dormido" d="'+ARCO_DORMIDO+'" fill="none" stroke="#0d131a" stroke-width="4.6" stroke-linecap="round" transform="rotate(-9 43 98)" opacity="0"/>'+'<path class="t3-ponyta-ojo-feliz" d="'+ARCO_FELIZ+'" fill="none" stroke="#0d131a" stroke-width="4.6" stroke-linecap="round" transform="rotate(-9 43 98)" opacity="0"/>';return'<svg class="'+cls+'" viewBox="'+VB+'" role="img" aria-label="Ponyta" focusable="false" '+(op.extra||"")+">"+'<g class="t3-ponyta-g">'+(op.gorro&&T3.viaje&&T3.viaje.poner?T3.viaje.poner({borde:borde,cuerpo:cuerpo.join(""),extra:extra,linea:linea}):borde+cuerpo.join("")+extra)+"</g></svg>";}
+P.filter(function(p){return p.r==="tinta";}).map(function(p){return'<path d="'+p.d+'"/>';}).join("")+"</g>":"";var extra=linea?"":(op.quieta?"":'<g class="t3-ponyta-brasas" aria-hidden="true">'+brasas.join("")+"</g>")+'<path class="t3-ponyta-ojo-dormido" d="'+ARCO_DORMIDO+'" fill="none" stroke="#0d131a" stroke-width="4.6" stroke-linecap="round" transform="rotate(-9 43 98)" opacity="0"/>'+'<path class="t3-ponyta-ojo-feliz" d="'+ARCO_FELIZ+'" fill="none" stroke="#0d131a" stroke-width="4.6" stroke-linecap="round" transform="rotate(-9 43 98)" opacity="0"/>';return'<svg class="'+cls+'" viewBox="'+VB+'" role="img" aria-label="Ponyta" focusable="false" '+(op.extra||"")+">"+'<g class="t3-ponyta-g">'+(T3.ropa?T3.ropa.vestir({borde:borde,cuerpo:cuerpo.join(""),partes:cuerpo,P:P,extra:extra,linea:linea},op):borde+cuerpo.join("")+extra)+"</g></svg>";}
 var RAPI_VB="-1.0 0.1 393.7 369.1";var RAPI_PARCHE="M32.8 104C33 96.5 39 92.6 46 93 52.8 93.4 56.4 97 55 104.4 53.8 110.6 47 114.2 40.5 113.4 35.6 112.6 32.6 109 32.8 104Z";var RAPI_ARCO="M35.6 102.4Q43.2 111.2 51.6 100.2";function rapidash(shiny,op){var normal=T3.util.poke("rapidash");var src=shiny?T3.util.asset("ponyta/rapidash-shiny.svg"):normal;return'<span class="t3-ponyta-svg t3-ponyta-rapidash'+(shiny?" t3-ponyta-shiny":"")+(op.clase?" "+op.clase:"")+'" role="img" aria-label="Rapidash" '+(op.extra||"")+'><img src="'+src+'" alt="" draggable="false" decoding="async"'+
-(shiny?" onerror=\"this.onerror=null;this.src='"+normal+"'\"":"")+">"+'<svg class="t3-ponyta-rapi-ojo" viewBox="'+RAPI_VB+'" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">'+'<path d="'+RAPI_PARCHE+'" fill="#f9f1ab"/>'+'<path d="'+RAPI_ARCO+'" fill="none" stroke="#0d131a" stroke-width="3.2" stroke-linecap="round"/></svg>'+(op.gorro&&T3.viaje&&T3.viaje.gorroRapidash?T3.viaje.gorroRapidash(RAPI_VB):"")+"</span>";}
+(shiny?" onerror=\"this.onerror=null;this.src='"+normal+"'\"":"")+">"+'<svg class="t3-ponyta-rapi-ojo" viewBox="'+RAPI_VB+'" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">'+'<path d="'+RAPI_PARCHE+'" fill="#f9f1ab"/>'+'<path d="'+RAPI_ARCO+'" fill="none" stroke="#0d131a" stroke-width="3.2" stroke-linecap="round"/></svg>'+(T3.ropa?T3.ropa.rapidash(RAPI_VB,op,shiny):"")+"</span>";}
 var POZO=["dormí once horas. podría haber dormido doce.","hoy tengo la melena divina. no me mires tanto.","snorlax duerme más que yo. no es mérito, es talento.","¿alguien dijo menta granizada? yo escuché menta granizada.","tengo el fuego al máximo. pura ganas de nada.","hoy no corro. hoy poso.","las velas de la torta me dan miedo. son tipo primas.","snorlax dice que es tu favorito. snorlax miente.","la siesta es un derecho. lo dice la constitución de los ponyta.","soñé con un helado de menta del tamaño de olivos.","me quemé el flequillo. ahora es tendencia.","me delineé las llamas. ojo de gato, pero de caballo.","si tenés frío, acá estoy. para eso sirvo.","hoy me siento rapidash. mañana se me pasa.","no es drama. es intensidad.","diez cuadras las hago en un minuto. no me desafíes.","me quedé mirando el velador una hora. somos parientes lejanos.","vi un charco. lo miré fijo. se evaporó. así soy.","hoy vine peinada. bueno, prendida fuego. es lo mismo.","tengo cara de buena. no te confíes.","cinco minutos más. y otros cinco.","¿es de noche o tengo sueño? las dos.","un día me como un pote de menta entero y nadie me frena.","brillo propio. no necesito velador.","si me acariciás la melena, prometo no quemarte. casi seguro.","hoy estoy dramática. lo aviso para que conste.","vi una carrera de F1. yo en la largada les saco dos cuerpos.","el cuerno lo tiene rapidash. yo tengo actitud.","trote corto, siesta larga. esa es mi filosofía.","snorlax se durmió en el renglón de abajo. le robé la almohada.","me levanté con la melena para arriba. como siempre, pero con onda.","tengo antojo de menta. no es un antojo, es un estilo de vida.","pisé un lego. ahora entiendo todo.","puse one direction bajito. no me juzgues.","si te aburrís, haceme correr. me encanta presumir.","las huellas quemadas no se borran. soy así de intensa.","el sushi me lo como vuelta y vuelta. soy la plancha.","dormí abajo del señalador. muy cómodo. no lo recomiendo.","snorlax no corre. yo sí. lo dejo por acá.","me sequé la cola con secador. el secador no sobrevivió.","¿hace calor o soy yo? soy yo.","no soy un perro. y no hay que sacarme a pasear. pensalo.","tengo un caballo de fuerza. uno. pero bien puesto.","cuando la mini lu crezca, le enseño a trotar.","si no me ves, estoy durmiendo. si me ves, también un poco.","hoy amanecí shiny por dentro.","si van a vecino, tráiganme algo. menta, obvio.","me armé una casita de lego. se derritió un poco. igual es hermosa.","me pinté las pestañas. ahora pestañeo en cámara lenta.","hoy hice una vuelta rápida. vuelta récord, obvio."];var ESPECIALES={"10-01":"cuaderno nuevo. ya me elegí la mejor hoja.","10-27":"hoy cumple él. le regalé humo. no me alcanzó para más.","10-31":"me disfracé de ponyta. nadie se dio cuenta.","12-16":"hoy es tu cumple. me puse azul de gala. no pregunten.","12-24":"si ves a un señor gordo de rojo, no es snorlax. creo.","12-25":"feliz navidad. a mí no me pongan cerca del arbolito.","12-31":"último día del año. lo cierro con una siesta.","01-01":"año nuevo, melena nueva. mentira, es la misma."};var MESARIO="hoy es el día de ustedes. yo me hago la distraída.";var MIMOS=["otro poquito.","eso. ahí. no pares.","ronroneo. los caballos no ronronean. yo sí.","anotado: sos mi persona favorita. no le digas a snorlax.","se me bajó el fuego de la paz que tengo."];var ORDEN=(function(){var a=POZO.slice(),h=T3.util.hash("ponyta-pozo");for(var i=a.length-1;i>0;i--){h=Math.imul(h^(h>>>15),2246822507)>>>0;var j=h%(i+1);var t=a[i];a[i]=a[j];a[j]=t;}
 return a;})();function pegarCortas(t){var antes;t=String(t);do{antes=t;t=t.replace(/(^|[\s ])([^\s ]{1,2}) /g,"$1$2 ");}while(t!==antes);return t;}
 function frase(f){f=f||T3.hoy;var d=T3.dia(f)||{};var s=d.ponyta&&String(d.ponyta).trim();if(!s&&T3.viaje&&T3.viaje.frase)s=T3.viaje.frase(f);if(!s)s=ESPECIALES[f.slice(5)];if(!s&&f.slice(8)==="28")s=MESARIO;if(!s){var n=T3.f.dif("2026-07-01",f),L=ORDEN.length;s=ORDEN[((n%L)+L)%L];}
@@ -9863,7 +10011,7 @@ var vivos=[];function visible(el){if(!el||!el.isConnected)return false;if(docume
 var CORAZON='<svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 16.6C6.1 13.6 1.6 10.6 1.8 6.1 2 2.9 4.5 1.3 7 1.6 8.6 1.9 9.6 3 10 4.3 10.5 3 11.6 1.8 13.3 1.6 16 1.3 18.4 3.2 18.2 6.4 17.9 10.7 13.7 13.6 10 16.6Z" stroke="#2B2118" stroke-width="1.2" stroke-linejoin="round"/><path d="M5 5.2C5.6 4.2 6.6 3.9 7.4 4.1" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2" stroke-linecap="round"/></svg>';var POLVO='<svg viewBox="0 0 30 20" aria-hidden="true"><path d="M4 16C1.5 12 5 7.5 9 9.5 9 4.5 16 3 17.8 7.6 20 5 26 7 24.6 11.6 27.5 13 26 17 22 16.4M11 13.5C12 11.8 14 12 14.6 13.4" fill="none" stroke="#8F8577" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';var ESTRELLA='<svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="M0-9.5C.8-2.4 2.4-.8 9.5 0 2.4.8.8 2.4 0 9.5-.8 2.4-2.4.8-9.5 0-2.4-.8-.8-2.4 0-9.5Z" fill="#fff" stroke="#2F62E3" stroke-width="1.1" stroke-linejoin="round"/></svg>';var CORAZONCITO="M0 3.1C-1.5 2-3.2.9-3.1-.8-3-2-2-2.6-1.1-2.5-.5-2.4-.1-2 0-1.5.2-2 .6-2.4 1.2-2.5 2.1-2.6 3.1-1.9 3.1-.8 3 .9 1.4 2 0 3.1Z";var HERRADURA="M-6.2 6.8C-8.7 .4-6.9-8.4 0-8.9 6.9-8.4 8.7.4 6.2 6.8";var PISADA="M-7.6-7.2C-2.4-9.8 8.2-8.6 8.2 0 8.2 8.6-2.4 9.8-7.6 7.2L-7.4 3.5C-2.6 5.3 3.9 4.6 3.9 0 3.9-4.6-2.6-5.3-7.4-3.5Z";var PISADA_ASCUA="M7-3.6C7.9-1.4 7.9 1.4 7 3.6";var SUELA='<ellipse cx="-1.6" cy="0" rx="6.4" ry="5.2"/>';var RANILLA="M-6.4-2.4L1.4 0-6.4 2.4";var CLAVOS=[[5.9,2.6],[5.9,-2.6],[2.6,5.9],[2.6,-5.9],[-2.2,6.6],[-2.2,-6.6]];var ESC_W=360,ESC_H=372;var PX=76,PY=118,PW=224,ESCALA=PW/VB_W;function aEscena(x,y){return[PX+(x-VB_X)*ESCALA,PY+(y-VB_Y)*ESCALA];}
 var RAPI_W=PW*1.04,RAPI_X=PX-PW*.02,RAPI_K=RAPI_W/393.7;var RAPI_Y=PY+(RAPI_W*287.6/298-RAPI_W*369.1/393.7);function aRapi(x,y){return[RAPI_X+(x+1)*RAPI_K,RAPI_Y+(y-.1)*RAPI_K];}
 function pct(v,total){return(v/total*100).toFixed(3)+"%";}
-var instancias=0;function pagina(host,op){op=op||{};if(!host)return null;if(host._t3ponyta&&host._t3ponyta.desmontar)host._t3ponyta.desmontar();var uid="t3p"+(++instancias);var esRapi=forma()==="rapidash";var shiny=T3.esShiny();var R=reducido();var AUS=!!(T3.viaje&&T3.viaje.ausente()),GORRO=!AUS&&!!(T3.viaje&&T3.viaje.conGorro());host.innerHTML='<div class="t3-ponyta-pag'+(op.papel===false?" t3-ponyta-sinpapel":"")+(shiny?" t3-ponyta-shiny":"")+(GORRO?" t3-ponyta-con-gorro":"")+
+var instancias=0;function pagina(host,op){op=op||{};if(!host)return null;if(host._t3ponyta&&host._t3ponyta.desmontar)host._t3ponyta.desmontar();var uid="t3p"+(++instancias);var esRapi=forma()==="rapidash";var shiny=T3.esShiny();var R=reducido();var AUS=!!(T3.viaje&&T3.viaje.ausente()),GORRO=!AUS&&!!(T3.viaje&&T3.viaje.conGorro()),ALTO=GORRO||(!AUS&&!!(T3.ropa&&T3.ropa.enLaCabeza()));host.innerHTML='<div class="t3-ponyta-pag'+(op.papel===false?" t3-ponyta-sinpapel":"")+(shiny?" t3-ponyta-shiny":"")+(ALTO?" t3-ponyta-con-gorro":"")+
 (esRapi?" t3-ponyta-es-rapidash":"")+'">'+'<header class="t3-ponyta-cabeza">'+'<div><h2 class="t3-ponyta-titulo">'+(esRapi?"Rapidash":"Ponyta")+"</h2>"+'<p class="t3-ponyta-rotulo">Hoja de campo · Olivos</p></div>'+'<div class="t3-ponyta-sello" aria-hidden="true">Ejemplar<b>único</b></div>'+"</header>"+'<div class="t3-ponyta-escena">'+'<svg class="t3-ponyta-dibujos" viewBox="0 0 '+ESC_W+" "+ESC_H+'" aria-hidden="true">'+dibujosEscena(shiny,esRapi)+"</svg>"+'<div class="t3-ponyta-anda">'+'<svg class="t3-ponyta-sombra" viewBox="0 0 '+ESC_W+" "+ESC_H+'" aria-hidden="true">'+sombra(uid)+"</svg>"+'<div class="t3-ponyta-postura" style="left:'+pct(PX,ESC_W)+";top:"+pct(PY,ESC_H)+";width:"+pct(PW,ESC_W)+'">'+
 svg({shiny:shiny,gorro:GORRO})+(esRapi?"":manta())+"</div>"+'<div class="t3-ponyta-estela" aria-hidden="true"></div>'+"</div>"+'<div class="t3-ponyta-zzz" aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>'+'<div class="t3-ponyta-fx" aria-hidden="true"></div>'+'<button type="button" class="t3-ponyta-puntos" aria-label="que lo repita"><svg viewBox="0 0 34 16" aria-hidden="true">'+'<path d="M3.4 9.6c.6-.9 1.7-.8 1.9.2.2 1-1.1 1.6-1.8.8M14.6 10.4c.5-1 1.8-1 2 0 .1 1.1-1.3 1.5-1.9.6M26.2 9c.7-.8 1.8-.6 1.9.4.1 1-1.3 1.5-1.9.6"/>'+'<path d="M2 14.2C10 12.6 21 12.8 31.6 11.2" class="t3-ponyta-puntos-raya"/></svg></button>'+'<div class="t3-ponyta-globo" role="status" aria-live="polite"><span class="t3-ponyta-globo-molde" aria-hidden="true"></span>'+'<span class="t3-ponyta-globo-txt"></span>'+'<svg class="t3-ponyta-globo-cola" viewBox="0 0 30 30" preserveAspectRatio="none" aria-hidden="true"><path d="M3.4-1.2H13.6V2.6H3.4Z" class="t3-ponyta-globo-tapa"/>'+'<path d="M3 1.4 21.5 27 13.4 1.4" class="t3-ponyta-globo-pico"/></svg>'+"</div>"+"</div>"+'<div class="t3-ponyta-mandos">'+'<button type="button" class="t3-ponyta-correr"><svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="'+HERRADURA+'"/>'+'<circle cx="-6.6" cy="3" r=".85"/><circle cx="-6" cy="-3.6" r=".85"/><circle cx="6.6" cy="3" r=".85"/><circle cx="6" cy="-3.6" r=".85"/></svg>'+'<span class="t3-ponyta-correr-txt">'+(hoyMarcada()?"Otra vuelta":"Hacela correr")+"</span></button>"+'<span class="t3-ponyta-lapiz t3-ponyta-presume" aria-hidden="true">'+(hoyMarcada()?NOTA_MARCADA:"(le encanta presumir)")+"</span>"+"</div>"+'<section class="t3-ponyta-rastro">'+'<p class="t3-ponyta-rotulo">Lo que va dejando <span class="t3-ponyta-lapiz">no se borran</span></p>'+'<div class="t3-ponyta-huellas"></div>'+"</section>"+'<div class="t3-ponyta-velador" aria-hidden="true"></div>'+
 (esRapi?'<button type="button" class="t3-ponyta-volver"><svg viewBox="0 0 26 18" aria-hidden="true"><path d="M22 13C19 16 11 17 6.5 12.5 4 10 3.6 6.4 4.6 3.6M1.4 6.6 4.6 3.2 8 6.2"/></svg>volver a ser Ponyta</button>':"")+"</div>";var raiz=host.querySelector(".t3-ponyta-pag");var escena=raiz.querySelector(".t3-ponyta-escena");var anda=raiz.querySelector(".t3-ponyta-anda");var postura=raiz.querySelector(".t3-ponyta-postura");var bicho=postura.firstElementChild;var fx=raiz.querySelector(".t3-ponyta-fx");var globo=raiz.querySelector(".t3-ponyta-globo");var btn=raiz.querySelector(".t3-ponyta-correr");var cajaH=raiz.querySelector(".t3-ponyta-huellas");var txtBtn=btn.querySelector(".t3-ponyta-correr-txt"),presume=raiz.querySelector(".t3-ponyta-presume");var st={vivo:true,duerme:false,corriendo:false,dijo:false,mima:false,ultimo:ahora(),gesto:null,proxParpadeo:ahora()+1800,proxOreja:ahora()+5000,proxCola:ahora()+3200,timers:[],anims:[],visible:true,congelado:false};if(AUS){st.corriendo=true;T3.viaje.vestir(raiz,false);}function clase(n,si){raiz.classList.toggle("t3-ponyta-"+n,!!si);}
@@ -9873,7 +10021,7 @@ function pulso(n,ms){clase(n,false);void raiz.offsetWidth;clase(n,true);luego(fu
 function rectEn(el){var e=escena.getBoundingClientRect(),r=el.getBoundingClientRect();return{x:r.left-e.left,y:r.top-e.top,w:r.width,h:r.height,ew:e.width,eh:e.height};}
 function puntoPony(x,y){var r=rectEn(bicho);return[r.x+(x-VB_X)/VB_W*r.w,r.y+(y-VB_Y)/VB_W*r.w];}
 function particula(html,clase,x,y,dur,estilo){var d=document.createElement("div");d.className="t3-ponyta-p "+clase;d.innerHTML=html||"";d.style.left=x+"px";d.style.top=y+"px";if(estilo)for(var k in estilo)d.style.setProperty(k,estilo[k]);fx.appendChild(d);luego(function(){d.remove();},dur);return d;}
-function corazon(x,y,n){var grande=n===2||n===5,s=grande?28:Math.round(azarN(18,24));if(grande){var c=puntoPony(58,28);x=c[0]+azarN(-8,8);y=c[1]+16;}
+function corazon(x,y,n){try{if(T3.pou&&T3.pou.alMimo)T3.pou.alMimo();}catch(e){}var grande=n===2||n===5,s=grande?28:Math.round(azarN(18,24));if(grande){var c=puntoPony(58,28);x=c[0]+azarN(-8,8);y=c[1]+16;}
 else y-=36;particula(CORAZON,"t3-ponyta-corazon"+(grande?" t3-ponyta-corazon-g":""),x-s/2,y-s,1300,{"--r":azarN(-18,18).toFixed(0)+"deg","--dx":azarN(-14,14).toFixed(0)+"px",width:s+"px",height:(s*.9).toFixed(1)+"px"});}
 function chispa(x,y,lejos){particula("","t3-ponyta-chispa",x-4,y-4,1400,{"--dx":azarN(-18,18).toFixed(0)+"px","--dy":(-(lejos||46)-azarN(0,26)).toFixed(0)+"px","--t":azarN(.75,1.25).toFixed(2)+"s"});}
 function polvo(x,y,grande){particula(POLVO,"t3-ponyta-polvo"+(grande?" t3-ponyta-polvo-g":""),x-14,y-12,900,{"--dx":azarN(8,26).toFixed(0)+"px"});}
@@ -9881,12 +10029,12 @@ function parpadear(){if(st.duerme||st.mima)return;pulso("parpadeo",150);}
 function orejita(){if(st.duerme)return;pulso("orejea",520);}
 function colita(){pulso("colea",1100);}
 function saltar(chico){pulso(chico?"saltito":"salta",chico?420:560);if(!chico){var p=puntoPony(120,40);for(var i=0;i<5;i++)chispa(p[0]+azarN(-40,60),p[1]+azarN(-10,40));}}
-var globoT=null;var molde=globo.querySelector(".t3-ponyta-globo-molde"),cola=globo.querySelector(".t3-ponyta-globo-cola");function acomodarGlobo(){var C=["t3-ponyta-globo-largo","t3-ponyta-globo-muy-largo","t3-ponyta-globo-arriba"];C.forEach(function(c){globo.classList.remove(c);});cola.style.removeProperty("height");cola.style.removeProperty("bottom");var lugar=escena.clientHeight*(GORRO&&!esRapi?.24:.27)+4;for(var k=0;k<2&&globo.offsetHeight>lugar;k++)globo.classList.add(C[k]);var h=globo.offsetHeight;if(h>lugar){globo.classList.add(C[2]);var pico=Math.max(12,27-(h-lugar));cola.style.height=pico+"px";cola.style.bottom=(1-pico)+"px";}}
+var globoT=null;var molde=globo.querySelector(".t3-ponyta-globo-molde"),cola=globo.querySelector(".t3-ponyta-globo-cola");function acomodarGlobo(){var C=["t3-ponyta-globo-largo","t3-ponyta-globo-muy-largo","t3-ponyta-globo-arriba"];C.forEach(function(c){globo.classList.remove(c);});cola.style.removeProperty("height");cola.style.removeProperty("bottom");var lugar=escena.clientHeight*(ALTO&&!esRapi?.24:.27)+4;for(var k=0;k<2&&globo.offsetHeight>lugar;k++)globo.classList.add(C[k]);var h=globo.offsetHeight;if(h>lugar){globo.classList.add(C[2]);var pico=Math.max(12,27-(h-lugar));cola.style.height=pico+"px";cola.style.bottom=(1-pico)+"px";}}
 function decir(texto,ms,forzar){var delDia=!texto;if(st.dijo&&delDia&&!forzar)return;if(st.corriendo||st.duerme){if(delDia)st.pendiente=true;return;}
 if(!delDia&&(st.escribiendo||globo.classList.contains("t3-ponyta-ver")))return;st.pendiente=false;texto=pegarCortas(texto||frase());if(delDia)st.dijo=true;st.globoDia=delDia;clase("con-puntos",false);molde.textContent=texto;acomodarGlobo();var txt=globo.querySelector(".t3-ponyta-globo-txt");txt.textContent="";clase("hablando",true);globo.classList.add("t3-ponyta-ver");st.escribiendo=true;T3.util.escribir(txt,texto,{vel:34,instantaneo:st.congelado}).then(function(){st.escribiendo=false;if(!st.vivo||st.congelado)return;clearTimeout(globoT);globoT=luego(callar,ms||7600);});}
 function callar(){if(!globo.classList.contains("t3-ponyta-ver"))return;globo.classList.remove("t3-ponyta-ver");clase("hablando",false);if(st.dijo)clase("con-puntos",true);}
-globo.addEventListener("click",function(){if(!st.escribiendo)callar();});raiz.querySelector(".t3-ponyta-puntos").addEventListener("click",function(e){e.stopPropagation();if(st.corriendo||st.duerme)return;st.ultimo=ahora();decir(null,0,true);});function dormir(){if(st.duerme||st.corriendo)return;st.duerme=true;callar();terminarGesto();clase("duerme",true);}
-function despertar(){if(!st.duerme)return false;st.duerme=false;st.ultimo=ahora();clase("duerme",false);clase("parpadeo",true);luego(function(){clase("parpadeo",false);},260);luego(function(){clase("parpadeo",true);},520);luego(function(){clase("parpadeo",false);orejita();},640);if(!st.dijo||st.pendiente)luego(function(){decir();},1100);return true;}
+globo.addEventListener("click",function(){if(!st.escribiendo)callar();});raiz.querySelector(".t3-ponyta-puntos").addEventListener("click",function(e){e.stopPropagation();if(st.corriendo||st.duerme)return;st.ultimo=ahora();decir(null,0,true);});function dormir(){if(st.duerme||st.corriendo)return;st.duerme=true;try{if(T3.pou&&T3.pou.alDormir)T3.pou.alDormir();}catch(e){}callar();terminarGesto();clase("duerme",true);}
+function despertar(){if(!st.duerme)return false;st.duerme=false;var eraSiesta=!!st.siesta;st.siesta=false;try{if(T3.pou&&T3.pou.alDespertar)T3.pou.alDespertar(eraSiesta);}catch(e){}st.ultimo=ahora();clase("duerme",false);clase("parpadeo",true);luego(function(){clase("parpadeo",false);},260);luego(function(){clase("parpadeo",true);},520);luego(function(){clase("parpadeo",false);orejita();},640);if(!st.dijo||st.pendiente)luego(function(){decir();},1100);return true;}
 var FUEGOS={crin:1,cola:1,patas:1};function zonaEn(cx,cy){var el=document.elementFromPoint(cx,cy);if(!el||!bicho.contains(el)&&el!==bicho)return null;if(el===bicho&&!esRapi){var bb=bicho.getBoundingClientRect();var vx=(cx-bb.left)/bb.width*VB_W+VB_X,vy=(cy-bb.top)/bb.width*VB_W+VB_Y;return(vx<34&&vy>90&&vy<150)?"nariz":null;}
 if(el===bicho)return null;if(esRapi){var rr=bicho.getBoundingClientRect(),fy=(cy-rr.top)/rr.height,fxx=(cx-rr.left)/rr.width;if(fxx<.17&&fy>.12&&fy<.34)return"nariz";if(fy<.45||fxx>.72)return"fuego";return fy>.7?"patas":"lomo";}
 var r=el.getAttribute&&el.getAttribute("data-r");if(r&&FUEGOS[r])return"fuego";var b=bicho.getBoundingClientRect();var x=(cx-b.left)/b.width*VB_W+VB_X,y=(cy-b.top)/b.width*VB_W+VB_Y;if(x<30&&y>96&&y<150)return"nariz";if(x>44&&x<84&&y>48&&y<88)return"oreja";if(y<92&&x<132)return"fuego";if(y>206)return"patas";if(x<60)return"cara";return"lomo";}
@@ -9949,13 +10097,13 @@ detalles.join("")+encima.join("")+"</svg>";}
 pintarHuellas(-1);var ro=null,anchoH=cajaH.clientWidth;if(window.ResizeObserver){ro=new ResizeObserver(function(){var w=cajaH.clientWidth;if(Math.abs(w-anchoH)>2){anchoH=w;pintarHuellas(-1);}});ro.observe(cajaH);}
 var volver=raiz.querySelector(".t3-ponyta-volver");if(volver)volver.addEventListener("click",function(){if(st.corriendo)return;clase("desevoluciona",true);T3.sonido("deseo",.6);luego(function(){evolucionar(false);var nueva=pagina(host,op);if(nueva&&nueva._raiz){nueva._raiz.classList.add("t3-ponyta-recien");}},R?50:900);});function destello(){var pts=[[40,40],[150,10],[250,60],[270,170],[20,150],[130,230],[205,120]];T3.sonido("deseo",.8);pts.forEach(function(q,i){luego(function(){var p=puntoPony(q[0],q[1]);particula(ESTRELLA,"t3-ponyta-estrella",p[0]-10,p[1]-10,900);},i*95);});}
 var vida=setInterval(function(){if(!raiz.isConnected){desmontar();return;}
-if(!st.visible||st.congelado)return;var t=ahora();var noche=T3.esDeNoche();if(!st.duerme&&noche&&!st.corriendo&&!st.gesto&&t-st.ultimo>60000)dormir();if(st.duerme&&!noche)despertar();if(st.duerme||st.corriendo)return;if(t>st.proxParpadeo){parpadear();st.proxParpadeo=t+azarN(2600,7000);}
+if(!st.visible||st.congelado)return;var t=ahora();var noche=T3.esDeNoche();if(!st.duerme&&noche&&!st.corriendo&&!st.gesto&&t-st.ultimo>60000)dormir();if(st.duerme&&!noche&&!st.siesta)despertar();if(st.duerme||st.corriendo)return;if(t>st.proxParpadeo){parpadear();st.proxParpadeo=t+azarN(2600,7000);}
 if(t>st.proxOreja){if(Math.random()<.5)orejita();st.proxOreja=t+azarN(5000,9000);}
 if(t>st.proxCola){colita();st.proxCola=t+azarN(6500,12000);}},250);var io=null;if(window.IntersectionObserver){io=new IntersectionObserver(function(ents){ents.forEach(function(en){st.visible=en.isIntersecting;clase("pausa",!en.isIntersecting);});});io.observe(raiz);}
 if(AUS){}else if(T3.esDeNoche()){st.duerme=true;clase("duerme",true);}
 else{if(shiny&&!R)luego(destello,350);luego(function(){decir();},shiny?1300:650);}
 function desmontar(){if(!st.vivo)return;st.vivo=false;terminarGesto();if(st.estela)st.estela();clearInterval(vida);st.timers.forEach(clearTimeout);st.timers=[];st.anims.forEach(function(a){try{a.cancel();}catch(e){}});if(io)io.disconnect();if(ro)ro.disconnect();vivos=vivos.filter(function(v){return v!==yo;});if(host._t3ponyta===ctl)host._t3ponyta=null;}
-var yo={raiz:raiz,saltar:function(){if(!st.duerme&&!st.corriendo)saltar();},orejita:orejita};vivos.push(yo);var ctl={_raiz:raiz,desmontar:desmontar,correr:correr,dormir:dormir,despertar:despertar,decir:decir,callar:callar,_congelar:function(){st.congelado=true;raiz.getAnimations&&raiz.getAnimations({subtree:true}).forEach(function(a){try{a.pause();}catch(e){}});st.anims.forEach(function(a){try{a.pause();}catch(e){}});st.timers.forEach(clearTimeout);st.timers=[];clase("congelada",true);},_estado:st};host._t3ponyta=ctl;return ctl;}
+var yo={raiz:raiz,saltar:function(){if(!st.duerme&&!st.corriendo)saltar();},orejita:orejita};vivos.push(yo);var ctl={_raiz:raiz,desmontar:desmontar,correr:correr,dormir:dormir,despertar:despertar,decir:decir,callar:callar,_congelar:function(){st.congelado=true;raiz.getAnimations&&raiz.getAnimations({subtree:true}).forEach(function(a){try{a.pause();}catch(e){}});st.anims.forEach(function(a){try{a.pause();}catch(e){}});st.timers.forEach(clearTimeout);st.timers=[];clase("congelada",true);},_estado:st};host._t3ponyta=ctl;ctl._pou={particula:particula,rectEn:rectEn,pulso:pulso,saltar:saltar,bicho:bicho,esRapi:esRapi};try{if(T3.pou&&T3.pou.montar)T3.pou.montar(ctl,host,op);}catch(e){}try{if(T3.ropa&&T3.ropa.adornar)T3.ropa.adornar(ctl,host,op);}catch(e){}return ctl;}
 function dibujosEscena(shiny,esRapi){var s=[];[[40,338,1],[104,352,.8],[168,346,.7],[238,330,1],[300,350,.9],[330,322,.7],[20,360,.6]].forEach(function(t){var x=t[0],y=t[1],k=t[2];s.push('<path class="t3-ponyta-pasto" d="M'+(x-7*k)+" "+y+"q"+(2*k)+" "+(-7*k)+" "+(4*k)+" "+(-11*k)+"M"+(x-1)+" "+y+"q"+(-1*k)+" "+(-9*k)+" "+(1*k)+" "+(-15*k)+"M"+(x+4*k)+" "+y+"q"+(1*k)+" "+(-6*k)+" "+(6*k)+" "+(-9*k)+'"/>');});s.push('<g class="t3-ponyta-flor" transform="translate(322 334) rotate(-8)"><path d="M0 2V18"/><circle r="2.2"/>'+
 [0,60,120,180,240,300].map(function(a){return'<ellipse rx="2.3" ry="4.4" transform="rotate('+a+') translate(0 -6)"/>';}).join("")+"</g>");if(!esRapi){var crin=aEscena(106,34),lomo=aEscena(168,142),nariz=aEscena(10,124),cabeza=aEscena(40,70);s.push('<g class="t3-ponyta-nota t3-ponyta-de-dia">'+'<text x="232" y="52" transform="rotate(-2 232 52)"><tspan class="t3-ponyta-nota-t">la melena</tspan>'+
 (shiny?'<tspan x="232" dy="19">hoy salió azul.</tspan><tspan x="232" dy="19">pasale el dedo</tspan>':'<tspan x="232" dy="19">pasale el dedo</tspan>')+"</text>"+
@@ -13358,13 +13506,13 @@ bloque.addEventListener("pointerdown",abajo);bloque.addEventListener("pointermov
 function doblar(){if(!vista||vista.leaf.extra>=0)return;var f=vista.leaf.f;var ya=T3.tiene("orejas",f);if(ya)T3.quitar("orejas",f);else T3.agregar("orejas",f);vista.el.classList.toggle(P+"doblada",!ya);T3.sonido("papel",.5);U.vibrar(10);aviso(ya?"desdoblada":U.azar(["doblada. esta queda marcada","punta doblada: la encontrás en el ♥","marcada para volver"],"dob"+f));actualizarPestanas();}
 function actualizarPie(){var a=$("."+P+"flecha-antes",raiz),d=$("."+P+"flecha-despues",raiz);if(a)a.setAttribute("aria-disabled",String(!especial&&pos<=0));if(d)d.setAttribute("aria-disabled",String(!!especial||pos>=hojas.length-1));actualizarPestanas();}
 function mesesExistentes(){var vistos=[],res=[];hojas.forEach(function(l){var m=l.f.slice(0,7);if(vistos.indexOf(m)<0){vistos.push(m);res.push(l.f);}});return res;}
-function armarPestanas(){var cont=$("."+P+"pestanas",raiz);if(!cont)return;var html="";mesesExistentes().forEach(function(f){html+='<button type="button" class="'+k("pestana")+'" data-mes="'+f.slice(0,7)+'" data-ir="'+f+'" aria-label="ir a '+esc(T3.f.mes(f))+'">'+T3.f.mesCorto(f)+"</button>";});html+='<button type="button" class="'+k("pestana pestana-corazon")+'" data-pest="dobladas" aria-label="las hojas dobladas">♥</button>';if(T3.pedidos&&T3.pedidos.activo&&T3.pedidos.activo())html+='<button type="button" class="'+k("pestana pestana-pedidos")+'" data-pest="pedidos" aria-label="el talonario de pedidos">Pedidos</button>';cont.innerHTML=html;var arriba=$("."+P+"pestanas-arriba",raiz),h2="";if(T3.tcg&&T3.tcg.activo&&T3.tcg.activo())h2+='<button type="button" class="'+k("pestana-sup pestana-tcg"+(T3.tcg.haySobre&&T3.tcg.haySobre()?" con-sobre":""))+'" data-pest="tcg">TCG</button>';if(T3.hoy>="2026-12-01"&&T3.hoy<="2027-01-06")h2+='<button type="button" class="'+k("pestana-sup pestana-adviento")+'" data-pest="adviento">Adviento</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-mapa")+'" data-pest="mapa">Mapa</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-ponyta")+'" data-pest="ponyta">Ponyta</button>';if(arriba)arriba.innerHTML=h2;actualizarPestanas();}
+function armarPestanas(){var cont=$("."+P+"pestanas",raiz);if(!cont)return;var html="";mesesExistentes().forEach(function(f){html+='<button type="button" class="'+k("pestana")+'" data-mes="'+f.slice(0,7)+'" data-ir="'+f+'" aria-label="ir a '+esc(T3.f.mes(f))+'">'+T3.f.mesCorto(f)+"</button>";});html+='<button type="button" class="'+k("pestana pestana-corazon")+'" data-pest="dobladas" aria-label="las hojas dobladas">♥</button>';if(T3.pedidos&&T3.pedidos.activo&&T3.pedidos.activo())html+='<button type="button" class="'+k("pestana pestana-pedidos")+'" data-pest="pedidos" aria-label="la tienda">Tienda</button>';cont.innerHTML=html;var arriba=$("."+P+"pestanas-arriba",raiz),h2="";if(T3.tcg&&T3.tcg.activo&&T3.tcg.activo())h2+='<button type="button" class="'+k("pestana-sup pestana-tcg"+(T3.tcg.haySobre&&T3.tcg.haySobre()?" con-sobre":""))+'" data-pest="tcg">TCG</button>';if(T3.hoy>="2026-12-01"&&T3.hoy<="2027-01-06")h2+='<button type="button" class="'+k("pestana-sup pestana-adviento")+'" data-pest="adviento">Adviento</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-mapa")+'" data-pest="mapa">Mapa</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-ponyta")+'" data-pest="ponyta">Ponyta</button>';if(arriba)arriba.innerHTML=h2;actualizarPestanas();}
 function actualizarPestanas(){if(!raiz||!vista)return;var mes=vista.leaf.f.slice(0,7);$$("."+P+"pestana, ."+P+"pestana-sup",raiz).forEach(function(b){var act=especial?b.getAttribute("data-pest")===especial.nombre:b.getAttribute("data-mes")===mes;b.classList.toggle(P+"activa",!!act);});}
 function engancharPestanas(){[$("."+P+"pestanas",raiz),$("."+P+"pestanas-arriba",raiz)].forEach(function(cont){if(cont)cont.addEventListener("click",clicPestana);});function clicPestana(ev){var b=ev.target.closest("button");if(!b||animando)return;T3.sonido("click",.6);if(b.hasAttribute("data-ir")){var destino=indiceDe(b.getAttribute("data-ir"));if(especial)volverDeEspecial().then(function(){irIdx(destino);});else irIdx(destino);return;}
 var p=b.getAttribute("data-pest");if(p==="dobladas")abrirIndice({dobladas:true});else abrir(p);}}
 function irIdx(i){if(i===pos){if(marcadorCtl&&marcadorCtl.galopar)marcadorCtl.galopar();return Promise.resolve(false);}
 return pasar(i>pos?1:-1,i);}
-var ESPECIALES={ponyta:{rotulo:"Ponyta",montar:function(h){return T3.ponyta&&T3.ponyta.pagina(h);}},mapa:{rotulo:"el mapa",montar:function(h){return T3.mapa&&T3.mapa.pagina(h,{fresco:false,alCerrar:function(){volverDeEspecial();}});}},adviento:{rotulo:"adviento",montar:function(h){return T3.adviento&&T3.adviento.pagina(h);}},tcg:{rotulo:"MafiaTCG",montar:function(h){return T3.tcg&&T3.tcg.pagina(h);}},pedidos:{rotulo:"pedidos",montar:function(h){return T3.pedidos&&T3.pedidos.pagina(h);}}};function abrir(nombre){var E=ESPECIALES[nombre];if(!E||!raiz)return Promise.resolve(false);if(estaCerrado())abrirTapa(true);if(animando)return Promise.resolve(false);if(especial){if(especial.nombre===nombre)return Promise.resolve(true);return volverDeEspecial().then(function(){return abrir(nombre);});}
+var ESPECIALES={ponyta:{rotulo:"Ponyta",montar:function(h){return T3.ponyta&&T3.ponyta.pagina(h);}},mapa:{rotulo:"el mapa",montar:function(h){return T3.mapa&&T3.mapa.pagina(h,{fresco:false,alCerrar:function(){volverDeEspecial();}});}},adviento:{rotulo:"adviento",montar:function(h){return T3.adviento&&T3.adviento.pagina(h);}},tcg:{rotulo:"MafiaTCG",montar:function(h){return T3.tcg&&T3.tcg.pagina(h);}},pedidos:{rotulo:"la tienda",montar:function(h){return T3.pedidos&&T3.pedidos.pagina(h);}}};function abrir(nombre){var E=ESPECIALES[nombre];if(!E||!raiz)return Promise.resolve(false);if(estaCerrado())abrirTapa(true);if(animando)return Promise.resolve(false);if(especial){if(especial.nombre===nombre)return Promise.resolve(true);return volverDeEspecial().then(function(){return abrir(nombre);});}
 animando=true;var h=document.createElement("section");h.className=k("hoja visible hoja-especial especial-"+nombre);h.innerHTML='<div class="'+k("especial")+'"><div class="'+k("especial-cabeza")+'">'+'<button type="button" class="'+k("volver")+'"><b aria-hidden="true">‹</b>volver a la hoja</button>'+'<span class="'+k("especial-rotulo")+'">'+esc(E.rotulo.toUpperCase())+"</span></div>"+'<div class="'+k("especial-host")+'"></div></div>';var host=$("."+P+"especial-host",h);$("."+P+"volver",h).addEventListener("click",function(){volverDeEspecial();});var g=iniciarGiro(1,h);var ctl=null;try{ctl=E.montar(host);}catch(e){host.innerHTML='<p class="'+k("roto")+'">Esta página se trabó. Volvé en un rato, la arreglo.</p>';}
 especial={nombre:nombre,el:h,ctl:ctl,desde:vista};T3.sonido("papel",.8);return g.terminar(true,560).then(function(){animando=false;if(marcadorCtl&&marcadorCtl.galopar)marcadorCtl.galopar();actualizarPie();return true;});}
 function volverDeEspecial(){if(!especial||animando)return Promise.resolve(false);animando=true;var e=especial;var h=crearHoja(hojas[pos],{});var guardada=vista;vista={el:e.el,leaf:guardada.leaf};var g=iniciarGiro(-1,h);T3.sonido("papel",.8);return g.terminar(true,520).then(function(){try{if(e.ctl&&e.ctl.desmontar)e.ctl.desmontar();}catch(x){}
@@ -13469,10 +13617,11 @@ T3.cuaderno={arrancar:arrancar,ocupado:function(){return !!(suelta||eventoFecha|
    ------------------------------------------------------------
    Todo lo que vino después del cuaderno vive acá abajo, en
    bloques sueltos: actualización sola, respaldo, taller, ida y
-   vuelta por WhatsApp, pedidos, MafiaTCG y avisos.
+   vuelta por WhatsApp, la tienda, MafiaTCG, la ropa de Ponyta,
+   el modo Pou, avisos y el viaje de Ponyta.
    Cada bloque se engancha al cuaderno por T3.*; si uno falla,
    el cuaderno sigue andando igual.
-   Lo que estrena para Sofi (TCG, pedidos, contestar, avisos)
+   Lo que estrena para Sofi (TCG, tienda, contestar, avisos)
    aparece recién desde CONFIG.t3.estreno.
    ============================================================ */
 (function(){
@@ -14050,83 +14199,311 @@ T3.vuelta={pieCarta:pieCarta,enVale:enVale};
 })();
 
 /* ------------------------------------------------------------
-   TALONARIO DE PEDIDOS
-   Una pestaña con tickets: toca uno y se abre WhatsApp con el
-   pedido ya escrito. La lista se puede cambiar desde
-   CONFIG.t3.pedidos: [{t:"título", d:"letra chica", m:"mensaje"}]
+   LA TIENDA · T3.tienda (la pestaña verde del cuaderno)
+   Acá se gastan los MafiaPoints que se ganan en los duelos de
+   MafiaTCG (T3.tcg.puntos() y T3.tcg.gastar(n)). Nada es gratis.
+
+   Dos estantes:
+   · EL TALONARIO: pedidos de la vida real. Se canjea uno y se
+     abre WhatsApp con el pedido ya escrito, numerado.
+   · PARA PONYTA: ropa y accesorios (la lista y los dibujos están
+     en T3.ropa) y las cosas grandes de ESPECIALES (el modo Pou,
+     la Franconeta, la Sorpresa).
+
+   PARA CAMBIAR UN PRECIO: el número "p" de TICKETS, "precio" en
+   ESPECIALES o en las PRENDAS de T3.ropa. También se puede pisar
+   desde CONFIG.t3.tienda.precios: {mimos: 30, boina: 90, pou: 800}.
+   Los precios que dictó Mati (24/11/2026): mimos 40, masajitos 100,
+   helado 250, camiseta de Racing 600, modo Pou 1000, Franconeta
+   2000, Sorpresa 5000. El resto los puso Claude.
+
+   Un talonario propio se arma con CONFIG.t3.pedidos:
+   [{t:"título", d:"letra chica", m:"mensaje", p:precio}]
+
+   Guarda en pv-t3-tienda: {cosas:{id:fecha}, puesto:{lugar:id},
+   n (pedidos hechos), log:[{n,id,t,f,p}]}
    ------------------------------------------------------------ */
 (function(){
 "use strict";
 var T3=window.T3;
 if(!T3||!T3.x)return;
-var X=T3.x,esc=X.esc,C=T3.config||{};
-var BASE=[
-  {id:"mimos",    t:"Mimos",                     d:"Sin horario. Sin tope.",             dib:"corazon"},
-  {id:"masajitos",t:"Masajitos",                 d:"El aporte semanal, pero al revés.",  dib:"manos"},
-  {id:"sushi",    t:"Sushitos de Fabric",        d:"Canjeable cualquier viernes. O hoy.",dib:"sushi"},
-  {id:"mila",     t:"Mila napo del Vecino",      d:"Obvio.",                             dib:"mila"},
-  {id:"helado",   t:"Helado de menta granizada", d:"Del tamaño que quieras.",            dib:"helado"},
-  {id:"chambu",   t:"Chambuchito",               d:"Y no se habla más.",                 dib:"sanguche"},
-  {id:"peli",     t:"Peli y sillón",             d:"Elegís vos. Yo llevo algo rico.",    dib:"peli"},
-  {id:"buscar",   t:"Vení a buscarme",           d:"Son diez cuadras.",                  dib:"cuadras"},
-  {id:"llamar",   t:"Llamame",                   d:"Cinco minutos. O cincuenta.",        dib:"telefono"}
-];
-var COMODIN={id:"comodin",t:"Comodín",d:"Lo que quieras: lo escribís vos.",dib:"estrella",libre:true};
+var X=T3.x,esc=X.esc,U=T3.util,C=T3.config||{},CT=C.tienda||{};
+var LL="tienda";
 
-function lista(){
-  var propia=(Array.isArray(C.pedidos)?C.pedidos:[]).filter(function(p){return p&&String(p.t||"").trim();}).map(function(p,i){
-    return {id:"p"+i,t:String(p.t).trim(),d:String(p.d||"").trim(),m:String(p.m||"").trim(),dib:X.DIB[p.dib]?p.dib:"corazon"};
-  });
-  return (propia.length?propia:BASE).concat([COMODIN]);
+X.DIB.regalo='<rect x="8" y="20" width="32" height="21" rx="2"/><path d="M6 14h36v6H6zM24 14v27M24 14c-3-7-12-7-11-1 1 3 6 2 11 1zM24 14c3-7 12-7 11-1-1 3-6 2-11 1z"/>';
+X.DIB.bandera='<path d="M11 6v37M11 9c9-4 15 4 26 0v18c-11 4-17-4-26 0"/><path d="M11 18c9-4 15 4 26 0M19.500 7.500v18M28.500 9.500v18"/>';
+X.DIB.cuidar='<path d="M7 32c0-4 6-7 14-7s14 3 14 7-6 7-14 7-14-3-14-7z"/><path d="M9 29c2-6 7-9 12-9s10 3 12 9M15 23l2 5M21 21v6M27 23l-2 5"/><circle cx="38" cy="14" r="4.500"/><circle cx="31" cy="8" r="2.200"/><circle cx="42" cy="24" r="1.600"/>';
+
+/* ---- el talonario: de menor a mayor ---- */
+var TICKETS=[
+  {id:"llamar",   t:"Llamame",                   d:"Cinco minutos. O cincuenta.",        dib:"telefono", p:20},
+  {id:"mimos",    t:"Mimos",                     d:"Sin horario. Sin tope.",             dib:"corazon",  p:40},
+  {id:"buscar",   t:"Vení a buscarme",           d:"Son diez cuadras.",                  dib:"cuadras",  p:80},
+  {id:"masajitos",t:"Masajitos",                 d:"El aporte semanal, pero al revés.",  dib:"manos",    p:100},
+  {id:"peli",     t:"Peli y sillón",             d:"Elegís vos. Yo llevo algo rico.",    dib:"peli",     p:150},
+  {id:"chambu",   t:"Chambuchito",               d:"Y no se habla más.",                 dib:"sanguche", p:200},
+  {id:"helado",   t:"Helado de menta granizada", d:"Del tamaño que quieras.",            dib:"helado",   p:250},
+  {id:"mila",     t:"Mila napo del Vecino",      d:"Obvio.",                             dib:"mila",     p:350},
+  {id:"sushi",    t:"Sushitos de Fabric",        d:"Canjeable cualquier viernes. O hoy.",dib:"sushi",    p:400}
+];
+var COMODIN={id:"comodin",t:"Comodín",d:"Lo que quieras: lo escribís vos.",dib:"estrella",p:500,libre:true};
+
+/* ---- lo grande de Ponyta ----
+     pronto    todavía no se puede comprar (falta armarlo)
+     secreto   no dice qué es hasta que se compra
+     da        un paquete: las prendas de T3.ropa que trae (las que tienen de:"<id del paquete>"). Al comprarlo se
+               las pone todas, y después aparecen sueltas en la vidriera para ponérselas y sacárselas
+     logo      una imagen de fotos/t3/tienda/ para la tarjeta, en vez del garabato
+   La Franconeta está armada con las imágenes que mandó Mati (logo, auto, remera y foto): van tal cual.
+   La Sorpresa (One Direction) espera las suyas: cuando lleguen, se suman como prendas nuevas con de:"sorpresa",
+   se le pone "da" y se le saca el "pronto". */
+var ESPECIALES=[
+  {id:"pou",nombre:"Modo Pou",precio:1000,dib:"cuidar",dice:"Darle nigiris, bañarla, mandarla a dormir. Queda para siempre en su solapa.",
+    listo:"Ya está en su solapa: tiene hambre desde ahora."},
+  {id:"franconeta",nombre:"Subite a la Franconeta",precio:2000,dib:"bandera",logo:"alpine-logo.webp",da:["f1","alpine","franco"],
+    dice:"Ponyta piloto: el Alpine de juguete, la remera del equipo y la foto de Franco para su pared.",
+    listo:"Ya tiene todo: el Alpine de juguete, la remera y la foto de su ídolo en la pared."},
+  {id:"sorpresa",nombre:"Sorpresa",precio:5000,dib:"regalo",dice:"No se puede decir. Por algo es sorpresa.",pronto:true,secreto:true}
+];
+
+function precio(id,base){
+  var p=CT.precios&&CT.precios[id];
+  return p>=0&&p!==""&&p!==null&&isFinite(+p)?Math.round(+p):base;
 }
-function libro(){var l=T3.leer("pedidos",null);return l&&typeof l==="object"?{n:+l.n||0,log:Array.isArray(l.log)?l.log:[]}:{n:0,log:[]};}
+function tickets(){
+  var propia=(Array.isArray(C.pedidos)?C.pedidos:[]).filter(function(p){return p&&String(p.t||"").trim();}).map(function(p,i){
+    return {id:"p"+i,t:String(p.t).trim(),d:String(p.d||"").trim(),m:String(p.m||"").trim(),dib:X.DIB[p.dib]?p.dib:"corazon",p:p.p>=0?Math.round(+p.p):100};
+  });
+  return (propia.length?propia:TICKETS).concat([COMODIN]).map(function(t){
+    var c={};for(var k in t)c[k]=t[k];
+    c.p=precio(t.id,t.p);
+    return c;
+  });
+}
+/* todo lo de Ponyta, en el orden de la vidriera: las prendas (de T3.ropa) y lo grande */
+function cosas(){
+  var r=[],R=T3.ropa;
+  var L=libro();
+  /* las prendas sueltas; las que vienen en un paquete aparecen recién cuando las tiene */
+  if(R)R.ORDEN.forEach(function(id){var p=R.PRENDAS[id];if(p&&(!p.de||L.cosas[id]))r.push({id:id,nombre:p.nombre,dice:p.dice,precio:precio(id,p.precio||0),prenda:true,lugar:p.lugar,grande:p.lugar==="cuerpo"});});
+  ESPECIALES.forEach(function(e){var c={};for(var k in e)c[k]=e[k];c.precio=precio(e.id,e.precio);c.grande=true;r.push(c);});
+  return r;
+}
+function libro(){
+  var l=null;
+  try{l=T3.leer(LL,null);}catch(e){}
+  if(!l||typeof l!=="object")l={};
+  if(!l.cosas||typeof l.cosas!=="object")l.cosas={};
+  if(!l.puesto||typeof l.puesto!=="object")l.puesto={};
+  l.n=+l.n||0;
+  if(!Array.isArray(l.log))l.log=[];
+  return l;
+}
+function saldo(){try{return T3.tcg&&T3.tcg.puntos?T3.tcg.puntos():0;}catch(e){return 0;}}
+function pagar(n){try{return !!(T3.tcg&&T3.tcg.gastar&&T3.tcg.gastar(n));}catch(e){return false;}}
+function tiene(id){return !!libro().cosas[id];}
 function nro(n){return String(n).padStart(4,"0");}
 function mensaje(p,n){
   if(p.libre)return "🎟️ Pedido Nº "+nro(n)+" (comodín): ";
   return "🎟️ Pedido Nº "+nro(n)+": "+(p.m||p.t)+".";
 }
+/* canjea un pedido de la vida real: cobra, lo anota y devuelve su número (0 si no alcanzó) */
+function pedir(p){
+  if(!pagar(p.p))return 0;
+  var L=libro();
+  L.n++;L.log.push({n:L.n,id:p.id,t:p.t,f:T3.hoy,p:p.p});
+  if(L.log.length>200)L.log=L.log.slice(-200);
+  T3.guardar(LL,L);
+  T3.stat("pedidos");T3.stat("pedido-"+p.id);T3.stat("tienda-gastado",p.p);
+  return L.n;
+}
+/* compra algo de Ponyta: cobra, lo anota y, si es una prenda, se la pone */
+function comprar(c){
+  if(c.pronto||tiene(c.id)||!pagar(c.precio))return false;
+  var L=libro();
+  L.cosas[c.id]=T3.hoy;
+  T3.guardar(LL,L);
+  T3.stat("tienda-compras");T3.stat("tienda-gastado",c.precio);
+  (c.da||[]).forEach(function(id){if(T3.ropa&&T3.ropa.PRENDAS[id])L.cosas[id]=T3.hoy;});
+  T3.guardar(LL,L);
+  if(T3.ropa){
+    if(c.prenda)T3.ropa.poner(c.id,true);
+    (c.da||[]).forEach(function(id){T3.ropa.poner(id,true);});
+  }
+  return true;
+}
+/* cómo se dice de cada prenda: "la tiene puesta", "lo tiene puesto", "los tiene puestos"… o lo que diga ella ("dicho") */
+function gen(id){
+  var p=(T3.ropa&&T3.ropa.PRENDAS[id])||{},g=p.gen,d=p.dicho||{};
+  var lo=g==="f"?"la":g==="mp"?"los":"lo",puesto=g==="f"?"puesta":g==="mp"?"puestos":"puesto";
+  return {lo:lo,puesto:puesto,estado:d.estado||lo+" tiene "+puesto,si:d.si||"se "+lo+" puso.",no:d.no||"se "+lo+" sacó. queda"+(lo==="los"?"n":"")+" en el ropero.",
+    titulo:d.si?d.si.charAt(0).toUpperCase()+d.si.slice(1).replace(/\.$/,""):"Se "+lo+" puso",guardada:p.lugar==="pared"?"guardada":"en el ropero"};
+}
+function moneda(){return '<span class="t3x-moneda" aria-hidden="true">M</span>';}
 function pie(L){
   if(!L.n)return "todavía no pediste nada. qué raro.";
   var u=L.log[L.log.length-1];
   return "pedidos hechos: "+L.n+(u?" · el último: "+String(u.t||"").toLowerCase()+", el "+T3.f.corta(u.f):"");
 }
+function foto(c){
+  if(c.prenda&&T3.ropa)return T3.ropa.muestra(c.id);
+  if(c.logo&&!c.secreto&&T3.ropa)return '<img class="t3x-cosa-logo" src="'+esc(T3.ropa.carpeta()+c.logo)+'" alt="" draggable="false">';
+  return X.dib(c.secreto?"regalo":(c.dib||"estrella"),"t3x-dib t3x-cosa-dib");
+}
+
 function pagina(host){
   if(!host)return null;
-  var vivo=true;
+  var vivo=true,capa=null;
   function pintar(){
-    var L=libro(),sig=L.n+1,veces={};
+    var L=libro(),S=saldo(),veces={};
     L.log.forEach(function(x){veces[x.id]=(veces[x.id]||0)+1;});
-    host.innerHTML='<div class="t3x-ped">'+
-      '<header class="t3x-ped-cab"><h2>Talonario de pedidos</h2>'+
-      '<p>Tocá uno y me llega por WhatsApp. Se cumplen todos. (Casi todos.)</p></header>'+
-      '<div class="t3x-ped-lista">'+lista().map(function(p,i){
-        return '<a class="t3x-ticket'+(p.libre?" t3x-ticket-libre":"")+'" data-i="'+i+'" href="'+esc(X.wa(mensaje(p,sig)))+'" target="_blank" rel="noopener" style="--rot:'+X.giro("tk"+p.id,1.3)+'deg">'+
-          '<span class="t3x-ticket-talon"><i>veces</i><b>'+String(veces[p.id]||0).padStart(2,"0")+'</b></span>'+
+    var lleva=function(id){return !!(T3.ropa&&T3.ropa.lleva(id));};
+    host.innerHTML='<div class="t3x-ped t3x-tie">'+
+      '<header class="t3x-ped-cab t3x-tie-cab"><div><h2>La tienda</h2><p>Acá nada es gratis: todo sale MafiaPoints.</p></div>'+
+      '<button type="button" class="t3x-saldo" data-tie="duelos" aria-label="Tenés '+S+' MafiaPoints. Ir a los duelos">'+moneda()+'<b>'+S+'</b><i>MafiaPoints</i></button></header>'+
+      '<p class="t3x-tie-como">Se ganan en los duelos del TCG: '+(T3.tcg&&T3.tcg.POR_VICTORIA||10)+' por victoria, '+(T3.tcg&&T3.tcg.DUELOS_POR_DIA===1?"un duelo":(T3.tcg&&T3.tcg.DUELOS_POR_DIA||2)+" duelos")+' por día.</p>'+
+
+      '<h3 class="t3x-tie-palo">El talonario<small>pedidos de la vida real</small></h3>'+
+      '<p class="t3x-tie-nota">Canjeás uno y me llega por WhatsApp. Se cumplen todos. (Casi todos.)</p>'+
+      '<div class="t3x-ped-lista">'+tickets().map(function(p){
+        var falta=Math.max(0,p.p-S);
+        return '<button type="button" class="t3x-ticket'+(p.libre?" t3x-ticket-libre":"")+(falta?" t3x-ticket-lejos":"")+'" data-tie="ticket" data-id="'+esc(p.id)+'" style="--rot:'+X.giro("tk"+p.id,1.3)+'deg">'+
+          '<span class="t3x-ticket-talon"><i>sale</i><b>'+p.p+'</b></span>'+
           '<span class="t3x-ticket-cuerpo">'+X.dib(p.dib,"t3x-dib t3x-ticket-dib")+
           '<span class="t3x-ticket-t">'+esc(p.t)+'</span><span class="t3x-ticket-d">'+esc(p.d)+'</span></span>'+
-          '<span class="t3x-ticket-ir">pedir<i aria-hidden="true">↗</i></span></a>';
+          (veces[p.id]?'<span class="t3x-ticket-veces" aria-label="lo pediste '+veces[p.id]+(veces[p.id]===1?" vez":" veces")+'">×'+veces[p.id]+'</span>':'')+
+          '<span class="t3x-ticket-ir">'+(falta?'te faltan '+falta:'canjear<i aria-hidden="true">↗</i>')+'</span></button>';
       }).join("")+'</div>'+
-      '<p class="t3x-ped-pie">'+esc(pie(L))+'</p></div>';
+      '<p class="t3x-ped-pie">'+esc(pie(L))+'</p>'+
+
+      '<h3 class="t3x-tie-palo">Para Ponyta<small>lo lleva puesto en su solapa</small></h3>'+
+      '<div class="t3x-vid">'+cosas().map(function(c){
+        var mia=!!L.cosas[c.id],puesta=c.prenda&&lleva(c.id),falta=Math.max(0,c.precio-S);
+        var estado=c.pronto&&!mia?'<span class="t3x-cosa-precio'+(falta?" t3x-cosa-lejos":"")+'">'+moneda()+c.precio+'</span>'
+          :mia?(c.prenda?'<span class="t3x-cosa-estado'+(puesta?" t3x-cosa-si":"")+'">'+(puesta?gen(c.id).estado:gen(c.id).guardada)+'</span>':'<span class="t3x-cosa-estado t3x-cosa-si">ya es tuyo</span>')
+          :'<span class="t3x-cosa-precio'+(falta?" t3x-cosa-lejos":"")+'">'+moneda()+c.precio+'</span>';
+        return '<button type="button" class="t3x-cosa'+(c.grande?" t3x-cosa-grande":"")+(c.prenda?"":" t3x-cosa-especial")+(mia?" t3x-cosa-mia":"")+(puesta?" t3x-cosa-puesta":"")+(c.lugar?" t3x-cosa-de-"+c.lugar:"")+(c.pronto&&!mia?" t3x-cosa-pronto":"")+'" data-tie="cosa" data-id="'+esc(c.id)+'" style="--rot:'+X.giro("co"+c.id,1.1)+'deg">'+
+          '<span class="t3x-cosa-foto'+(c.logo&&!c.secreto?" t3x-con-logo":"")+'">'+foto(c)+'</span>'+
+          '<span class="t3x-cosa-txt"><span class="t3x-cosa-nom">'+esc(c.nombre)+'</span>'+(c.grande?'<span class="t3x-cosa-dice">'+esc(c.dice)+'</span>':'')+estado+'</span></button>';
+      }).join("")+'</div>'+
+      '<p class="t3x-tie-fin">los precios los pone el programador. no se aceptan reclamos.</p></div>';
+  }
+
+  /* ---- la hoja que aparece antes de gastar ---- */
+  function cerrar(){
+    if(!capa)return;
+    var c=capa;capa=null;
+    c.classList.remove("t3x-ver");
+    setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},240);
+  }
+  function hoja(html,rotulo){
+    cerrar();
+    capa=U.el('<div class="t3x-compra t3x-ocupa" role="dialog" aria-label="'+esc(rotulo)+'"><div class="t3x-compra-papel">'+html+'</div></div>');
+    X.raiz().appendChild(capa);
+    capa.addEventListener("click",enHoja);
+    var c=capa;
+    requestAnimationFrame(function(){if(capa===c)c.classList.add("t3x-ver");});
+    T3.sonido("papel",.6);
+  }
+  function cuenta(sale,S){
+    return sale>S?'<p class="t3x-compra-cuenta t3x-compra-falta">sale <b>'+sale+'</b> · tenés <b>'+S+'</b><span>te faltan '+(sale-S)+' MafiaPoints</span></p>'
+      :'<p class="t3x-compra-cuenta">sale <b>'+sale+'</b> · tenés <b>'+S+'</b><span>te quedan '+(S-sale)+'</span></p>';
+  }
+  var enMano=null;     /* lo que está en la hoja: {ticket} o {cosa} */
+  function verTicket(p){
+    var L=libro(),S=saldo(),n=L.n+1,alcanza=S>=p.p;
+    enMano={ticket:p,n:n};
+    hoja('<p class="t3x-compra-rot">Pedido Nº '+nro(n)+'</p>'+X.dib(p.dib,"t3x-dib t3x-compra-dib")+
+      '<h3>'+esc(p.t)+'</h3><p class="t3x-compra-dice">'+esc(p.d)+'</p>'+cuenta(p.p,S)+
+      (alcanza?'<a class="t3x-boton" data-tie="pedir" href="'+esc(X.wa(mensaje(p,n)))+'" target="_blank" rel="noopener">Canjear y avisarle<i aria-hidden="true">↗</i></a>'+
+        '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Mejor no</button>'
+        :'<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>'),p.t);
+  }
+  function verCosa(c){
+    var S=saldo(),alcanza=S>=c.precio;
+    enMano={cosa:c};
+    var cab='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(c.logo&&!c.secreto?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+esc(c.nombre)+'</h3><p class="t3x-compra-dice">'+esc(c.dice)+'</p>';
+    if(c.pronto){
+      hoja(cab+'<p class="t3x-compra-cuenta t3x-compra-falta">sale <b>'+c.precio+'</b> · tenés <b>'+S+'</b><span>todavía no llegó a la vidriera. andá juntando.</span></p>'+
+        '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>',c.nombre);
+      return;
+    }
+    hoja(cab+cuenta(c.precio,S)+
+      (alcanza?'<button type="button" class="t3x-boton" data-tie="comprar">Comprar</button><button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Mejor no</button>'
+        :'<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>'),c.nombre);
+  }
+  function enHoja(ev){
+    if(!capa)return;
+    if(!ev.target.closest(".t3x-compra-papel")){cerrar();return;}
+    var b=ev.target.closest("[data-tie]");
+    if(!b)return;
+    var que=b.getAttribute("data-tie"),papel=capa.querySelector(".t3x-compra-papel");
+    if(que==="cerrar"){cerrar();return;}
+    if(que==="ir-ponyta"){cerrar();try{T3.cuaderno.abrir("ponyta");}catch(e){}return;}
+    if(que==="pedir"&&enMano&&enMano.ticket){
+      /* el toque ya abre WhatsApp (es un link): acá se cobra y se anota */
+      var p=enMano.ticket,n=pedir(p);
+      enMano=null;
+      if(!n){ev.preventDefault();cerrar();pintar();return;}
+      T3.sonido("sello",.9);U.vibrar(18);
+      papel.innerHTML='<p class="t3x-compra-rot">Pedido Nº '+nro(n)+'</p>'+X.dib(p.dib,"t3x-dib t3x-compra-dib")+
+        '<h3>Pedido hecho</h3><p class="t3x-compra-dice">'+esc(p.t)+'. Ya está anotado y cobrado.</p>'+
+        '<p class="t3x-compra-cuenta">te quedan <b>'+saldo()+'</b></p>'+
+        '<button type="button" class="t3x-boton" data-tie="cerrar">Listo</button>'+
+        '<a class="t3x-compra-otra" href="'+esc(X.wa(mensaje(p,n)))+'" target="_blank" rel="noopener">¿no se abrió WhatsApp? mandarlo de nuevo ↗</a>';
+      pintar();
+      return;
+    }
+    if(que==="comprar"&&enMano&&enMano.cosa){
+      var c=enMano.cosa;
+      enMano=null;
+      if(!comprar(c)){cerrar();pintar();return;}
+      T3.sonido("exito",.9);U.vibrar(24);
+      try{U.confeti({cantidad:70});}catch(e){}
+      try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+      papel.innerHTML='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(c.logo&&!c.secreto?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+(c.prenda?gen(c.id).titulo:"Es tuyo")+'</h3>'+
+        '<p class="t3x-compra-dice">'+esc(c.prenda?c.nombre+". No se "+gen(c.id).lo+" quiere sacar.":(c.listo||c.nombre+"."))+'</p>'+
+        '<p class="t3x-compra-cuenta">te quedan <b>'+saldo()+'</b></p>'+
+        '<button type="button" class="t3x-boton" data-tie="ir-ponyta">Ir a verla</button>'+
+        '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Seguir mirando</button>';
+      pintar();
+      return;
+    }
   }
   function clic(ev){
-    var a=ev.target.closest(".t3x-ticket");
-    if(!a||a.classList.contains("t3x-arrancado"))return;
-    var p=lista()[+a.getAttribute("data-i")];
-    if(!p)return;
-    var L=libro();
-    L.n++;L.log.push({n:L.n,id:p.id,t:p.t,f:T3.hoy});
-    if(L.log.length>200)L.log=L.log.slice(-200);
-    T3.guardar("pedidos",L);
-    T3.stat("pedidos");T3.stat("pedido-"+p.id);
-    T3.sonido("papel",.8);
-    a.classList.add("t3x-arrancado");
-    setTimeout(function(){if(vivo)pintar();},1400);
+    var b=ev.target.closest("[data-tie]");
+    if(!b||!vivo||capa)return;
+    var que=b.getAttribute("data-tie"),id=b.getAttribute("data-id");
+    if(que==="duelos"){try{T3.cuaderno.abrir("tcg");}catch(e){}return;}
+    if(que==="ticket"){
+      var p=tickets().filter(function(x){return x.id===id;})[0];
+      if(p)verTicket(p);
+      return;
+    }
+    if(que==="cosa"){
+      var c=cosas().filter(function(x){return x.id===id;})[0];
+      if(!c)return;
+      if(tiene(c.id)){
+        if(c.prenda&&T3.ropa){
+          var quedo=T3.ropa.poner(c.id);
+          T3.sonido(quedo?"pop":"tic",.7);U.vibrar(10);
+          pintar();
+          X.aviso(quedo?gen(c.id).si:gen(c.id).no);
+        }else{try{T3.cuaderno.abrir("ponyta");}catch(e){}}
+        return;
+      }
+      verCosa(c);
+    }
   }
   host.addEventListener("click",clic);
   pintar();
-  return {desmontar:function(){vivo=false;host.removeEventListener("click",clic);}};
+  return {desmontar:function(){vivo=false;host.removeEventListener("click",clic);if(capa&&capa.parentNode)capa.parentNode.removeChild(capa);capa=null;}};
 }
-T3.pedidos={activo:function(){return X.estrenado();},pagina:pagina,_prueba:{lista:lista,libro:libro,mensaje:mensaje}};
+
+T3.tienda={activo:function(){return X.estrenado();},pagina:pagina,tiene:tiene,
+  _prueba:{tickets:tickets,cosas:cosas,libro:libro,mensaje:mensaje,pedir:pedir,comprar:comprar,saldo:saldo,LL:LL,ESPECIALES:ESPECIALES}};
+/* el cuaderno la conoce por su nombre viejo: la pestaña sigue siendo "pedidos" */
+T3.pedidos=T3.tienda;
 })();
 
 /* ------------------------------------------------------------
@@ -14134,15 +14511,19 @@ T3.pedidos={activo:function(){return X.estrenado();},pagina:pagina,_prueba:{list
    Las cartas son fotos de los dos, de la familia y de los bichos,
    con vidas y ataques. Vive en la pestaña TCG del cuaderno.
 
-   SOBRES · tres cartas cada uno. Dos de bienvenida, uno por día
-     (se juntan hasta 3 si no entra), uno extra por ganar el juego
-     del día, y 6 repetidas valen otro.
+   SOBRES · dos cartas cada uno (la segunda a veces es full art).
+     Dos sobres de bienvenida, uno por día (se juntan hasta 3 si no
+     entra), uno extra por ganar el juego del día, y 6 repetidas
+     valen otro.
    DUELO · con 10 cartas distintas se puede jugar contra "el
      programador". El mazo son 10 de sus cartas, al azar; él juega
      con cartas que ella ya tiene (no le adelanta ninguna).
      Las reglas están en MafiaDuelo; la pantalla, en MafiaArena.
-   MAFIAPOINTS · ganar da puntos (perder, unos pocos). Suman los
-     primeros DUELOS_POR_DIA duelos de cada día.
+   MAFIAPOINTS · cada victoria da 10 (perder, nada) y se juegan hasta
+     DUELOS_POR_DIA duelos por día: el duelo se cuenta cuando arranca,
+     así que rendirse o dejarlo por la mitad gasta uno igual (retomar
+     uno guardado no). Se gastan en la tienda (T3.tienda) con
+     T3.tcg.puntos() y T3.tcg.gastar(n).
 
    PARA SUMAR O CAMBIAR CARTAS: tocar solo la lista CARTAS.
      id       nombre interno, único, sin espacios (no cambiarlo
@@ -14175,9 +14556,11 @@ var REPES=6;         /* repetidas que valen un sobre */
 var PESO_NUEVA=2;    /* cuánto más fácil sale una carta que todavía no tiene */
 var PIEDAD=2;        /* sobres seguidos sin nada nuevo antes de garantizar una que falte */
 var SEQUIA=3;        /* sobres seguidos sin full art antes de garantizar una */
-var P_FULL=.3;       /* probabilidad de que la tercera carta del sobre sea full art */
+var POR_SOBRE=2;     /* cartas por sobre: todas normales menos la última, que a veces es full art */
+var P_FULL=.3;       /* probabilidad de que la última carta del sobre sea full art */
 var MINIMO=10;       /* cartas distintas para poder jugar un duelo (el mazo es de 10) */
-var DUELOS_POR_DIA=Math.max(1,+CT.duelosPorDia||3);   /* cuántos duelos por día suman MafiaPoints */
+var DUELOS_POR_DIA=Math.max(1,+CT.duelosPorDia||2);   /* cuántos duelos se pueden jugar por día */
+var POR_VICTORIA=CT.puntosPorVictoria>=0?Math.round(+CT.puntosPorVictoria):10;   /* MafiaPoints por ganar (perder no da) */
 var TORPEZA=[.08,.34,.6];                              /* qué tan seguido se equivoca el rival: mínimo, arranque, máximo */
 
 /* ⚠ PROVISORIO: tipo, vidas, costos, daño y efectos se cierran cuando estén todas las cartas. */
@@ -14261,7 +14644,7 @@ function dorso(){return M().dorsoHTML(opc());}
 function sobre(n){
   return '<span class="t3x-sobre-tira" aria-hidden="true"></span>'+
     '<span class="t3x-sobre-cuerpo"><img class="t3x-sobre-logo" src="'+esc(opc().logo)+'" alt="Mafia TCG" draggable="false">'+
-    '<span class="t3x-sobre-set">3 cartas</span>'+
+    '<span class="t3x-sobre-set">'+POR_SOBRE+' cartas</span>'+
     '<span class="t3x-sobre-n">'+(n?'sobre Nº '+String(n).padStart(4,"0"):'MafiaTCG')+'</span></span>';
 }
 
@@ -14317,7 +14700,7 @@ function repes(e){
   Object.keys(e.cartas).forEach(function(id){if(POR_ID[id])n+=Math.max(0,(+e.cartas[id].n||0)-1);});
   return n;
 }
-/* saca tres cartas: dos normales y una tercera que a veces es full art */
+/* saca las cartas de un sobre: normales, menos la última, que a veces es full art */
 function tirar(e,azar){
   azar=azar||Math.random;
   var usadas={};
@@ -14329,19 +14712,21 @@ function tirar(e,azar){
     for(var i=0;i<pozo.length;i++){x-=pesos[i];if(x<0){usadas[pozo[i].id]=1;return pozo[i].id;}}
     var u=pozo[pozo.length-1];usadas[u.id]=1;return u.id;
   }
-  var ids=[elegir("normal"),elegir("normal")];
-  /* la tercera: full art en el primer sobre, después de una sequía, o con suerte */
+  var ids=[],ult=POR_SOBRE-1;
+  for(var k=0;k<ult;k++)ids.push(elegir("normal"));
+  /* la última: full art en el primer sobre, después de una sequía, o con suerte */
   var suerte=azar();
   ids.push(elegir(!e.abiertos||e.sinFull>=SEQUIA||suerte<P_FULL?"full":"normal"));
-  /* piedad: varios sobres seguidos sin nada nuevo → la última se cambia por una que falte (normal, si queda alguna) */
+  /* piedad: varios sobres seguidos sin nada nuevo → una se cambia por una que falte
+     (una normal en el lugar de la primera; si solo faltan full art, en el de la última) */
   var nueva=ids.some(function(id){return !tiene(e,id);});
   if(!nueva&&e.sinNueva>=PIEDAD){
     var faltan=CARTAS.filter(function(c){return !tiene(e,c.id);});
     var normales=faltan.filter(function(c){return c.formato==="normal";});
-    if(normales.length)faltan=normales;
-    if(faltan.length){ids[2]=faltan[Math.floor(azar()*faltan.length)].id;nueva=true;}
+    if(normales.length&&ult>0){ids[0]=normales[Math.floor(azar()*normales.length)].id;nueva=true;}
+    else if(faltan.length){ids[ult]=faltan[Math.floor(azar()*faltan.length)].id;nueva=true;}
   }
-  e.sinFull=POR_ID[ids[2]].formato==="full"?0:e.sinFull+1;
+  e.sinFull=POR_ID[ids[ult]].formato==="full"?0:e.sinFull+1;
   var res=ids.map(function(id){
     var tenia=tiene(e,id);
     var a=e.cartas[id]||{n:0,f:T3.hoy};
@@ -14366,23 +14751,37 @@ function canjear(e){
 }
 /* ---- los duelos ---- */
 function duelosHoy(e){return e.dia===T3.hoy?(+e.diaN||0):0;}
-function sumaPuntos(e){return duelosHoy(e)<DUELOS_POR_DIA;}
+function quedanDuelos(e){return Math.max(0,DUELOS_POR_DIA-duelosHoy(e));}
+/* un duelo nuevo gasta uno de los del día en el momento en que arranca */
+function arrancarDuelo(e){
+  if(quedanDuelos(e)<1)return false;
+  if(e.dia!==T3.hoy){e.dia=T3.hoy;e.diaN=0;}
+  e.diaN=(+e.diaN||0)+1;
+  return true;
+}
 function barajar(l,azar){
   l=l.slice();azar=azar||Math.random;
   for(var i=l.length-1;i>0;i--){var j=Math.floor(azar()*(i+1)),x=l[i];l[i]=l[j];l[j]=x;}
   return l;
 }
 /* anota cómo terminó un duelo; devuelve cuántos MafiaPoints tiene ahora */
-function anotarDuelo(e,r,contaba){
+function anotarDuelo(e,r){
   e.jugados++;
   if(r.gano){e.ganados++;e.torpeza=Math.max(TORPEZA[0],e.torpeza-.06);}   /* si gana, la próxima él juega un poco mejor */
   else e.torpeza=Math.min(TORPEZA[2],e.torpeza+.09);                      /* si pierde, un poco peor */
-  if(contaba&&!r.rendida){
-    e.mp+=Math.max(0,+r.puntos.total||0);
-    if(e.dia!==T3.hoy){e.dia=T3.hoy;e.diaN=0;}
-    e.diaN=(+e.diaN||0)+1;
-  }
+  if(!r.rendida){var suma=Math.max(0,+r.puntos.total||0);e.mp+=suma;e.mpTotal=(+e.mpTotal||0)+suma;}
   return e.mp;
+}
+/* ---- los MafiaPoints: lo que usa la tienda ---- */
+function puntos(){try{return estado().mp;}catch(x){return 0;}}
+function gastar(n){
+  n=Math.max(0,Math.round(+n||0));
+  var e=estado();
+  if(e.mp<n)return false;
+  e.mp-=n;e.gastado=(+e.gastado||0)+n;
+  guardar(e);
+  if(paginaViva)paginaViva();
+  return true;
 }
 
 /* ---------------- la pestaña del cuaderno ---------------- */
@@ -14433,9 +14832,17 @@ function darTodas(){
   if(paginaViva)paginaViva();
   return true;
 }
+/* MafiaPoints de regalo, para probar la tienda: solo adentro de la máquina */
+function darPuntos(n){
+  if(!enMaquina())return false;
+  var e=estado();e.mp+=n;guardar(e);
+  if(paginaViva)paginaViva();
+  return true;
+}
 function filaTaller(fila){
   var e=estado(),ac=[["tcg-duelo","duelo de prueba"]];
   if(enMaquina()&&tengo(e)<TOTAL)ac.push(["tcg-todas","darme todas"]);
+  if(enMaquina())ac.push(["tcg-puntos","+1000 puntos"]);
   return fila("cartas",(enMaquina()?"en este viaje, ":"")+tengo(e)+" de "+TOTAL+" · "+e.mp+" MafiaPoints",ac);
 }
 function clicTaller(que,t){
@@ -14444,6 +14851,9 @@ function clicTaller(que,t){
     setTimeout(probarDuelo,380);
   }else if(que==="tcg-todas"){
     if(darTodas()){t.decir("listo, tenés todas. se van cuando salgas de la máquina.");if(t.repintar)t.repintar();}
+    else t.decir("eso anda solo adentro de la máquina: viajá a un día primero.");
+  }else if(que==="tcg-puntos"){
+    if(darPuntos(1000)){t.decir("listo, 1000 MafiaPoints más para probar la tienda. se van cuando salgas de la máquina.");if(t.repintar)t.repintar();}
     else t.decir("eso anda solo adentro de la máquina: viajá a un día primero.");
   }
 }
@@ -14464,11 +14874,13 @@ function pagina(host){
         '<p>Para jugar necesitás <b>'+MINIMO+' cartas</b>.<br>'+(t?'Tenés '+t+': te falta'+(falta===1?' <b>una</b>.':'n <b>'+falta+'</b>.'):'Te faltan <b>'+falta+'</b>.')+'</p>'+
         '<div class="mq-diez" role="img" aria-label="'+t+' de '+MINIMO+'">'+celdas+'</div>';
     }else{
-      var a_medias=!!T3.leer(LL_DUELO,null),hoy=duelosHoy(e);
-      h+='<span class="mq-rotulo">contra el programador</span><h3>Duelo</h3><p>Gana quien noquea <b>tres cartas</b>. Si ganás, MafiaPoints.</p>'+
-        '<button type="button" class="mq-boton" data-tcg="duelo">'+(a_medias?"Seguir el duelo":"¡A duelo!")+'</button>'+
-        (a_medias?'<button type="button" class="mq-otro" data-tcg="duelo-nuevo">dejarlo y empezar otro</button>':'')+
-        '<p class="mq-chico">'+(hoy<DUELOS_POR_DIA?'hoy suman puntos '+(DUELOS_POR_DIA-hoy===1?'un duelo más':(NUMEROS[DUELOS_POR_DIA-hoy]||DUELOS_POR_DIA-hoy)+' duelos más'):'hoy ya sumaste todo lo que se podía · mañana hay más')+
+      var a_medias=!!T3.leer(LL_DUELO,null),quedan=quedanDuelos(e);
+      var cuantos=DUELOS_POR_DIA===1?"un duelo":(NUMEROS[DUELOS_POR_DIA]||DUELOS_POR_DIA)+" duelos";
+      h+='<span class="mq-rotulo">contra el programador</span><h3>Duelo</h3><p>Gana quien noquea <b>tres cartas</b>. Cada victoria, <b>'+POR_VICTORIA+' MafiaPoints</b>.</p>'+
+        (a_medias||quedan>0?'<button type="button" class="mq-boton" data-tcg="duelo">'+(a_medias?"Seguir el duelo":"¡A duelo!")+'</button>'
+          :'<p class="mq-manana">Por hoy ya está: '+(DUELOS_POR_DIA===1?"se jugó el duelo del día":"se jugaron los "+(NUMEROS[DUELOS_POR_DIA]||DUELOS_POR_DIA)+" duelos del día")+'.<br><b>Mañana hay más.</b></p>')+
+        (a_medias&&quedan>0?'<button type="button" class="mq-otro" data-tcg="duelo-nuevo">dejarlo y empezar otro</button>':'')+
+        '<p class="mq-chico">'+(quedan>0?'hoy te queda'+(quedan===1?' un duelo':'n '+(NUMEROS[quedan]||quedan)+' duelos'):a_medias?'es el último de hoy':cuantos+' por día')+
         (e.jugados?' · ganaste '+e.ganados+' de '+e.jugados:'')+'</p>';
     }
     return h+'</div>';
@@ -14515,7 +14927,8 @@ function pagina(host){
     host.innerHTML='<div class="t3x-tcg">'+
       '<section class="mq"><header class="mq-cab"><img class="mq-logo" src="'+esc(opc().logo)+'" alt="Mafia TCG" draggable="false">'+
       '<div class="mq-lado"><span class="mq-tenes" role="img" aria-label="'+t+' de '+TOTAL+' cartas">tenés <b>'+t+'</b> de '+TOTAL+'</span>'+
-      '<span class="mq-puntos"><span class="mq-moneda" aria-hidden="true">M</span><b>'+e.mp+'</b>MafiaPoints</span></div></header>'+
+      '<button type="button" class="mq-puntos" data-tcg="tienda" aria-label="'+e.mp+' MafiaPoints. Ir a la tienda"><span class="mq-moneda" aria-hidden="true">M</span><b>'+e.mp+'</b>MafiaPoints</button>'+
+      '<button type="button" class="mq-a-tienda" data-tcg="tienda">gastarlos en la tienda ›</button></div></header>'+
       (e.completo?'<p class="mq-completo"><b>Álbum completo</b>'+esc(T3.f.media(e.completo))+(premio?'<span>'+esc(premio)+'</span>':'')+'</p>':'')+
       duelo()+'</section>'+
       mesa()+'<section class="t3x-tcg-carpeta">'+carpeta()+'</section>'+
@@ -14526,7 +14939,6 @@ function pagina(host){
   function jugar(retomar){
     if(arena||capa||!window.MafiaArena||tengo(e)<MINIMO)return;
     var guardado=retomar?T3.leer(LL_DUELO,null):null;
-    if(!retomar)T3.borrar(LL_DUELO);
     /* un duelo a medias con cartas que ya no existen (se cambió la lista) no se retoma */
     if(guardado){
       try{
@@ -14535,21 +14947,30 @@ function pagina(host){
         });
       }catch(x){guardado=null;T3.borrar(LL_DUELO);}
     }
+    /* un duelo nuevo gasta uno de los del día; retomar uno guardado, no.
+       Si no queda ninguno, no arranca (y el que estuviera guardado no se toca) */
+    if(!guardado){
+      e=estado();
+      if(!arrancarDuelo(e)){pintar();return;}
+      guardar(e);
+      T3.borrar(LL_DUELO);
+    }
     var ids=mias(e).map(function(c){return c.id;});
-    var contaba=sumaPuntos(e);
+    var ultimo=quedanDuelos(e)<1;
     arena=window.MafiaArena.abrir({
       raiz:X.raiz(),cartas:POR_ID,tipos:M().TIPOS,
       mazo:PRUEBA.mazo||barajar(ids).slice(0,MINIMO),mazoRival:PRUEBA.mazoRival||barajar(ids).slice(0,MINIMO),
       rapido:PRUEBA.rapido,semilla:PRUEBA.semilla,empieza:PRUEBA.empieza,alSonar:PRUEBA.alSonar,
       torpeza:e.torpeza,fotos:opc().fotos,fotosMini:U.asset("tcg/mini/"),logo:opc().logo,total:opc().total,guardado:guardado,
-      puntosDe:CT.puntos||null,sinPuntos:!contaba,
-      notaFinal:contaba?"":"Hoy ya sumaste los "+DUELOS_POR_DIA+" duelos con puntos. Mañana hay más.",
+      puntosDe:{victoria:POR_VICTORIA,derrota:0,debil:0,corto:0,invicta:0,turnosCorto:0},
+      sinOtro:ultimo,notaFinal:ultimo?"Fue el último duelo de hoy. Mañana hay más.":"",
+      notaRendirse:"Y cuenta como uno de los de hoy.",
       audio:T3.audio,mudo:T3.mudo,sonidos:e.son,vibrar:U.vibrar,reducido:U.reducido(),
       alPreferir:function(p){e=estado();e.son=p;guardar(e);},
       alGuardar:function(E){if(E)T3.guardar(LL_DUELO,E);else T3.borrar(LL_DUELO);},
       alTerminar:function(r){
         e=estado();
-        var tengoAhora=anotarDuelo(e,r,contaba);
+        var tengoAhora=anotarDuelo(e,r);
         guardar(e);
         T3.stat("tcg-duelos");if(r.gano)T3.stat("tcg-duelos-ganados");
         return tengoAhora;
@@ -14561,6 +14982,7 @@ function pagina(host){
         if(como==="otro")setTimeout(function(){if(vivo)jugar(false);},320);
       }
     });
+    pintar();          /* abajo de la arena: que al volver ya diga cuántos quedan */
     T3.stat("tcg-duelos-abiertos");
   }
 
@@ -14721,6 +15143,7 @@ function pagina(host){
     else if(que==="ver")ver(b.getAttribute("data-id"));
     else if(que==="duelo")jugar(true);
     else if(que==="duelo-nuevo")jugar(false);
+    else if(que==="tienda"){try{T3.cuaderno.abrir("pedidos");}catch(x){}}
     else if(que==="canjear"){
       if(canjear(e)){guardar(e);T3.stat("tcg-canjes");T3.sonido("sello",.8);pintar();marcarPestana();}
     }
@@ -14741,8 +15164,11 @@ T3.tcg={
   activo:function(){return X.estrenado();},
   haySobre:haySobre,pagina:pagina,alGanar:alGanar,CARTAS:CARTAS,
   probarDuelo:probarDuelo,filaTaller:filaTaller,clicTaller:clicTaller,
+  puntos:puntos,gastar:gastar,POR_VICTORIA:POR_VICTORIA,DUELOS_POR_DIA:DUELOS_POR_DIA,
   _prueba:{opciones:PRUEBA,estado:estado,guardar:guardar,ponerAlDia:ponerAlDia,tirar:tirar,repes:repes,canjear:canjear,tengo:tengo,carta:carta,dorso:dorso,
-    anotarDuelo:anotarDuelo,duelosHoy:duelosHoy,sumaPuntos:sumaPuntos,TOTAL:TOTAL,MINIMO:MINIMO,DUELOS_POR_DIA:DUELOS_POR_DIA,LL:LL,LL_DUELO:LL_DUELO}
+    anotarDuelo:anotarDuelo,duelosHoy:duelosHoy,quedanDuelos:quedanDuelos,arrancarDuelo:arrancarDuelo,darPuntos:darPuntos,
+    repintar:function(){if(paginaViva)paginaViva();},
+    TOTAL:TOTAL,MINIMO:MINIMO,DUELOS_POR_DIA:DUELOS_POR_DIA,POR_SOBRE:POR_SOBRE,POR_VICTORIA:POR_VICTORIA,LL:LL,LL_DUELO:LL_DUELO}
 };
 })();
 
@@ -15276,8 +15702,10 @@ function bot(E,torpeza){
 }
 
 /* ---------- los MafiaPoints de un duelo ---------- */
-/* P: {victoria, derrota, debil, corto, invicta, turnosCorto} */
-var PUNTOS={victoria:20,derrota:5,debil:5,corto:5,invicta:10,turnosCorto:14};
+/* P: {victoria, derrota, debil, corto, invicta, turnosCorto}
+   Mati, 24/11/2026: cada victoria da 10 y perder no da nada. Los bonos (pegar donde es débil, que no te noqueen
+   ninguna, duelo corto) quedaron en 0: si algún día vuelven, alcanza con ponerles un número acá. */
+var PUNTOS={victoria:10,derrota:0,debil:0,corto:0,invicta:0,turnosCorto:14};
 function puntos(E,q,P){
   P=P||PUNTOS;
   var r=[],gano=E.ganador===q;
@@ -15511,7 +15939,9 @@ global.MafiaSonido={crear:crear,tocar:tocar,programarMusica:programarMusica,EFEC
      total,               cuántas cartas hay en total (para el "07/27" de la carta)
      sinPuntos,           true = este duelo no suma MafiaPoints
                           (sin alGuardar, el duelo no se puede retomar: en la pausa dice "Salir" a secas)
-     notaFinal            un renglón para la pantalla del final
+     notaFinal,           un renglón para la pantalla del final
+     sinOtro,             true = al terminar no ofrece jugar otro (no le quedan duelos hoy)
+     notaRendirse         un renglón más para el "¿te rendís?"
    })
    ============================================================ */
 (function(global){
@@ -15864,7 +16294,7 @@ function abrir(op){
       '<button type="button" class="ar-boton ar-b2" data-ar="salir">'+(op.alGuardar?"Salir y seguir después":"Salir")+'</button>'+
       '<button type="button" class="ar-boton ar-b2 ar-b-rojo" data-ar="rendirse">Rendirse</button>';
     else if(que==="reglas")h+='<h3>Cómo se juega</h3><ol>'+REGLAS.map(function(r){return "<li>"+r+"</li>";}).join("")+'</ol><button type="button" class="ar-boton" data-ar="menu-cerrar">Listo</button>';
-    else if(que==="rendirse")h+='<h3>¿Te rendís?</h3><p>El duelo se pierde y el programador no se lo va a callar.</p>'+
+    else if(que==="rendirse")h+='<h3>¿Te rendís?</h3><p>El duelo se pierde y el programador no se lo va a callar.'+(op.notaRendirse?" "+esc(op.notaRendirse):"")+'</p>'+
       '<button type="button" class="ar-boton" data-ar="menu-cerrar">No, sigo</button><button type="button" class="ar-boton ar-b2 ar-b-rojo" data-ar="rendirse-si">Me rindo</button>';
     h+='</div></div>';
     var t=document.createElement("div");t.innerHTML=h;ar.appendChild(t.firstChild);
@@ -15884,13 +16314,13 @@ function abrir(op){
       '<h2 data-t="'+(gano?"¡Ganaste!":"Perdiste")+'">'+(gano?"¡Ganaste!":"Perdiste")+'</h2>'+
       '<p class="ar-f-frase">'+(gano?"El programador pide revancha.":rendida?"El programador anota la victoria igual.":"El programador festeja. Insoportable.")+'</p>';
     if(P.renglones.length){
-      h+='<div class="ar-cuenta">'+P.renglones.map(function(r){return "<div>"+esc(r.t)+"<b>+"+r.n+"</b></div>";}).join("")+
+      h+='<div class="ar-cuenta">'+(P.renglones.length>1?P.renglones.map(function(r){return "<div>"+esc(r.t)+"<b>+"+r.n+"</b></div>";}).join(""):"")+
         '<div class="ar-total">MafiaPoints<b><span class="ar-moneda-mp">M</span>+'+P.total+'</b></div></div>';
       if(typeof tengo==="number")h+='<p class="ar-f-tenes">ahora tenés '+tengo+'</p>';
     }
-    if(op.notaFinal&&!rendida)h+='<p class="ar-f-nota">'+esc(op.notaFinal)+'</p>';
-    h+='<div class="ar-f-botones"><button type="button" class="ar-boton" data-ar="otro">'+(gano?"Otro duelo":"Revancha")+'</button>'+
-      '<button type="button" class="ar-boton ar-b2" data-ar="cerrar">'+(op.alGuardar?"Volver a la carpeta":"Salir")+'</button></div></div>';
+    if(op.notaFinal)h+='<p class="ar-f-nota">'+esc(op.notaFinal)+'</p>';
+    h+='<div class="ar-f-botones">'+(op.sinOtro?'':'<button type="button" class="ar-boton" data-ar="otro">'+(gano?"Otro duelo":"Revancha")+'</button>')+
+      '<button type="button" class="ar-boton'+(op.sinOtro?'':' ar-b2')+'" data-ar="cerrar">'+(op.alGuardar?"Volver a la carpeta":"Salir")+'</button></div></div>';
     return tras(350).then(function(){
       if(!vivo)return;
       var t=document.createElement("div");t.innerHTML=h;ar.appendChild(t.firstChild);
@@ -15952,6 +16382,7 @@ function abrir(op){
   encajar();pintar();
   requestAnimationFrame(function(){capa.classList.add("ar-ver");});
   var retomado=!!(op.guardado&&op.guardado.jug);
+  if(!retomado)guardar();          /* queda guardado desde el arranque: si se cierra la app en la presentación, el duelo no se pierde */
   tras(retomado?250:500).then(function(){
     if(!vivo)return;
     if(E.fase==="fin")return final();
@@ -15969,6 +16400,766 @@ function abrir(op){
 
 global.MafiaArena={abrir:abrir,REGLAS:REGLAS};
 })(typeof window!=="undefined"?window:globalThis);
+
+/* ------------------------------------------------------------
+   LA ROPA DE PONYTA · T3.ropa
+   Lo que se compra en la tienda (T3.tienda) con MafiaPoints y
+   Ponyta lleva puesto: en su solapa, en el señalador y en el
+   dibujo a lápiz de las hojas (los mismos tres lugares donde
+   lleva el gorro de Navidad).
+
+   Hay un lugar para cada cosa (cuerpo, cuello, cara, juguete,
+   cabeza) y se lleva una por lugar. El gorro de Navidad (T3.viaje) es de
+   la cabeza: si ella le pone otra cosa ahí, el gorro se guarda
+   hasta que se la saque.
+
+   Qué compró y qué lleva puesto se guarda en pv-t3-tienda
+   ({cosas:{id:fecha}, puesto:{lugar:id}}), junto con los pedidos.
+
+   DOS CLASES DE PRENDA
+   · Las de pegar encima (sombreros, anteojos, moño, bufanda):
+     PARA SUMAR UNA, agregarla a PRENDAS en las coordenadas del
+     dibujo de Ponyta (el ojo está en 42,98; la cabeza mira a la
+     izquierda).
+       nombre, lugar, precio (MafiaPoints), dice (renglón de la tienda)
+       gen      "f", "m" o "mp" (masculino plural): para que la tienda diga "se la puso" o "se los puso"
+       t        transform de toda la prenda (opcional)
+       formas   siluetas cerradas: [dibujo, color]. Tapan lo que
+                queda abajo y llevan el contorno negro
+       rayas    detalles encima: [dibujo, color, ancho, opacidad]
+       lapiz    qué rayas se dibujan también en la versión a lápiz
+                (los números de "rayas"); las formas van siempre
+       claro    true = no tapa lo de abajo (los anteojos)
+       rapi     transform para calzarla cuando evolucionó a Rapidash
+   · Las del cuerpo (camisetas): no se pegan encima, se pintan
+     ADENTRO del cuerpo, entre el relleno y las llamas, con el
+     corte de CORTE (un torso y una manga). Cada una dice solo la
+     tela:
+       tela     {tipo:"bastones", a, b, ancho, giro} · {tipo:"lisa", a}
+                · {tipo:"foto", src, x, y, w, h, giro, fondo}: la foto
+                de una remera que mandó Mati, estirada sobre el cuerpo
+                ("telaRapi": dónde va en Rapidash)
+       ribete   color del cuello y los puños
+   · Las de la pared (lugar:"pared"): fotos que quedan pegadas con
+     cinta en su solapa, abajo, en "Su pared". No van sobre Ponyta
+     y se pueden tener varias a la vez. pared:{src, pie}
+   · Cualquiera de las dos puede llevar "fotos": imágenes que
+     manda Mati (un escudo, un logo, un auto), tal cual, en
+     fotos/t3/tienda/. [{src, x, y, w, h, giro}] en las coordenadas
+     del dibujo de Ponyta; "fotosRapi", en las de Rapidash.
+     Una prenda puede ser solo fotos (sin formas ni tela).
+   · "de": la prenda viene adentro de un paquete de la tienda
+     (ESPECIALES en T3.tienda, campo "da") y no se vende suelta.
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var INK="#0d131a";
+var LL="tienda";
+var LUGARES=["cuerpo","cuello","cara","juguete","cabeza"];          /* en este orden se dibujan: lo de la cabeza queda arriba */
+var NOMBRE_LUGAR={cuerpo:"el cuerpo",cuello:"el cuello",cara:"la cara",juguete:"los juguetes",cabeza:"la cabeza",pared:"su pared"};
+
+/* franjas de la bufanda: el paño va de A–B (arriba) a D–C (abajo) */
+function franja(t1,t2){
+  var A=[45,133],B=[99,113],C=[111,138],D=[58,160];
+  function p(u,v,t){return (u[0]+(v[0]-u[0])*t).toFixed(1)+" "+(u[1]+(v[1]-u[1])*t).toFixed(1);}
+  return "M"+p(A,B,t1)+"L"+p(A,B,t2)+"L"+p(D,C,t2)+"L"+p(D,C,t1)+"Z";
+}
+
+var PRENDAS={
+  anteojos:{gen:"mp",nombre:"Anteojos",lugar:"cara",precio:60,dice:"De leer. Aunque no sabe leer.",claro:true,
+    formas:[["M24 97a17.500 17.500 0 1 0 35 0a17.500 17.500 0 1 0 -35 0Z","rgba(255,255,255,.34)"]],
+    rayas:[["M24.500 95C19 90 13 88 7 90","#0d131a",4.5,1],["M58.500 93C68 88 78 85 88 84","#0d131a",4.5,1],
+      ["M24 97a17.500 17.500 0 1 0 35 0a17.500 17.500 0 1 0 -35 0Z","#EAF6FA",1.6,.9],["M31 90C34 86 38 84 43 84","#fff",3,.85]],
+    lapiz:[0,1],rapi:"translate(20.5 49.500) scale(.6)"},
+
+  monio:{gen:"m",nombre:"Moño",lugar:"cuello",precio:60,dice:"De gala. Para los viernes de sushi.",t:"translate(62 146) rotate(18)",
+    formas:[["M0 0C-9-15-30-17-33-4C-35 8-13 13 0 0Z","#E8779A"],["M0 0C9-15 30-17 33-4C35 8 13 13 0 0Z","#E8779A"],
+      ["M-7-7C-3-10 3-10 7-7C10-3 10 3 7 7C3 10-3 10-7 7C-10 3-10-3-7-7Z","#D4547E"]],
+    rayas:[["M-25-5C-20-9-13-8-9-4","#F7B4C8",3,.9],["M12-7C17-10 23-9 26-5","#F7B4C8",3,.9],["M-26 2C-20 5-14 4-10 2","#B8456A",3,.5],["M11 3C16 6 22 5 27 1","#B8456A",3,.5]],
+    lapiz:[],rapi:"translate(42 62) scale(.8)"},
+
+  bonete:{gen:"m",nombre:"Bonete de cumple",lugar:"cabeza",precio:80,dice:"Para el 16. O para cualquier día.",
+    formas:[["M20 80C28 48 38 16 50-12C68 10 84 36 97 60C72 62 44 70 20 80Z","#FECA0B"],
+      ["M41-12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0Z","#B9A4F6"]],
+    rayas:[["M33.500 39L71.500 21L76 28L31.500 47.500Z","#3559A6",0,1],["M25 65.500L88.500 44L92.500 51L23 73.500Z","#8C6FE6",0,1],
+      ["M20 80C28 48 38 16 50-12C68 10 84 36 97 60C72 62 44 70 20 80Z","#0d131a",4.5,1],["M41-12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0Z","#0d131a",4.5,1],
+      ["M47-17q4-3 8-1","#fff",2.6,.8],["M40 22C42 14 45 6 48 0","#FFF3B8",4,.8]],
+    lapiz:[0,1],rapi:"translate(22 36) rotate(-6) scale(.58)"},
+
+  bufanda:{gen:"f",nombre:"Bufanda de la Academia",lugar:"cuello",precio:100,dice:"Celeste y blanca. Como corresponde.",
+    formas:[["M60 152L73 156C76 170 78 184 76 197L63 194C64 180 62 166 60 152Z","#74B9E8"],
+      ["M47 148L62 153C63 168 61 186 57 204L42 199C46 182 48 164 47 148Z","#74B9E8"],
+      ["M45 133C62 130 82 122 99 113C106 119 110 128 111 138C94 148 76 156 58 160C52 152 47 143 45 133Z","#74B9E8"]],
+    rayas:[[franja(.2,.4),"#FBF9F4",0,1],[franja(.6,.8),"#FBF9F4",0,1],
+      ["M45.500 181L60 185.500L59 193L43.500 188.500Z","#FBF9F4",0,1],
+      ["M45 133C62 130 82 122 99 113C106 119 110 128 111 138C94 148 76 156 58 160C52 152 47 143 45 133Z","#0d131a",4.5,1],
+      ["M47 148L62 153C63 168 61 186 57 204L42 199C46 182 48 164 47 148Z","#0d131a",4.5,1],
+      ["M45 201L43 208M50 203L48 210M55 204L54 211","#0d131a",3,1],
+      ["M52 138C68 134 84 127 97 120","#fff",3,.45]],
+    lapiz:[5],rapi:"translate(20 55) rotate(4) scale(.8)"},
+
+  boina:{gen:"f",nombre:"Boina de París",lugar:"cabeza",precio:120,dice:"Bordó. Para pasear abajo de la torre.",
+    formas:[["M-4 92C-13 60 16 30 50 26C84 22 123 28 121 54C120 67 110 75 100 73C68 73 30 85 4 101C-4 103-6 98-4 92Z","#7A1E2E"]],
+    rayas:[["M2 94C30 79 66 69 101 67","#4E0F1B",6,.6],["M14 62C26 45 44 37 66 35","#B0495A",5,.65],["M88 44C100 44 108 50 109 58","#5A1220",5,.4],
+      ["M51 27C49 19 53 11 60 8","#0d131a",7,1],["M51 27C49 19 53 11 60 8","#7A1E2E",2.6,1]],
+    lapiz:[0,3],rapi:"translate(22 36) rotate(-6) scale(.58)"},
+
+  nigiri:{gen:"m",nombre:"Nigiri",lugar:"cabeza",precio:120,dice:"De salmón. No se come: es un sombrero.",t:"translate(51 62) rotate(-15)",
+    formas:[["M-34-4C-40-4-46 2-46 10C-46 20-40 26-32 26L32 26C40 26 46 20 46 10C46 2 40-4 34-4Z","#FBF9F4"],
+      ["M-52 8C-52-14-34-28 0-28C34-28 52-14 52 8C52 14 46 15 42 10C32 0 16-3 0-3C-16-3-32 0-42 10C-46 15-52 14-52 8Z","#FF8A65"]],
+    rayas:[["M-30-20L-20-4M-13-25L-4-5M5-26L13-5M22-23L29-4","#FFD3C2",4,.95],["M-40 0C-30-12-16-19 0-20","#FFB199",3,.6],
+      ["M-30 14l5 0M-12 18l5 0M8 13l5 0M24 18l5 0M-2 9l4 0","#D9D2C3",2.6,.9]],
+    lapiz:[0],rapi:"translate(24 37) rotate(-6) scale(.56)"},
+
+  peludo:{gen:"m",nombre:"Gorro peludo",lugar:"cabeza",precio:150,dice:"Blanco, peludo y calentito.",t:"translate(8 12) scale(.86)",
+    formas:[["M-8 90Q-24 78-11 64Q-24 46-3 38Q-5 15 18 13Q26-9 50-1Q66-17 85-1Q107-7 113 15Q132 23 121 44Q134 58 117 71C85 67 41 79 9 101Q-5 105-8 90Z","#FBF5E7"]],
+    rayas:[["M8 62q8-7 17 0M38 30q10-7 19 1M72 22q9-6 18 2M28 74q9-6 19 1M66 50q9-7 18 0M94 46q7-6 14 1M14 40q7-5 14 0","#D9CBAE",3.4,.95],
+      ["M4 84C34 70 76 60 108 60","#E9DFC8",5,.7]],
+    lapiz:[0],rapi:"translate(26 43) rotate(-6) scale(.5)"},
+
+  corona:{gen:"f",nombre:"Corona",lugar:"cabeza",precio:200,dice:"La que manda. Ya se sabía.",t:"translate(55 64) rotate(-15)",
+    formas:[["M-41-33L-21-13L0-41L21-13L41-33L37 11L-37 11Z","#F5C518"],
+      ["M-47-35a6 6 0 1 0 12 0a6 6 0 1 0 -12 0Z","#F5C518"],["M-6-44a6 6 0 1 0 12 0a6 6 0 1 0 -12 0Z","#F5C518"],["M35-35a6 6 0 1 0 12 0a6 6 0 1 0 -12 0Z","#F5C518"]],
+    rayas:[["M-37 0L37 0L37 11L-37 11Z","#D99A00",0,1],["M-41-33L-21-13L0-41L21-13L41-33L37 11L-37 11Z","#0d131a",4.5,1],
+      ["M-23 5.500a4.500 4.500 0 1 0 9 0a4.500 4.500 0 1 0 -9 0ZM14 5.500a4.500 4.500 0 1 0 9 0a4.500 4.500 0 1 0 -9 0Z","#3559A6",0,1],
+      ["M-5 5.500a5 5 0 1 0 10 0a5 5 0 1 0 -10 0Z","#D8452F",0,1],["M-33-20L-29-2M-10-22L-8-3","#FFE98A",3.4,.9]],
+    lapiz:[1],rapi:"translate(26 38) rotate(-6) scale(.56)"},
+
+  /* la camiseta: bastones celestes y blancos, y el escudo, que es la imagen que mandó Mati (24/11/2026), tal cual */
+  racing:{gen:"f",nombre:"Camiseta de Racing",lugar:"cuerpo",precio:600,dice:"A bastones y con el escudo. La Academia.",
+    tela:{tipo:"bastones",a:"#6FBCEB",b:"#FDFDFA",ancho:12.5,giro:8},ribete:"#2F7FC4",
+    fotos:[{src:"racing-escudo.webp",x:103,y:124,w:25,h:30.4,giro:5}],
+    fotosRapi:[{src:"racing-escudo.webp",x:126,y:170,w:31,h:37.7,giro:4}]},
+
+  /* ---- "Subite a la Franconeta" (el paquete de 2000): todo con las imágenes que mandó Mati el 24/11/2026, tal cual
+     (al auto solo se le sacó el fondo). No se venden sueltas: vienen juntas (de:"franconeta"). ---- */
+  /* el auto es un juguete: chico, en el piso, adelante de ella (Mati: "hacelo más chico, es un juguete, no que esté adentro") */
+  f1:{gen:"m",de:"franconeta",nombre:"El Alpine de juguete",lugar:"juguete",dice:"De juguete. Lo lleva a todos lados.",
+    dicho:{si:"lo sacó a pasear.",no:"lo guardó. queda en el ropero.",estado:"lo tiene con ella"},
+    fotos:[{src:"alpine-auto.webp",x:-2,y:254,w:124,h:34.5}],
+    fotosRapi:[{src:"alpine-auto.webp",x:-2,y:326,w:160,h:44.5}]},
+  alpine:{gen:"f",de:"franconeta",nombre:"Remera de Alpine",lugar:"cuerpo",dice:"La del equipo.",
+    tela:{tipo:"foto",src:"alpine-remera.webp",fondo:"#1F2444",x:-19,y:67,w:240,h:240,giro:6},
+    telaRapi:{x:-27,y:99,w:293,h:293,giro:4},ribete:"#1F2444"},
+  franco:{gen:"f",de:"franconeta",nombre:"Foto de Franco",lugar:"pared",dice:"Pegada con cinta en su hoja.",
+    dicho:{si:"la pegó en su hoja.",no:"la despegó. queda guardada.",estado:"pegada en su hoja"},
+    pared:{src:"franco.webp",pie:"mi ídolo"}}
+};
+/* el orden de la vidriera */
+var ORDEN=["anteojos","monio","bonete","bufanda","boina","nigiri","peludo","corona","racing","alpine","f1","franco"];
+Object.keys(PRENDAS).forEach(function(id){PRENDAS[id].id=id;});
+
+/* ---------------- el corte de las camisetas ----------------
+   En las coordenadas de cada dibujo. Cada pieza se pinta adentro de una parte del dibujo (su relleno hace de molde)
+   y va justo después de la parte "tras", para que las llamas, las patas de adelante y la tinta le queden encima.
+     zona     hasta dónde llega la tela
+     sombra   partes del dibujo que son sombra del cuerpo: se vuelven a marcar sobre la tela
+     bandas   cuello, puño y ruedo (se dibujan como una cinta)
+     encima   (solo Rapidash, que es una imagen) partes que se vuelven a dibujar arriba de la tela  */
+var CORTE={
+  ponyta:{piezas:[
+    {parte:14,tras:16,sombra:[15],zona:"M51 152C66 150 82 132 90 100L160 92C154 120 151 150 153 200L40 214Z",
+      bandas:["M51 152C66 150 82 132 90 100","M158 100C153 126 151 152 153 178"]},
+    {parte:24,tras:25,sombra:[],zona:"M56 150L122 150L120 201C100 202 82 205 62 211Z",
+      bandas:["M64 210C82 205 100 202 118 201"]}]},
+  rapidash:{piezas:[
+    {parte:20,tras:22,sombra:[21,22],zona:"M58 203C80 196 104 170 112 124L186 112C180 150 178 190 182 240L60 262Z",
+      bandas:["M58 203C80 196 104 170 112 124","M185 118C180 152 178 190 181 232"],
+      encima:[43,44,45,46,59,64,65,66,76,79,80]},
+    {parte:45,tras:46,sombra:[46],zona:"M88 200L162 200L160 256C140 258 118 262 96 268Z",
+      bandas:["M96 267C116 261 138 257 158 255"],
+      encima:[65,66,79,80]}]}
+};
+
+/* ---------------- dibujar ---------------- */
+var nId=0;
+function uid(){return "t3xr"+(++nId);}
+function carpeta(){return T3.util.asset("tienda/");}
+
+/* una raya: con ancho 0 es un relleno sin borde (una franja, una piedra) */
+function raya(r){
+  return r[2]?'<path d="'+r[0]+'" fill="none" stroke="'+r[1]+'" stroke-width="'+r[2]+'" stroke-linecap="round" stroke-linejoin="round"'+(r[3]<1?' opacity="'+r[3]+'"':"")+'/>'
+    :'<path d="'+r[0]+'" fill="'+r[1]+'"'+(r[3]<1?' opacity="'+r[3]+'"':"")+'/>';
+}
+/* las imágenes que manda Mati: van tal cual, solo se acomodan */
+function fotos(lista){
+  return (lista||[]).map(function(f){
+    var cx=f.x+f.w/2,cy=f.y+f.h/2;
+    var u=T3.x.esc(carpeta()+f.src);
+    return '<image href="'+u+'" xlink:href="'+u+'" x="'+f.x+'" y="'+f.y+'" width="'+f.w+'" height="'+f.h+'" preserveAspectRatio="xMidYMid meet"'+(f.giro?' transform="rotate('+f.giro+' '+cx+' '+cy+')"':"")+'/>';
+  }).join("");
+}
+function grupo(p,clase,adentro){return '<g class="t3x-prenda t3x-prenda-'+p.id+(clase?" "+clase:"")+'" aria-hidden="true"'+(p.t?' transform="'+p.t+'"':"")+'>'+adentro+"</g>";}
+/* a color, como sticker: relleno con contorno, y los detalles encima */
+function color(p,rapi){
+  return grupo(p,"",(p.formas||[]).map(function(f){return '<path d="'+f[0]+'" fill="'+f[1]+'" stroke="'+INK+'" stroke-width="4.5" stroke-linejoin="round"/>';}).join("")+
+    (p.rayas||[]).map(raya).join("")+(rapi?"":fotos(p.fotos)));
+}
+/* solo las siluetas, para sumarlas al borde blanco de sticker o a una máscara */
+function siluetas(p){return (p.t?'<g transform="'+p.t+'">':"")+(p.formas||[]).map(function(f){return '<path d="'+f[0]+'"/>';}).join("")+(p.t?"</g>":"");}
+/* a lápiz: el contorno de las formas y las rayas elegidas, con la tinta del dibujo */
+function lapiz(p){
+  return grupo(p,"t3x-prenda-linea",'<g fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">'+
+    (p.formas||[]).map(function(f){return '<path d="'+f[0]+'"/>';}).join("")+
+    (p.lapiz||[]).map(function(i){return p.rayas[i]?'<path d="'+p.rayas[i][0]+'"/>':"";}).join("")+"</g>");
+}
+var CAJA='x="-60" y="-80" width="520" height="520"';
+/* el dibujo a lápiz con prendas encima: se borra la tinta que queda abajo de cada una */
+function enLinea(cuerpo,prendas){
+  var tapan=prendas.filter(function(p){return !p.claro;});
+  var h=cuerpo;
+  if(tapan.length){
+    var id=uid();
+    h='<defs><mask id="'+id+'" maskUnits="userSpaceOnUse" '+CAJA+'><rect '+CAJA+' fill="#fff"/><g fill="#000" stroke="#000" stroke-width="3">'+tapan.map(siluetas).join("")+'</g></mask></defs><g mask="url(#'+id+')">'+cuerpo+"</g>";
+  }
+  return h+prendas.map(lapiz).join("");
+}
+
+/* ---- las del cuerpo ---- */
+/* la tela, pintada de sobra (el molde y la zona la recortan). "alapiz": solo los bordes de los bastones */
+function tela(p,alapiz,esRapi){
+  var t=p.tela||{tipo:"lisa",a:"#fff"},h="";
+  if(t.tipo==="foto"){
+    /* la foto de la remera, estirada sobre el cuerpo (el molde y la zona la recortan); a lápiz no va */
+    if(alapiz)return "";
+    var f=esRapi&&p.telaRapi?p.telaRapi:t;
+    return '<rect '+CAJA+' fill="'+(t.fondo||"#222")+'"/>'+fotos([{src:t.src,x:f.x,y:f.y,w:f.w,h:f.h,giro:f.giro}]);
+  }
+  if(alapiz){
+    if(t.tipo!=="bastones")return "";
+    for(var x=-60;x<460;x+=t.ancho)h+="M"+x.toFixed(1)+" -80V440";
+    return '<path d="'+h+'" fill="none" stroke="currentColor" stroke-width="1.7" transform="rotate('+(t.giro||0)+' 110 150)"/>';
+  }
+  if(t.tipo==="bastones"){
+    h='<rect '+CAJA+' fill="'+t.b+'"/><g transform="rotate('+(t.giro||0)+' 110 150)" fill="'+t.a+'">';
+    for(var x2=-60,i=0;x2<460;x2+=t.ancho,i++)if(i%2===0)h+='<rect x="'+x2.toFixed(1)+'" y="-80" width="'+t.ancho+'" height="520"/>';
+    return h+"</g>";
+  }
+  return '<rect '+CAJA+' fill="'+t.a+'"/>';
+}
+/* una pieza del corte, pintada adentro de su molde.
+   d(i) devuelve el dibujo de la parte i · alapiz: versión para el dibujo a lápiz · esRapi: coordenadas de Rapidash */
+function pieza(p,z,d,alapiz,esRapi,primera){
+  var molde=d(z.parte);
+  if(!molde)return "";
+  var a=uid(),b=uid();
+  var h='<defs><clipPath id="'+a+'"><path d="'+molde+'"/></clipPath><clipPath id="'+b+'"><path d="'+z.zona+'"/></clipPath></defs>'+
+    '<g class="t3x-prenda t3x-prenda-'+p.id+(alapiz?" t3x-prenda-linea":"")+'" aria-hidden="true" clip-path="url(#'+a+')">';
+  if(alapiz){
+    h+='<g clip-path="url(#'+b+')">'+tela(p,true,esRapi)+'</g>'+
+      z.bandas.map(function(l){return '<path d="'+l+'" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>';}).join("");
+  }else{
+    h+='<g clip-path="url(#'+b+')">'+tela(p,false,esRapi)+
+      (z.sombra||[]).map(function(i){var s=d(i);return s?'<path d="'+s+'" fill="#0b1a33" opacity=".15"/>':"";}).join("")+
+      (primera?fotos(esRapi?p.fotosRapi:p.fotos):"")+'</g>'+
+      z.bandas.map(function(l){
+        return '<path d="'+l+'" fill="none" stroke="'+INK+'" stroke-width="10.5" stroke-linecap="butt"/><path d="'+l+'" fill="none" stroke="'+(p.ribete||"#fff")+'" stroke-width="5.6" stroke-linecap="butt"/>';
+      }).join("");
+  }
+  return h+"</g>";
+}
+function dDe(parte){var m=/ d="([^"]+)"/.exec(String(parte||""));return m?m[1]:"";}
+
+/* ---------------- qué tiene y qué lleva puesto ---------------- */
+function guardado(){
+  var t=null;
+  try{t=T3.leer(LL,null);}catch(x){}
+  if(!t||typeof t!=="object")t={};
+  if(!t.cosas||typeof t.cosas!=="object")t.cosas={};
+  if(!t.puesto||typeof t.puesto!=="object")t.puesto={};
+  return t;
+}
+function tiene(id){return !!guardado().cosas[id];}
+/* dónde se anota que la lleva: una cosa por lugar, salvo las fotos de la pared, que conviven (cada una en el suyo) */
+function casilla(p){return p.lugar==="pared"?"pared-"+p.id:p.lugar;}
+/* {cabeza:id, cara:id, cuello:id, cuerpo:id, juguete:id, "pared-<id>":id} con lo que lleva puesto (solo cosas que compró y que existen) */
+function puesto(){
+  var t=guardado(),r={};
+  Object.keys(PRENDAS).forEach(function(id){var p=PRENDAS[id],k=casilla(p);if(t.puesto[k]===id&&t.cosas[id])r[k]=id;});
+  return r;
+}
+function lleva(id){var p=PRENDAS[id];return !!p&&puesto()[casilla(p)]===id;}
+function enLaCabeza(){return !!puesto().cabeza;}
+/* se la pone (saca lo que hubiera en ese lugar) o se la saca. Devuelve true si quedó puesta */
+function poner(id,si){
+  var p=PRENDAS[id],t=guardado();
+  if(!p||!t.cosas[id])return false;
+  var k=casilla(p);
+  if(si===undefined)si=t.puesto[k]!==id;
+  if(si)t.puesto[k]=id;else if(t.puesto[k]===id)delete t.puesto[k];
+  T3.guardar(LL,t);
+  refrescar();
+  return !!si;
+}
+/* las prendas que van en un dibujo: las que se piden a mano (op.ropa, para la vidriera de la tienda) o las puestas.
+   Solo se viste donde también va el gorro de Navidad (quien dibuja pasa "gorro": su solapa, el señalador y las hojas). */
+function cuales(op){
+  op=op||{};
+  var ids;
+  if(Array.isArray(op.ropa))ids=op.ropa;
+  else if(Object.prototype.hasOwnProperty.call(op,"gorro")){var p=puesto();ids=LUGARES.map(function(l){return p[l];});}
+  else ids=[];
+  var r=[];
+  LUGARES.forEach(function(l){ids.forEach(function(id){var x=id&&PRENDAS[id];if(x&&x.lugar===l&&r.indexOf(x)<0&&!r.some(function(y){return y.lugar===l;}))r.push(x);});});
+  return r;
+}
+
+/* Recibe las partes del dibujo de Ponyta (lo que arma T3.ponyta.svg) y las devuelve vestidas.
+   o: {borde, cuerpo, extra, linea, partes (el cuerpo, parte por parte), P (las partes del dibujo: {d,…})} · op: las opciones del dibujo */
+function vestir(o,op){
+  op=op||{};
+  var prendas=cuales(op);
+  var deCuerpo=prendas.filter(function(p){return p.lugar==="cuerpo";});
+  var abajo=prendas.filter(function(p){return p.lugar!=="cabeza"&&p.lugar!=="cuerpo";}),arriba=prendas.filter(function(p){return p.lugar==="cabeza";});
+  var gorro=!!op.gorro&&!arriba.length&&!!(T3.viaje&&T3.viaje.poner);
+  var borde=o.borde||"",cuerpo=o.cuerpo||"",extra=o.extra||"";
+  if(!prendas.length)return gorro?T3.viaje.poner({borde:borde,cuerpo:cuerpo,extra:extra,linea:o.linea}):borde+cuerpo+extra;
+  /* la camiseta va adentro del cuerpo */
+  if(deCuerpo.length&&Array.isArray(o.P)){
+    var p0=deCuerpo[0],Z=CORTE.ponyta.piezas,dP=function(i){return o.P[i]?o.P[i].d:"";};
+    if(o.linea)cuerpo+=Z.map(function(z,i){return pieza(p0,z,dP,true,false,i===0);}).join("");
+    else if(Array.isArray(o.partes)){
+      var pp=o.partes.slice();
+      Z.slice().sort(function(a,b){return b.tras-a.tras;}).forEach(function(z){pp.splice(z.tras+1,0,pieza(p0,z,dP,false,false,z===Z[0]));});
+      cuerpo=pp.join("");
+    }
+  }
+  if(o.linea){
+    /* a lápiz no van fotos: lo que es solo una imagen (el auto) no se dibuja */
+    var abL=abajo.filter(function(p){return p.formas;}),arL=arriba.filter(function(p){return p.formas;});
+    if(abL.length)cuerpo=enLinea(cuerpo,abL);
+    if(gorro)return T3.viaje.poner({borde:borde,cuerpo:cuerpo,extra:extra,linea:true});
+    return borde+(arL.length?enLinea(cuerpo,arL):cuerpo)+extra;
+  }
+  /* el borde blanco de sticker (el del señalador) también rodea a las prendas */
+  if(borde)borde=String(borde).replace(/<\/g>$/,prendas.filter(function(p){return !p.claro&&p.formas;}).map(siluetas).join("")+"</g>");
+  extra+=abajo.map(function(p){return color(p);}).join("");
+  if(gorro)return T3.viaje.poner({borde:borde,cuerpo:cuerpo,extra:extra,linea:false});
+  return borde+cuerpo+extra+arriba.map(function(p){return color(p);}).join("");
+}
+
+/* ---- Rapidash es una imagen: para vestirle el cuerpo hay que leer su dibujo (el mismo archivo) y pintar encima ---- */
+var RAPI={};      /* archivo → lista de partes [{d, f}] · "pidiendo" mientras llega */
+function partesDe(src,listo){
+  var c=RAPI[src];
+  if(Array.isArray(c))return c;
+  if(c!=="pidiendo"&&typeof fetch==="function"){
+    RAPI[src]="pidiendo";
+    fetch(src).then(function(r){return r.ok?r.text():"";}).then(function(t){
+      var l=[],re=/<path\b[^>]*?\bfill="([^"]*)"[^>]*?\bd="([^"]+)"/g,m;
+      while((m=re.exec(t)))l.push({f:m[1],d:m[2]});
+      RAPI[src]=l.length?l:null;
+      if(l.length&&listo)listo();
+    }).catch(function(){RAPI[src]=null;});
+  }
+  return null;
+}
+function archivoRapi(shiny){return shiny?T3.util.asset("ponyta/rapidash-shiny.svg"):T3.util.poke("rapidash");}
+/* la camiseta de Rapidash: la tela adentro del cuerpo y, encima, las partes del dibujo que la tapan */
+function cuerpoRapi(p,R){
+  var Z=CORTE.rapidash.piezas,d=function(i){return R[i]?R[i].d:"";};
+  var enc={},h="";
+  Z.forEach(function(z){(z.encima||[]).forEach(function(i){enc[i]=1;});});
+  var idx=Object.keys(enc).map(Number).sort(function(a,b){return a-b;});
+  var falta=Z.slice().sort(function(a,b){return a.tras-b.tras;});
+  function sueltas(hasta){while(falta.length&&falta[0].tras<hasta){var z=falta.shift();h+=pieza(p,z,d,false,true,z===Z[0]);}}
+  idx.forEach(function(i){sueltas(i);if(R[i])h+='<path d="'+R[i].d+'" fill="'+R[i].f+'"/>';});
+  sueltas(Infinity);
+  return h;
+}
+function llenarRapi(){
+  try{
+    [].forEach.call(document.querySelectorAll("svg.t3x-ropa-cuerpo[data-falta]"),function(s){
+      var p=PRENDAS[s.getAttribute("data-falta")],R=RAPI[s.getAttribute("data-de")];
+      if(!p||!Array.isArray(R))return;
+      s.removeAttribute("data-falta");
+      s.innerHTML=cuerpoRapi(p,R);
+    });
+  }catch(e){}
+}
+/* para Rapidash: las mismas prendas, achicadas y calzadas en su cabeza y su cuello; la camiseta, con su propio corte */
+function rapidash(vb,op,shiny){
+  op=op||{};
+  var prendas=cuales(op),h="";
+  var deCuerpo=prendas.filter(function(p){return p.lugar==="cuerpo";}),resto=prendas.filter(function(p){return p.lugar!=="cuerpo";});
+  var gorro=!!op.gorro&&!prendas.some(function(p){return p.lugar==="cabeza";})&&!!(T3.viaje&&T3.viaje.gorroRapidash);
+  var svg='<svg class="t3x-gorro-rapi t3x-ropa-rapi';
+  var fin='" viewBox="'+vb+'" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false"';
+  if(deCuerpo.length){
+    var src=archivoRapi(shiny==null?(op.shiny==null?T3.esShiny():!!op.shiny):shiny),R=partesDe(src,llenarRapi);
+    h+=svg+' t3x-ropa-cuerpo'+fin+(R?"":' data-falta="'+deCuerpo[0].id+'" data-de="'+T3.x.esc(src)+'"')+'>'+(R?cuerpoRapi(deCuerpo[0],R):"")+"</svg>";
+  }
+  if(resto.length)h+=svg+fin+'>'+resto.map(function(p){return '<g transform="'+(p.rapi||"")+'">'+color(p,true)+(p.fotosRapi?fotos(p.fotosRapi):"")+"</g>";}).join("")+"</svg>";
+  if(gorro)h+=T3.viaje.gorroRapidash(vb);
+  return h;
+}
+
+/* vuelve a dibujar a la Ponyta del señalador y la de las hojas que estén a la vista (cuando cambia lo que lleva puesto) */
+function refrescar(){
+  try{
+    if(!T3.ponyta||!T3.ponyta.svg||(T3.viaje&&T3.viaje.ausente()))return;
+    var con=function(f){return !!(T3.viaje&&T3.viaje.conGorro(f));};
+    [].forEach.call(document.querySelectorAll(".t3-ponyta-dije-pony"),function(s){
+      s.innerHTML=T3.ponyta.svg({clase:"t3-ponyta-mini",quieta:true,borde:true,gorro:con()});
+    });
+    [].forEach.call(document.querySelectorAll(".t3-cuaderno-hoja[data-fecha]"),function(h){
+      var f=h.getAttribute("data-fecha");
+      if(T3.viaje&&T3.viaje.ausente(f))return;
+      [].forEach.call(h.querySelectorAll(".t3-cuaderno-pony-dibujo"),function(s){
+        s.innerHTML=T3.ponyta.svg({linea:true,quieta:true,gorro:con(f)});
+      });
+    });
+  }catch(e){}
+}
+/* ---- su pared: las fotos que tiene pegadas en la solapa ---- */
+function pegada(p){
+  return '<figure class="t3x-pegada" style="--rot:'+T3.x.giro("pg"+p.id,3.4)+'deg"><img src="'+T3.x.esc(carpeta()+p.pared.src)+'" alt="'+T3.x.esc(p.nombre)+'" draggable="false">'+
+    (p.pared.pie?'<figcaption>'+T3.x.esc(p.pared.pie)+'</figcaption>':'')+'</figure>';
+}
+function enLaPared(){
+  var q=puesto();
+  return ORDEN.map(function(id){return PRENDAS[id];}).filter(function(p){return p&&p.lugar==="pared"&&p.pared&&q[casilla(p)]===p.id;});
+}
+/* el módulo de Ponyta avisa cuando arma su solapa: acá se le suma la pared (abajo del modo Pou, si lo tiene) */
+function adornar(ctl,host,op){
+  if(!ctl||!ctl._raiz||(op&&op.papel===false))return;
+  if(T3.viaje&&T3.viaje.ausente&&T3.viaje.ausente())return;
+  var raiz=ctl._raiz,l=enLaPared();
+  if(!l.length||raiz.querySelector(".t3x-pared"))return;
+  var ancla=raiz.querySelector(".t3x-pou")||raiz.querySelector(".t3-ponyta-mandos");
+  if(!ancla)return;
+  ancla.insertAdjacentHTML("afterend",'<section class="t3x-pared" aria-label="la pared de Ponyta"><p class="t3-ponyta-rotulo">Su pared <span class="t3-ponyta-lapiz">la decoró ella</span></p>'+
+    '<div class="t3x-pared-fotos">'+l.map(pegada).join("")+'</div></section>');
+}
+/* una Ponyta de muestra con una sola prenda (la vidriera de la tienda). Con lo que ella sea ahora: Ponyta o Rapidash */
+function muestra(id,op){
+  if(id&&PRENDAS[id]&&PRENDAS[id].lugar==="pared")return pegada(PRENDAS[id]);
+  var o={quieta:true,ropa:id?[id]:[],clase:"t3x-muestra"};
+  if(op)for(var k in op)o[k]=op[k];
+  return T3.ponyta&&T3.ponyta.svg?T3.ponyta.svg(o):"";
+}
+/* una prenda sola, sin Ponyta (el nigiri que se come en el modo Pou) */
+function suelta(id,vb){
+  var p=PRENDAS[id];
+  if(!p||!p.formas)return "";
+  var q={id:p.id,formas:p.formas,rayas:p.rayas};
+  return '<svg class="t3x-suelta" viewBox="'+(vb||"-58 -34 116 66")+'" aria-hidden="true" focusable="false">'+color(q,true)+"</svg>";
+}
+/* si ya es Rapidash, se va pidiendo su dibujo para que la camiseta aparezca de entrada */
+try{if(T3.ponyta&&T3.ponyta.forma&&T3.ponyta.forma()==="rapidash"&&puesto().cuerpo)partesDe(archivoRapi(T3.esShiny()),llenarRapi);}catch(e){}
+
+T3.ropa={PRENDAS:PRENDAS,ORDEN:ORDEN,LUGARES:LUGARES,NOMBRE_LUGAR:NOMBRE_LUGAR,CORTE:CORTE,
+  vestir:vestir,rapidash:rapidash,puesto:puesto,lleva:lleva,tiene:tiene,poner:poner,enLaCabeza:enLaCabeza,refrescar:refrescar,muestra:muestra,suelta:suelta,adornar:adornar,enLaPared:enLaPared,carpeta:carpeta,
+  _prueba:{guardado:guardado,LL:LL,RAPI:RAPI}};
+})();
+
+/* ------------------------------------------------------------
+   MODO POU · T3.pou  (idea de Mati, 24/11/2026)
+   Cuidar a Ponyta como en el juego Pou: darle nigiris, bañarla
+   y mandarla a dormir. Se compra en la tienda ("pou", 1000
+   MafiaPoints) y desde ese día aparece en su solapa, abajo de
+   "Hacela correr".
+
+   Cuatro barritas de 0 a 100 que bajan solas con las horas
+   (BAJA, por hora) y suben así:
+     panza    un nigiri = NIGIRI puntos
+     sueño    sube mientras duerme: de noche duerme sola (las
+              mismas horas en que el cuaderno la muestra dormida)
+              y de día si la mandan a dormir. Se despierta sola
+              cuando llenó la barra, o si la tocan.
+     limpia   un baño la deja en 100
+     mimos    cada corazón que le sacan acariciándola
+   No pasa nada malo si las barras llegan a cero: Ponyta avisa
+   (tiene hambre, tiene sueño…) y nada más.
+
+   Las horas se cuentan con T3.ahora(): en la máquina del tiempo,
+   viajar a otro día es como si hubieran pasado esos días.
+   Guarda en pv-t3-pou: {t, panza, suenio, limpia, mimos, dormida}
+
+   El módulo de Ponyta (minificado) avisa: T3.pou.montar(ctl,host,op)
+   cuando arma su solapa, .alDormir(), .alDespertar(eraSiesta) y
+   .alMimo() (un corazón).
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var X=T3.x,U=T3.util,esc=X.esc;
+var LL="pou",HORA=3600000;
+var ORDEN=["panza","suenio","limpia","mimos"];
+var NOMBRE={panza:"panza",suenio:"sueño",limpia:"limpia",mimos:"mimos"};
+/* puntos por hora. Pensado para una visita por día: al otro día tiene hambre (no está en cero),
+   el baño aguanta dos días y a la noche ya tiene sueño */
+var BAJA={panza:3,suenio:5,limpia:1.6,mimos:3};
+var DESCANSA=25;                                      /* lo que sube el sueño por hora dormida */
+var NIGIRI=20;                                        /* lo que llena un nigiri */
+var CORAZON=4;                                        /* lo que suma cada corazón de mimos */
+var POCO=30;                                          /* por debajo de esto, avisa */
+var DE_ENTRADA={panza:35,suenio:80,limpia:55,mimos:70};
+
+X.DIB.burbujas='<circle cx="18" cy="28" r="10"/><circle cx="34" cy="16" r="6"/><circle cx="37" cy="35" r="4"/><path d="M13 25c1-3 3-4.500 5.500-4.800M31 14c.6-1.400 1.600-2 2.800-2.200"/>';
+X.DIB.luna='<path d="M33 30A14 14 0 1 1 20 9a11 11 0 0 0 13 21z"/><path d="M36 8v6M33 11h6M41 19v4M39 21h4"/>';
+X.DIB.sol='<circle cx="24" cy="24" r="8"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11 11l3.500 3.500M33.500 33.500L37 37M37 11l-3.500 3.500M14.500 33.500L11 37"/>';
+
+var DICE={
+  panza:["tengo hambre. nigiri. ya.","la panza me hace ruido. es un ruido de salmón.","se aceptan nigiris."],
+  suenio:["se me cierran los ojos. mandame a dormir.","tengo sueño. cinco minutos. o nueve horas."],
+  limpia:["necesito un baño. huelo a humo.","estoy hecha un desastre. baño. con bubujas."],
+  mimos:["hace mucho que nadie me acaricia. digo, por decir.","un mimo no se le niega a nadie."],
+  come:["ñam.","otro.","de salmón. bien.","gracias. estaba famélica."],
+  llena:["no puedo más. estoy llenísima.","si como uno más, ruedo."],
+  bano:["bubuja. bubuja. bubuja.","limpita. el fuego me quedó brillante.","agua tibia, que soy de fuego."],
+  limpiaYa:["ya estoy limpia. pero bueno, dale.","dos baños en un día. qué nivel."],
+  duerme:["hasta mañana.","me voy a dormir. no hagan ruido."],
+  despierta:["buen día. ¿hay nigiris?","dormí bárbaro."]
+};
+function az(a,b){return a+Math.random()*(b-a);}
+function elegir(lista,sal){return lista[(U.hash("pou"+sal+T3.hoy)+(elegir.n=(elegir.n||0)+1))%lista.length];}
+
+function activo(){try{return !!(T3.tienda&&T3.tienda.tiene&&T3.tienda.tiene("pou"));}catch(e){return false;}}
+function tope(v){return Math.max(0,Math.min(100,+v||0));}
+/* cuántas horas de noche (cuando duerme sola) hay entre dos momentos */
+function horasDeNoche(a,b){
+  var h=(b-a)/HORA;
+  if(h>72)return h*7.5/24;
+  var n=0,paso=HORA/4;
+  for(var t=a;t<b;t+=paso){var d=new Date(t),x=d.getHours()+d.getMinutes()/60;if(x>=23.5||x<7)n+=Math.min(paso,b-t)/HORA;}
+  return n;
+}
+function estado(){
+  var e=null;
+  try{e=T3.leer(LL,null);}catch(x){}
+  if(!e||typeof e!=="object"){e={t:0};ORDEN.forEach(function(k){e[k]=DE_ENTRADA[k];});}
+  ORDEN.forEach(function(k){e[k]=tope(e[k]);});
+  e.dormida=!!e.dormida;
+  return e;
+}
+function guardar(e){T3.guardar(LL,e);}
+/* hace pasar el tiempo desde la última vez. Devuelve true si se despertó sola en el camino */
+function alDia(e){
+  var ah=T3.ahora().getTime(),sola=false;
+  if(!e.t||ah<e.t){e.t=ah;return false;}
+  var h=(ah-e.t)/HORA;
+  if(h<=0)return false;
+  var dormidas=e.dormida?h:horasDeNoche(e.t,ah);
+  if(e.dormida){
+    /* durmió hasta llenar la barra; lo que sobró, ya despierta (salvo que sea de noche) */
+    var hace=Math.max(0,(100-e.suenio)/DESCANSA);
+    if(hace<h&&!T3.esDeNoche()){dormidas=hace+horasDeNoche(e.t+hace*HORA,ah);e.dormida=false;sola=true;}
+  }
+  dormidas=Math.min(h,dormidas);
+  e.suenio=tope(e.suenio+DESCANSA*dormidas-BAJA.suenio*(h-dormidas));
+  e.panza=tope(e.panza-BAJA.panza*(h-dormidas*.5));          /* dormida le da menos hambre */
+  e.limpia=tope(e.limpia-BAJA.limpia*h);
+  e.mimos=tope(e.mimos-BAJA.mimos*(h-dormidas));
+  e.t=ah;
+  return sola;
+}
+function peor(e){
+  var k=ORDEN.slice().sort(function(a,b){return e[a]-e[b];})[0];
+  return e[k]<POCO?k:null;
+}
+
+var viva=null;      /* la solapa que está abierta: {pintar, mimo, desperto} */
+
+function montar(ctl,host,op){
+  viva=null;
+  if(!ctl||!ctl._raiz||!ctl._pou||(op&&op.papel===false)||!activo())return;
+  if(T3.viaje&&T3.viaje.ausente&&T3.viaje.ausente())return;
+  var raiz=ctl._raiz,st=ctl._estado,P=ctl._pou;
+  var mandos=raiz.querySelector(".t3-ponyta-mandos");
+  if(!mandos||raiz.querySelector(".t3x-pou"))return;
+  var e=estado();
+  var sola=alDia(e);
+  guardar(e);
+  mandos.insertAdjacentHTML("afterend",'<section class="t3x-pou" aria-label="cuidar a Ponyta">'+
+    '<p class="t3-ponyta-rotulo">Cuidarla <span class="t3-ponyta-lapiz">modo Pou</span></p>'+
+    '<div class="t3x-pou-barras">'+ORDEN.map(function(k){return '<div class="t3x-pou-barra" data-k="'+k+'" role="img"><i>'+NOMBRE[k]+'</i><span><b></b></span></div>';}).join("")+'</div>'+
+    '<div class="t3x-pou-botones">'+
+    '<button type="button" data-pou="comer">'+X.dib("sushi")+'<span>nigiri</span></button>'+
+    '<button type="button" data-pou="banar">'+X.dib("burbujas")+'<span>baño</span></button>'+
+    '<button type="button" data-pou="dormir">'+X.dib("luna")+'<span>a dormir</span></button></div>'+
+    '<p class="t3x-pou-nota t3-ponyta-lapiz" role="status"></p></section>');
+  var panel=raiz.querySelector(".t3x-pou"),nota=panel.querySelector(".t3x-pou-nota"),bDormir=panel.querySelector('[data-pou="dormir"]');
+  var ocupada=false,notaT=null;
+  function vivo(){return !!(st&&st.vivo&&panel.isConnected);}
+  function pintar(){
+    ORDEN.forEach(function(k){
+      var b=panel.querySelector('.t3x-pou-barra[data-k="'+k+'"]');
+      if(!b)return;
+      var v=Math.round(e[k]);
+      b.querySelector("b").style.width=v+"%";
+      b.classList.toggle("t3x-pou-poco",v<POCO);
+      b.setAttribute("aria-label",NOMBRE[k]+": "+v+" de 100");
+      b.setAttribute("data-v",v);
+    });
+    var duerme=!!st.duerme;
+    panel.classList.toggle("t3x-pou-duerme",duerme);
+    bDormir.innerHTML=X.dib(duerme?"sol":"luna")+"<span>"+(duerme?"despertarla":"a dormir")+"</span>";
+  }
+  function anotar(t,ms){
+    nota.textContent=t||"";
+    clearTimeout(notaT);
+    if(t)notaT=setTimeout(function(){if(vivo())nota.textContent="";},ms||2600);
+  }
+  function decir(t,ms){try{ctl.callar();ctl.decir(t,ms||2600);}catch(x){}}
+  /* un punto de su dibujo, en píxeles de la escena: fx y fy son la fracción del ancho y del alto de la figura */
+  function punto(fx,fy){var r=P.rectEn(P.bicho);return [r.x+r.w*fx,r.y+r.h*fy,r];}
+  function boca(){return P.esRapi?punto(.06,.42):punto(.075,.45);}
+
+  function comer(){
+    if(ocupada||st.corriendo)return;
+    if(st.duerme){anotar("shh. está durmiendo.");return;}
+    e=estado();alDia(e);
+    if(e.panza>=100){guardar(e);pintar();decir(elegir(DICE.llena,"ll"));return;}
+    ocupada=true;
+    var b=boca(),r=b[2];
+    var x0=b[0]+r.w*.2,y0=r.y+r.h+26;
+    var n=P.particula(T3.ropa&&T3.ropa.suelta?T3.ropa.suelta("nigiri"):"","t3x-pou-nigiri",b[0]-22,b[1]-14,900,{"--dx":(x0-b[0]).toFixed(0)+"px","--dy":(y0-b[1]).toFixed(0)+"px"});
+    T3.sonido("pop",.5);
+    setTimeout(function(){
+      if(!vivo())return;
+      if(n&&n.parentNode)n.parentNode.removeChild(n);
+      P.pulso("saltito",420);
+      for(var i=0;i<4;i++)P.particula("","t3x-pou-miga",b[0]+az(-6,10),b[1]+az(-4,8),700,{"--dx":az(-22,22).toFixed(0)+"px","--dy":az(14,34).toFixed(0)+"px"});
+      T3.sonido("tic",.7);U.vibrar(10);
+      e=estado();alDia(e);
+      e.panza=tope(e.panza+NIGIRI);
+      guardar(e);pintar();
+      T3.stat("pou-nigiris");
+      if(e.panza>=100)decir(elegir(DICE.llena,"ll"));
+      else if((comer.n=(comer.n||0)+1)%3===1)decir(elegir(DICE.come,"co"),1500);
+      ocupada=false;
+    },U.reducido()?60:560);
+  }
+  function banar(){
+    if(ocupada||st.corriendo)return;
+    if(st.duerme){anotar("shh. está durmiendo.");return;}
+    e=estado();alDia(e);
+    var estaba=e.limpia>=96;
+    ocupada=true;
+    panel.classList.add("t3x-pou-ocupada");
+    raiz.classList.add("t3x-pou-banio");
+    var R=U.reducido(),dura=R?200:2600,t0=Date.now();
+    var iv=setInterval(function(){
+      if(!vivo()||Date.now()-t0>dura){clearInterval(iv);return;}
+      var r=P.rectEn(P.bicho);
+      for(var i=0;i<2;i++){
+        var s=az(10,30);
+        P.particula("","t3x-pou-burbuja",r.x+r.w*az(.04,.82),r.y+r.h*az(.3,.92),1500,{width:s.toFixed(0)+"px",height:s.toFixed(0)+"px","--dx":az(-18,18).toFixed(0)+"px","--dy":(-az(50,120)).toFixed(0)+"px","--t":az(.9,1.4).toFixed(2)+"s"});
+      }
+      if(Math.random()<.35)T3.sonido("pop",.22);
+    },R?60:95);
+    setTimeout(function(){
+      clearInterval(iv);
+      if(!vivo())return;
+      raiz.classList.remove("t3x-pou-banio");
+      panel.classList.remove("t3x-pou-ocupada");
+      P.saltar(true);
+      var c=punto(.42,.3);
+      for(var i=0;i<5;i++)P.particula("","t3x-pou-brillo",c[0]+az(-70,80),c[1]+az(-30,70),900,{"--t":az(.5,.9).toFixed(2)+"s"});
+      T3.sonido("exito",.5);U.vibrar(16);
+      e=estado();alDia(e);
+      e.limpia=100;
+      guardar(e);pintar();
+      T3.stat("pou-banios");
+      decir(elegir(estaba?DICE.limpiaYa:DICE.bano,"ba"),2600);
+      ocupada=false;
+    },dura+120);
+  }
+  function dormir(){
+    if(ocupada||st.corriendo)return;
+    e=estado();alDia(e);
+    if(st.duerme){
+      /* la despierta: lo anota alDespertar (que también salta si la despiertan tocándola) */
+      ctl.despertar();
+      return;
+    }
+    if(e.suenio>=97&&!T3.esDeNoche()){guardar(e);pintar();decir("no tengo sueño. recién me levanto.");return;}
+    decir(elegir(DICE.duerme,"du"),1300);
+    ocupada=true;
+    setTimeout(function(){
+      ocupada=false;
+      if(!vivo()||st.corriendo)return;
+      try{ctl.callar();}catch(x){}
+      st.siesta=true;
+      ctl.dormir();
+      e=estado();alDia(e);e.dormida=true;guardar(e);
+      T3.sonido("papel",.4);
+      T3.stat("pou-siestas");
+      pintar();
+    },U.reducido()?40:1500);
+  }
+  function desperto(){
+    e=estado();alDia(e);e.dormida=false;guardar(e);
+    if(vivo())pintar();
+  }
+  function mimo(){
+    e=estado();alDia(e);
+    if(e.mimos>=100)return;
+    e.mimos=tope(e.mimos+CORAZON);
+    guardar(e);
+    if(vivo())pintar();
+  }
+  panel.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-pou]");
+    if(!b||!vivo())return;
+    var que=b.getAttribute("data-pou");
+    if(que==="comer")comer();else if(que==="banar")banar();else if(que==="dormir")dormir();
+  });
+  viva={pintar:function(){if(vivo()){e=estado();pintar();}},mimo:mimo,desperto:desperto,raiz:raiz};
+
+  /* si la mandaron a dormir y sigue durmiendo, aparece dormida aunque sea de día */
+  if(e.dormida&&!st.corriendo){st.siesta=true;if(!st.duerme)ctl.dormir();}
+  pintar();
+  /* el tiempo pasa con la solapa abierta */
+  var reloj=setInterval(function(){
+    if(!vivo()){clearInterval(reloj);if(viva&&viva.raiz===raiz)viva=null;return;}
+    e=estado();
+    var s=alDia(e);
+    guardar(e);
+    if(s&&st.siesta){ctl.despertar();decir(elegir(DICE.despierta,"de"),2600);}
+    pintar();
+  },30000);
+  /* cuando termina de decir lo del día, avisa lo que le falta */
+  if(sola)setTimeout(function(){if(vivo()&&!st.duerme)anotar("se despertó sola.",4000);},900);
+  var intentos=0,aviso=setInterval(function(){
+    if(!vivo()||++intentos>14){clearInterval(aviso);return;}
+    if(st.duerme||st.corriendo||ocupada)return;
+    var g=raiz.querySelector(".t3-ponyta-globo");
+    if(g&&g.classList.contains("t3-ponyta-ver"))return;
+    if(intentos<3)return;
+    clearInterval(aviso);
+    e=estado();
+    var k=peor(e);
+    if(k)decir(elegir(DICE[k],k),4200);
+  },1500);
+}
+/* avisos del módulo de Ponyta: se despertó (siesta = la habían mandado a dormir) o se durmió sola */
+function alDespertar(siesta){
+  try{
+    if(!activo())return;
+    if(viva)viva.desperto();
+    else if(siesta){var e=estado();alDia(e);e.dormida=false;guardar(e);}
+  }catch(x){}
+}
+function alDormir(){try{if(viva)setTimeout(function(){if(viva)viva.pintar();},0);}catch(x){}}
+var ultimoMimo=0;
+function alMimo(){
+  try{
+    if(!activo())return;
+    var t=Date.now();
+    if(t-ultimoMimo<250)return;
+    ultimoMimo=t;
+    if(viva)viva.mimo();
+  }catch(x){}
+}
+
+T3.pou={activo:activo,montar:montar,alDespertar:alDespertar,alDormir:alDormir,alMimo:alMimo,
+  _prueba:{estado:estado,guardar:guardar,alDia:alDia,horasDeNoche:horasDeNoche,peor:peor,BAJA:BAJA,DESCANSA:DESCANSA,NIGIRI:NIGIRI,CORAZON:CORAZON,POCO:POCO,DE_ENTRADA:DE_ENTRADA,ORDEN:ORDEN,LL:LL}};
+})();
 
 /* ------------------------------------------------------------
    AVISOS

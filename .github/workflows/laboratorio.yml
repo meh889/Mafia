@@ -1,6 +1,6 @@
 # Las pruebas largas ("escenarios") de lo que se sumó en noviembre de 2026:
 # actualización sola, respaldo, taller, ida y vuelta por WhatsApp, MafiaTCG (cartas,
-# sobres y duelo), avisos y el viaje de Ponyta.
+# sobres y duelo), la tienda con la ropa de Ponyta y el modo Pou, avisos y el viaje de Ponyta.
 # No corren solas: se piden a mano cuando se toca ese código (o cuando hay dudas).
 #
 #   gh workflow run laboratorio.yml -R meh889/Mafia --ref main
@@ -52,7 +52,7 @@ jobs:
       - name: Actualización, respaldo, taller y sonido
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/a.cjs
-      - name: Ida y vuelta (contestar, pedidos, vales)
+      - name: Ida y vuelta (contestar, la tienda sin puntos, vales)
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/b.cjs
       - name: MafiaTCG, cartas, sobres y carpeta
@@ -68,6 +68,9 @@ jobs:
       - name: MafiaTCG, reglas del duelo y equilibrio
         if: always() && matrix.motor == 'chromium'
         run: node .github/pruebas/c4.cjs
+      - name: La tienda, la ropa de Ponyta y el modo Pou
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/f.cjs
       - name: Ponyta se va de vacaciones y vuelve con gorro
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/e.cjs

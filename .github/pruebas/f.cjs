@@ -1,6 +1,6 @@
 /* Laboratorio · la tienda (pestaña verde), la ropa de Ponyta y el modo Pou.
    Precios, canjear un pedido por WhatsApp, comprar y ponerle cosas a Ponyta, la camiseta con el escudo,
-   cuidarla (nigiris, baño, dormir y el paso de las horas), el paquete "Subite a la Franconeta"
+   cuidarla (nigiris, baño, dormir y el paso de las horas), los paquetes "Subite a la Franconeta" y "Sorpresa"
    y canjear herraduras (50 por un sobre con una nola o por 250 MafiaPoints). */
 const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
 const fs=require("fs"),path=require("path");
@@ -27,8 +27,8 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     out.nombres={franconeta:de(c,"franconeta").nombre,sorpresa:de(c,"sorpresa").nombre,pou:de(c,"pou").nombre,racing:de(c,"racing").nombre};
     out.gratis=t.filter(x=>!(x.p>0)).map(x=>x.id).concat(c.filter(x=>!(x.precio>0)).map(x=>x.id));
     out.ordenados=t.every((x,i)=>!i||x.p>=t[i-1].p);out.comodin=t[t.length-1].id;
-    out.prendasMalas=R.ORDEN.filter(id=>{const p=R.PRENDAS[id];return !p||!p.nombre||!p.dice||R.LUGARES.concat(["pared"]).indexOf(p.lugar)<0||["f","m","mp"].indexOf(p.gen)<0||(!p.de&&!(p.precio>0))||
-      (p.lugar==="cuerpo"?!p.tela:p.lugar==="pared"?!(p.pared&&p.pared.src):!(p.formas||p.fotos));});
+    out.prendasMalas=R.ORDEN.filter(id=>{const p=R.PRENDAS[id];return !p||!p.nombre||!p.dice||R.LUGARES.concat(["pared","calle"]).indexOf(p.lugar)<0||["f","m","mp"].indexOf(p.gen)<0||(!p.de&&!(p.precio>0))||
+      (p.lugar==="cuerpo"?!p.tela:p.lugar==="pared"?!(p.pared&&p.pared.src):p.lugar==="calle"?!(p.pasacalle&&p.pasacalle.src):!(p.formas||p.fotos));});
     out.sinOrden=Object.keys(R.PRENDAS).filter(id=>R.ORDEN.indexOf(id)<0);
     /* un precio se puede pisar desde CONFIG.t3.tienda.precios */
     const cfg=T3.config.tienda;out.hayConfig=!!cfg&&typeof cfg.precios==="object";
@@ -121,17 +121,22 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 
-  console.log("LO QUE TODAVÍA NO ESTÁ (LA SORPRESA)");
+  console.log("LA SORPRESA, ANTES DE COMPRARLA (no dice qué es)");
   ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:Object.assign({"pv-t3-tcg2":tcg(9000)},base5)}));
   await aTienda(pg);
-  r={f:await cosa(pg,"franconeta"),s:await cosa(pg,"sorpresa")};
-  chequear("la Sorpresa está en la vidriera con su precio, marcada «pronto» y sin contar qué es; la Franconeta ya se vende",r.s.pronto&&!r.f.pronto&&/Subite a la Franconeta/.test(r.f.txt)&&/2000/.test(r.f.txt)&&/5000/.test(r.s.txt)&&!/one direction|1d|banda|recital/i.test(r.s.txt),r);
+  const PIEZAS_1D=["pasacalle1d","cartel1d","poster1d"];
+  r={f:await cosa(pg,"franconeta"),s:await cosa(pg,"sorpresa"),x:await pg.evaluate((ids)=>{const c=document.querySelector('.t3x-cosa[data-id="sorpresa"]');
+    return {img:c.querySelectorAll("img,image").length,html:/1d-|direction/i.test(c.innerHTML),sueltas:ids.map(id=>!!document.querySelector('.t3x-cosa[data-id="'+id+'"]')).join(),
+      enLista:T3.tienda._prueba.cosas().filter(x=>ids.indexOf(x.id)>=0).length};},PIEZAS_1D)};
+  chequear("la Sorpresa está en la vidriera con su precio y no cuenta qué es: ni el nombre, ni el logo, ni sus piezas",!r.s.pronto&&!r.f.pronto&&/Sorpresa/.test(r.s.txt)&&/5000/.test(r.s.txt)&&/no se puede decir/i.test(r.s.txt)&&
+    !/one direction|1d|larry|pasacalle|póster|cartel/i.test(r.s.txt)&&r.x.img===0&&!r.x.html&&r.x.sueltas==="false,false,false"&&r.x.enLista===0,r);
   await tocar(pg,'.t3x-cosa[data-id="sorpresa"]');
   r=await hoja(pg);
-  chequear("aunque alcancen los puntos, lo que dice «pronto» no se puede comprar",/todavía no llegó/i.test(r.txt)&&r.botones.join()==="cerrar",r);
+  chequear("la hoja de compra tampoco lo cuenta",/Sorpresa/.test(r.txt)&&/sale 5000/i.test(r.txt)&&/te quedan 4000/i.test(r.txt)&&!/one direction|larry|pasacalle/i.test(r.txt)&&r.botones.join()==="comprar,cerrar"&&
+    await pg.evaluate(()=>document.querySelectorAll(".t3x-compra img,.t3x-compra image").length===0),r);
   await tocar(pg,'.t3x-compra [data-tie="cerrar"]');
-  r=await pg.evaluate(()=>{const P=T3.tienda._prueba;return P.cosas().filter(x=>x.pronto).map(c=>P.comprar(c)).concat([T3.tcg.puntos()]);});
-  chequear("ni por adentro: no cobra nada",r.join()==="false,9000",r);
+  r=await pg.evaluate(()=>{const P=T3.tienda._prueba;return [P.comprar({id:"algo-nuevo",precio:10,pronto:true}),T3.tienda.tiene("algo-nuevo"),T3.tcg.puntos(),P.cosas().filter(x=>x.pronto).length];});
+  chequear("lo que se marque «pronto» no se puede comprar aunque alcancen los puntos (hoy no hay nada así)",r.join()==="false,false,9000,0",r);
 
   console.log("LA CAMISETA DE RACING");
   await tocar(pg,'.t3x-cosa[data-id="racing"]');
@@ -342,6 +347,61 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await pg.evaluate(()=>{const h=T3.ponyta.svg({linea:true,quieta:true,ropa:["alpine","f1"]}),c=T3.ponyta.svg({quieta:true,forma:"ponyta",shiny:false,ropa:["alpine","f1"]});
     return {imagen:/<image/.test(h),lineas:(h.match(/t3x-prenda-linea/g)||[]).length,color:(c.match(/<image /g)||[]).length,sinPared:T3.ropa.enLaPared().length};});
   chequear("en el dibujo a lápiz de las hojas no van fotos (solo el corte de la remera); a color, el auto y la remera",!r.imagen&&r.lineas===2&&r.color===3&&r.sinPared===0,r);
+  chequear("sin errores de JavaScript",errores.length===0,errores);
+  await ctx.close();
+
+  console.log("LA SORPRESA (ONE DIRECTION)");
+  const IMAGENES_1D=["1d-logo.webp","1d-foto.webp"];
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:Object.assign({"pv-t3-tcg2":tcg(5300),
+    "pv-t3-tienda":JSON.stringify({cosas:{franconeta:"2026-12-04",f1:"2026-12-04",alpine:"2026-12-04",franco:"2026-12-04"},puesto:{juguete:"f1",cuerpo:"alpine","pared-franco":"franco"},n:0,log:[]})},base5)}));
+  await reloj(pg);await aTienda(pg);
+  await tocar(pg,'.t3x-cosa[data-id="sorpresa"]');await tocar(pg,'.t3x-compra [data-tie="comprar"]');
+  r=await hoja(pg);l=await libro(pg);
+  chequear("comprarla sale 5000 y trae el pasacalle, el cartel y el póster, todo puesto",l.mp===300&&["sorpresa"].concat(PIEZAS_1D).every(id=>l.L.cosas[id]==="2026-12-05")&&l.L.puesto.calle==="pasacalle1d"&&l.L.puesto.cartel==="cartel1d"&&l.L.puesto["pared-poster1d"]==="poster1d",l);
+  chequear("recién ahí dice qué era, y muestra el logo que mandó Mati",/es tuyo/i.test(r.txt)&&/One Direction/.test(r.txt)&&/pasacalle/i.test(r.txt)&&/cartel de protesta/i.test(r.txt)&&
+    await pg.evaluate(()=>{const i=document.querySelector(".t3x-compra img.t3x-cosa-logo");return !!i&&/1d-logo\.webp$/.test(i.getAttribute("src"));}),r);
+  chequear("lo de la Franconeta no se pierde: sigue con la remera y el auto",l.L.puesto.cuerpo==="alpine"&&l.L.puesto.juguete==="f1"&&l.L.puesto["pared-franco"]==="franco",l.L.puesto);
+  await pg.click('.t3x-compra [data-tie="ir-ponyta"]',{force:true});await pg.waitForTimeout(3600);
+  r=await pg.evaluate(async(IMAGENES)=>{
+    const carga=src=>new Promise(ok=>{const i=new Image();i.onload=()=>ok(i.naturalWidth>0);i.onerror=()=>ok(false);i.src=src;});
+    const pag=document.querySelector(".t3-ponyta-pag"),calle=pag.querySelector(".t3x-calle"),escena=pag.querySelector(".t3-ponyta-escena"),post=pag.querySelector(".t3-ponyta-postura"),pared=pag.querySelector(".t3x-pared");
+    const cartel=post.querySelector(".t3x-prenda-cartel1d"),svg=post.querySelector("svg.t3-ponyta-svg");
+    const hijos=Array.from(svg.querySelector(".t3-ponyta-g").children);
+    return {pasacalle:!!calle&&!!calle.querySelector('svg.t3x-pasacalle image[href$="1d-logo.webp"]'),arriba:!!calle&&!!(calle.compareDocumentPosition(escena)&Node.DOCUMENT_POSITION_FOLLOWING),
+      cartel:!!cartel,dice:cartel?Array.from(cartel.querySelectorAll("text")).map(x=>x.textContent):[],
+      /* el cartel va detrás de ella: es lo primero que se dibuja */
+      detras:!!cartel&&hijos.indexOf(cartel)===0,
+      pegadas:pared?Array.from(pared.querySelectorAll(".t3x-pegada img")).map(i=>i.getAttribute("src").split("/").pop()):[],alta:pared?pared.querySelectorAll(".t3x-pegada-alta").length:0,
+      pies:pared?Array.from(pared.querySelectorAll("figcaption")).map(x=>x.innerText):[],
+      sigue:!!post.querySelector(".t3x-prenda-alpine")&&!!post.querySelector('image[href$="alpine-auto.webp"]'),
+      cargan:await Promise.all(IMAGENES.map(f=>carga(T3.util.asset("tienda/"+f))))};
+  },IMAGENES_1D);
+  await pg.screenshot({path:S+"f-sorpresa.jpg"});
+  chequear("en su solapa cuelga el pasacalle con el logo, arriba de la escena",r.pasacalle&&r.arriba,r);
+  chequear("Ponyta lleva el cartel de protesta, con lo que dictó Mati, y lo lleva detrás (el palo sale de atrás del lomo)",r.cartel&&r.dice.join(" | ")==="LARRY ES REAL | aunque lo oculten"&&r.detras,r);
+  chequear("en su pared conviven la foto de Franco y el póster de los cinco",r.pegadas.join()==="franco.webp,1d-foto.webp"&&r.alta===1&&r.pies.join()==="mi ídolo,los cinco"&&r.sigue,r);
+  chequear("el logo y la foto que mandó Mati están en el repo y cargan",r.cargan.every(Boolean)&&IMAGENES_1D.every(f=>fs.existsSync(path.resolve(__dirname,"..","..","fotos/t3/tienda/"+f))),r.cargan);
+  await pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-especial-host");h.scrollTo(0,h.scrollHeight);});await pg.waitForTimeout(400);
+  await pg.screenshot({path:S+"f-sorpresa-pared.jpg"});
+  r=await pg.evaluate(()=>{
+    const linea=T3.ponyta.svg({linea:true,quieta:true,ropa:["cartel1d"]}),rapi=T3.ponyta.svg({quieta:true,forma:"rapidash",shiny:false,ropa:["cartel1d"]});
+    return {lapiz:/t3x-prenda-cartel1d t3x-prenda-linea/.test(linea)&&/LARRY ES REAL/.test(linea)&&/<mask/.test(linea)&&!/<image/.test(linea),
+      rapi:/t3x-ropa-rapi/.test(rapi)&&/t3x-prenda-cartel1d/.test(rapi)&&/aunque lo oculten/.test(rapi)};});
+  chequear("el cartel también va en el dibujo a lápiz de las hojas y cuando es Rapidash",r.lapiz&&r.rapi,r);
+  await aTienda(pg);
+  r={pc:await cosa(pg,"pasacalle1d"),ca:await cosa(pg,"cartel1d"),po:await cosa(pg,"poster1d"),pk:await cosa(pg,"sorpresa"),
+    logo:await pg.evaluate(()=>!!document.querySelector('.t3x-cosa[data-id="sorpresa"] img.t3x-cosa-logo'))};
+  await pg.evaluate(()=>document.querySelector('.t3x-cosa[data-id="cartel1d"]').scrollIntoView({block:"center"}));await pg.waitForTimeout(300);
+  await pg.screenshot({path:S+"f-sorpresa-piezas.jpg"});
+  chequear("después sus piezas aparecen sueltas en la vidriera y la tarjeta ya dice qué era",r.pc.puesta&&/colgado en su hoja/i.test(r.pc.txt)&&r.ca.puesta&&/lo lleva en alto/i.test(r.ca.txt)&&r.po.puesta&&/pegado en su hoja/i.test(r.po.txt)&&
+    r.pk.mia&&/era one direction/i.test(r.pk.txt)&&r.logo,r);
+  await tocar(pg,'.t3x-cosa[data-id="pasacalle1d"]');await tocar(pg,'.t3x-cosa[data-id="cartel1d"]');await tocar(pg,'.t3x-cosa[data-id="poster1d"]');
+  l=await libro(pg);
+  r={pc:await cosa(pg,"pasacalle1d"),po:await cosa(pg,"poster1d")};
+  chequear("se pueden descolgar, bajar y despegar sin perderlas",!l.L.puesto.calle&&!l.L.puesto.cartel&&!l.L.puesto["pared-poster1d"]&&PIEZAS_1D.every(id=>!!l.L.cosas[id])&&l.mp===300&&/guardado/i.test(r.pc.txt)&&/guardado/i.test(r.po.txt),l.L.puesto);
+  await aPonyta(pg);
+  r=await pg.evaluate(()=>({calle:!!document.querySelector(".t3x-calle"),cartel:!!document.querySelector(".t3-ponyta-postura .t3x-prenda-cartel1d"),pegadas:document.querySelectorAll(".t3x-pared .t3x-pegada").length}));
+  chequear("y en la solapa ya no están (queda la foto de Franco)",!r.calle&&!r.cartel&&r.pegadas===1,r);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
 

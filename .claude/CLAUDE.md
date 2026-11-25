@@ -81,12 +81,13 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
 - Precios que dictó Mati: mimos 40, masajitos 100, helado 250, camiseta de Racing 600, modo Pou 1000,
   "Subite a la Franconeta" 2000, "Sorpresa" 5000. El resto los puso Claude (accesorios de 60 a 200, tickets de 20 a
   500). Con 20 puntos por día como máximo, lo caro lleva meses: Mati lo sabe.
-- `T3.ropa`: lo que Ponyta lleva puesto (una cosa por lugar: cuerpo, cuello, cara, juguete, cabeza), en su solapa, en
-  el señalador y en el dibujo a lápiz de las hojas. Hay prendas "de pegar encima" (sombreros, anteojos…), "del cuerpo"
-  (camisetas: se pintan adentro del dibujo, con el corte de `CORTE`; la tela puede ser la foto de una remera) y "de la
-  pared" (fotos pegadas con cinta en "Su pared", al final de su solapa: conviven varias). Algo en la cabeza reemplaza
-  al gorro de Navidad mientras lo lleve. Rapidash es una imagen: para vestirle el cuerpo, `T3.ropa` lee ese mismo
-  archivo SVG y pinta encima. A lápiz no van fotos.
+- `T3.ropa`: lo que Ponyta lleva puesto (una cosa por lugar: cuerpo, cuello, cara, juguete, cartel, cabeza), en su
+  solapa, en el señalador y en el dibujo a lápiz de las hojas. Hay prendas "de pegar encima" (sombreros, anteojos…; pueden
+  llevar texto escrito a mano, e ir detrás de ella con `atras`), "del cuerpo" (camisetas: se pintan adentro del dibujo,
+  con el corte de `CORTE`; la tela puede ser la foto de una remera), "de la pared" (fotos pegadas con cinta en "Su pared",
+  al final de su solapa: conviven varias) y el pasacalle (una tela colgada arriba de su escena, con una imagen). Algo en
+  la cabeza reemplaza al gorro de Navidad mientras lo lleve. Rapidash es una imagen: para vestirle el cuerpo, `T3.ropa`
+  lee ese mismo archivo SVG y pinta encima. A lápiz no van fotos.
 - **Logos, escudos y fotos de famosos no se dibujan ni se buscan en internet: los manda Mati y van tal cual** (solo se
   achican; al auto se le sacó el fondo) en `fotos/t3/tienda/`. Así están el escudo de Racing en la camiseta y todo lo
   de la Franconeta. Mati quiere las cosas "posta", no parecidas: si falta una imagen, se le pide. Las canciones no van
@@ -94,8 +95,11 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
 - **"Subite a la Franconeta"** (2000) es un paquete (`da:[…]` en `ESPECIALES`, prendas con `de:"franconeta"`): el Alpine
   **de juguete** a sus pies (Mati: chico, "no que esté adentro"), la remera del equipo y la foto de Franco en su pared.
   Al comprarlo se pone todo y las piezas aparecen sueltas en la vidriera.
-- **Pendiente: "Sorpresa"** (5000; One Direction, y en la tienda no dice qué es). Está en la vidriera con `pronto:true`
-  (no se puede comprar) hasta que Mati mande las imágenes; se arma igual que la Franconeta.
+- **"Sorpresa"** (5000) es One Direction, y es secreto (`secreto:true`): hasta que la compra, la tienda no dice qué es
+  ni muestra el logo ni sus piezas. Trae el pasacalle con el logo, el **cartel de protesta** que lleva Ponyta ("LARRY ES
+  REAL / aunque lo oculten": lo dictó Mati, es un chiste de ellos dos y va literal) y el póster de los cinco para su pared.
+  Hoy no hay nada con `pronto:true` (se ve en la vidriera pero no se puede comprar): queda para lo próximo que se anuncie
+  antes de estar listo.
 - `T3.pou`, el **modo Pou** (se compra una vez y queda): en la solapa de Ponyta, cuatro barras (panza, sueño, limpia,
   mimos) que bajan con las horas, y tres botones: nigiri, baño y a dormir. No pasa nada malo si llegan a cero: ella
   avisa. De noche duerme sola. Guarda en `pv-t3-pou`. El módulo minificado de Ponyta le avisa con

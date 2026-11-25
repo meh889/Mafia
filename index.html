@@ -3591,6 +3591,23 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-cosa-foto.t3x-con-logo,.t3x-compra-foto.t3x-con-logo{background:#fff;background-image:none;box-shadow:inset 0 0 0 1.4px rgba(43,33,24,.14)}
 .t3x-cosa-logo{display:block;width:86%;height:auto}
 
+/* ---- lo escrito a mano sobre una prenda (el cartel de protesta) ---- */
+.t3x-prenda-txt{font-family:var(--t3-mano),"Caveat",cursive;font-weight:700;fill:#0d131a;stroke:none}
+.t3x-prenda-linea .t3x-prenda-txt{fill:currentColor}
+/* ---- una foto más alta que ancha, entera, sobre un fondo de color ---- */
+.t3x-pegada-alta img{aspect-ratio:3/4;object-fit:contain;object-position:50% 100%;background:var(--fondo,#E4DDCD)}
+/* ---- el pasacalle: cuelga arriba de la escena de Ponyta, atado a los bordes de la hoja ---- */
+.t3x-calle{position:relative;z-index:2;margin:10px -4px -4px}
+.t3x-pasacalle{display:block;width:100%;height:auto;overflow:visible;transform-origin:50% 0;animation:t3x-pc-viento 5.5s ease-in-out infinite}
+.t3x-pc-soga{fill:none;stroke:#8A6A45;stroke-width:1.5;stroke-linecap:round}
+.t3x-pc-tela{fill:#FDFDFB;stroke:#0d131a;stroke-width:1.7;stroke-linejoin:round;filter:drop-shadow(1.5px 2.5px 0 rgba(43,33,24,.18))}
+.t3x-pc-pliegue{fill:none;stroke:rgba(43,33,24,.1);stroke-width:1.2}
+.t3x-pc-corte{fill:none;stroke:#0d131a;stroke-width:1.3;stroke-linecap:round}
+@keyframes t3x-pc-viento{0%,100%{transform:rotate(-.5deg) translateY(0)}50%{transform:rotate(.6deg) translateY(1.5px)}}
+@media (prefers-reduced-motion:reduce){.t3x-pasacalle{animation:none}}
+.t3x-cosa-de-calle .t3x-cosa-foto{display:grid;place-items:center;padding:18px 6px}
+.t3x-cosa-de-calle .t3x-pasacalle{animation:none}
+
 /* ---- modo Pou: cuidar a Ponyta, en su solapa (abajo de "Hacela correr") ---- */
 .t3x-pou{position:relative;z-index:3;margin-top:18px;padding-top:12px;border-top:1.5px dashed var(--t3-papel-borde)}
 .t3x-pou .t3-ponyta-rotulo{display:flex;align-items:baseline;gap:12px}
@@ -14278,20 +14295,21 @@ var COMODIN={id:"comodin",t:"Comodín",d:"Lo que quieras: lo escribís vos.",dib
 
 /* ---- lo grande de Ponyta ----
      pronto    todavía no se puede comprar (falta armarlo)
-     secreto   no dice qué es hasta que se compra
+     secreto   no dice qué es hasta que se compra (ni muestra su logo); "despues" es lo que dice una vez comprado
      da        un paquete: las prendas de T3.ropa que trae (las que tienen de:"<id del paquete>"). Al comprarlo se
                las pone todas, y después aparecen sueltas en la vidriera para ponérselas y sacárselas
      logo      una imagen de fotos/t3/tienda/ para la tarjeta, en vez del garabato
-   La Franconeta está armada con las imágenes que mandó Mati (logo, auto, remera y foto): van tal cual.
-   La Sorpresa (One Direction) espera las suyas: cuando lleguen, se suman como prendas nuevas con de:"sorpresa",
-   se le pone "da" y se le saca el "pronto". */
+   La Franconeta y la Sorpresa (One Direction) están armadas con las imágenes que mandó Mati: van tal cual.
+   Hoy nada está "pronto": queda para la próxima cosa que se anuncie antes de estar lista. */
 var ESPECIALES=[
   {id:"pou",nombre:"Modo Pou",precio:1000,dib:"cuidar",dice:"Darle nigiris, bañarla, mandarla a dormir. Queda para siempre en su solapa.",
     listo:"Ya está en su solapa: tiene hambre desde ahora."},
   {id:"franconeta",nombre:"Subite a la Franconeta",precio:2000,dib:"bandera",logo:"alpine-logo.webp",da:["f1","alpine","franco"],
     dice:"Ponyta piloto: el Alpine de juguete, la remera del equipo y la foto de Franco para su pared.",
     listo:"Ya tiene todo: el Alpine de juguete, la remera y la foto de su ídolo en la pared."},
-  {id:"sorpresa",nombre:"Sorpresa",precio:5000,dib:"regalo",dice:"No se puede decir. Por algo es sorpresa.",pronto:true,secreto:true}
+  {id:"sorpresa",nombre:"Sorpresa",precio:5000,dib:"regalo",secreto:true,logo:"1d-logo.webp",da:["pasacalle1d","cartel1d","poster1d"],
+    dice:"No se puede decir. Por algo es sorpresa.",despues:"Era One Direction.",
+    listo:"One Direction: un pasacalle, un cartel de protesta y el póster de los cinco. Ya está todo puesto."}
 ];
 
 function precio(id,base){
@@ -14365,7 +14383,7 @@ function gen(id){
   var p=(T3.ropa&&T3.ropa.PRENDAS[id])||{},g=p.gen,d=p.dicho||{};
   var lo=g==="f"?"la":g==="mp"?"los":"lo",puesto=g==="f"?"puesta":g==="mp"?"puestos":"puesto";
   return {lo:lo,puesto:puesto,estado:d.estado||lo+" tiene "+puesto,si:d.si||"se "+lo+" puso.",no:d.no||"se "+lo+" sacó. queda"+(lo==="los"?"n":"")+" en el ropero.",
-    titulo:d.si?d.si.charAt(0).toUpperCase()+d.si.slice(1).replace(/\.$/,""):"Se "+lo+" puso",guardada:p.lugar==="pared"?"guardada":"en el ropero"};
+    titulo:d.si?d.si.charAt(0).toUpperCase()+d.si.slice(1).replace(/\.$/,""):"Se "+lo+" puso",guardada:d.guardada||(p.lugar==="pared"?"guardada":"en el ropero")};
 }
 function moneda(){return '<span class="t3x-moneda" aria-hidden="true">M</span>';}
 function pie(L){
@@ -14373,10 +14391,13 @@ function pie(L){
   var u=L.log[L.log.length-1];
   return "pedidos hechos: "+L.n+(u?" · el último: "+String(u.t||"").toLowerCase()+", el "+T3.f.corta(u.f):"");
 }
+/* un secreto deja de serlo cuando ya lo compró */
+function oculto(c){return !!c.secreto&&!tiene(c.id);}
+function conLogo(c){return !!c.logo&&!oculto(c)&&!!T3.ropa;}
 function foto(c){
   if(c.prenda&&T3.ropa)return T3.ropa.muestra(c.id);
-  if(c.logo&&!c.secreto&&T3.ropa)return '<img class="t3x-cosa-logo" src="'+esc(T3.ropa.carpeta()+c.logo)+'" alt="" draggable="false">';
-  return X.dib(c.secreto?"regalo":(c.dib||"estrella"),"t3x-dib t3x-cosa-dib");
+  if(conLogo(c))return '<img class="t3x-cosa-logo" src="'+esc(T3.ropa.carpeta()+c.logo)+'" alt="" draggable="false">';
+  return X.dib(oculto(c)?"regalo":(c.dib||"estrella"),"t3x-dib t3x-cosa-dib");
 }
 
 function pagina(host){
@@ -14411,8 +14432,8 @@ function pagina(host){
           :mia?(c.prenda?'<span class="t3x-cosa-estado'+(puesta?" t3x-cosa-si":"")+'">'+(puesta?gen(c.id).estado:gen(c.id).guardada)+'</span>':'<span class="t3x-cosa-estado t3x-cosa-si">ya es tuyo</span>')
           :'<span class="t3x-cosa-precio'+(falta?" t3x-cosa-lejos":"")+'">'+moneda()+c.precio+'</span>';
         return '<button type="button" class="t3x-cosa'+(c.grande?" t3x-cosa-grande":"")+(c.prenda?"":" t3x-cosa-especial")+(mia?" t3x-cosa-mia":"")+(puesta?" t3x-cosa-puesta":"")+(c.lugar?" t3x-cosa-de-"+c.lugar:"")+(c.pronto&&!mia?" t3x-cosa-pronto":"")+'" data-tie="cosa" data-id="'+esc(c.id)+'" style="--rot:'+X.giro("co"+c.id,1.1)+'deg">'+
-          '<span class="t3x-cosa-foto'+(c.logo&&!c.secreto?" t3x-con-logo":"")+'">'+foto(c)+'</span>'+
-          '<span class="t3x-cosa-txt"><span class="t3x-cosa-nom">'+esc(c.nombre)+'</span>'+(c.grande?'<span class="t3x-cosa-dice">'+esc(c.dice)+'</span>':'')+estado+'</span></button>';
+          '<span class="t3x-cosa-foto'+(conLogo(c)?" t3x-con-logo":"")+'">'+foto(c)+'</span>'+
+          '<span class="t3x-cosa-txt"><span class="t3x-cosa-nom">'+esc(c.nombre)+'</span>'+(c.grande?'<span class="t3x-cosa-dice">'+esc(mia&&c.despues?c.despues:c.dice)+'</span>':'')+estado+'</span></button>';
       }).join("")+'</div>'+
       '<p class="t3x-tie-fin">los precios los pone el programador. no se aceptan reclamos.</p></div>';
   }
@@ -14450,7 +14471,7 @@ function pagina(host){
   function verCosa(c){
     var S=saldo(),alcanza=S>=c.precio;
     enMano={cosa:c};
-    var cab='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(c.logo&&!c.secreto?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+esc(c.nombre)+'</h3><p class="t3x-compra-dice">'+esc(c.dice)+'</p>';
+    var cab='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(conLogo(c)?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+esc(c.nombre)+'</h3><p class="t3x-compra-dice">'+esc(c.dice)+'</p>';
     if(c.pronto){
       hoja(cab+'<p class="t3x-compra-cuenta t3x-compra-falta">sale <b>'+c.precio+'</b> · tenés <b>'+S+'</b><span>todavía no llegó a la vidriera. andá juntando.</span></p>'+
         '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>',c.nombre);
@@ -14489,7 +14510,7 @@ function pagina(host){
       T3.sonido("exito",.9);U.vibrar(24);
       try{U.confeti({cantidad:70});}catch(e){}
       try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
-      papel.innerHTML='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(c.logo&&!c.secreto?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+(c.prenda?gen(c.id).titulo:"Es tuyo")+'</h3>'+
+      papel.innerHTML='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(conLogo(c)?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+(c.prenda?gen(c.id).titulo:"Es tuyo")+'</h3>'+
         '<p class="t3x-compra-dice">'+esc(c.prenda?c.nombre+". No se "+gen(c.id).lo+" quiere sacar.":(c.listo||c.nombre+"."))+'</p>'+
         '<p class="t3x-compra-cuenta">te quedan <b>'+saldo()+'</b></p>'+
         '<button type="button" class="t3x-boton" data-tie="ir-ponyta">Ir a verla</button>'+
@@ -16497,7 +16518,7 @@ global.MafiaArena={abrir:abrir,REGLAS:REGLAS};
    lleva el gorro de Navidad).
 
    Hay un lugar para cada cosa (cuerpo, cuello, cara, juguete,
-   cabeza) y se lleva una por lugar. El gorro de Navidad (T3.viaje) es de
+   cartel, cabeza) y se lleva una por lugar. El gorro de Navidad (T3.viaje) es de
    la cabeza: si ella le pone otra cosa ahí, el gorro se guarda
    hasta que se la saque.
 
@@ -16530,7 +16551,15 @@ global.MafiaArena={abrir:abrir,REGLAS:REGLAS};
        ribete   color del cuello y los puños
    · Las de la pared (lugar:"pared"): fotos que quedan pegadas con
      cinta en su solapa, abajo, en "Su pared". No van sobre Ponyta
-     y se pueden tener varias a la vez. pared:{src, pie}
+     y se pueden tener varias a la vez. pared:{src, pie, alto, fondo}
+     ("alto": la foto es más alta que ancha y se muestra entera)
+   · El pasacalle (lugar:"calle"): una tela colgada con sogas arriba
+     de su escena, con una imagen. pasacalle:{src}
+   Y dos campos más para las de pegar encima:
+       texto    renglones escritos a mano sobre la prenda (un cartel):
+                [{t, x, y, tam, largo}] ("largo" los estira a ese ancho)
+       atras    true = va DETRÁS de Ponyta (el palo del cartel sale
+                de atrás del lomo). En Rapidash va adelante.
    · Cualquiera de las dos puede llevar "fotos": imágenes que
      manda Mati (un escudo, un logo, un auto), tal cual, en
      fotos/t3/tienda/. [{src, x, y, w, h, giro}] en las coordenadas
@@ -16545,8 +16574,8 @@ var T3=window.T3;
 if(!T3||!T3.x)return;
 var INK="#0d131a";
 var LL="tienda";
-var LUGARES=["cuerpo","cuello","cara","juguete","cabeza"];          /* en este orden se dibujan: lo de la cabeza queda arriba */
-var NOMBRE_LUGAR={cuerpo:"el cuerpo",cuello:"el cuello",cara:"la cara",juguete:"los juguetes",cabeza:"la cabeza",pared:"su pared"};
+var LUGARES=["cuerpo","cuello","cara","juguete","cartel","cabeza"];          /* en este orden se dibujan: lo de la cabeza queda arriba */
+var NOMBRE_LUGAR={cuerpo:"el cuerpo",cuello:"el cuello",cara:"la cara",juguete:"los juguetes",cartel:"el cartel",cabeza:"la cabeza",pared:"su pared",calle:"el pasacalle"};
 
 /* franjas de la bufanda: el paño va de A–B (arriba) a D–C (abajo) */
 function franja(t1,t2){
@@ -16633,10 +16662,27 @@ var PRENDAS={
     telaRapi:{x:-27,y:99,w:293,h:293,giro:4},ribete:"#1F2444"},
   franco:{gen:"f",de:"franconeta",nombre:"Foto de Franco",lugar:"pared",dice:"Pegada con cinta en su hoja.",
     dicho:{si:"la pegó en su hoja.",no:"la despegó. queda guardada.",estado:"pegada en su hoja"},
-    pared:{src:"franco.webp",pie:"mi ídolo"}}
+    pared:{src:"franco.webp",pie:"mi ídolo"}},
+
+  /* ---- la "Sorpresa" (el paquete de 5000): One Direction, con el logo y la foto que mandó Mati el 25/11/2026, tal cual.
+     Lo que dice el cartel lo dictó él (es un chiste de ellos dos). No se venden sueltas (de:"sorpresa"). ---- */
+  pasacalle1d:{gen:"m",de:"sorpresa",nombre:"Pasacalle de One Direction",lugar:"calle",dice:"Colgado arriba de su hoja.",
+    dicho:{si:"lo colgó.",no:"lo descolgó. queda guardado.",estado:"colgado en su hoja",guardada:"guardado"},
+    pasacalle:{src:"1d-logo.webp"}},
+  cartel1d:{gen:"m",de:"sorpresa",nombre:"Cartel de protesta",lugar:"cartel",dice:"Lo lleva a todas las marchas.",atras:true,
+    dicho:{si:"lo levantó.",no:"lo bajó. queda en el ropero.",estado:"lo lleva en alto"},
+    t:"translate(192 30) rotate(-5)",rapi:"translate(30 28) scale(1.1)",
+    formas:[["M-4 28L4 28L4 112L-4 112Z","#C8A06A"],
+      ["M-66-34C-66-36.500-64.500-38-62-38L62-38C64.500-38 66-36.500 66-34L66 30C66 32.500 64.500 34 62 34L-62 34C-64.500 34-66 32.500-66 30Z","#FDFBF2"]],
+    rayas:[["M-46 27C-28 23.500-8 28.500 12 25C26 22.500 38 26.500 48 24","#B8372B",2.6,1]],
+    lapiz:[],
+    texto:[{t:"LARRY ES REAL",x:0,y:-7,tam:26,largo:116},{t:"aunque lo oculten",x:0,y:17,tam:20,largo:104}]},
+  poster1d:{gen:"m",de:"sorpresa",nombre:"Póster de One Direction",lugar:"pared",dice:"Pegado con cinta en su hoja.",
+    dicho:{si:"lo pegó en su hoja.",no:"lo despegó. queda guardado.",estado:"pegado en su hoja",guardada:"guardado"},
+    pared:{src:"1d-foto.webp",pie:"los cinco",alto:true,fondo:"#DCEBF5"}}
 };
 /* el orden de la vidriera */
-var ORDEN=["anteojos","monio","bonete","bufanda","boina","nigiri","peludo","corona","racing","alpine","f1","franco"];
+var ORDEN=["anteojos","monio","bonete","bufanda","boina","nigiri","peludo","corona","racing","alpine","f1","franco","pasacalle1d","cartel1d","poster1d"];
 Object.keys(PRENDAS).forEach(function(id){PRENDAS[id].id=id;});
 
 /* ---------------- el corte de las camisetas ----------------
@@ -16679,11 +16725,16 @@ function fotos(lista){
     return '<image href="'+u+'" xlink:href="'+u+'" x="'+f.x+'" y="'+f.y+'" width="'+f.w+'" height="'+f.h+'" preserveAspectRatio="xMidYMid meet"'+(f.giro?' transform="rotate('+f.giro+' '+cx+' '+cy+')"':"")+'/>';
   }).join("");
 }
+/* un renglón escrito a mano sobre la prenda (el cartel) */
+function renglon(r){
+  return '<text class="t3x-prenda-txt" x="'+(r.x||0)+'" y="'+r.y+'" text-anchor="middle" font-size="'+r.tam+'"'+
+    (r.largo?' textLength="'+r.largo+'" lengthAdjust="spacingAndGlyphs"':"")+'>'+T3.x.esc(r.t)+'</text>';
+}
 function grupo(p,clase,adentro){return '<g class="t3x-prenda t3x-prenda-'+p.id+(clase?" "+clase:"")+'" aria-hidden="true"'+(p.t?' transform="'+p.t+'"':"")+'>'+adentro+"</g>";}
 /* a color, como sticker: relleno con contorno, y los detalles encima */
 function color(p,rapi){
   return grupo(p,"",(p.formas||[]).map(function(f){return '<path d="'+f[0]+'" fill="'+f[1]+'" stroke="'+INK+'" stroke-width="4.5" stroke-linejoin="round"/>';}).join("")+
-    (p.rayas||[]).map(raya).join("")+(rapi?"":fotos(p.fotos)));
+    (p.rayas||[]).map(raya).join("")+(p.texto||[]).map(renglon).join("")+(rapi?"":fotos(p.fotos)));
 }
 /* solo las siluetas, para sumarlas al borde blanco de sticker o a una máscara */
 function siluetas(p){return (p.t?'<g transform="'+p.t+'">':"")+(p.formas||[]).map(function(f){return '<path d="'+f[0]+'"/>';}).join("")+(p.t?"</g>":"");}
@@ -16691,7 +16742,7 @@ function siluetas(p){return (p.t?'<g transform="'+p.t+'">':"")+(p.formas||[]).ma
 function lapiz(p){
   return grupo(p,"t3x-prenda-linea",'<g fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">'+
     (p.formas||[]).map(function(f){return '<path d="'+f[0]+'"/>';}).join("")+
-    (p.lapiz||[]).map(function(i){return p.rayas[i]?'<path d="'+p.rayas[i][0]+'"/>':"";}).join("")+"</g>");
+    (p.lapiz||[]).map(function(i){return p.rayas[i]?'<path d="'+p.rayas[i][0]+'"/>':"";}).join("")+"</g>"+(p.texto||[]).map(renglon).join(""));
 }
 var CAJA='x="-60" y="-80" width="520" height="520"';
 /* el dibujo a lápiz con prendas encima: se borra la tinta que queda abajo de cada una */
@@ -16761,7 +16812,7 @@ function guardado(){
 }
 function tiene(id){return !!guardado().cosas[id];}
 /* dónde se anota que la lleva: una cosa por lugar, salvo las fotos de la pared, que conviven (cada una en el suyo) */
-function casilla(p){return p.lugar==="pared"?"pared-"+p.id:p.lugar;}
+function casilla(p){return p.lugar==="pared"?"pared-"+p.id:p.lugar;}      /* "calle" (el pasacalle) también es una sola */
 /* {cabeza:id, cara:id, cuello:id, cuerpo:id, juguete:id, "pared-<id>":id} con lo que lleva puesto (solo cosas que compró y que existen) */
 function puesto(){
   var t=guardado(),r={};
@@ -16800,7 +16851,8 @@ function vestir(o,op){
   op=op||{};
   var prendas=cuales(op);
   var deCuerpo=prendas.filter(function(p){return p.lugar==="cuerpo";});
-  var abajo=prendas.filter(function(p){return p.lugar!=="cabeza"&&p.lugar!=="cuerpo";}),arriba=prendas.filter(function(p){return p.lugar==="cabeza";});
+  var detras=prendas.filter(function(p){return p.atras;});
+  var abajo=prendas.filter(function(p){return p.lugar!=="cabeza"&&p.lugar!=="cuerpo"&&!p.atras;}),arriba=prendas.filter(function(p){return p.lugar==="cabeza";});
   var gorro=!!op.gorro&&!arriba.length&&!!(T3.viaje&&T3.viaje.poner);
   var borde=o.borde||"",cuerpo=o.cuerpo||"",extra=o.extra||"";
   if(!prendas.length)return gorro?T3.viaje.poner({borde:borde,cuerpo:cuerpo,extra:extra,linea:o.linea}):borde+cuerpo+extra;
@@ -16815,6 +16867,12 @@ function vestir(o,op){
     }
   }
   if(o.linea){
+    /* lo que va detrás (el cartel): se dibuja y se le borra lo que queda tapado por el cuerpo */
+    if(detras.length){
+      var silueta=Array.isArray(o.P)&&o.P[14]?o.P[14].d:"",mk=uid();
+      cuerpo+=silueta?'<defs><mask id="'+mk+'" maskUnits="userSpaceOnUse" '+CAJA+'><rect '+CAJA+' fill="#fff"/><path d="'+silueta+'" fill="#000" stroke="#000" stroke-width="3"/></mask></defs><g mask="url(#'+mk+')">'+detras.map(lapiz).join("")+"</g>"
+        :detras.map(lapiz).join("");
+    }
     /* a lápiz no van fotos: lo que es solo una imagen (el auto) no se dibuja */
     var abL=abajo.filter(function(p){return p.formas;}),arL=arriba.filter(function(p){return p.formas;});
     if(abL.length)cuerpo=enLinea(cuerpo,abL);
@@ -16824,6 +16882,8 @@ function vestir(o,op){
   /* el borde blanco de sticker (el del señalador) también rodea a las prendas */
   if(borde)borde=String(borde).replace(/<\/g>$/,prendas.filter(function(p){return !p.claro&&p.formas;}).map(siluetas).join("")+"</g>");
   extra+=abajo.map(function(p){return color(p);}).join("");
+  /* lo que va detrás se dibuja antes que todo el cuerpo */
+  if(detras.length)cuerpo=detras.map(function(p){return color(p);}).join("")+cuerpo;
   if(gorro)return T3.viaje.poner({borde:borde,cuerpo:cuerpo,extra:extra,linea:false});
   return borde+cuerpo+extra+arriba.map(function(p){return color(p);}).join("");
 }
@@ -16903,8 +16963,23 @@ function refrescar(){
 }
 /* ---- su pared: las fotos que tiene pegadas en la solapa ---- */
 function pegada(p){
-  return '<figure class="t3x-pegada" style="--rot:'+T3.x.giro("pg"+p.id,3.4)+'deg"><img src="'+T3.x.esc(carpeta()+p.pared.src)+'" alt="'+T3.x.esc(p.nombre)+'" draggable="false">'+
-    (p.pared.pie?'<figcaption>'+T3.x.esc(p.pared.pie)+'</figcaption>':'')+'</figure>';
+  var w=p.pared;
+  return '<figure class="t3x-pegada'+(w.alto?" t3x-pegada-alta":"")+'" style="--rot:'+T3.x.giro("pg"+p.id,3.4)+'deg'+(w.fondo?";--fondo:"+w.fondo:"")+'"><img src="'+T3.x.esc(carpeta()+w.src)+'" alt="'+T3.x.esc(p.nombre)+'" draggable="false">'+
+    (w.pie?'<figcaption>'+T3.x.esc(w.pie)+'</figcaption>':'')+'</figure>';
+}
+/* un pasacalle: la tela colgada de cuatro sogas, con sus cortes para el viento y, en el medio, la imagen que mandó Mati */
+function pasacalle(p){
+  var u=T3.x.esc(carpeta()+p.pasacalle.src);
+  return '<svg class="t3x-pasacalle" viewBox="0 0 340 76" role="img" aria-label="'+T3.x.esc(p.nombre)+'" focusable="false">'+
+    '<path class="t3x-pc-soga" d="M0 3L32 13M0 71L32 61M340 1L308 11M340 69L308 59"/>'+
+    '<path class="t3x-pc-tela" d="M32 13C108 18.500 232 17 308 11L308 59C232 65 108 66.500 32 61Z"/>'+
+    '<path class="t3x-pc-pliegue" d="M88 17.500L88 64M252 15.500L252 63"/>'+
+    '<path class="t3x-pc-corte" d="M46 30a6.500 6.500 0 0 1 0 13M294 28a6.500 6.500 0 0 0 0 13"/>'+
+    '<image href="'+u+'" xlink:href="'+u+'" x="62" y="19" width="216" height="38.700" preserveAspectRatio="xMidYMid meet"/></svg>';
+}
+function elPasacalle(){
+  var id=puesto().calle,p=id&&PRENDAS[id];
+  return p&&p.pasacalle?p:null;
 }
 function enLaPared(){
   var q=puesto();
@@ -16915,6 +16990,9 @@ function adornar(ctl,host,op){
   if(!ctl||!ctl._raiz||(op&&op.papel===false))return;
   if(T3.viaje&&T3.viaje.ausente&&T3.viaje.ausente())return;
   var raiz=ctl._raiz,l=enLaPared();
+  /* el pasacalle cuelga arriba de la escena */
+  var pc=elPasacalle(),escena=raiz.querySelector(".t3-ponyta-escena");
+  if(pc&&escena&&!raiz.querySelector(".t3x-pasacalle"))escena.insertAdjacentHTML("beforebegin",'<div class="t3x-calle">'+pasacalle(pc)+'</div>');
   if(!l.length||raiz.querySelector(".t3x-pared"))return;
   var ancla=raiz.querySelector(".t3x-pou")||raiz.querySelector(".t3-ponyta-mandos");
   if(!ancla)return;
@@ -16924,6 +17002,7 @@ function adornar(ctl,host,op){
 /* una Ponyta de muestra con una sola prenda (la vidriera de la tienda). Con lo que ella sea ahora: Ponyta o Rapidash */
 function muestra(id,op){
   if(id&&PRENDAS[id]&&PRENDAS[id].lugar==="pared")return pegada(PRENDAS[id]);
+  if(id&&PRENDAS[id]&&PRENDAS[id].lugar==="calle")return pasacalle(PRENDAS[id]);
   var o={quieta:true,ropa:id?[id]:[],clase:"t3x-muestra"};
   if(op)for(var k in op)o[k]=op[k];
   return T3.ponyta&&T3.ponyta.svg?T3.ponyta.svg(o):"";
@@ -16939,7 +17018,7 @@ function suelta(id,vb){
 try{if(T3.ponyta&&T3.ponyta.forma&&T3.ponyta.forma()==="rapidash"&&puesto().cuerpo)partesDe(archivoRapi(T3.esShiny()),llenarRapi);}catch(e){}
 
 T3.ropa={PRENDAS:PRENDAS,ORDEN:ORDEN,LUGARES:LUGARES,NOMBRE_LUGAR:NOMBRE_LUGAR,CORTE:CORTE,
-  vestir:vestir,rapidash:rapidash,puesto:puesto,lleva:lleva,tiene:tiene,poner:poner,enLaCabeza:enLaCabeza,refrescar:refrescar,muestra:muestra,suelta:suelta,adornar:adornar,enLaPared:enLaPared,carpeta:carpeta,
+  vestir:vestir,rapidash:rapidash,puesto:puesto,lleva:lleva,tiene:tiene,poner:poner,enLaCabeza:enLaCabeza,refrescar:refrescar,muestra:muestra,suelta:suelta,adornar:adornar,enLaPared:enLaPared,elPasacalle:elPasacalle,carpeta:carpeta,
   _prueba:{guardado:guardado,LL:LL,RAPI:RAPI}};
 })();
 

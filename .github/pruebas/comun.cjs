@@ -1,6 +1,9 @@
 /* Utilidades de las pruebas de escenario (el "laboratorio").
    Variables: MOTOR=chromium|webkit · FUENTES=1 (deja bajar las tipografías de Google)
-              DPR=1|2 · SALIDA=carpeta para las capturas */
+              DPR=1|2 · SALIDA=carpeta para las capturas
+              MOVIMIENTO=menos (corre con "reducir movimiento" prendido, como un teléfono que lo tenga puesto: ahí la app
+              acelera el duelo, no despliega el adviento y la explosión es una sola. Sirve para c3; los escenarios que
+              miden animaciones a mitad de camino, como e, no están pensados para correr así) */
 const http=require("http"),fs=require("fs"),path=require("path");
 const RAIZ=process.env.RAIZ||path.resolve(__dirname,"..","..");
 const externo=u=>!!process.env.FUENTES&&/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(u);
@@ -23,7 +26,7 @@ function servir(){
 }
 async function abrir(browser,base,fecha,op){
   op=op||{};
-  const ctx=await browser.newContext(Object.assign({viewport:{width:390,height:844},deviceScaleFactor:process.env.DPR?+process.env.DPR:(op.dpr||1),locale:"es-AR",timezoneId:"America/Argentina/Buenos_Aires",hasTouch:true,isMobile:true,permissions:op.permisos||[]},op.contexto||{}));
+  const ctx=await browser.newContext(Object.assign({viewport:{width:390,height:844},deviceScaleFactor:process.env.DPR?+process.env.DPR:(op.dpr||1),locale:"es-AR",timezoneId:"America/Argentina/Buenos_Aires",hasTouch:true,isMobile:true,permissions:op.permisos||[]},process.env.MOVIMIENTO==="menos"?{reducedMotion:"reduce"}:{},op.contexto||{}));
   await ctx.addInitScript((semilla)=>{try{if(!sessionStorage.getItem("__sembrado")){sessionStorage.setItem("__sembrado","1");localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');Object.keys(semilla||{}).forEach(k=>localStorage.setItem(k,semilla[k]));}}catch(e){}},op.semilla||{});
   const pg=await ctx.newPage(); const errores=[];
   pg.on("pageerror",e=>errores.push(String(e&&e.message||e)));

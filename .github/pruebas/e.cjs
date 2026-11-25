@@ -115,11 +115,24 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
   await solapa(o.pg);await o.pg.waitForTimeout(2600);r=await foto(o.pg);
   chequear("en su solapa tampoco lo lleva, y no lo nombra",!r.ausente&&r.pony&&!r.gorro&&!r.conGorro&&!r.nota&&/traje algo de las vacaciones/.test(r.globo)&&!/gorro/i.test(r.globo),r);
   // el calendario: la Ponyta que lo adorna tampoco tiene gorro hasta que se abre la ventanita 1
+  /* mientras se despliega, se va mirando hasta dónde llega la mitad de arriba (la tapa) cuando gira */
+  const mirarTapa=(pg,contra)=>pg.evaluate(contra=>{window.__tapa={min:1e9,n:0,fin:false};const paso=()=>{const T=window.__tapa;if(T.fin)return;
+    const c=document.querySelector(".t3-adviento-popeando .t3-adviento-cara"),h=document.querySelector(contra);
+    if(c&&h){const d=c.getBoundingClientRect().top-(contra.indexOf("cerrar")>=0?h.getBoundingClientRect().bottom:h.getBoundingClientRect().top);T.n++;if(d<T.min)T.min=d;}
+    requestAnimationFrame(paso);};requestAnimationFrame(paso);},contra);
+  const tapa=pg=>pg.evaluate(()=>{const T=window.__tapa;T.fin=true;const p=document.querySelector(".t3-adviento-pag"),e=p&&p._pop&&p._pop.encuadre;
+    return {min:Math.round(T.min),n:T.n,enc:e?{dyO:Math.round(e.dyO),dyS:Math.round(e.dyS),kS:e.kS}:null};});
+  await mirarTapa(o.pg,".t3-cuaderno-especial-host");
   await o.pg.click('[data-pest="adviento"]',{force:true});
   await o.pg.waitForTimeout(1300);
   r=await o.pg.evaluate(()=>{const p=document.querySelector(".t3-adviento-pag"),pie=document.querySelector(".t3-adviento-pie");return {popeando:!!p&&p.classList.contains("t3-adviento-popeando"),pie:pie?+getComputedStyle(pie).opacity:-1};});
   chequear("mientras la caja del calendario está cerrada, el renglón del pie no asoma",!r.popeando||r.pie<.05,r);
   await o.pg.waitForFunction(()=>{const p=document.querySelector(".t3-adviento-pag");return !!p&&p.classList.contains("t3-adviento-listo");},null,{timeout:15000});
+  r=await tapa(o.pg);
+  /* con "reducir movimiento" el calendario no se despliega: aparece ya abierto */
+  const menos=await o.pg.evaluate(()=>T3.util.reducido());
+  if(menos)chequear("con «reducir movimiento» el calendario aparece abierto, sin desplegarse",r.n===0&&!r.enc,r);
+  else chequear("mientras la tapa del calendario gira no se corta contra el borde de arriba de la hoja (el encuadre baja lo justo)",r.n>5&&r.min>=-1&&!!r.enc&&r.enc.dyS>=r.enc.dyO,r);
   await o.pg.waitForTimeout(300);
   await o.pg.screenshot({path:S+"e-adviento-antes.jpg"});
   r=await o.pg.evaluate(()=>{const c=document.querySelector(".t3-adviento-pop-centro"),pie=document.querySelector(".t3-adviento-pie");return {pony:!!c&&!!c.querySelector("svg"),gorro:!!c&&!!c.querySelector(".t3-adviento-gorro"),pie:+getComputedStyle(pie).opacity,dije:!!document.querySelector(".t3-ponyta-dije .t3x-gorro")};});
@@ -192,6 +205,35 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
   o=await abrir(b,base,"2026-12-02",{semilla:Object.assign(semilla(["2026-11-19"],1,"2026-11-19"),{"pv-t3-ponyta-evolucion":'"rapidash"',"pv-t3-set-adviento":'["2026-12-01"]'})});
   await solapa(o.pg);r=await o.pg.evaluate(()=>({gorro:!!document.querySelector(".t3-ponyta-postura .t3x-gorro-rapi .t3x-gorro"),titulo:document.querySelector(".t3-ponyta-titulo").innerText}));
   chequear("si evolucionó, Rapidash también lleva el gorro",r.gorro&&r.titulo==="Rapidash",r);
+  chequear("sin errores de JavaScript",o.errores.length===0,o.errores);
+  await o.ctx.close();
+
+  console.log("EL CALENDARIO, A PANTALLA COMPLETA (tocando la ventanita de la hoja)");
+  o=await abrir(b,base,"2026-12-01",{semilla:{}});
+  await o.pg.evaluate(()=>{const v=document.querySelector(".t3-adviento-puerta .t3-adviento-v");if(v)v.scrollIntoView({block:"center"});});await o.pg.waitForTimeout(700);
+  r=await o.pg.evaluate(()=>({puerta:!!document.querySelector(".t3-adviento-puerta .t3-adviento-v"),mano:(document.querySelector(".t3-adviento-puerta-mano")||{}).innerText||""}));
+  chequear("la hoja del 1/12 tiene la ventanita de hoy para tocar",r.puerta&&/tocala/i.test(r.mano),r);
+  await o.pg.evaluate(()=>{window.__tapa={min:1e9,n:0,fin:false};const paso=()=>{const T=window.__tapa;if(T.fin)return;
+    const c=document.querySelector(".t3-adviento-escena-fija .t3-adviento-popeando .t3-adviento-cara"),h=document.querySelector(".t3-adviento-escena-fija .t3-adviento-cerrar");
+    if(c&&h){const d=c.getBoundingClientRect().top-h.getBoundingClientRect().bottom;T.n++;if(d<T.min)T.min=d;}
+    requestAnimationFrame(paso);};requestAnimationFrame(paso);});
+  await o.pg.click(".t3-adviento-puerta .t3-adviento-v",{force:true});
+  if(await o.pg.evaluate(()=>T3.util.reducido())){
+    /* con "reducir movimiento" no hay despliegue a pantalla completa: la ventanita se abre ahí mismo */
+    await o.pg.waitForSelector(".t3-adviento-velo",{timeout:8000});
+    r=await o.pg.evaluate(()=>{window.__tapa.fin=true;return {fija:!!document.querySelector(".t3-adviento-escena-fija"),velo:!!document.querySelector(".t3-adviento-velo")};});
+    chequear("con «reducir movimiento» la ventanita se abre en la hoja, sin el despliegue a pantalla completa",!r.fija&&r.velo,r);
+  }else{
+    await o.pg.waitForSelector(".t3-adviento-escena-fija",{timeout:8000});
+    await o.pg.waitForTimeout(900);await o.pg.screenshot({path:S+"e-adviento-pantalla-gira.jpg"});
+    await o.pg.waitForFunction(()=>{const p=document.querySelector(".t3-adviento-escena-fija .t3-adviento-pag");return !!p&&p.classList.contains("t3-adviento-listo");},null,{timeout:15000});
+    r=await o.pg.evaluate(()=>{const T=window.__tapa;T.fin=true;return {min:Math.round(T.min),n:T.n};});
+    chequear("a pantalla completa, la tapa gira sin pisar el botón de volver ni salirse por arriba",r.n>5&&r.min>=-1,r);
+    await o.pg.screenshot({path:S+"e-adviento-pantalla.jpg"});
+    await o.pg.click(".t3-adviento-escena-fija .t3-adviento-cerrar",{force:true});
+    await o.pg.waitForFunction(()=>!document.querySelector(".t3-adviento-escena-fija"),null,{timeout:8000});
+    chequear("y se vuelve al cuaderno",await o.pg.evaluate(()=>!document.querySelector(".t3-adviento-escena-fija")&&!!document.querySelector(".t3-cuaderno-hoja")));
+  }
   chequear("sin errores de JavaScript",o.errores.length===0,o.errores);
   await o.ctx.close();
 

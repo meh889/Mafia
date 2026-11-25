@@ -44,6 +44,13 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   El módulo minificado de Ponyta solo pregunta: `T3.viaje.toca()`, `.ausente(f)`, `.conGorro(f)`, `.poner(…)`;
   el del adviento avisa con `T3.viaje.seAbrio(n,f)` y `T3.viaje.enSorpresa(velo,…)` (cuando muestra la sorpresa: si es
   la del gorro, suena el audio) y pregunta `T3.viaje.gorroPuesto()`.
+- El adviento se despliega con `popup()` (módulo minificado del adviento): la caja cerrada, la tapa (la mitad de
+  arriba) gira hasta abrirse y queda el calendario inclinado, que después se aplana. Tiene dos entradas: la pestaña
+  y, la primera vez, tocar la ventanita del día en la hoja (a pantalla completa, con el botón de volver arriba).
+  Mientras la tapa gira queda parada de frente y llega más alto que ya abierta: el encuadre baja lo justo (`dyS`) y,
+  en pantallas chicas, además se aleja (`kS`), para que no se corte contra el borde ni pise el botón (25/11/2026: era
+  lo que se veía mal "al iniciar el calendario"; `e.cjs` lo mide en las dos entradas). Para verlo cuadro por cuadro,
+  igual en cualquier navegador: `T3.adviento.pagina(host,{popup:true,retraso:0,congelar:ms})`.
 
 ## Los audios que manda Mati (25/11/2026)
 - Son recortes cortos (memes, efectos, un pedacito de canción) y van **tal cual**: solo se les sacan las etiquetas, sin
@@ -60,8 +67,10 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
     (queda anotado en `pv-t3-sorpresa-sono`), y después cada vez que se toca el pasacalle; otro toque la corta
     (`conMusica` en `T3.ropa`; el pasacalle lleva `clip`).
   - `explosion.mp3`: en el duelo, cuando ataca **Perro de Mierda** (su ataque lleva `fx:"explosion"`). La arena
-    muestra un edit entero (`fxExplosion` en MafiaArena: franjas de cine, acercamiento, cuadro en negativo, temblor
-    y explosiones por toda la mesa) y termina con un "−0". El momento lo eligió Claude; Mati pidió "un momento gracioso".
+    muestra un edit entero (`fxExplosion` en MafiaArena: franjas de cine, acercamiento, un cuadro a oscuras, fogonazo,
+    resplandor naranja, temblor y explosiones por toda la mesa) y termina con un "−0". El momento lo eligió Claude; Mati
+    pidió "un momento gracioso". **Sin filtros** (`filter`, `backdrop-filter`): ver "Diferencias de Safari". Con
+    "reducir movimiento" es una sola explosión, quieta.
 - Las explosiones son una tira de 20 cuadros en fila, `fotos/t3/tcg/explosion.webp`, fabricada con ruido por
   `.github/scripts/explosion.py` (no sale de ningún GIF). Si Mati manda un GIF de verdad, se reemplaza por una tira con
   esa misma forma.
@@ -152,7 +161,7 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   del tiempo y sonido · `b` contestar, la tienda sin puntos y vales · `c2` cartas, sobres y carpeta del TCG · `c1`
   recorrido del TCG con capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla, el tope
   de 2 por día y la explosión de Perro de Mierda · `c4` reglas del duelo y equilibrio de las cartas (sin navegador) ·
-  `d` avisos en la app · `d-envio` el envío (necesita `web-push`) · `e` el viaje de Ponyta, el gorro y su audio · `f` la
+  `d` avisos en la app · `d-envio` el envío (necesita `web-push`) · `e` el viaje de Ponyta, el gorro y su audio, y el despliegue del adviento · `f` la
   tienda con puntos, la ropa de Ponyta, el modo Pou, la música de la Sorpresa y canjear herraduras. Los audios se
   prueban por `T3.x.clipLog`: en Chromium tienen que sonar; donde el navegador no sepa leer el mp3, solo no romper. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
   (capturas en `SALIDA=carpeta`).
@@ -166,6 +175,18 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
 - Diferencias de Safari que ya mordieron: `document.lastModified` viene en UTC (no en hora local), y
   `backface-visibility` falla en el WebKit de Linux del laboratorio (en el iPhone de verdad anda: lo confirmó
   Mati el 19/11). Por las dudas, las cartas se dan vuelta cambiando `visibility` a mitad del giro.
+- El WebKit del laboratorio dibuja sin placa de video: con un `filter` sobre un bloque grande o un `backdrop-filter`
+  en pantalla se quedó trabado casi 5 segundos (la primera versión de la explosión del duelo los usaba y se le
+  sacaron: 25/11/2026; sin ellos, la misma medición da de 15 a 20 cuadros por segundo durante las explosiones y unos
+  40 en reposo). En un iPhone de verdad no se pudo medir, así que mejor no usarlos en animaciones. Ojo al medir: en ese
+  WebKit cada `screenshot` frena la página unos cientos de milisegundos, así que la fluidez no se juzga mientras se
+  sacan capturas.
+- Lo que dura poco en pantalla no se espera con `waitForFunction`: si la página se traba un instante, no llega a
+  verlo. Se anota desde la página (un `setInterval` que va guardando lo que ve) y se pregunta por lo anotado, como
+  hace `c3` con la explosión.
+- `MOVIMIENTO=menos` corre un escenario con "reducir movimiento" prendido (ahí el duelo va más rápido, el adviento
+  no se despliega y la explosión es una sola). Sirve para `c3`; `e` mide animaciones a mitad de camino y no está
+  pensado para correr así.
 
 ## Avisos (notificación diaria)
 - `.github/workflows/aviso.yml` corre todos los días 12:17 UTC y ejecuta `.github/scripts/aviso.cjs`,

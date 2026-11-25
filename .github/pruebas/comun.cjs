@@ -1,8 +1,9 @@
 /* Utilidades de las pruebas de escenario (el "laboratorio").
    Variables: MOTOR=chromium|webkit · FUENTES=1 (deja bajar las tipografías de Google)
               DPR=1|2 · SALIDA=carpeta para las capturas
-              MOVIMIENTO=menos (corre todo con "reducir movimiento" prendido: así se comporta el WebKit del laboratorio,
-              donde la app acelera el duelo, no despliega el adviento y la explosión es una sola) */
+              MOVIMIENTO=menos (corre con "reducir movimiento" prendido, como un teléfono que lo tenga puesto: ahí la app
+              acelera el duelo, no despliega el adviento y la explosión es una sola. Sirve para c3; los escenarios que
+              miden animaciones a mitad de camino, como e, no están pensados para correr así) */
 const http=require("http"),fs=require("fs"),path=require("path");
 const RAIZ=process.env.RAIZ||path.resolve(__dirname,"..","..");
 const externo=u=>!!process.env.FUENTES&&/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(u);

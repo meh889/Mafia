@@ -55,6 +55,9 @@ jobs:
       - name: MafiaTCG, el duelo
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c3.cjs
+      - name: Ponyta se va de vacaciones y vuelve con gorro
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/e.cjs
       - name: Volcar capturas
         if: always() && inputs.capturas
         run: |

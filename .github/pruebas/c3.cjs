@@ -253,13 +253,13 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     return {frente:f?f.getAttribute("aria-label"):"",ataque:(document.querySelector('[data-ar="atacar"][data-i="0"]')||{}).innerText||"",puede:!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'),vidas:v?v.textContent:""};});
   chequear("al frente está Perro de Mierda y puede atacar con Hiperactividad",/Perro de Mierda/.test(r.frente)&&/Hiperactividad/i.test(r.ataque)&&r.puede,r);
   const vidasAntes=r.vidas;
-  /* con "reducir movimiento" (así corre el WebKit del laboratorio) la app no sacude ni destella: muestra una sola explosión, quieta */
+  /* con "reducir movimiento" (MOVIMIENTO=menos) la app no sacude ni destella: muestra una sola explosión, quieta */
   const menos=await pg.evaluate(()=>T3.util.reducido());
   console.log("   reducir movimiento: "+(menos?"sí (una sola explosión, sin sacudones)":"no (el edit entero)"));
   /* lo del edit dura poco: un ojo en la página anota todo lo que llega a verse */
-  const ojo=()=>pg.evaluate(()=>{window.__boom={max:0,franjas:false,tiembla:false,frito:false,acerca:false,impacto:false,cero:""};clearInterval(window.__ojo);
+  const ojo=()=>pg.evaluate(()=>{window.__boom={max:0,franjas:false,tiembla:false,frito:false,filtros:false,acerca:false,impacto:false,cero:""};clearInterval(window.__ojo);
     window.__ojo=setInterval(()=>{const B=window.__boom;B.max=Math.max(B.max,document.querySelectorAll(".ar-fx .ar-boom").length);
-      B.franjas=B.franjas||!!document.querySelector(".ar-franjas");B.tiembla=B.tiembla||!!document.querySelector(".ar-capa.ar-tiembla");B.frito=B.frito||!!document.querySelector(".ar.ar-frito");
+      B.franjas=B.franjas||!!document.querySelector(".ar-franjas");B.tiembla=B.tiembla||!!document.querySelector(".ar-capa.ar-tiembla");B.frito=B.frito||!!document.querySelector(".ar-resplandor");B.filtros=B.filtros||!!document.querySelector(".ar-negativo,.ar.ar-frito");
       B.acerca=B.acerca||!!document.querySelector(".ar-campo.ar-acerca");B.impacto=B.impacto||!!document.querySelector(".ar-impacto");
       const c=document.querySelector(".ar-dano.ar-cero");if(c)B.cero=c.textContent;},8);});
   await ojo();
@@ -268,19 +268,21 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.screenshot({path:S+"c3-explosion.jpg"});
   await pg.waitForFunction(()=>!!window.__boom.cero,null,{timeout:10000});
   await pg.screenshot({path:S+"c3-explosion-cero.jpg"});
-  await pg.waitForFunction(()=>!document.querySelector(".ar-capa.ar-tiembla,.ar.ar-frito,.ar-campo.ar-acerca"),null,{timeout:10000});
+  await pg.waitForFunction(()=>!document.querySelector(".ar-capa.ar-tiembla,.ar-campo.ar-acerca"),null,{timeout:10000});
   r=await pg.evaluate(async()=>{clearInterval(window.__ojo);
     const tira=await new Promise(ok=>{const i=new Image();i.onload=()=>ok([i.naturalWidth,i.naturalHeight]);i.onerror=()=>ok(null);i.src=T3.util.asset("tcg/explosion.webp");});
     const v=document.querySelector(".ar-ficha.ar-suya.ar-activa .ar-stat b");
     return {B:window.__boom,cero:window.__boom.cero,vidas:v?v.textContent:"",tira,son:(window.__son||[]).slice(),log:T3.x.clipLog.slice(),
-      quedo:!!document.querySelector(".ar-capa.ar-tiembla,.ar.ar-frito,.ar-campo.ar-acerca")};});
+      quedo:!!document.querySelector(".ar-capa.ar-tiembla,.ar-campo.ar-acerca")};});
   if(menos)chequear("con «reducir movimiento» el ataque se muestra con una explosión sola, sin franjas, sacudones ni destello",r.B.max>=1&&!r.B.franjas&&!r.B.acerca&&!r.B.impacto&&!r.B.tiembla&&!r.B.frito,r.B);
-  else chequear("el ataque se muestra con el edit: franjas, acercamiento, impacto, temblor y varias explosiones a la vez",r.B.franjas&&r.B.acerca&&r.B.impacto&&r.B.tiembla&&r.B.frito&&r.B.max>=3,r.B);
+  else chequear("el ataque se muestra con el edit: franjas, acercamiento, impacto, resplandor, temblor y varias explosiones a la vez",r.B.franjas&&r.B.acerca&&r.B.impacto&&r.B.tiembla&&r.B.frito&&r.B.max>=3,r.B);
+  /* un negativo o subirle los colores a la mesa con filtros trababa varios segundos al WebKit del laboratorio (que dibuja sin placa de video) */
+  chequear("el edit no usa filtros sobre la mesa",!r.B.filtros&&await pg.evaluate(()=>{const css=Array.from(document.querySelectorAll("style")).map(s=>s.textContent).join("\n");const m=css.match(/\.ar-[a-z-]+[^{}]*\{[^{}]*backdrop-filter[^{}]*\}/g)||[];return m.length===0;}),r.B);
   chequear("la tira de la explosión carga (20 cuadros en fila)",!!r.tira&&r.tira[0]===r.tira[1]*20,r.tira);
   chequear("suena la explosión que mandó Mati (la app la pide; en Chromium, además, suena)",r.son.indexOf("clip:explosion")>=0&&r.log.indexOf("pide:explosion")>=0&&((process.env.MOTOR||"chromium")!=="chromium"||r.log.indexOf("suena:explosion")>=0),{son:r.son,log:r.log});
   chequear("y después de todo eso pega 0: aparece el «−0», la rival queda con las mismas vidas y la mesa vuelve a su lugar",r.cero==="−0"&&r.vidas===vidasAntes&&!r.quedo,{cero:r.cero,vidas:r.vidas,antes:vidasAntes,quedo:r.quedo});
   await libre(pg);
-  r=await pg.evaluate(()=>({son:(window.__son||[]).slice(),fx:document.querySelectorAll(".ar-fx .ar-boom,.ar-fx .ar-franjas,.ar-fx .ar-impacto,.ar-fx .ar-negativo").length}));
+  r=await pg.evaluate(()=>({son:(window.__son||[]).slice(),fx:document.querySelectorAll(".ar-fx .ar-boom,.ar-fx .ar-franjas,.ar-fx .ar-impacto,.ar-fx .ar-golpe,.ar-fx .ar-resplandor").length}));
   chequear("el duelo sigue como siempre (la rival pierde una energía) y no queda nada del edit en pantalla",r.son.indexOf("quita")>r.son.indexOf("clip:explosion")&&r.fx===0,r);
   /* con «Sonidos: no» en la pausa, el edit se ve pero el audio no se pide */
   await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="efectos"]').click();await pg.locator('[data-ar="menu-cerrar"]').click();

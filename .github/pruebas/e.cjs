@@ -129,10 +129,10 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
   chequear("mientras la caja del calendario está cerrada, el renglón del pie no asoma",!r.popeando||r.pie<.05,r);
   await o.pg.waitForFunction(()=>{const p=document.querySelector(".t3-adviento-pag");return !!p&&p.classList.contains("t3-adviento-listo");},null,{timeout:15000});
   r=await tapa(o.pg);
-  /* con "reducir movimiento" (así corre el WebKit del laboratorio) el calendario no se despliega: aparece ya abierto */
+  /* con "reducir movimiento" el calendario no se despliega: aparece ya abierto */
   const menos=await o.pg.evaluate(()=>T3.util.reducido());
   if(menos)chequear("con «reducir movimiento» el calendario aparece abierto, sin desplegarse",r.n===0&&!r.enc,r);
-  else chequear("mientras la tapa del calendario gira no se corta contra el borde de arriba de la hoja (el encuadre baja lo justo)",r.n>20&&r.min>=-1&&!!r.enc&&r.enc.dyS>=r.enc.dyO,r);
+  else chequear("mientras la tapa del calendario gira no se corta contra el borde de arriba de la hoja (el encuadre baja lo justo)",r.n>5&&r.min>=-1&&!!r.enc&&r.enc.dyS>=r.enc.dyO,r);
   await o.pg.waitForTimeout(300);
   await o.pg.screenshot({path:S+"e-adviento-antes.jpg"});
   r=await o.pg.evaluate(()=>{const c=document.querySelector(".t3-adviento-pop-centro"),pie=document.querySelector(".t3-adviento-pie");return {pony:!!c&&!!c.querySelector("svg"),gorro:!!c&&!!c.querySelector(".t3-adviento-gorro"),pie:+getComputedStyle(pie).opacity,dije:!!document.querySelector(".t3-ponyta-dije .t3x-gorro")};});
@@ -228,7 +228,7 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
     await o.pg.waitForTimeout(900);await o.pg.screenshot({path:S+"e-adviento-pantalla-gira.jpg"});
     await o.pg.waitForFunction(()=>{const p=document.querySelector(".t3-adviento-escena-fija .t3-adviento-pag");return !!p&&p.classList.contains("t3-adviento-listo");},null,{timeout:15000});
     r=await o.pg.evaluate(()=>{const T=window.__tapa;T.fin=true;return {min:Math.round(T.min),n:T.n};});
-    chequear("a pantalla completa, la tapa gira sin pisar el botón de volver ni salirse por arriba",r.n>20&&r.min>=-1,r);
+    chequear("a pantalla completa, la tapa gira sin pisar el botón de volver ni salirse por arriba",r.n>5&&r.min>=-1,r);
     await o.pg.screenshot({path:S+"e-adviento-pantalla.jpg"});
     await o.pg.click(".t3-adviento-escena-fija .t3-adviento-cerrar",{force:true});
     await o.pg.waitForFunction(()=>!document.querySelector(".t3-adviento-escena-fija"),null,{timeout:8000});

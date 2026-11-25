@@ -3484,19 +3484,22 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .ar-boom{position:absolute;width:var(--w,220px);height:var(--w,220px);margin:calc(var(--w,220px)/-2) 0 0 calc(var(--w,220px)/-2);overflow:hidden;transform:rotate(var(--g,0deg))}
 .ar-boom i{display:block;width:2000%;height:100%;background:0 0/100% 100% no-repeat;image-rendering:pixelated;animation:arBoomTira var(--d,1s) steps(20) both}
 @keyframes arBoomTira{to{transform:translateX(-100%)}}
-/* el cuadro de impacto: un instante en negativo (donde el navegador sabe) y el fogonazo */
-.ar-negativo{position:absolute;inset:0;-webkit-backdrop-filter:invert(1) contrast(1.25);backdrop-filter:invert(1) contrast(1.25)}
+/* el cuadro de impacto: un instante a oscuras y el fogonazo. Sin filtros (ni negativo ni colores subidos):
+   pesan demasiado cuando el navegador no dibuja con la placa de video, y se traba */
+.ar-golpe{position:absolute;inset:0;background:#05061A;opacity:.9}
 .ar-impacto{position:absolute;inset:0;background:#fff;opacity:0;animation:arImpacto .44s ease-out forwards}
 @keyframes arImpacto{0%{opacity:.96}100%{opacity:0}}
+/* el resplandor naranja de las explosiones sobre la mesa (el centro lo pone la arena) */
+.ar-resplandor{position:absolute;inset:0;background:radial-gradient(circle at var(--x,50%) var(--y,35%),rgba(255,196,64,.5),rgba(255,120,16,.3) 34%,rgba(255,80,0,.12) 62%,transparent 82%);animation:arResplandor 1.5s ease-out both}
+@keyframes arResplandor{0%{opacity:0}8%{opacity:1}30%{opacity:.6}45%{opacity:.95}62%{opacity:.5}78%{opacity:.7}100%{opacity:0}}
 /* franjas de cine, arriba y abajo, mientras dura */
 .ar-franjas i{position:absolute;left:0;right:0;height:58px;background:#05061A;animation:arFranja 2.5s ease both}
 .ar-franjas i:first-child{top:0;--y:-100%}
 .ar-franjas i:last-child{bottom:0;--y:100%}
 @keyframes arFranja{0%{transform:translateY(var(--y))}10%,86%{transform:none}100%{transform:translateY(var(--y))}}
-/* la mesa se viene encima de la carta que lo recibe (el punto lo pone la arena), tiembla y se "fríe" */
+/* la mesa se viene encima de la carta que lo recibe (el punto lo pone la arena) y tiembla */
 .ar-campo{transition:transform .5s cubic-bezier(.2,.9,.3,1)}
 .ar-campo.ar-acerca{transform:scale(1.2) rotate(-1.6deg)}
-.ar-frito .ar-campo{filter:saturate(2.5) contrast(1.35) brightness(1.06)}
 .ar-capa.ar-tiembla>.ar{animation:arTiembla .44s linear 3}
 @keyframes arTiembla{0%,100%{translate:0 0;rotate:0deg}12%{translate:-9px 5px;rotate:-.8deg}25%{translate:8px -6px;rotate:.7deg}37%{translate:-6px -4px;rotate:-.5deg}50%{translate:7px 5px;rotate:.6deg}62%{translate:-5px 3px;rotate:-.3deg}75%{translate:4px -3px;rotate:.3deg}87%{translate:-2px 2px}}
 /* y lo que pegó: nada */
@@ -16204,8 +16207,8 @@ global.MafiaSonido={crear:crear,tocar:tocar,programarMusica:programarMusica,EFEC
    })
 
    Un ataque con fx:"explosion" (el de Perro de Mierda) no se muestra como los demás: es un edit entero
-   (acercamiento, cuadro de impacto, temblor, explosiones por toda la mesa y el sonido que mandó Mati)
-   que termina mostrando lo que pega. Ver fxExplosion.
+   (acercamiento, cuadro de impacto, fogonazo, temblor, explosiones por toda la mesa y el sonido que mandó
+   Mati) que termina mostrando lo que pega. Ver fxExplosion.
    ============================================================ */
 (function(global){
 "use strict";
@@ -16390,8 +16393,8 @@ function abrir(op){
     });
   }
   /* ---- el ataque explosivo (fx:"explosion", el de Perro de Mierda): la mesa se viene encima de la carta que lo
-     recibe, cuadro de impacto, temblor y explosiones por todos lados, con el sonido que mandó Mati. Y al final,
-     lo que pegó: si fue 0, un "−0" bien grande. Con "menos movimiento" es una sola explosión, quieta. ---- */
+     recibe, cuadro de impacto, fogonazo, temblor y explosiones por todos lados, con el sonido que mandó Mati. Y al
+     final, lo que pegó: si fue 0, un "−0" bien grande. Con "menos movimiento" es una sola explosión, quieta. ---- */
   function boom(px,py,w,giro,ms){
     if(!op.explosion)return;
     poner('<div class="ar-boom" style="left:'+px.toFixed(1)+'px;top:'+py.toFixed(1)+'px;--w:'+w+'px;--g:'+giro+'deg;--d:'+Math.round(ms*K)+'ms"><i style="background-image:url(&quot;'+esc(op.explosion)+'&quot;)"></i></div>',ms+60);
@@ -16418,8 +16421,11 @@ function abrir(op){
       if(!vivo)return;
       /* 2 · el impacto y la primera */
       clip("explosion",.8);vibrar(60);
-      poner('<div class="ar-negativo"></div>',95);poner('<div class="ar-impacto" style="animation-delay:'+Math.round(90*K)+'ms"></div>',560);
-      capa.classList.add("ar-tiembla");ar.classList.add("ar-frito");
+      /* (nada de filtros acá: un cuadro en negativo o subirle los colores a toda la mesa traba al navegador cuando no
+         dibuja con la placa de video. Un cuadro oscuro, el fogonazo y un resplandor naranja hacen lo mismo y no pesan) */
+      poner('<div class="ar-golpe"></div>',95);poner('<div class="ar-impacto" style="animation-delay:'+Math.round(90*K)+'ms"></div>',560);
+      poner('<div class="ar-resplandor" style="--x:'+c.x.toFixed(0)+'px;--y:'+c.y.toFixed(0)+'px;animation-duration:'+Math.round(1500*K)+'ms"></div>',1500);
+      capa.classList.add("ar-tiembla");
       boom(c.x,c.y,310,0,1150);
       /* 3 · y las demás, por toda la mesa */
       [{x:c.x-96,y:c.y+s*46,w:190,g:-18},{x:c.x+92,y:c.y+s*108,w:214,g:14},{x:ANCHO*.2,y:c.y+s*214,w:176,g:24},
@@ -16429,7 +16435,7 @@ function abrir(op){
       return tras(1320);
     }).then(function(){
       /* 4 · se disipa y la mesa vuelve a su lugar */
-      capa.classList.remove("ar-tiembla");ar.classList.remove("ar-frito");campo.classList.remove("ar-acerca");
+      capa.classList.remove("ar-tiembla");campo.classList.remove("ar-acerca");
       return tras(460);
     }).then(function(){campo.style.transformOrigin="";return cero();});
   }

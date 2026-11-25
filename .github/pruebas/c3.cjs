@@ -253,21 +253,29 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     return {frente:f?f.getAttribute("aria-label"):"",ataque:(document.querySelector('[data-ar="atacar"][data-i="0"]')||{}).innerText||"",puede:!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'),vidas:v?v.textContent:""};});
   chequear("al frente está Perro de Mierda y puede atacar con Hiperactividad",/Perro de Mierda/.test(r.frente)&&/Hiperactividad/i.test(r.ataque)&&r.puede,r);
   const vidasAntes=r.vidas;
-  await pg.evaluate(()=>{window.__boom={max:0,franjas:false,tiembla:false,frito:false,acerca:false,impacto:false};
+  /* con "reducir movimiento" (así corre el WebKit del laboratorio) la app no sacude ni destella: muestra una sola explosión, quieta */
+  const menos=await pg.evaluate(()=>T3.util.reducido());
+  console.log("   reducir movimiento: "+(menos?"sí (una sola explosión, sin sacudones)":"no (el edit entero)"));
+  /* lo del edit dura poco: un ojo en la página anota todo lo que llega a verse */
+  const ojo=()=>pg.evaluate(()=>{window.__boom={max:0,franjas:false,tiembla:false,frito:false,acerca:false,impacto:false,cero:""};clearInterval(window.__ojo);
     window.__ojo=setInterval(()=>{const B=window.__boom;B.max=Math.max(B.max,document.querySelectorAll(".ar-fx .ar-boom").length);
       B.franjas=B.franjas||!!document.querySelector(".ar-franjas");B.tiembla=B.tiembla||!!document.querySelector(".ar-capa.ar-tiembla");B.frito=B.frito||!!document.querySelector(".ar.ar-frito");
-      B.acerca=B.acerca||!!document.querySelector(".ar-campo.ar-acerca");B.impacto=B.impacto||!!document.querySelector(".ar-impacto");},12);});
+      B.acerca=B.acerca||!!document.querySelector(".ar-campo.ar-acerca");B.impacto=B.impacto||!!document.querySelector(".ar-impacto");
+      const c=document.querySelector(".ar-dano.ar-cero");if(c)B.cero=c.textContent;},8);});
+  await ojo();
   await pg.locator('[data-ar="atacar"][data-i="0"]').click();
-  await pg.waitForFunction(()=>document.querySelectorAll(".ar-fx .ar-boom").length>=3,null,{timeout:10000});
+  await pg.waitForFunction(n=>window.__boom.max>=n,menos?1:3,{timeout:10000});
   await pg.screenshot({path:S+"c3-explosion.jpg"});
-  await pg.locator(".ar-dano.ar-cero").waitFor({timeout:10000});
+  await pg.waitForFunction(()=>!!window.__boom.cero,null,{timeout:10000});
+  await pg.screenshot({path:S+"c3-explosion-cero.jpg"});
+  await pg.waitForFunction(()=>!document.querySelector(".ar-capa.ar-tiembla,.ar.ar-frito,.ar-campo.ar-acerca"),null,{timeout:10000});
   r=await pg.evaluate(async()=>{clearInterval(window.__ojo);
     const tira=await new Promise(ok=>{const i=new Image();i.onload=()=>ok([i.naturalWidth,i.naturalHeight]);i.onerror=()=>ok(null);i.src=T3.util.asset("tcg/explosion.webp");});
     const v=document.querySelector(".ar-ficha.ar-suya.ar-activa .ar-stat b");
-    return {B:window.__boom,cero:document.querySelector(".ar-dano.ar-cero").textContent,vidas:v?v.textContent:"",tira,son:(window.__son||[]).slice(),log:T3.x.clipLog.slice(),
+    return {B:window.__boom,cero:window.__boom.cero,vidas:v?v.textContent:"",tira,son:(window.__son||[]).slice(),log:T3.x.clipLog.slice(),
       quedo:!!document.querySelector(".ar-capa.ar-tiembla,.ar.ar-frito,.ar-campo.ar-acerca")};});
-  await pg.screenshot({path:S+"c3-explosion-cero.jpg"});
-  chequear("el ataque se muestra con el edit: franjas, acercamiento, impacto, temblor y varias explosiones a la vez",r.B.franjas&&r.B.acerca&&r.B.impacto&&r.B.tiembla&&r.B.frito&&r.B.max>=3,r.B);
+  if(menos)chequear("con «reducir movimiento» el ataque se muestra con una explosión sola, sin franjas, sacudones ni destello",r.B.max>=1&&!r.B.franjas&&!r.B.acerca&&!r.B.impacto&&!r.B.tiembla&&!r.B.frito,r.B);
+  else chequear("el ataque se muestra con el edit: franjas, acercamiento, impacto, temblor y varias explosiones a la vez",r.B.franjas&&r.B.acerca&&r.B.impacto&&r.B.tiembla&&r.B.frito&&r.B.max>=3,r.B);
   chequear("la tira de la explosión carga (20 cuadros en fila)",!!r.tira&&r.tira[0]===r.tira[1]*20,r.tira);
   chequear("suena la explosión que mandó Mati (la app la pide; en Chromium, además, suena)",r.son.indexOf("clip:explosion")>=0&&r.log.indexOf("pide:explosion")>=0&&((process.env.MOTOR||"chromium")!=="chromium"||r.log.indexOf("suena:explosion")>=0),{son:r.son,log:r.log});
   chequear("y después de todo eso pega 0: aparece el «−0», la rival queda con las mismas vidas y la mesa vuelve a su lugar",r.cero==="−0"&&r.vidas===vidasAntes&&!r.quedo,{cero:r.cero,vidas:r.vidas,antes:vidasAntes,quedo:r.quedo});
@@ -284,7 +292,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
     if(await pg.locator(".ar.ar-subiendo").count()){await pg.locator(".ar-ficha.ar-mia:not(.ar-activa)").first().click();continue;}
     const esPerro=/Perro de Mierda/.test(await pg.locator(".ar-ficha.ar-mia.ar-activa").getAttribute("aria-label")||"");
     const at=pg.locator('[data-ar="atacar"]:not(.ar-no)');
-    if(esPerro&&await at.count()){await at.first().click();await pg.locator(".ar-dano.ar-cero").waitFor({timeout:10000});otra=true;break;}
+    if(esPerro&&await at.count()){await ojo();await at.first().click();await pg.waitForFunction(()=>!!window.__boom.cero,null,{timeout:10000});otra=true;break;}
     if(await pg.locator(".ar-energia:not([disabled])").count()){await pg.locator(".ar-energia").click();await pg.locator(".ar.ar-energizando").waitFor();await pg.locator(".ar-ficha.ar-mia.ar-activa").click();continue;}
     await pg.locator(".ar-pasar").click();
   }
@@ -301,9 +309,10 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await pg.evaluate(()=>{const f=document.querySelector(".ar-ficha.ar-mia.ar-activa");
     return {panel:!!document.querySelector(".t3-maquina-capa"),frente:f?f.getAttribute("aria-label"):"",puede:!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'),turno:(document.querySelector(".ar-turno-n")||{}).innerText||"",guardado:!!T3.leer("tcg2-duelo",null)};});
   chequear("«la explosión», en el taller, abre un duelo de prueba con Perro de Mierda al frente y listo para atacar",!r.panel&&/Perro de Mierda/.test(r.frente)&&r.puede&&!r.guardado,r);
+  await ojo();
   await pg.locator('[data-ar="atacar"][data-i="0"]').click();
-  await pg.locator(".ar-dano.ar-cero").waitFor({timeout:10000});
-  chequear("y ahí también termina en «−0»",await pg.locator(".ar-dano.ar-cero").innerText()==="−0");
+  await pg.waitForFunction(()=>!!window.__boom.cero,null,{timeout:10000});
+  chequear("y ahí también termina en «−0»",await pg.evaluate(()=>window.__boom.cero)==="−0");
   await libre(pg);
   await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="salir"]').click();await pg.waitForTimeout(600);
   chequear("sin errores de JavaScript",errores.length===0,errores);

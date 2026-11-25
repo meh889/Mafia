@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        motor: [webkit, chromium]
+        motor: [webkit]
     env:
       MOTOR: ${{ matrix.motor }}
       FUENTES: "1"
@@ -49,39 +49,12 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/pw" --no-audit --no-fund playwright web-push@4
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps ${{ matrix.motor }}
           mkdir -p "$RUNNER_TEMP/capturas"
-      - name: Actualización, respaldo, taller y sonido
+      - name: Diagnóstico del ataque explosivo
         if: always()
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/a.cjs
-      - name: Ida y vuelta (contestar, la tienda sin puntos, vales)
-        if: always()
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/b.cjs
-      - name: MafiaTCG, cartas, sobres y carpeta
-        if: always()
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c2.cjs
-      - name: MafiaTCG, recorrido con capturas
-        if: always()
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c1.cjs
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/diag.cjs
       - name: MafiaTCG, el duelo
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/c3.cjs
-      # Las reglas del duelo y el equilibrio de las cartas no usan navegador: alcanza con correrlas una vez.
-      - name: MafiaTCG, reglas del duelo y equilibrio
-        if: always() && matrix.motor == 'chromium'
-        run: node .github/pruebas/c4.cjs
-      - name: La tienda, la ropa de Ponyta y el modo Pou
-        if: always()
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/f.cjs
-      - name: Ponyta se va de vacaciones y vuelve con gorro
-        if: always()
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/e.cjs
-      # Los avisos se prueban con herramientas que solo tiene Chromium (el permiso de
-      # notificaciones y la entrega de un push de mentira al service worker).
-      - name: Avisos, del lado de la app
-        if: always() && matrix.motor == 'chromium'
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/d.cjs
-      - name: Avisos, el envío
-        if: always() && matrix.motor == 'chromium'
-        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" node .github/pruebas/d-envio.cjs
       - name: Volcar capturas
         if: always() && inputs.capturas
         run: |

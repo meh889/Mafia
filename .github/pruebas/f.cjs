@@ -1,6 +1,7 @@
 /* Laboratorio · la tienda (pestaña verde), la ropa de Ponyta y el modo Pou.
    Precios, canjear un pedido por WhatsApp, comprar y ponerle cosas a Ponyta, la camiseta con el escudo,
    cuidarla (nigiris, baño, dormir y el paso de las horas), los paquetes "Subite a la Franconeta" y "Sorpresa"
+   (con el audio que mandó Mati: suena al abrir a Ponyta recién comprada y al tocar el pasacalle)
    y canjear herraduras (50 por un sobre con una nola o por 250 MafiaPoints). */
 const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
 const fs=require("fs"),path=require("path");
@@ -361,7 +362,35 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("recién ahí dice qué era, y muestra el logo que mandó Mati",/es tuyo/i.test(r.txt)&&/One Direction/.test(r.txt)&&/pasacalle/i.test(r.txt)&&/cartel de protesta/i.test(r.txt)&&
     await pg.evaluate(()=>{const i=document.querySelector(".t3x-compra img.t3x-cosa-logo");return !!i&&/1d-logo\.webp$/.test(i.getAttribute("src"));}),r);
   chequear("lo de la Franconeta no se pierde: sigue con la remera y el auto",l.L.puesto.cuerpo==="alpine"&&l.L.puesto.juguete==="f1"&&l.L.puesto["pared-franco"]==="franco",l.L.puesto);
-  await pg.click('.t3x-compra [data-tie="ir-ponyta"]',{force:true});await pg.waitForTimeout(3600);
+  await pg.click('.t3x-compra [data-tie="ir-ponyta"]',{force:true});await pg.waitForTimeout(2400);
+  /* el audio de la Sorpresa (el que mandó Mati): suena solo la primera vez que se abre su solapa después de comprarla */
+  const CROMO=(process.env.MOTOR||"chromium")==="chromium";
+  const musica=()=>pg.evaluate(()=>({log:T3.x.clipLog.slice(),sono:T3.leer("sorpresa-sono",null),suena:!!document.querySelector(".t3x-calle.t3x-calle-suena"),baila:!!document.querySelector(".t3-ponyta-pag.t3x-baila"),
+    boton:(()=>{const c=document.querySelector(".t3x-calle");return !!c&&c.getAttribute("role")==="button"&&c.classList.contains("t3x-calle-musica")&&/tocalo/i.test(c.getAttribute("aria-label")||"")&&!!c.querySelector(".t3x-calle-pista");})()}));
+  const cuantas=(m,que)=>m.log.filter(x=>x===que).length;
+  let m=await musica();
+  const decodifica=cuantas(m,"suena:sorpresa")>0;        /* el WebKit del laboratorio puede no saber leer el mp3: ahí no suena, y no tiene que romper nada */
+  if(!decodifica)console.log("   (este navegador no llegó a tocar el audio: se prueba que no rompa nada)");
+  chequear("el archivo del audio está en el repo y la app lo pide al abrir a Ponyta",fs.existsSync(path.resolve(__dirname,"..","..","audios/sorpresa.mp3"))&&cuantas(m,"pide:sorpresa")===1&&m.boton,m);
+  chequear("en Chromium el audio suena de verdad",!CROMO||decodifica,m.log);
+  chequear("mientras suena, el pasacalle se hamaca, ella baila y queda anotado que ya sonó sola",decodifica?(m.suena&&m.baila&&m.sono==="2026-12-05"):(!m.suena&&!m.baila&&m.sono===null),m);
+  await pg.click(".t3x-calle",{force:true});await pg.waitForTimeout(500);
+  m=await musica();
+  chequear("tocar el pasacalle la corta"+(decodifica?"":" (acá: lo vuelve a pedir)"),decodifica?(!m.suena&&!m.baila):cuantas(m,"pide:sorpresa")===2,m);
+  await pg.click(".t3x-calle",{force:true});await pg.waitForTimeout(700);
+  m=await musica();
+  chequear("y tocarlo de nuevo la hace sonar otra vez",decodifica?(m.suena&&m.baila&&cuantas(m,"suena:sorpresa")===2):cuantas(m,"pide:sorpresa")===3,m);
+  await aTienda(pg);
+  m=await musica();
+  chequear("al salir de su solapa se corta (el audio también, no solo el baile)",!m.suena&&!m.baila&&(!decodifica||cuantas(m,"corta:sorpresa")===2),m);
+  await aPonyta(pg);await pg.waitForTimeout(1400);
+  m=await musica();
+  chequear("y al volver no arranca sola: fue una vez",!decodifica||(!m.suena&&cuantas(m,"suena:sorpresa")===2),m);
+  /* con la app en silencio no suena, y no gasta la primera vez */
+  await pg.evaluate(()=>{T3.borrar("sorpresa-sono");T3.mudo(true);});
+  await aTienda(pg);await aPonyta(pg);await pg.waitForTimeout(1600);
+  r=await pg.evaluate(()=>{const o={suena:!!document.querySelector(".t3x-calle-suena"),sono:T3.leer("sorpresa-sono",null)};T3.mudo(false);T3.guardar("sorpresa-sono","2026-12-05");return o;});
+  chequear("con la app en silencio no suena ni gasta la primera vez",!r.suena&&r.sono===null,r);
   r=await pg.evaluate(async(IMAGENES)=>{
     const carga=src=>new Promise(ok=>{const i=new Image();i.onload=()=>ok(i.naturalWidth>0);i.onerror=()=>ok(false);i.src=src;});
     const pag=document.querySelector(".t3-ponyta-pag"),calle=pag.querySelector(".t3x-calle"),escena=pag.querySelector(".t3-ponyta-escena"),post=pag.querySelector(".t3-ponyta-postura"),pared=pag.querySelector(".t3x-pared");

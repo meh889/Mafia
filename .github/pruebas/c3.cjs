@@ -1,6 +1,6 @@
 /* Laboratorio · MafiaTCG: el duelo contra el programador, jugado tocando la pantalla como lo haría ella.
    Duelos enteros, MafiaPoints (10 por ganar, 0 por perder), salir y seguir después (también tras recargar), rendirse
-   y el tope de 2 duelos por día (el duelo se cuenta cuando arranca). */
+   el tope de 2 duelos por día (el duelo se cuenta cuando arranca) y el ataque explosivo de Perro de Mierda. */
 const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 (async()=>{
@@ -230,6 +230,82 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   chequear("«otro duelo» arma otro de prueba",await pg.evaluate(()=>document.querySelectorAll(".ar-capa.ar-ver").length===1&&T3.leer("tcg2",null)===null));
   await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="salir"]').click();await pg.waitForTimeout(700);
   chequear("y se sale sin dejar rastro",await pg.evaluate(()=>!document.querySelector(".ar-capa")&&T3.leer("tcg2-duelo",null)===null&&T3.leer("tcg2",null)===null));
+  chequear("sin errores de JavaScript",errores.length===0,errores);
+  await ctx.close();
+
+  console.log("EL ATAQUE DE PERRO DE MIERDA (LA EXPLOSIÓN)");
+  /* pedido de Mati: cuando ataca Perro de Mierda, un edit entero con explosiones y el sonido que mandó, para terminar pegando 0.
+     Se arma un duelo de prueba donde ella tiene al perro al frente y empieza el programador: en su primer turno ya puede atacar. */
+  ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:{"pv-t3-set-escritas":'["2026-12-05"]',"pv-t3-set-abrio":'["2026-12-05"]',"pv-t3-vio-indice":"true"}}));
+  const conPerro=["perro"].concat(lista.filter(id=>id!=="perro").slice(0,9)),sinPerro=lista.filter(id=>id!=="perro").slice(9,19);
+  r=await pg.evaluate(o=>{const P={};T3.tcg.CARTAS.forEach(c=>{P[c.id]=c;});const a=P.perro.ataques[0];
+    let s=0;for(let k=1;k<=600&&!s;k++){const E=MafiaDuelo.nuevo({cartas:P,tipos:MafiaCarta.TIPOS,mazos:[o.mio,o.suyo],semilla:k,empieza:1});if(E.jug[0].activa&&E.jug[0].activa.id==="perro")s=k;}
+    return {semilla:s,dano:a.dano,fx:a.fx,nombre:P.perro.nombre};},{mio:conPerro,suyo:sinPerro});
+  chequear("la carta sigue pegando 0, y su ataque es el explosivo",r.nombre==="Perro de Mierda"&&r.dano===0&&r.fx==="explosion"&&r.semilla>0,r);
+  const fsx=require("fs"),px=require("path"),raizRepo=px.resolve(__dirname,"..","..");
+  chequear("el sonido y la tira de la explosión están en el repo",fsx.existsSync(px.join(raizRepo,"audios/explosion.mp3"))&&fsx.existsSync(px.join(raizRepo,"fotos/t3/tcg/explosion.webp")));
+  await opciones(pg,{semilla:r.semilla,empieza:1,rapido:.5,mazo:conPerro,mazoRival:sinPerro});
+  await pg.evaluate(()=>T3.maquina.abrir());await pg.waitForTimeout(700);
+  await pg.evaluate(()=>{document.querySelector('[data-taller="tcg-duelo"]').scrollIntoView({block:"center"});});await pg.waitForTimeout(200);
+  await pg.click('[data-taller="tcg-duelo"]');
+  await libre(pg);
+  r=await pg.evaluate(()=>{const f=document.querySelector(".ar-ficha.ar-mia.ar-activa"),v=document.querySelector(".ar-ficha.ar-suya.ar-activa .ar-stat b");
+    return {frente:f?f.getAttribute("aria-label"):"",ataque:(document.querySelector('[data-ar="atacar"][data-i="0"]')||{}).innerText||"",puede:!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'),vidas:v?v.textContent:""};});
+  chequear("al frente está Perro de Mierda y puede atacar con Hiperactividad",/Perro de Mierda/.test(r.frente)&&/Hiperactividad/i.test(r.ataque)&&r.puede,r);
+  const vidasAntes=r.vidas;
+  await pg.evaluate(()=>{window.__boom={max:0,franjas:false,tiembla:false,frito:false,acerca:false,impacto:false};
+    window.__ojo=setInterval(()=>{const B=window.__boom;B.max=Math.max(B.max,document.querySelectorAll(".ar-fx .ar-boom").length);
+      B.franjas=B.franjas||!!document.querySelector(".ar-franjas");B.tiembla=B.tiembla||!!document.querySelector(".ar-capa.ar-tiembla");B.frito=B.frito||!!document.querySelector(".ar.ar-frito");
+      B.acerca=B.acerca||!!document.querySelector(".ar-campo.ar-acerca");B.impacto=B.impacto||!!document.querySelector(".ar-impacto");},12);});
+  await pg.locator('[data-ar="atacar"][data-i="0"]').click();
+  await pg.waitForFunction(()=>document.querySelectorAll(".ar-fx .ar-boom").length>=3,null,{timeout:10000});
+  await pg.screenshot({path:S+"c3-explosion.jpg"});
+  await pg.locator(".ar-dano.ar-cero").waitFor({timeout:10000});
+  r=await pg.evaluate(async()=>{clearInterval(window.__ojo);
+    const tira=await new Promise(ok=>{const i=new Image();i.onload=()=>ok([i.naturalWidth,i.naturalHeight]);i.onerror=()=>ok(null);i.src=T3.util.asset("tcg/explosion.webp");});
+    const v=document.querySelector(".ar-ficha.ar-suya.ar-activa .ar-stat b");
+    return {B:window.__boom,cero:document.querySelector(".ar-dano.ar-cero").textContent,vidas:v?v.textContent:"",tira,son:(window.__son||[]).slice(),log:T3.x.clipLog.slice(),
+      quedo:!!document.querySelector(".ar-capa.ar-tiembla,.ar.ar-frito,.ar-campo.ar-acerca")};});
+  await pg.screenshot({path:S+"c3-explosion-cero.jpg"});
+  chequear("el ataque se muestra con el edit: franjas, acercamiento, impacto, temblor y varias explosiones a la vez",r.B.franjas&&r.B.acerca&&r.B.impacto&&r.B.tiembla&&r.B.frito&&r.B.max>=3,r.B);
+  chequear("la tira de la explosión carga (20 cuadros en fila)",!!r.tira&&r.tira[0]===r.tira[1]*20,r.tira);
+  chequear("suena la explosión que mandó Mati (la app la pide; en Chromium, además, suena)",r.son.indexOf("clip:explosion")>=0&&r.log.indexOf("pide:explosion")>=0&&((process.env.MOTOR||"chromium")!=="chromium"||r.log.indexOf("suena:explosion")>=0),{son:r.son,log:r.log});
+  chequear("y después de todo eso pega 0: aparece el «−0», la rival queda con las mismas vidas y la mesa vuelve a su lugar",r.cero==="−0"&&r.vidas===vidasAntes&&!r.quedo,{cero:r.cero,vidas:r.vidas,antes:vidasAntes,quedo:r.quedo});
+  await libre(pg);
+  r=await pg.evaluate(()=>({son:(window.__son||[]).slice(),fx:document.querySelectorAll(".ar-fx .ar-boom,.ar-fx .ar-franjas,.ar-fx .ar-impacto,.ar-fx .ar-negativo").length}));
+  chequear("el duelo sigue como siempre (la rival pierde una energía) y no queda nada del edit en pantalla",r.son.indexOf("quita")>r.son.indexOf("clip:explosion")&&r.fx===0,r);
+  /* con «Sonidos: no» en la pausa, el edit se ve pero el audio no se pide */
+  await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="efectos"]').click();await pg.locator('[data-ar="menu-cerrar"]').click();
+  r=await pg.evaluate(()=>({antes:T3.x.clipLog.filter(x=>x==="pide:explosion").length}));
+  let otra=false;
+  for(let k=0;k<40&&!otra;k++){
+    await libre(pg);
+    if(await pg.locator(".ar-final").count())break;
+    if(await pg.locator(".ar.ar-subiendo").count()){await pg.locator(".ar-ficha.ar-mia:not(.ar-activa)").first().click();continue;}
+    const esPerro=/Perro de Mierda/.test(await pg.locator(".ar-ficha.ar-mia.ar-activa").getAttribute("aria-label")||"");
+    const at=pg.locator('[data-ar="atacar"]:not(.ar-no)');
+    if(esPerro&&await at.count()){await at.first().click();await pg.locator(".ar-dano.ar-cero").waitFor({timeout:10000});otra=true;break;}
+    if(await pg.locator(".ar-energia:not([disabled])").count()){await pg.locator(".ar-energia").click();await pg.locator(".ar.ar-energizando").waitFor();await pg.locator(".ar-ficha.ar-mia.ar-activa").click();continue;}
+    await pg.locator(".ar-pasar").click();
+  }
+  r.despues=await pg.evaluate(()=>T3.x.clipLog.filter(x=>x==="pide:explosion").length);
+  chequear("con los sonidos del duelo apagados, la explosión se ve pero no suena",otra&&r.despues===r.antes,{otra:otra,antes:r.antes,despues:r.despues});
+  await libre(pg);
+  await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="salir"]').click();await pg.waitForTimeout(600);
+  /* el atajo del taller: «la explosión» arma solo ese duelo (los mazos al azar, con el perro al frente) */
+  await opciones(pg,{rapido:.5});
+  await pg.evaluate(()=>T3.maquina.abrir());await pg.waitForTimeout(700);
+  await pg.evaluate(()=>{document.querySelector('[data-taller="tcg-explosion"]').scrollIntoView({block:"center"});});await pg.waitForTimeout(200);
+  await pg.click('[data-taller="tcg-explosion"]');
+  await libre(pg);
+  r=await pg.evaluate(()=>{const f=document.querySelector(".ar-ficha.ar-mia.ar-activa");
+    return {panel:!!document.querySelector(".t3-maquina-capa"),frente:f?f.getAttribute("aria-label"):"",puede:!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'),turno:(document.querySelector(".ar-turno-n")||{}).innerText||"",guardado:!!T3.leer("tcg2-duelo",null)};});
+  chequear("«la explosión», en el taller, abre un duelo de prueba con Perro de Mierda al frente y listo para atacar",!r.panel&&/Perro de Mierda/.test(r.frente)&&r.puede&&!r.guardado,r);
+  await pg.locator('[data-ar="atacar"][data-i="0"]').click();
+  await pg.locator(".ar-dano.ar-cero").waitFor({timeout:10000});
+  chequear("y ahí también termina en «−0»",await pg.locator(".ar-dano.ar-cero").innerText()==="−0");
+  await libre(pg);
+  await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="salir"]').click();await pg.waitForTimeout(600);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
   await b.close();srv.close();process.exit(resumen()?1:0);

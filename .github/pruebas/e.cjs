@@ -1,4 +1,5 @@
-/* Laboratorio · Ponyta se va de vacaciones y vuelve; el gorro se lo pone cuando Sofi abre la ventanita 1 del adviento (T3.viaje) */
+/* Laboratorio · Ponyta se va de vacaciones y vuelve; el gorro se lo pone cuando Sofi abre la ventanita 1 del adviento (T3.viaje),
+   y en ese momento suena el audio que mandó Mati */
 const {servir,abrir,chequear,resumen,motor}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 const K={viaje:"pv-t3-ponyta-viaje",dias:"pv-t3-set-ponyta-huellas-dias",stats:"pv-t3-stats"};
@@ -128,12 +129,28 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
   await o.pg.waitForFunction(()=>!!document.querySelector(".t3-adviento-velo .t3-adviento-gorro"),null,{timeout:10000});
   await o.pg.waitForTimeout(2200);
   await o.pg.screenshot({path:S+"e-adviento-ventanita1.jpg"});
+  /* el audio que mandó Mati (el "wo men ji"): suena cuando aparece con el gorro puesto */
+  r=await o.pg.evaluate(()=>({log:T3.x.clipLog.slice(),nieve:document.querySelectorAll(".t3-adviento-velo.t3x-con-nieve .t3x-nieve i").length,suena:!!document.querySelector(".t3-adviento-velo.t3x-gorro-suena")}));
+  const sonoGorro=r.log.indexOf("suena:gorro")>=0;      /* el WebKit del laboratorio puede no saber leer el mp3 */
+  chequear("cuando aparece con el gorro, la app pide el audio del gorro (una vez) y prepara la nieve",require("fs").existsSync(require("path").resolve(__dirname,"..","..","audios/gorro.mp3"))&&r.log.filter(x=>x==="pide:gorro").length===1&&r.nieve>=10,r);
+  chequear("en Chromium suena de verdad y, mientras dura, Ponyta baila",(process.env.MOTOR||"chromium")!=="chromium"||(sonoGorro&&r.suena),r);
+  chequear("donde no suena, tampoco baila ni rompe nada",sonoGorro||!r.suena,r);
   r=await o.pg.evaluate(()=>({sorpresa:(document.querySelector(".t3-adviento-velo")||{}).innerText||"",calendario:!!document.querySelector(".t3-adviento-pop-centro .t3-adviento-gorro"),dije:!!document.querySelector(".t3-ponyta-dije .t3x-gorro"),puesto:T3.viaje.gorroPuesto()}));
   chequear("al abrir la ventanita 1 sale Ponyta con gorro, y se lo pone en el calendario y en el señalador",/ya se puso el gorro/.test(r.sorpresa)&&r.calendario&&r.dije&&r.puesto,r);
   await o.pg.evaluate(()=>{const b=Array.from(document.querySelectorAll(".t3-adviento-velo button")).find(x=>/guardar/i.test(x.textContent));if(b)b.click();});
   await o.pg.waitForFunction(()=>!document.querySelector(".t3-adviento-velo"),null,{timeout:8000});
   await o.pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-especial-host");if(h)h.scrollTop=0;});await o.pg.waitForTimeout(400);
   await o.pg.screenshot({path:S+"e-adviento-despues.jpg"});
+  /* abrirla de nuevo la hace sonar otra vez; otra ventanita, no */
+  await o.pg.evaluate(()=>{document.querySelector('.t3-adviento-v[data-n="1"]').scrollIntoView({block:"center"});});await o.pg.waitForTimeout(300);
+  await o.pg.click('.t3-adviento-v[data-n="1"]',{force:true});
+  await o.pg.waitForFunction(()=>!!document.querySelector(".t3-adviento-velo .t3-adviento-gorro"),null,{timeout:10000});await o.pg.waitForTimeout(500);
+  r=await o.pg.evaluate(()=>({pide:T3.x.clipLog.filter(x=>x==="pide:gorro").length,corto:T3.x.clipLog.filter(x=>x==="corta:gorro").length,sono:T3.x.clipLog.indexOf("suena:gorro")>=0}));
+  chequear("guardar la sorpresa corta el audio, y al volver a abrir la ventanita 1 lo pide de nuevo",r.pide===2&&(!r.sono||r.corto===1),r);
+  await o.pg.evaluate(()=>{const b=Array.from(document.querySelectorAll(".t3-adviento-velo button")).find(x=>/guardar/i.test(x.textContent));if(b)b.click();});
+  await o.pg.waitForFunction(()=>!document.querySelector(".t3-adviento-velo"),null,{timeout:8000});
+  r=await o.pg.evaluate(()=>{const antes=T3.x.clipLog.length;let sin=true;try{T3.viaje.enSorpresa(document.createElement("div"),9,"2026-12-09",{tipo:"ponyta",traje:"bufanda"},[]);}catch(e){sin=false;}return {sin,pidio:T3.x.clipLog.length-antes};});
+  chequear("la sorpresa de otra ventanita de Ponyta (la de la bufanda) no hace sonar nada",r.sin&&r.pidio===0,r);
   await o.pg.evaluate(()=>T3.cuaderno.irA("2026-12-01"));await o.pg.waitForTimeout(1500);r=await hoja(o.pg);
   chequear("de vuelta en la hoja, el dibujo ya tiene gorro y lo dice",r.fecha==="2026-12-01"&&r.dibujo&&r.gorro&&/volví\. traje gorro\./.test(r.frase),r);
   await solapa(o.pg);await o.pg.waitForTimeout(2600);r=await foto(o.pg);

@@ -3479,6 +3479,28 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 @keyframes arDano{0%{opacity:0;transform:scale(.3) rotate(-7deg)}18%{opacity:1;transform:scale(1.15) rotate(-7deg)}30%{transform:scale(1) rotate(-7deg)}78%{opacity:1;transform:translateY(-8px) rotate(-7deg)}100%{opacity:0;transform:translateY(-30px) rotate(-7deg)}}
 .ar-debil{position:absolute;padding:6px 14px 7px;border-radius:5px;background:linear-gradient(180deg,#A58CF2,var(--li3));box-shadow:0 0 0 2px #12163F,0 0 0 4px #fff,0 5px 0 4px rgba(8,10,34,.6);font:800 italic 19px/1 var(--f);letter-spacing:.05em;text-transform:uppercase;color:#fff;white-space:nowrap;animation:arSello 1.05s cubic-bezier(.2,1.3,.4,1) .12s both}
 @keyframes arSello{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-7deg) skewX(-11deg)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1) rotate(-7deg) skewX(-11deg)}32%{transform:translate(-50%,-50%) scale(1) rotate(-7deg) skewX(-11deg)}82%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-7deg) skewX(-11deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1) rotate(-7deg) skewX(-11deg)}}
+/* ---- el ataque explosivo (fx:"explosion": el de Perro de Mierda) ----
+   .ar-boom es una explosión: una tira de 20 cuadros en fila que pasa de a saltos (pinta de GIF viejo, a propósito) */
+.ar-boom{position:absolute;width:var(--w,220px);height:var(--w,220px);margin:calc(var(--w,220px)/-2) 0 0 calc(var(--w,220px)/-2);overflow:hidden;transform:rotate(var(--g,0deg))}
+.ar-boom i{display:block;width:2000%;height:100%;background:0 0/100% 100% no-repeat;image-rendering:pixelated;animation:arBoomTira var(--d,1s) steps(20) both}
+@keyframes arBoomTira{to{transform:translateX(-100%)}}
+/* el cuadro de impacto: un instante en negativo (donde el navegador sabe) y el fogonazo */
+.ar-negativo{position:absolute;inset:0;-webkit-backdrop-filter:invert(1) contrast(1.25);backdrop-filter:invert(1) contrast(1.25)}
+.ar-impacto{position:absolute;inset:0;background:#fff;opacity:0;animation:arImpacto .44s ease-out forwards}
+@keyframes arImpacto{0%{opacity:.96}100%{opacity:0}}
+/* franjas de cine, arriba y abajo, mientras dura */
+.ar-franjas i{position:absolute;left:0;right:0;height:58px;background:#05061A;animation:arFranja 2.5s ease both}
+.ar-franjas i:first-child{top:0;--y:-100%}
+.ar-franjas i:last-child{bottom:0;--y:100%}
+@keyframes arFranja{0%{transform:translateY(var(--y))}10%,86%{transform:none}100%{transform:translateY(var(--y))}}
+/* la mesa se viene encima de la carta que lo recibe (el punto lo pone la arena), tiembla y se "fríe" */
+.ar-campo{transition:transform .5s cubic-bezier(.2,.9,.3,1)}
+.ar-campo.ar-acerca{transform:scale(1.2) rotate(-1.6deg)}
+.ar-frito .ar-campo{filter:saturate(2.5) contrast(1.35) brightness(1.06)}
+.ar-capa.ar-tiembla>.ar{animation:arTiembla .44s linear 3}
+@keyframes arTiembla{0%,100%{translate:0 0;rotate:0deg}12%{translate:-9px 5px;rotate:-.8deg}25%{translate:8px -6px;rotate:.7deg}37%{translate:-6px -4px;rotate:-.5deg}50%{translate:7px 5px;rotate:.6deg}62%{translate:-5px 3px;rotate:-.3deg}75%{translate:4px -3px;rotate:.3deg}87%{translate:-2px 2px}}
+/* y lo que pegó: nada */
+.ar-dano.ar-cero{font-size:104px;margin-top:-56px;color:var(--am2);animation-duration:1.15s}
 .ar .ar-ficha.ar-recibe{z-index:6;animation:arRecibe .5s ease both}
 @keyframes arRecibe{0%{filter:brightness(2.2) saturate(.4)}20%{transform:translate(6px,-3px) rotate(5deg)}45%{transform:translate(-5px,2px) rotate(-4deg)}70%{transform:translate(3px,0) rotate(2deg)}100%{filter:none;transform:none}}
 /* noqueada */
@@ -3607,6 +3629,25 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 @media (prefers-reduced-motion:reduce){.t3x-pasacalle{animation:none}}
 .t3x-cosa-de-calle .t3x-cosa-foto{display:grid;place-items:center;padding:18px 6px}
 .t3x-cosa-de-calle .t3x-pasacalle{animation:none}
+/* ---- el pasacalle con música (la Sorpresa): se toca para que suene; mientras suena se hamaca, larga notas y ella baila ---- */
+.t3x-calle-musica{cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none}
+.t3x-calle-musica:focus-visible .t3x-pc-tela{stroke:var(--t3-fuego,#E95504);stroke-width:2.4}
+.t3x-calle-pista{position:absolute;right:10px;bottom:-15px;z-index:3;font-size:16px;line-height:1;transform:rotate(-3deg);pointer-events:none;transition:opacity .3s ease}
+.t3x-calle-suena .t3x-calle-pista{opacity:0}
+.t3x-calle-notas{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none}
+.t3x-calle-notas i{position:absolute;top:8px;font:700 30px/1 var(--t3-mano),"Caveat",cursive;font-style:normal;color:var(--t3-sello,#B33A2B);opacity:0}
+.t3x-calle-notas i:nth-child(1){left:9%}.t3x-calle-notas i:nth-child(2){left:30%}.t3x-calle-notas i:nth-child(3){left:52%}.t3x-calle-notas i:nth-child(4){left:71%}.t3x-calle-notas i:nth-child(5){left:89%}
+.t3x-calle-suena .t3x-calle-notas i{animation:t3x-nota-sube 1.92s ease-out infinite}
+.t3x-calle-suena .t3x-calle-notas i:nth-child(2){animation-delay:-.48s}.t3x-calle-suena .t3x-calle-notas i:nth-child(3){animation-delay:-1.2s}
+.t3x-calle-suena .t3x-calle-notas i:nth-child(4){animation-delay:-.84s}.t3x-calle-suena .t3x-calle-notas i:nth-child(5){animation-delay:-1.56s}
+@keyframes t3x-nota-sube{0%{opacity:0;transform:translateY(10px) rotate(-12deg) scale(.6)}18%{opacity:1}70%{opacity:.85}100%{opacity:0;transform:translateY(-44px) rotate(14deg) scale(1.15)}}
+/* el compás del audio: 125 por minuto (.48 s cada golpe; la vuelta entera son dos) */
+.t3x-calle-suena .t3x-pasacalle{animation:t3x-pc-baila .96s ease-in-out infinite}
+@keyframes t3x-pc-baila{0%,100%{transform:rotate(-2.2deg) translateY(0)}25%{transform:rotate(-.4deg) translateY(2.5px)}50%{transform:rotate(2.2deg) translateY(0)}75%{transform:rotate(.4deg) translateY(2.5px)}}
+.t3x-baila:not(.t3-ponyta-duerme):not(.t3-ponyta-en-carrera):not(.t3-ponyta-ausente) .t3-ponyta-anda{transform-origin:50% 92%;animation:t3x-baila .96s ease-in-out infinite}
+@keyframes t3x-baila{0%,100%{transform:translateY(0) rotate(-2.2deg)}25%{transform:translateY(-7px) rotate(0)}50%{transform:translateY(0) rotate(2.2deg)}75%{transform:translateY(-7px) rotate(0)}}
+@media (prefers-reduced-motion:reduce){.t3x-calle-suena .t3x-pasacalle,.t3x-calle-suena .t3x-calle-notas i,.t3x-baila .t3-ponyta-anda{animation:none}.t3x-calle-suena .t3x-calle-notas i{opacity:.8}}
+.t3x-cosa-de-calle .t3x-calle-pista,.t3x-cosa-de-calle .t3x-calle-notas{display:none}
 
 /* ---- modo Pou: cuidar a Ponyta, en su solapa (abajo de "Hacela correr") ---- */
 .t3x-pou{position:relative;z-index:3;margin-top:18px;padding-top:12px;border-top:1.5px dashed var(--t3-papel-borde)}
@@ -3734,6 +3775,19 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
         no asome cortado por abajo; aparece cuando la tapa ya se abrió ---- */
 .t3-adviento-popeando .t3-adviento-pie{animation:t3x-adv-pie 5.45s linear both}
 @keyframes t3x-adv-pie{0%,27%{opacity:0}37%,100%{opacity:1}}
+
+/* ---- el gorro suena (el "wo men ji" que mandó Mati): mientras dura, Ponyta baila en su tarjeta y nieva ---- */
+.t3x-nieve{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.t3x-gorro-suena .t3x-nieve{opacity:1}
+.t3x-nieve i{position:absolute;top:-12px;width:var(--w,6px);height:var(--w,6px);border-radius:50%;background:#FFFDF6;box-shadow:0 0 6px rgba(255,253,246,.7);opacity:.9;
+  animation:t3x-nieve-cae var(--t,3.4s) linear var(--d,0s) infinite;animation-play-state:paused}
+.t3x-gorro-suena .t3x-nieve i{animation-play-state:running}
+@keyframes t3x-nieve-cae{0%{transform:translate(0,-4vh)}100%{transform:translate(var(--x,10px),108vh)}}
+.t3x-con-nieve .t3-adviento-mesa{position:relative;z-index:2}
+.t3x-gorro-suena .t3-adviento-pony-dib{transform-origin:50% 92%;animation:t3x-gorro-baila .84s ease-in-out infinite}
+.t3x-gorro-suena .t3-adviento-pompon{animation:t3-adviento-pompon .84s ease-in-out infinite}
+@keyframes t3x-gorro-baila{0%,100%{transform:translateY(0) rotate(-4deg)}25%{transform:translateY(-8px) rotate(-1deg)}50%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(-8px) rotate(1deg)}}
+@media (prefers-reduced-motion:reduce){.t3x-gorro-suena .t3-adviento-pony-dib,.t3x-gorro-suena .t3-adviento-pompon,.t3x-nieve i{animation:none}.t3x-nieve{display:none}}
 /*EXTRAS-CSS>>*/
 </style>
 </head>
@@ -10491,7 +10545,7 @@ var tt=[],an=[];limpiezas.push(function(){tt.forEach(clearTimeout);an.forEach(fu
 function mostrarSorpresa(n,f,desde,alTerminar){if(abierto)abierto.cerrar(true);var it=contenido(n);var velo=document.createElement("div");velo.className=K+"velo";velo.setAttribute("role","dialog");velo.setAttribute("aria-label","Ventanita "+n);var pista={vale:"Cuando lo quieras usar, mantené apretado el talón.",voz:"Tocá el cassette.",ponyta:"Tocala.",frase:"",foto:"",dato:"",lego:""}[it.tipo]||"";if(it.tipo==="vale"&&canjes()[f])pista="Ya lo usaste. Igual queda acá.";velo.innerHTML='<div class="'+k("mesa")+'">'+'<div class="'+k("rotulo")+'">VENTANITA '+n+' · '+esc(T3.f.larga(f).toUpperCase())+'</div>'+'<div class="'+k("vuelo")+'"><div class="'+k("objeto o-"+it.tipo)+'">'+objetoHTML(it,n,f)+'</div></div>'+'<p class="'+k("pista")+'">'+esc(pista)+'</p>'+'<button class="'+k("guardar")+'" type="button">Guardar</button></div>';document.body.appendChild(velo);document.documentElement.classList.add(K+"bloqueo");var vuelo=velo.querySelector("."+K+"vuelo");var limpiezas=[];var cerrando=false;function cerrar(ya){if(cerrando)return;cerrando=true;limpiezas.forEach(function(fn){try{fn();}catch(e){}});document.removeEventListener("keydown",tecla,true);abierto=null;if(!document.querySelector("."+K+"escena-fija"))document.documentElement.classList.remove(K+"bloqueo");var fin=function(){if(velo.parentNode)velo.remove();if(alTerminar)alTerminar(n);};if(ya||reducido()||!vuelo.animate){fin();return;}
 T3.sonido("papel",.6);velo.classList.add(K+"velo-va");var a=vuelo.animate([{transform:"none",opacity:1},{transform:haciaOrigen(vuelo,desde),opacity:desde&&desde.isConnected?.2:0}],{duration:420,easing:"cubic-bezier(.5,0,.75,.4)",fill:"forwards"});a.onfinish=fin;}
 function tecla(e){if(e.key==="Escape")cerrar();}
-document.addEventListener("keydown",tecla,true);velo.addEventListener("click",function(e){if(e.target===velo||e.target.classList.contains(K+"mesa"))cerrar();});velo.querySelector("."+K+"guardar").addEventListener("click",function(){cerrar();});abierto={velo:velo,cerrar:cerrar};montarObjeto(it,n,f,velo,limpiezas);try{if(it.tipo==="vale"&&T3.vuelta&&T3.vuelta.enVale)T3.vuelta.enVale(velo,n,f,it,!!canjes()[f]);}catch(e){}T3.sonido("pop");if(!reducido()&&vuelo.animate){velo.animate([{opacity:0},{opacity:1}],{duration:260,easing:"ease-out"});vuelo.animate([{transform:haciaOrigen(vuelo,desde),opacity:.3},{transform:"none",opacity:1}],{duration:640,easing:"cubic-bezier(.3,1.25,.5,1)"});}
+document.addEventListener("keydown",tecla,true);velo.addEventListener("click",function(e){if(e.target===velo||e.target.classList.contains(K+"mesa"))cerrar();});velo.querySelector("."+K+"guardar").addEventListener("click",function(){cerrar();});abierto={velo:velo,cerrar:cerrar};montarObjeto(it,n,f,velo,limpiezas);try{if(it.tipo==="vale"&&T3.vuelta&&T3.vuelta.enVale)T3.vuelta.enVale(velo,n,f,it,!!canjes()[f]);}catch(e){}try{if(T3.viaje&&T3.viaje.enSorpresa)T3.viaje.enSorpresa(velo,n,f,it,limpiezas);}catch(e){}T3.sonido("pop");if(!reducido()&&vuelo.animate){velo.animate([{opacity:0},{opacity:1}],{duration:260,easing:"ease-out"});vuelo.animate([{transform:haciaOrigen(vuelo,desde),opacity:.3},{transform:"none",opacity:1}],{duration:640,easing:"cubic-bezier(.3,1.25,.5,1)"});}
 return cerrar;}
 function haciaOrigen(el,desde){if(!desde||!desde.isConnected)return"translateY(60px) scale(.9)";var a=desde.getBoundingClientRect(),b=el.getBoundingClientRect();if(!b.width||!a.width)return"scale(.3)";var s=Math.max(.08,Math.min(a.width/b.width,a.height/b.height));var dx=(a.left+a.width/2)-(b.left+b.width/2),dy=(a.top+a.height/2)-(b.top+b.height/2);return"translate("+dx.toFixed(1)+"px,"+dy.toFixed(1)+"px) scale("+s.toFixed(3)+") rotate(-4deg)";}
 function montarObjeto(it,n,f,velo,limpiezas){var q=function(s){return velo.querySelector("."+K+s);};if(it.tipo==="vale"){var talon=q("vale-talon");if(talon)montarTalon(talon,n,f,velo);if(it.especial==="nochebuena")montarSobre(velo,limpiezas);}
@@ -13663,7 +13717,8 @@ T3.cuaderno={arrancar:arrancar,ocupado:function(){return !!(suelta||eventoFecha|
    Todo lo que vino después del cuaderno vive acá abajo, en
    bloques sueltos: actualización sola, respaldo, taller, ida y
    vuelta por WhatsApp, la tienda, MafiaTCG, la ropa de Ponyta,
-   el modo Pou, avisos y el viaje de Ponyta.
+   el modo Pou, avisos y el viaje de Ponyta. Acá arriba, lo que
+   comparten: entre otras cosas, los audios que mandó Mati (X.clip).
    Cada bloque se engancha al cuaderno por T3.*; si uno falla,
    el cuaderno sigue andando igual.
    Lo que estrena para Sofi (TCG, tienda, contestar, avisos)
@@ -13682,6 +13737,71 @@ X.esc=T3.util.escapar;
 X.giro=function(sal,max){return +(((T3.util.hash("x·"+sal)%1000)/999*2-1)*max).toFixed(2);};
 X.raiz=function(){return document.getElementById("t3")||document.body;};
 X.aviso=function(t){try{if(T3.cuaderno&&T3.cuaderno.aviso)T3.cuaderno.aviso(t);}catch(e){}};
+
+/* ---- recortes de audio: los archivos cortos que mandó Mati (audios/*.mp3), tal cual ----
+   Se piden una sola vez, se decodifican con el AudioContext de la app (T3.audio(): el que destraba el primer
+   toque) y suenan por ahí: así andan en el iPhone aunque no arranquen justo con un toque. Respetan el mudo
+   general (y, como todos los sonidos de la app, el botón de silencio del iPhone).
+     X.clip(nombre,{vol, alEmpezar(segundos), alTerminar(entero)}) → {parar(ms), activo()} · null si no puede sonar
+     X.clipCargar(nombre)   lo deja listo de antemano, para que no tarde cuando hace falta
+   PARA SUMAR UN AUDIO: el archivo en audios/ y su nombre en esta lista. Que sean recortes cortos:
+   una canción entera no va como archivo (un link sí). */
+X.CLIPS={
+  gorro:"gorro.mp3",          /* el "wo men ji": cuando aparece Ponyta con el gorro de Navidad (T3.viaje) */
+  sorpresa:"sorpresa.mp3",    /* One Direction: al abrir a Ponyta con la Sorpresa recién comprada, y al tocar el pasacalle (T3.ropa) */
+  explosion:"explosion.mp3"   /* la explosión: el ataque de Perro de Mierda, en el duelo (MafiaArena) */
+};
+X.clipLog=[];                 /* lo que se pidió ("pide:x"), lo que llegó a sonar ("suena:x") y cómo terminó ("fin:x" entero, "corta:x"): lo miran las pruebas */
+var clipBuf={},clipPide={};
+function clipCtx(){try{return T3.audio?T3.audio():null;}catch(e){return null;}}
+function clipAnota(t){X.clipLog.push(t);if(X.clipLog.length>60)X.clipLog.shift();}
+X.clipCargar=function(n){
+  if(clipBuf[n])return Promise.resolve(clipBuf[n]);
+  if(clipPide[n])return clipPide[n];
+  var c=clipCtx(),arch=X.CLIPS[n];
+  if(!c||!arch||!window.fetch)return Promise.resolve(null);
+  clipPide[n]=fetch(T3.util.audio(arch)).then(function(r){if(!r.ok)throw new Error("sin audio");return r.arrayBuffer();})
+    .then(function(b){return new Promise(function(ok,no){try{var p=c.decodeAudioData(b,ok,no);if(p&&p.catch)p.catch(no);}catch(e){no(e);}});})
+    .then(function(buf){clipBuf[n]=buf;return buf;})
+    .catch(function(){delete clipPide[n];return null;});
+  return clipPide[n];
+};
+X.clip=function(n,op){
+  op=op||{};
+  clipAnota("pide:"+n);
+  var c=clipCtx();
+  if(!c||!X.CLIPS[n]||(T3.mudo&&T3.mudo()))return null;
+  var src=null,gan=null,parado=false,fin=false,pedido=Date.now();
+  function terminar(entero){if(fin)return;fin=true;if(src)clipAnota((entero?"fin:":"corta:")+n);try{if(op.alTerminar)op.alTerminar(!!entero);}catch(e){}}
+  X.clipCargar(n).then(function(buf){
+    /* si lo cortaron antes de llegar, o tardó tanto en bajar que ya no viene a cuento, no suena */
+    if(parado||!buf||Date.now()-pedido>4000){terminar(false);return;}
+    try{
+      if(c.state!=="running"&&c.resume)c.resume();
+      src=c.createBufferSource();gan=c.createGain();
+      src.buffer=buf;gan.gain.value=op.vol==null?.8:op.vol;
+      src.connect(gan);gan.connect(c.destination);
+      src.onended=function(){terminar(!parado);};
+      src.start(0);
+      clipAnota("suena:"+n);
+      if(op.alEmpezar)op.alEmpezar(buf.duration);
+    }catch(e){terminar(false);}
+  });
+  return {
+    /* lo corta bajando el volumen en "ms" (para que no haga clic) */
+    parar:function(ms){
+      if(parado||fin)return;
+      parado=true;
+      if(!src)return;
+      try{
+        var t=c.currentTime,d=Math.max(.02,(ms==null?140:ms)/1000);
+        gan.gain.cancelScheduledValues(t);gan.gain.setValueAtTime(gan.gain.value,t);gan.gain.linearRampToValueAtTime(.0001,t+d);
+        src.stop(t+d+.02);
+      }catch(e){try{src.stop();}catch(x){}}
+    },
+    activo:function(){return !fin&&!parado;}
+  };
+};
 
 /* ¿hay algo abierto que no conviene interrumpir? */
 X.ocupado=function(){
@@ -14591,7 +14711,10 @@ T3.pedidos=T3.tienda;
               débil a otro: la rueda está en MafiaCarta.TIPOS)
      vidas    cuánto aguanta
      ataques  [{nombre, costo (energías), dano, ef (efecto: la lista
-              está en MafiaDuelo), nota (texto de color, no hace nada)}]
+              está en MafiaDuelo), nota (texto de color, no hace nada),
+              fx ("explosion": en el duelo se muestra con el edit de la
+              explosión, con el audio que mandó Mati. Hoy, solo el de
+              Perro de Mierda)}]
    El número de cada carta es su lugar en la lista: las nuevas van al final.
    ------------------------------------------------------------ */
 (function(){
@@ -14648,9 +14771,10 @@ var CARTAS=[
     ataques:[{nombre:"Tengo Frío",costo:1,dano:10,ef:{escudo:20}},{nombre:"Nevado",costo:2,dano:40,ef:{moneda:{duerme:1}}}]},
   {id:"reymon",nombre:"Reymon",formato:"full",foto:"reymon.jpg",rel:.5625,tipo:"familia",vidas:100,
     ataques:[{nombre:"Boboncho",costo:1,dano:20,ef:{cura:10}},{nombre:"Pedito",costo:2,dano:40,ef:{banca:10}}]},
-  /* pedido expreso de Mati: el ataque de esta carta pega 0. No lastima: molesta (le come una energía a la rival). */
+  /* pedido expreso de Mati: el ataque de esta carta pega 0. No lastima: molesta (le come una energía a la rival).
+     Y también pedido suyo (25/11): se muestra con la explosión que mandó (fx). Tanto ruido para pegar 0. */
   {id:"perro",nombre:"Perro de Mierda",formato:"normal",foto:"perro.jpg",rel:.5625,y:18,tipo:"familia",vidas:120,
-    ataques:[{nombre:"Hiperactividad",costo:1,dano:0,ef:{quita:1},nota:"No lastima a nadie. Pero no para."}]},
+    ataques:[{nombre:"Hiperactividad",costo:1,dano:0,ef:{quita:1},fx:"explosion",nota:"No lastima a nadie. Pero no para."}]},
   {id:"lupita",nombre:"Lupita",formato:"full",foto:"lupita.jpg",rel:.5625,tipo:"familia",vidas:80,
     ataques:[{nombre:"Besito",costo:1,dano:10,ef:{curaOtra:30}},{nombre:"Lengüetazo",costo:2,dano:50}]},
   {id:"simonita",nombre:"Simonita",formato:"full",foto:"simonita.jpg",rel:.5625,tipo:"familia",vidas:80,
@@ -14896,21 +15020,42 @@ var NUMEROS=["cero","una","dos","tres","cuatro","cinco","seis","siete","ocho","n
 var PRUEBA={};
 var paginaViva=null;   /* si la pestaña está abierta: una función que la vuelve a pintar con lo guardado */
 
+/* los audios de archivo que usa el duelo (la explosión): los toca T3.x.clip */
+function tocarClip(n,v){return X.clip?X.clip(n,{vol:v}):null;}
+function pedirClip(n){if(X.clipCargar)X.clipCargar(n);}
+
 /* ---------------- para Mati, desde el taller de la máquina del tiempo ---------------- */
-/* un duelo con diez cartas cualesquiera de cada lado: no suma, no guarda y no hace falta tener cartas */
-function probarDuelo(){
+/* un duelo con diez cartas cualesquiera de cada lado: no suma, no guarda y no hace falta tener cartas.
+   "fijo" ({mazo, mazoRival, semilla, empieza}) arma uno en particular (el de la explosión) */
+function probarDuelo(fijo){
   if(!window.MafiaArena||document.querySelector(".ar-capa"))return false;
   var ids=CARTAS.map(function(c){return c.id;});
+  fijo=fijo&&fijo.mazo?fijo:{};
   window.MafiaArena.abrir({
     raiz:X.raiz(),cartas:POR_ID,tipos:M().TIPOS,
-    mazo:PRUEBA.mazo||barajar(ids).slice(0,MINIMO),mazoRival:PRUEBA.mazoRival||barajar(ids).slice(0,MINIMO),
+    mazo:fijo.mazo||PRUEBA.mazo||barajar(ids).slice(0,MINIMO),mazoRival:fijo.mazoRival||PRUEBA.mazoRival||barajar(ids).slice(0,MINIMO),
     torpeza:TORPEZA[1],fotos:opc().fotos,fotosMini:U.asset("tcg/mini/"),logo:opc().logo,total:opc().total,
     sinPuntos:true,notaFinal:"Duelo de prueba: no suma puntos ni queda guardado.",
-    rapido:PRUEBA.rapido,semilla:PRUEBA.semilla,empieza:PRUEBA.empieza,alSonar:PRUEBA.alSonar,
+    rapido:PRUEBA.rapido,semilla:fijo.semilla||PRUEBA.semilla,empieza:fijo.empieza!=null?fijo.empieza:PRUEBA.empieza,alSonar:PRUEBA.alSonar,
     audio:T3.audio,mudo:T3.mudo,vibrar:U.vibrar,reducido:U.reducido(),
-    alCerrar:function(como){if(como==="otro")setTimeout(probarDuelo,320);}
+    clip:tocarClip,precargar:pedirClip,explosion:U.asset("tcg/explosion.webp"),
+    alCerrar:function(como){if(como==="otro")setTimeout(function(){probarDuelo();},320);}
   });
   return true;
+}
+/* para ver (y escuchar) la explosión sin esperar a que salga: un duelo de prueba donde ella arranca con la carta
+   explosiva (Perro de Mierda) al frente y empieza el programador, así en su primer turno ya puede atacar.
+   El duelo baraja con una semilla: se busca una que deje a esa carta adelante. */
+function probarExplosion(){
+  var con=CARTAS.filter(function(c){return c.ataques.some(function(a){return a.fx==="explosion";});})[0];
+  if(!con||!window.MafiaDuelo)return probarDuelo();
+  var resto=barajar(CARTAS.map(function(c){return c.id;}).filter(function(id){return id!==con.id;}));
+  var mio=[con.id].concat(resto.slice(0,MINIMO-1)),suyo=resto.slice(MINIMO-1,MINIMO*2-1),s=0;
+  for(var k=1;k<=500&&!s;k++){
+    var E=window.MafiaDuelo.nuevo({cartas:POR_ID,tipos:M().TIPOS,mazos:[mio,suyo],semilla:k,empieza:1});
+    if(E.jug[0].activa&&E.jug[0].activa.id===con.id)s=k;
+  }
+  return probarDuelo({mazo:mio,mazoRival:suyo,semilla:s||1,empieza:1});
 }
 /* ¿está prendida la máquina del tiempo? (ahí lo que se guarda va a una sombra y no toca el progreso de verdad) */
 function enMaquina(){return !!(window.T3PRE&&window.T3PRE.fantasma);}
@@ -14933,7 +15078,7 @@ function darPuntos(n){
   return true;
 }
 function filaTaller(fila){
-  var e=estado(),ac=[["tcg-duelo","duelo de prueba"]];
+  var e=estado(),ac=[["tcg-duelo","duelo de prueba"],["tcg-explosion","la explosión"]];
   if(enMaquina()&&tengo(e)<TOTAL)ac.push(["tcg-todas","darme todas"]);
   if(enMaquina())ac.push(["tcg-puntos","+1000 puntos"]);
   var H=T3.herraduras;
@@ -14941,9 +15086,10 @@ function filaTaller(fila){
   return fila("cartas",(enMaquina()?"en este viaje, ":"")+tengo(e)+" de "+TOTAL+" · "+e.mp+" MafiaPoints"+(H&&H.sueltas?" · "+H.sueltas()+" herraduras":""),ac);
 }
 function clicTaller(que,t){
-  if(que==="tcg-duelo"){
+  if(que==="tcg-duelo"||que==="tcg-explosion"){
+    /* "la explosión": el mismo duelo de prueba, pero con Perro de Mierda al frente y listo para atacar */
     try{if(T3.maquina&&T3.maquina.cerrar)T3.maquina.cerrar(true);}catch(x){}
-    setTimeout(probarDuelo,380);
+    setTimeout(que==="tcg-explosion"?probarExplosion:function(){probarDuelo();},380);
   }else if(que==="tcg-todas"){
     if(darTodas()){t.decir("listo, tenés todas. se van cuando salgas de la máquina.");if(t.repintar)t.repintar();}
     else t.decir("eso anda solo adentro de la máquina: viajá a un día primero.");
@@ -15073,6 +15219,7 @@ function pagina(host){
       sinOtro:ultimo,notaFinal:ultimo?"Fue el último duelo de hoy. Mañana hay más.":"",
       notaRendirse:"Y cuenta como uno de los de hoy.",
       audio:T3.audio,mudo:T3.mudo,sonidos:e.son,vibrar:U.vibrar,reducido:U.reducido(),
+      clip:tocarClip,precargar:pedirClip,explosion:U.asset("tcg/explosion.webp"),
       alPreferir:function(p){e=estado();e.son=p;guardar(e);},
       alGuardar:function(E){if(E)T3.guardar(LL_DUELO,E);else T3.borrar(LL_DUELO);},
       alTerminar:function(r){
@@ -15272,7 +15419,7 @@ function pagina(host){
 T3.tcg={
   activo:function(){return X.estrenado();},
   haySobre:haySobre,pagina:pagina,alGanar:alGanar,CARTAS:CARTAS,
-  probarDuelo:probarDuelo,filaTaller:filaTaller,clicTaller:clicTaller,
+  probarDuelo:probarDuelo,probarExplosion:probarExplosion,filaTaller:filaTaller,clicTaller:clicTaller,
   puntos:puntos,gastar:gastar,sumar:sumar,darNola:darNola,faltan:faltan,POR_VICTORIA:POR_VICTORIA,DUELOS_POR_DIA:DUELOS_POR_DIA,
   _prueba:{opciones:PRUEBA,estado:estado,guardar:guardar,ponerAlDia:ponerAlDia,tirar:tirar,tirarNola:tirarNola,repes:repes,canjear:canjear,tengo:tengo,carta:carta,dorso:dorso,
     anotarDuelo:anotarDuelo,duelosHoy:duelosHoy,quedanDuelos:quedanDuelos,arrancarDuelo:arrancarDuelo,darPuntos:darPuntos,
@@ -16050,8 +16197,15 @@ global.MafiaSonido={crear:crear,tocar:tocar,programarMusica:programarMusica,EFEC
                           (sin alGuardar, el duelo no se puede retomar: en la pausa dice "Salir" a secas)
      notaFinal,           un renglón para la pantalla del final
      sinOtro,             true = al terminar no ofrece jugar otro (no le quedan duelos hoy)
-     notaRendirse         un renglón más para el "¿te rendís?"
+     notaRendirse,        un renglón más para el "¿te rendís?"
+     clip(nombre,vol),    toca un audio de archivo de la app (el de la explosión); acá no se fabrica
+     precargar(nombre),   lo va pidiendo, para que no tarde
+     explosion            la tira de cuadros de la explosión (20 cuadros en fila)
    })
+
+   Un ataque con fx:"explosion" (el de Perro de Mierda) no se muestra como los demás: es un edit entero
+   (acercamiento, cuadro de impacto, temblor, explosiones por toda la mesa y el sonido que mandó Mati)
+   que termina mostrando lo que pega. Ver fxExplosion.
    ============================================================ */
 (function(global){
 "use strict";
@@ -16091,6 +16245,19 @@ function abrir(op){
   var SON=global.MafiaSonido?global.MafiaSonido.crear({ctx:op.audio,mudo:op.mudo,pref:op.sonidos,alSonar:op.alSonar}):null;
   function sonar(n,v){try{if(SON)SON.sonar(n,v);}catch(e){}}
   function despuesSonar(n,ms){setTimeout(function(){if(vivo)sonar(n);},Math.max(0,ms*K));}
+  /* un audio de archivo: lo toca la app (op.clip). Acá solo se respeta el "Sonidos: no" de la pausa */
+  function clip(n,v){
+    try{if(op.alSonar)op.alSonar("clip:"+n);}catch(e){}
+    try{if(op.clip&&(!SON||SON.pref().efectos))op.clip(n,v);}catch(e){}
+  }
+  function fxDe(x){var c=E.cartas[x.id],a=c&&c.ataques?c.ataques[x.i]:null;return (a&&a.fx)||"";}
+  /* si alguna carta tiene un ataque explosivo, se va pidiendo lo que necesita (la tira y el audio) */
+  try{
+    if(Object.keys(op.cartas||{}).some(function(id){return (op.cartas[id].ataques||[]).some(function(a){return a.fx==="explosion";});})){
+      if(op.explosion){var pre=new Image();pre.src=op.explosion;}
+      if(op.precargar)op.precargar("explosion");
+    }
+  }catch(e){}
   function vibrar(ms){try{if(op.vibrar)op.vibrar(ms);}catch(e){}}
   function tras(ms){return new Promise(function(r){setTimeout(r,vivo?Math.max(0,ms*K):0);});}
   function def(c){return E.cartas[c.id];}
@@ -16218,8 +16385,53 @@ function abrir(op){
       return tras(430);
     }).then(function(){
       setTimeout(function(){if(el)el.classList.remove("ar-pega","ar-pega-r");},520*K);
+      if(fxDe(x)==="explosion")return fxExplosion(x);
       if(!(x.dano>0))return tras(520);
     });
+  }
+  /* ---- el ataque explosivo (fx:"explosion", el de Perro de Mierda): la mesa se viene encima de la carta que lo
+     recibe, cuadro de impacto, temblor y explosiones por todos lados, con el sonido que mandó Mati. Y al final,
+     lo que pegó: si fue 0, un "−0" bien grande. Con "menos movimiento" es una sola explosión, quieta. ---- */
+  function boom(px,py,w,giro,ms){
+    if(!op.explosion)return;
+    poner('<div class="ar-boom" style="left:'+px.toFixed(1)+'px;top:'+py.toFixed(1)+'px;--w:'+w+'px;--g:'+giro+'deg;--d:'+Math.round(ms*K)+'ms"><i style="background-image:url(&quot;'+esc(op.explosion)+'&quot;)"></i></div>',ms+60);
+  }
+  function fxExplosion(x){
+    var v=ficha(1-x.q,"activa"),c=v?centro(v):{x:ANCHO/2,y:x.q===0?250:430,w:104,h:146};
+    var s=x.q===0?1:-1;          /* hacia dónde se desparraman: lejos del borde que tiene más cerca */
+    function cero(){
+      if(x.dano>0)return Promise.resolve();
+      poner('<div class="ar-dano ar-cero" style="left:'+c.x.toFixed(1)+'px;top:'+c.y.toFixed(1)+'px">−0</div>',1150);
+      sonar("toque");
+      return tras(900);
+    }
+    if(op.reducido){
+      clip("explosion",.8);
+      boom(c.x,c.y,230,0,1100);
+      return tras(1000).then(cero);
+    }
+    /* 1 · el acercamiento, con franjas de cine */
+    poner('<div class="ar-franjas"><i></i><i></i></div>',2500);
+    campo.style.transformOrigin=c.x.toFixed(0)+"px "+(c.y-campo.offsetTop).toFixed(0)+"px";
+    campo.classList.add("ar-acerca");
+    return tras(540).then(function(){
+      if(!vivo)return;
+      /* 2 · el impacto y la primera */
+      clip("explosion",.8);vibrar(60);
+      poner('<div class="ar-negativo"></div>',95);poner('<div class="ar-impacto" style="animation-delay:'+Math.round(90*K)+'ms"></div>',560);
+      capa.classList.add("ar-tiembla");ar.classList.add("ar-frito");
+      boom(c.x,c.y,310,0,1150);
+      /* 3 · y las demás, por toda la mesa */
+      [{x:c.x-96,y:c.y+s*46,w:190,g:-18},{x:c.x+92,y:c.y+s*108,w:214,g:14},{x:ANCHO*.2,y:c.y+s*214,w:176,g:24},
+       {x:ANCHO*.8,y:c.y+s*250,w:226,g:-9},{x:ANCHO*.5,y:c.y+s*330,w:270,g:6},{x:c.x+8,y:c.y-s*8,w:246,g:31}].forEach(function(l,i){
+        setTimeout(function(){if(!vivo)return;boom(l.x,l.y,l.w,l.g,980);if(i%2===0)vibrar(24);},(150+i*135)*K);
+      });
+      return tras(1320);
+    }).then(function(){
+      /* 4 · se disipa y la mesa vuelve a su lugar */
+      capa.classList.remove("ar-tiembla");ar.classList.remove("ar-frito");campo.classList.remove("ar-acerca");
+      return tras(460);
+    }).then(function(){campo.style.transformOrigin="";return cero();});
   }
   function fxDano(x,debil){
     var el=ficha(x.q,x.d);
@@ -16554,12 +16766,17 @@ global.MafiaArena={abrir:abrir,REGLAS:REGLAS};
      y se pueden tener varias a la vez. pared:{src, pie, alto, fondo}
      ("alto": la foto es más alta que ancha y se muestra entera)
    · El pasacalle (lugar:"calle"): una tela colgada con sogas arriba
-     de su escena, con una imagen. pasacalle:{src}
+     de su escena, con una imagen. pasacalle:{src, clip}
+     ("clip": un audio de T3.x.CLIPS. Suena la primera vez que se
+     abre su solapa con el pasacalle recién comprado y después cada
+     vez que se lo toca; mientras suena, se hamaca y ella baila)
    Y dos campos más para las de pegar encima:
        texto    renglones escritos a mano sobre la prenda (un cartel):
                 [{t, x, y, tam, largo}] ("largo" los estira a ese ancho)
        atras    true = va DETRÁS de Ponyta (el palo del cartel sale
                 de atrás del lomo). En Rapidash va adelante.
+       tGorro   el "t" que usa mientras lleva el gorro de Navidad
+                (el cartel se corre para que el pompón no tape la letra)
    · Cualquiera de las dos puede llevar "fotos": imágenes que
      manda Mati (un escudo, un logo, un auto), tal cual, en
      fotos/t3/tienda/. [{src, x, y, w, h, giro}] en las coordenadas
@@ -16668,10 +16885,10 @@ var PRENDAS={
      Lo que dice el cartel lo dictó él (es un chiste de ellos dos). No se venden sueltas (de:"sorpresa"). ---- */
   pasacalle1d:{gen:"m",de:"sorpresa",nombre:"Pasacalle de One Direction",lugar:"calle",dice:"Colgado arriba de su hoja.",
     dicho:{si:"lo colgó.",no:"lo descolgó. queda guardado.",estado:"colgado en su hoja",guardada:"guardado"},
-    pasacalle:{src:"1d-logo.webp"}},
+    pasacalle:{src:"1d-logo.webp",clip:"sorpresa"}},
   cartel1d:{gen:"m",de:"sorpresa",nombre:"Cartel de protesta",lugar:"cartel",dice:"Lo lleva a todas las marchas.",atras:true,
     dicho:{si:"lo levantó.",no:"lo bajó. queda en el ropero.",estado:"lo lleva en alto"},
-    t:"translate(192 30) rotate(-5)",rapi:"translate(30 28) scale(1.1)",
+    t:"translate(192 30) rotate(-5)",tGorro:"translate(226 30) rotate(-5)",rapi:"translate(30 28) scale(1.1)",
     formas:[["M-4 28L4 28L4 112L-4 112Z","#C8A06A"],
       ["M-66-34C-66-36.500-64.500-38-62-38L62-38C64.500-38 66-36.500 66-34L66 30C66 32.500 64.500 34 62 34L-62 34C-64.500 34-66 32.500-66 30Z","#FDFBF2"]],
     rayas:[["M-46 27C-28 23.500-8 28.500 12 25C26 22.500 38 26.500 48 24","#B8372B",2.6,1]],
@@ -16850,10 +17067,12 @@ function cuales(op){
 function vestir(o,op){
   op=op||{};
   var prendas=cuales(op);
+  var gorro=!!op.gorro&&!prendas.some(function(p){return p.lugar==="cabeza";})&&!!(T3.viaje&&T3.viaje.poner);
+  /* con el gorro de Navidad puesto, lo que chocaría con el pompón se corre ("tGorro": el cartel, para que se lea entero) */
+  if(gorro)prendas=prendas.map(function(p){if(!p.tGorro)return p;var q={};for(var k in p)q[k]=p[k];q.t=p.tGorro;return q;});
   var deCuerpo=prendas.filter(function(p){return p.lugar==="cuerpo";});
   var detras=prendas.filter(function(p){return p.atras;});
   var abajo=prendas.filter(function(p){return p.lugar!=="cabeza"&&p.lugar!=="cuerpo"&&!p.atras;}),arriba=prendas.filter(function(p){return p.lugar==="cabeza";});
-  var gorro=!!op.gorro&&!arriba.length&&!!(T3.viaje&&T3.viaje.poner);
   var borde=o.borde||"",cuerpo=o.cuerpo||"",extra=o.extra||"";
   if(!prendas.length)return gorro?T3.viaje.poner({borde:borde,cuerpo:cuerpo,extra:extra,linea:o.linea}):borde+cuerpo+extra;
   /* la camiseta va adentro del cuerpo */
@@ -16985,6 +17204,42 @@ function enLaPared(){
   var q=puesto();
   return ORDEN.map(function(id){return PRENDAS[id];}).filter(function(p){return p&&p.lugar==="pared"&&p.pared&&q[casilla(p)]===p.id;});
 }
+/* Un pasacalle con música (el de la Sorpresa, con el audio que mandó Mati): suena solo la primera vez que se abre
+   su solapa después de comprarlo, y después cada vez que se lo toca (otro toque lo corta). Mientras suena, el
+   pasacalle se hamaca, larga notas y ella baila. Se corta si se sale de la solapa. */
+var SONO="sorpresa-sono";       /* el día que sonó sola (pv-t3-sorpresa-sono): así es una sola vez */
+function conMusica(raiz,p){
+  var X=T3.x,calle=raiz.querySelector(".t3x-calle"),s=null,reloj=null;
+  if(!calle||!X||!X.clip)return;
+  calle.classList.add("t3x-calle-musica");
+  calle.setAttribute("role","button");calle.setAttribute("tabindex","0");
+  calle.setAttribute("aria-label",p.nombre+": tocalo para que suene");
+  calle.insertAdjacentHTML("beforeend",'<span class="t3x-calle-notas" aria-hidden="true"><i>♪</i><i>♫</i><i>♪</i><i>♫</i><i>♪</i></span>'+
+    '<span class="t3x-calle-pista t3-ponyta-lapiz" aria-hidden="true">♪ tocalo</span>');
+  function apagar(){
+    calle.classList.remove("t3x-calle-suena");raiz.classList.remove("t3x-baila");
+    if(reloj){clearInterval(reloj);reloj=null;}
+  }
+  function parar(){var v=s;s=null;if(v)v.parar(180);apagar();}
+  function sonar(sola){
+    if(s&&s.activo()){parar();return;}
+    var yo=X.clip(p.pasacalle.clip,{vol:1,
+      alEmpezar:function(){
+        if(s!==yo)return;
+        calle.classList.add("t3x-calle-suena");raiz.classList.add("t3x-baila");
+        if(sola)T3.guardar(SONO,T3.hoy);
+        if(reloj)clearInterval(reloj);
+        reloj=setInterval(function(){if(!raiz.isConnected||document.hidden)parar();},300);
+      },
+      alTerminar:function(){if(s===yo){s=null;apagar();}}});
+    s=yo;
+  }
+  calle.addEventListener("click",function(){sonar(false);});
+  calle.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();sonar(false);}});
+  X.clipCargar(p.pasacalle.clip);
+  /* la primera vez, sola: un momento después de que la solapa terminó de abrirse */
+  if(!T3.leer(SONO,null))setTimeout(function(){if(raiz.isConnected&&!s&&!T3.leer(SONO,null))sonar(true);},T3.util.reducido()?0:700);
+}
 /* el módulo de Ponyta avisa cuando arma su solapa: acá se le suma la pared (abajo del modo Pou, si lo tiene) */
 function adornar(ctl,host,op){
   if(!ctl||!ctl._raiz||(op&&op.papel===false))return;
@@ -16992,7 +17247,10 @@ function adornar(ctl,host,op){
   var raiz=ctl._raiz,l=enLaPared();
   /* el pasacalle cuelga arriba de la escena */
   var pc=elPasacalle(),escena=raiz.querySelector(".t3-ponyta-escena");
-  if(pc&&escena&&!raiz.querySelector(".t3x-pasacalle"))escena.insertAdjacentHTML("beforebegin",'<div class="t3x-calle">'+pasacalle(pc)+'</div>');
+  if(pc&&escena&&!raiz.querySelector(".t3x-pasacalle")){
+    escena.insertAdjacentHTML("beforebegin",'<div class="t3x-calle">'+pasacalle(pc)+'</div>');
+    if(pc.pasacalle.clip)conMusica(raiz,pc);
+  }
   if(!l.length||raiz.querySelector(".t3x-pared"))return;
   var ancla=raiz.querySelector(".t3x-pou")||raiz.querySelector(".t3-ponyta-mandos");
   if(!ancla)return;
@@ -17739,7 +17997,8 @@ setTimeout(function(){try{repasar();}catch(e){}},4000);
    El día VUELVE (el primero del adviento) está de nuevo. El gorro
    es la sorpresa de la ventanita 1 del adviento: se lo pone recién
    cuando Sofi la abre (antes anda sin gorro en todos lados, también
-   en el calendario) y no se lo saca hasta GORRO_HASTA.
+   en el calendario) y no se lo saca hasta GORRO_HASTA. Cuando
+   aparece con el gorro puesto suena el "wo men ji" (pedido de Mati).
    El módulo de Ponyta (más arriba, minificado) le pregunta a
    T3.viaje qué hacer; si esto no cargara, Ponyta sigue como siempre.
    ============================================================ */
@@ -17787,6 +18046,8 @@ function frase(f){
 /* La llama el adviento cuando se abre una ventanita. Si es la del gorro, Ponyta se lo pone en lo que ya está
    dibujado (el señalador y las hojas), un momento después: recién cuando la sorpresa ya está a la vista. */
 function seAbrio(n,f){
+  /* la ventanita del gorro tarda un momento en abrirse: mientras, se va pidiendo el audio que suena cuando aparece */
+  try{if(f===VUELVE&&sorpresaEnVentana()&&T3.x&&T3.x.clipCargar)T3.x.clipCargar("gorro");}catch(e){}
   if(f!==VUELVE||!conGorro())return;
   setTimeout(vestirGorro,T3.util.reducido()?0:1500);
 }
@@ -17803,6 +18064,32 @@ function vestirGorro(){
       });
     });
   }catch(e){}
+}
+
+/* ---------- el gorro suena ----------
+   La llama el adviento cuando muestra la sorpresa de una ventanita. Si es la del gorro, suena el recorte que mandó
+   Mati (el "wo men ji", T3.x.clip) y, mientras dura, Ponyta baila y nieva. Tocándola, suena otra vez.
+   limpiezas: la lista de cosas que el adviento hace al guardar la sorpresa (ahí se corta el audio). */
+function copos(){
+  var h="",s=7;
+  function r(){s=(s*16807)%2147483647;return s/2147483647;}
+  for(var i=0;i<16;i++)h+='<i style="left:'+(4+r()*92).toFixed(1)+'%;--t:'+(2.6+r()*2.2).toFixed(2)+'s;--d:-'+(r()*4).toFixed(2)+'s;--w:'+(4+r()*5).toFixed(1)+'px;--x:'+(-18+r()*36).toFixed(0)+'px"></i>';
+  return '<div class="t3x-nieve" aria-hidden="true">'+h+'</div>';
+}
+function enSorpresa(velo,n,f,it,limpiezas){
+  if(!velo||!it||it.tipo!=="ponyta"||f!==VUELVE||!sorpresaEnVentana()||!T3.x||!T3.x.clip)return;
+  var dib=velo.querySelector(".t3-adviento-pony-dib"),s=null;
+  velo.classList.add("t3x-con-nieve");
+  velo.insertAdjacentHTML("beforeend",copos());
+  function sonar(){
+    if(s&&s.activo())return;
+    s=T3.x.clip("gorro",{vol:.8,
+      alEmpezar:function(){velo.classList.add("t3x-gorro-suena");},
+      alTerminar:function(){velo.classList.remove("t3x-gorro-suena");}});
+  }
+  sonar();
+  if(dib)dib.addEventListener("click",sonar);
+  if(limpiezas)limpiezas.push(function(){if(s)s.parar(160);velo.classList.remove("t3x-gorro-suena");});
 }
 
 /* ---------- el gorro: el mismo dibujo que usa el adviento ---------- */
@@ -17884,7 +18171,7 @@ function partio(raiz,o){
 }
 
 marcar();
-T3.viaje={toca:toca,ausente:ausente,conGorro:conGorro,gorroPuesto:gorroPuesto,seAbrio:seAbrio,frase:frase,poner:poner,gorroRapidash:gorroRapidash,
+T3.viaje={toca:toca,ausente:ausente,conGorro:conGorro,gorroPuesto:gorroPuesto,seAbrio:seAbrio,enSorpresa:enSorpresa,frase:frase,poner:poner,gorroRapidash:gorroRapidash,
   vestir:vestir,partio:partio,ida:ida,SALE:SALE,VUELVE:VUELVE,GORRO_HASTA:GORRO_HASTA};
 })();
 /*EXTRAS-JS>>*/

@@ -30,7 +30,7 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   adviento, maquina, eventos con `T3.registrarEvento`, cuaderno). Vienen minificados en líneas larguísimas:
   conviene buscar con Python y reemplazar cadenas exactas con `assert h.count(viejo) == 1`.
 - Entre `/*<<EXTRAS-JS*/` y `/*EXTRAS-JS>>*/` (y `EXTRAS-CSS` en los estilos) está lo sumado en noviembre
-  de 2026, legible y comentado: `T3.x` (base), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
+  de 2026, legible y comentado: `T3.x` (base, con los audios: ver "Los audios"), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
   (contestar cartas, vales), `T3.tienda` (la pestaña verde; el cuaderno la sigue llamando `pedidos`), MafiaTCG
   (`T3.tcg` y cuatro módulos más: ver abajo), `T3.ropa`, `T3.pou` y `T3.herraduras` (ver "La tienda"), `T3.avisos` y
   `T3.viaje`.
@@ -42,7 +42,31 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   Sofi la abre** (antes no lo lleva en ningún lado, tampoco la Ponyta que adorna el calendario, y lo que dice ese
   día no lo nombra) y le dura hasta `GORRO_HASTA`. Se guarda en `pv-t3-ponyta-viaje`.
   El módulo minificado de Ponyta solo pregunta: `T3.viaje.toca()`, `.ausente(f)`, `.conGorro(f)`, `.poner(…)`;
-  el del adviento avisa con `T3.viaje.seAbrio(n,f)` y pregunta `T3.viaje.gorroPuesto()`.
+  el del adviento avisa con `T3.viaje.seAbrio(n,f)` y `T3.viaje.enSorpresa(velo,…)` (cuando muestra la sorpresa: si es
+  la del gorro, suena el audio) y pregunta `T3.viaje.gorroPuesto()`.
+
+## Los audios que manda Mati (25/11/2026)
+- Son recortes cortos (memes, efectos, un pedacito de canción) y van **tal cual**: solo se les sacan las etiquetas, sin
+  recodificar (`ffmpeg -c copy -map_metadata -1`). Viven en `audios/` con nombre neutro y se anotan en `X.CLIPS`
+  (EXTRAS, bloque base). **Una canción entera no va como archivo** (un link a Spotify o YouTube, sí).
+- `T3.x.clip(nombre,{vol,alEmpezar,alTerminar})` los toca por el AudioContext que ya destrabó el primer toque
+  (`T3.audio()`), así suenan aunque no arranquen justo con un toque. Respetan el mudo de la app y, como todos los
+  sonidos de la app, **el botón de silencio del iPhone** (con el iPhone en silencio no se escuchan). `T3.x.clipLog`
+  anota lo pedido y lo que sonó: lo miran las pruebas.
+- Dónde suena cada uno (lo dictó él):
+  - `gorro.mp3` (el "wo men ji"): cuando se abre la ventanita 1 del adviento y aparece Ponyta con el gorro. Mientras
+    dura, ella baila y nieva; tocándola suena de nuevo (`T3.viaje.enSorpresa`).
+  - `sorpresa.mp3` (One Direction): la primera vez que se abre la solapa de Ponyta con la Sorpresa recién comprada
+    (queda anotado en `pv-t3-sorpresa-sono`), y después cada vez que se toca el pasacalle; otro toque la corta
+    (`conMusica` en `T3.ropa`; el pasacalle lleva `clip`).
+  - `explosion.mp3`: en el duelo, cuando ataca **Perro de Mierda** (su ataque lleva `fx:"explosion"`). La arena
+    muestra un edit entero (`fxExplosion` en MafiaArena: franjas de cine, acercamiento, cuadro en negativo, temblor
+    y explosiones por toda la mesa) y termina con un "−0". El momento lo eligió Claude; Mati pidió "un momento gracioso".
+- Las explosiones son una tira de 20 cuadros en fila, `fotos/t3/tcg/explosion.webp`, fabricada con ruido por
+  `.github/scripts/explosion.py` (no sale de ningún GIF). Si Mati manda un GIF de verdad, se reemplaza por una tira con
+  esa misma forma.
+- Para probarlos: en el taller, **"la explosión"** abre un duelo de prueba con el perro al frente y listo para
+  atacar; el gorro, viajando al 1/12 y abriendo la ventanita 1; la Sorpresa, con "+1000 puntos" cinco veces.
 
 ## MafiaTCG (las cartas y el duelo)
 Rehecho en noviembre de 2026: las cartas son fotos de ellos, de la familia y de los bichos, con vidas y ataques,
@@ -59,7 +83,8 @@ y con 10 cartas se juega un duelo contra "el programador". Todo está en los EXT
   rival (no toca la pantalla), `MafiaSonido` fabrica los efectos y la música con WebAudio y `MafiaArena` es la
   pantalla del duelo (clases `ar-`). Las clases de la pestaña son `mq-` y `t3x-`: `tq-` ya lo usa un juego viejo.
 - Mati manda cada carta así: formato (normal, que él llama "común", o full art), nombre, foto y nombres de los
-  ataques. Tipo, vidas, costos, daño y efectos los decide Claude. **"Perro de Mierda" pega 0: lo pidió él.**
+  ataques. Tipo, vidas, costos, daño y efectos los decide Claude. **"Perro de Mierda" pega 0: lo pidió él.** Y su
+  ataque se muestra con la explosión (`fx:"explosion"`: ver "Los audios").
 - Fotos: `fotos/t3/tcg/<foto>` (hasta 900 px de ancho) y la misma, chica, en `fotos/t3/tcg/mini/` (360 px, para
   la carpeta y la mesa del duelo), sin datos EXIF. El repo es público: si en una foto hay un chico con poca ropa
   se sube solo el recorte que muestra la carta (así está la de Joaquito). `logo.webp` es el logo que hizo Mati:
@@ -90,14 +115,16 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   lee ese mismo archivo SVG y pinta encima. A lápiz no van fotos.
 - **Logos, escudos y fotos de famosos no se dibujan ni se buscan en internet: los manda Mati y van tal cual** (solo se
   achican; al auto se le sacó el fondo) en `fotos/t3/tienda/`. Así están el escudo de Racing en la camiseta y todo lo
-  de la Franconeta. Mati quiere las cosas "posta", no parecidas: si falta una imagen, se le pide. Las canciones no van
-  como archivo (un link a Spotify o YouTube, sí).
+  de la Franconeta. Mati quiere las cosas "posta", no parecidas: si falta una imagen, se le pide. Con los audios es
+  igual: los recortes cortos que manda van tal cual; una canción entera no va como archivo (ver "Los audios").
 - **"Subite a la Franconeta"** (2000) es un paquete (`da:[…]` en `ESPECIALES`, prendas con `de:"franconeta"`): el Alpine
   **de juguete** a sus pies (Mati: chico, "no que esté adentro"), la remera del equipo y la foto de Franco en su pared.
   Al comprarlo se pone todo y las piezas aparecen sueltas en la vidriera.
 - **"Sorpresa"** (5000) es One Direction, y es secreto (`secreto:true`): hasta que la compra, la tienda no dice qué es
-  ni muestra el logo ni sus piezas. Trae el pasacalle con el logo, el **cartel de protesta** que lleva Ponyta ("LARRY ES
-  REAL / aunque lo oculten": lo dictó Mati, es un chiste de ellos dos y va literal) y el póster de los cinco para su pared.
+  ni muestra el logo ni sus piezas. Trae el pasacalle con el logo (y con música: ver "Los audios"), el **cartel de
+  protesta** que lleva Ponyta ("LARRY ES REAL / aunque lo oculten": lo dictó Mati, es un chiste de ellos dos y va
+  literal; con el gorro de Navidad puesto se corre a un costado, `tGorro`, para que el pompón no tape la letra) y el
+  póster de los cinco para su pared.
   Hoy no hay nada con `pronto:true` (se ve en la vidriera pero no se puede comprar): queda para lo próximo que se anuncie
   antes de estar listo.
 - `T3.pou`, el **modo Pou** (se compra una vez y queda): en la solapa de Ponyta, cuatro barras (panza, sueño, limpia,
@@ -113,8 +140,8 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
 ## Para ver una fecha
 - `?fecha=AAAA-MM-DD` en la URL, o la máquina del tiempo (5 toques rápidos en el número de hoja → PIN),
   que además tiene el **taller**: versión publicada, respaldo del progreso, avisos y las cartas (un duelo de
-  prueba sin tener cartas y, adentro de la máquina, "darme todas", "+1000 puntos" y "+50 herraduras" para probar la
-  tienda y el canje).
+  prueba sin tener cartas, "la explosión" —el mismo duelo con Perro de Mierda al frente— y, adentro de la máquina,
+  "darme todas", "+1000 puntos" y "+50 herraduras" para probar la tienda y el canje).
 - En la máquina nada toca el progreso de verdad: lo que se hace va a una sombra que se tira al salir. Viajando
   **hacia adelante** esa sombra se conserva (como si pasaran los días: así se prueba lo que lleva varios, como
   juntar 10 cartas); hacia atrás, o "de cero" al mismo día, arranca limpio.
@@ -123,10 +150,11 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
 ## Pruebas largas (el laboratorio)
 - `.github/pruebas/*.cjs` son los escenarios de lo sumado en noviembre: `a` actualización, respaldo, taller, máquina
   del tiempo y sonido · `b` contestar, la tienda sin puntos y vales · `c2` cartas, sobres y carpeta del TCG · `c1`
-  recorrido del TCG con capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla, y el tope
-  de 2 por día · `c4` reglas del duelo y equilibrio de las cartas (sin navegador) · `d` avisos en la app · `d-envio` el
-  envío (necesita `web-push`) · `e` el viaje de Ponyta y el gorro · `f` la tienda con puntos, la ropa de Ponyta, el
-  modo Pou y canjear herraduras. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
+  recorrido del TCG con capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla, el tope
+  de 2 por día y la explosión de Perro de Mierda · `c4` reglas del duelo y equilibrio de las cartas (sin navegador) ·
+  `d` avisos en la app · `d-envio` el envío (necesita `web-push`) · `e` el viaje de Ponyta, el gorro y su audio · `f` la
+  tienda con puntos, la ropa de Ponyta, el modo Pou, la música de la Sorpresa y canjear herraduras. Los audios se
+  prueban por `T3.x.clipLog`: en Chromium tienen que sonar; donde el navegador no sepa leer el mp3, solo no romper. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
   (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
   --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad (`-f densidad=2`

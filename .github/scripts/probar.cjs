@@ -78,6 +78,12 @@ function estaticos() {
   deTienda.forEach((f) => {
     if (!fs.existsSync(path.join(RAIZ, "fotos", "t3", "tienda", f))) falla("la tienda", "falta la imagen fotos/t3/tienda/" + f);
   });
+  /* los audios que mandó Mati (la lista X.CLIPS) tienen que estar en audios/, y la tira de la explosión si algún ataque la usa */
+  const clips = (/X\.CLIPS=\{([\s\S]*?)\};/.exec(extras) || [])[1] || "";
+  const audios = Array.from(clips.matchAll(/:\s*"([^"]+\.(?:mp3|m4a|wav))"/g), (x) => x[1]);
+  audios.forEach((f) => { if (!fs.existsSync(path.join(RAIZ, "audios", f))) falla("audios", "falta el audio audios/" + f); });
+  if (/\bX\.CLIPS=/.test(extras) && !audios.length) falla("audios", "no pude leer la lista de audios (X.CLIPS)");
+  if (/\bfx:"explosion"/.test(extras) && !fs.existsSync(path.join(TCG, "explosion.webp"))) falla("MafiaTCG", "falta la tira de la explosión: fotos/t3/tcg/explosion.webp");
   /* el aviso diario: que el script lea la hoja sin romperse y use la misma llave que la app */
   const pAviso = path.join(__dirname, "aviso.cjs");
   if (fs.existsSync(pAviso)) {
@@ -89,7 +95,7 @@ function estaticos() {
       if (enApp && enApp !== A.PUBLICA) falla("avisos", "la llave pública de la app y la del script que manda no coinciden");
     } catch (e) { falla("aviso.cjs", e.message); }
   }
-  if (!fallas.length) console.log("  ✓ " + n + " bloques de script compilan" + (fotos.length ? " · " + fotos.length + " fotos de cartas en su lugar" : ""));
+  if (!fallas.length) console.log("  ✓ " + n + " bloques de script compilan" + (fotos.length ? " · " + fotos.length + " fotos de cartas en su lugar" : "") + (audios.length ? " · " + audios.length + " audios" : ""));
 }
 
 /* ---------- 2 · servidor local ---------- */
@@ -183,7 +189,7 @@ async function publicada() {
   if (!r.ok) falla("publicado", "la página responde " + r.status);
   else if (Buffer.compare(local, remoto) !== 0) falla("publicado", "lo que está publicado no es este commit (publicado: " + remoto.length + " bytes, del " + lm + "; repo: " + local.length + " bytes). Puede que todavía se esté publicando.");
   else console.log("  ✓ lo publicado es idéntico a este commit (" + remoto.length + " bytes, del " + lm + ")");
-  for (const f of ["manifest.json", "sw.js", "audios/win.wav", "icon.png"]) {
+  for (const f of ["manifest.json", "sw.js", "audios/win.wav", "icon.png", "audios/gorro.mp3", "audios/sorpresa.mp3", "audios/explosion.mp3", "fotos/t3/tcg/explosion.webp"]) {
     try { const x = await fetch(SITIO + "/" + f + "?_=" + Date.now(), { method: "HEAD", cache: "no-store" }); if (!x.ok) falla("publicado", f + " responde " + x.status); }
     catch (e) { falla("publicado", f + ": " + e.message); }
   }

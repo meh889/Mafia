@@ -14741,69 +14741,71 @@ var DUELOS_POR_DIA=Math.max(1,+CT.duelosPorDia||2);   /* cuántos duelos se pued
 var POR_VICTORIA=CT.puntosPorVictoria>=0?Math.round(+CT.puntosPorVictoria):10;   /* MafiaPoints por ganar (perder no da) */
 var TORPEZA=[.08,.34,.6];                              /* qué tan seguido se equivoca el rival: mínimo, arranque, máximo */
 
-/* ⚠ PROVISORIO: tipo, vidas, costos, daño y efectos se cierran cuando estén todas las cartas. */
+/* Las 30 de Mati (el 26/11/2026 dijo que están todas). Tipo, vidas, costos, daño y efectos quedaron CERRADOS ese día:
+   se midieron con cientos de miles de duelos (node .github/pruebas/c4.cjs) hasta que ningún mazo gane o pierda por
+   llevar una carta. Si se toca un número, volver a correr esa prueba. Perro de Mierda es floja a propósito. */
 var CARTAS=[
   {id:"minilu",nombre:"MINI LU",formato:"full",foto:"mini-lu.jpg",rel:.5625,sube:8,tipo:"familia",vidas:80,
-    ataques:[{nombre:"Mordisco",costo:1,dano:30},{nombre:"Ternura",costo:2,dano:40,ef:{curaOtra:30}}]},
+    ataques:[{nombre:"Mordisco",costo:1,dano:30},{nombre:"Ternura",costo:2,dano:50,ef:{curaOtra:20}}]},
   {id:"pequepsy",nombre:"PequePsy",formato:"normal",foto:"pequepsy.jpg",rel:.5625,y:34,tipo:"mimos",vidas:90,
     ataques:[{nombre:"Concentración",costo:1,dano:10,ef:{fuerza:30}},{nombre:"Crochetazo",costo:2,dano:50}]},
   {id:"narusiesta",nombre:"NaruSiesta",formato:"normal",foto:"narusiesta.jpg",rel:.75,y:33,tipo:"olivos",vidas:110,
     ataques:[{nombre:"Mimir",costo:1,dano:20,ef:{cura:10,moneda:{duerme:1}}}]},
-  {id:"luacuatica",nombre:"LU Acuática",formato:"normal",foto:"lu-acuatica.jpg",rel:.5625,y:56,tipo:"familia",vidas:70,
-    ataques:[{nombre:"Salpicadura",costo:1,dano:20,ef:{moneda:{mas:20}}},{nombre:"Tsunami",costo:3,dano:80,ef:{banca:10}}]},
+  {id:"luacuatica",nombre:"LU Acuática",formato:"normal",foto:"lu-acuatica.jpg",rel:.5625,y:56,tipo:"familia",vidas:80,
+    ataques:[{nombre:"Salpicadura",costo:1,dano:20,ef:{moneda:{mas:20}}},{nombre:"Tsunami",costo:3,dano:90,ef:{banca:10}}]},
   {id:"apertura",nombre:"Apertura",formato:"normal",foto:"apertura.jpg",rel:.5625,y:42,tipo:"salida",vidas:80,
     ataques:[{nombre:"Deuda",costo:1,dano:20,ef:{quita:1}},{nombre:"Masterball",costo:2,dano:40,ef:{moneda:{mas:40}}}]},
   {id:"osakesko",nombre:"Osakesko",formato:"full",foto:"osakesko.jpg",rel:.5624,sube:11,tipo:"viaje",vidas:100,
-    ataques:[{nombre:"Reverencia",costo:1,dano:10,ef:{escudo:20}},{nombre:"Arigatou",costo:2,dano:50}]},
+    ataques:[{nombre:"Reverencia",costo:1,dano:10,ef:{escudo:20}},{nombre:"Arigatou",costo:2,dano:60}]},
   {id:"disney",nombre:"Disney",formato:"full",foto:"disney.jpg",rel:.75,y:50,tipo:"viaje",vidas:120,
     ataques:[{nombre:"Ochurus",costo:1,dano:20,ef:{cura:20}},{nombre:"Felicidad",costo:3,dano:90}]},
   {id:"bebes",nombre:"Bebés",formato:"full",foto:"bebes.jpg",rel:.7515,y:50,tipo:"mimos",vidas:100,
-    ataques:[{nombre:"Vainilla Latte",costo:1,dano:20,ef:{cura:10}},{nombre:"Your Name",costo:2,dano:50,ef:{siHerida:20}}]},
-  {id:"sushito",nombre:"Sushito",formato:"normal",foto:"sushito.jpg",rel:.7531,y:38,tipo:"salida",vidas:80,
-    ataques:[{nombre:"Más Nigiris",costo:1,dano:10,ef:{porEnergia:10}},{nombre:"Le falta maracuyá",costo:2,dano:60}]},
-  {id:"estudiazo",nombre:"Estudiazo",formato:"normal",foto:"estudiazo.jpg",rel:.75,y:21,tipo:"olivos",vidas:90,
+    ataques:[{nombre:"Vainilla Latte",costo:1,dano:20,ef:{cura:10}},{nombre:"Your Name",costo:2,dano:40,ef:{siHerida:20}}]},
+  {id:"sushito",nombre:"Sushito",formato:"normal",foto:"sushito.jpg",rel:.7531,y:38,tipo:"salida",vidas:90,
+    ataques:[{nombre:"Más Nigiris",costo:1,dano:0,ef:{porEnergia:20}},{nombre:"Le falta maracuyá",costo:2,dano:60}]},
+  {id:"estudiazo",nombre:"Estudiazo",formato:"normal",foto:"estudiazo.jpg",rel:.75,y:21,tipo:"olivos",vidas:80,
     ataques:[{nombre:"Sueño",costo:1,dano:10,ef:{duerme:1}},{nombre:"Aburrimiento",costo:2,dano:40,ef:{quita:1}}]},
-  {id:"argentina",nombre:"Argentina",formato:"normal",foto:"argentina.jpg",rel:.5626,y:11,tipo:"salida",vidas:100,
+  {id:"argentina",nombre:"Argentina",formato:"normal",foto:"argentina.jpg",rel:.5626,y:11,tipo:"salida",vidas:110,
     ataques:[{nombre:"Agarro y se la paso a Messi",costo:1,dano:20,ef:{fuerza:20}},{nombre:"Julián se saca la camiseta",costo:3,dano:100,ef:{cansa:1}}]},
   {id:"lego",nombre:"Lego",formato:"normal",foto:"lego.jpg",rel:.5626,y:57,tipo:"salida",vidas:90,
     ataques:[{nombre:"Capitalismo",costo:1,dano:20,ef:{roba:1}},{nombre:"No hay más espacio",costo:2,dano:40,ef:{banca:10}}]},
   {id:"gema",nombre:"Gema",formato:"full",foto:"gema.jpg",rel:.75,y:50,tipo:"familia",vidas:90,
-    ataques:[{nombre:"Gruñido",costo:1,dano:20,ef:{moneda:{duerme:1}}},{nombre:"Robar Pollo",costo:2,dano:40,ef:{cura:20}}]},
+    ataques:[{nombre:"Gruñido",costo:1,dano:20,ef:{moneda:{duerme:1}}},{nombre:"Robar Pollo",costo:2,dano:40,ef:{cura:10}}]},
   {id:"gina",nombre:"Gina",formato:"normal",foto:"gina.jpg",rel:.5625,y:46,tipo:"familia",vidas:70,
     ataques:[{nombre:"Mimito",costo:1,dano:10,ef:{curaOtra:30}},{nombre:"Escondida",costo:2,dano:40,ef:{escudo:30}}]},
   {id:"matishiny",nombre:"Mati Shiny",formato:"normal",foto:"matishiny.jpg",rel:.7485,y:30,tipo:"viaje",vidas:90,
-    ataques:[{nombre:"Tengo Frío",costo:1,dano:10,ef:{escudo:20}},{nombre:"Nevado",costo:2,dano:40,ef:{moneda:{duerme:1}}}]},
+    ataques:[{nombre:"Tengo Frío",costo:1,dano:10,ef:{escudo:20}},{nombre:"Nevado",costo:2,dano:50,ef:{moneda:{duerme:1}}}]},
   {id:"reymon",nombre:"Reymon",formato:"full",foto:"reymon.jpg",rel:.5625,tipo:"familia",vidas:100,
-    ataques:[{nombre:"Boboncho",costo:1,dano:20,ef:{cura:10}},{nombre:"Pedito",costo:2,dano:40,ef:{banca:10}}]},
+    ataques:[{nombre:"Boboncho",costo:1,dano:20,ef:{cura:10}},{nombre:"Pedito",costo:2,dano:30,ef:{banca:10}}]},
   /* pedido expreso de Mati: el ataque de esta carta pega 0. No lastima: molesta (le come una energía a la rival).
      Y también pedido suyo (25/11): se muestra con la explosión que mandó (fx). Tanto ruido para pegar 0. */
   {id:"perro",nombre:"Perro de Mierda",formato:"normal",foto:"perro.jpg",rel:.5625,y:18,tipo:"familia",vidas:120,
     ataques:[{nombre:"Hiperactividad",costo:1,dano:0,ef:{quita:1},fx:"explosion",nota:"No lastima a nadie. Pero no para."}]},
-  {id:"lupita",nombre:"Lupita",formato:"full",foto:"lupita.jpg",rel:.5625,tipo:"familia",vidas:80,
+  {id:"lupita",nombre:"Lupita",formato:"full",foto:"lupita.jpg",rel:.5625,tipo:"familia",vidas:90,
     ataques:[{nombre:"Besito",costo:1,dano:10,ef:{curaOtra:30}},{nombre:"Lengüetazo",costo:2,dano:50}]},
   {id:"simonita",nombre:"Simonita",formato:"full",foto:"simonita.jpg",rel:.5625,tipo:"familia",vidas:80,
     ataques:[{nombre:"Rodar",costo:1,dano:20,ef:{escudo:10}},{nombre:"Morfar",costo:2,dano:40,ef:{cura:20}}]},
-  {id:"kirby",nombre:"Kirby",formato:"normal",foto:"kirby.jpg",rel:.7485,y:50,tipo:"viaje",vidas:100,
+  {id:"kirby",nombre:"Kirby",formato:"normal",foto:"kirby.jpg",rel:.7485,y:50,tipo:"viaje",vidas:90,
     ataques:[{nombre:"Inflar cachetes",costo:1,dano:30,ef:{escudo:20}}]},
   {id:"hachiko",nombre:"Hachiko",formato:"full",foto:"hachiko.jpg",rel:.75,y:50,tipo:"viaje",vidas:110,
-    ataques:[{nombre:"Lealtad",costo:1,dano:20,ef:{curaOtra:20}},{nombre:"Paciencia",costo:2,dano:30,ef:{fuerza:40}}]},
-  {id:"joaquito",nombre:"Joaquito",formato:"normal",foto:"joaquito.jpg",rel:1.2857,y:60,tipo:"familia",vidas:80,
-    ataques:[{nombre:"Hambre",costo:1,dano:20,ef:{cura:10}},{nombre:"Acidez",costo:2,dano:50,ef:{retroceso:10}}]},
-  {id:"lutite",nombre:"LU TITE",formato:"normal",foto:"lutite.jpg",rel:.5625,y:12,tipo:"familia",vidas:70,
+    ataques:[{nombre:"Lealtad",costo:1,dano:20,ef:{curaOtra:20}},{nombre:"Paciencia",costo:2,dano:30,ef:{fuerza:30}}]},
+  {id:"joaquito",nombre:"Joaquito",formato:"normal",foto:"joaquito.jpg",rel:1.2857,y:60,tipo:"familia",vidas:90,
+    ataques:[{nombre:"Hambre",costo:1,dano:20,ef:{cura:10}},{nombre:"Acidez",costo:2,dano:60,ef:{retroceso:10}}]},
+  {id:"lutite",nombre:"LU TITE",formato:"normal",foto:"lutite.jpg",rel:.5625,y:12,tipo:"familia",vidas:80,
     ataques:[{nombre:"Berrinche",costo:1,dano:20,ef:{moneda:{mas:20}}},{nombre:"Lloración",costo:2,dano:40,ef:{banca:10}}]},
   {id:"papota",nombre:"Papota",formato:"normal",foto:"papota.jpg",rel:1,y:65,tipo:"salida",vidas:100,
-    ataques:[{nombre:"#Tetas",costo:1,dano:30},{nombre:"Convertirse en un Chad",costo:2,dano:40,ef:{fuerza:30}}]},
+    ataques:[{nombre:"#Tetas",costo:1,dano:30},{nombre:"Convertirse en un Chad",costo:2,dano:30,ef:{fuerza:30}}]},
   {id:"siestita",nombre:"Siestita",formato:"normal",foto:"siestita.jpg",rel:.7485,y:32,tipo:"mimos",vidas:90,
     ataques:[{nombre:"Desmayo",costo:1,dano:10,ef:{cura:30}},{nombre:"Mal Humor",costo:2,dano:40,ef:{siHerida:30}}]},
-  {id:"torreeiffel",nombre:"Torre Eiffel",formato:"full",foto:"torreeiffel.jpg",rel:.5625,tipo:"viaje",vidas:110,
+  {id:"torreeiffel",nombre:"Torre Eiffel",formato:"full",foto:"torreeiffel.jpg",rel:.5625,tipo:"viaje",vidas:100,
     ataques:[{nombre:"Tirar un Croissant",costo:1,dano:30,ef:{moneda:{mas:20}}}]},
   {id:"puchero",nombre:"Puchero",formato:"normal",foto:"puchero.jpg",rel:.5625,y:68,tipo:"mimos",vidas:90,
-    ataques:[{nombre:"Ofenderse",costo:1,dano:20,ef:{escudo:20}},{nombre:"Reclamar",costo:2,dano:40,ef:{roba:1}}]},
+    ataques:[{nombre:"Ofenderse",costo:1,dano:20,ef:{escudo:20}},{nombre:"Reclamar",costo:2,dano:50,ef:{roba:1}}]},
   {id:"fantasma",nombre:"Fantasma",formato:"normal",foto:"fantasma.jpg",rel:.5614,y:40,tipo:"olivos",vidas:80,
     ataques:[{nombre:"Desaparezco",costo:1,dano:10,ef:{escudo:30}},{nombre:"Susto",costo:2,dano:40,ef:{quita:1}}]},
   {id:"pequemikasa",nombre:"Peque Mikasa",formato:"normal",foto:"pequemikasa.jpg",rel:.7485,y:45,tipo:"salida",vidas:90,
     ataques:[{nombre:"Sasageyo",costo:1,dano:20,ef:{fuerza:20}},{nombre:"Activar el retumbar",costo:3,dano:60,ef:{banca:20}}]},
-  {id:"malacutie",nombre:"Mala pero Cutie",formato:"normal",foto:"malacutie.jpg",rel:.5626,y:42,tipo:"salida",vidas:90,
+  {id:"malacutie",nombre:"Mala pero Cutie",formato:"normal",foto:"malacutie.jpg",rel:.5626,y:42,tipo:"salida",vidas:100,
     ataques:[{nombre:"Tirar Facha",costo:1,dano:30,ef:{moneda:{duerme:1}}}]}
 ];
 var POR_ID={};
@@ -15041,6 +15043,7 @@ function probarDuelo(fijo){
     torpeza:TORPEZA[1],fotos:opc().fotos,fotosMini:U.asset("tcg/mini/"),logo:opc().logo,total:opc().total,
     sinPuntos:true,notaFinal:"Duelo de prueba: no suma puntos ni queda guardado.",
     rapido:PRUEBA.rapido,semilla:fijo.semilla||PRUEBA.semilla,empieza:fijo.empieza!=null?fijo.empieza:PRUEBA.empieza,alSonar:PRUEBA.alSonar,
+    energiaInicial:fijo.energiaInicial,
     audio:T3.audio,mudo:T3.mudo,vibrar:U.vibrar,reducido:U.reducido(),
     clip:tocarClip,precargar:pedirClip,explosion:U.asset("tcg/explosion.webp"),
     alCerrar:function(como){if(como==="otro")setTimeout(function(){probarDuelo();},320);}
@@ -15048,7 +15051,8 @@ function probarDuelo(fijo){
   return true;
 }
 /* para ver (y escuchar) la explosión sin esperar a que salga: un duelo de prueba donde ella arranca con la carta
-   explosiva (Perro de Mierda) al frente y empieza el programador, así en su primer turno ya puede atacar.
+   explosiva (Perro de Mierda) al frente y empieza el programador, así en su primer turno ya puede atacar
+   (en este duelo las cartas del frente arrancan con una energía: en los de verdad, sin ninguna).
    El duelo baraja con una semilla: se busca una que deje a esa carta adelante. */
 function probarExplosion(){
   var con=CARTAS.filter(function(c){return c.ataques.some(function(a){return a.fx==="explosion";});})[0];
@@ -15059,7 +15063,7 @@ function probarExplosion(){
     var E=window.MafiaDuelo.nuevo({cartas:POR_ID,tipos:M().TIPOS,mazos:[mio,suyo],semilla:k,empieza:1});
     if(E.jug[0].activa&&E.jug[0].activa.id===con.id)s=k;
   }
-  return probarDuelo({mazo:mio,mazoRival:suyo,semilla:s||1,empieza:1});
+  return probarDuelo({mazo:mio,mazoRival:suyo,semilla:s||1,empieza:1,energiaInicial:1});
 }
 /* ¿está prendida la máquina del tiempo? (ahí lo que se guarda va a una sombra y no toca el progreso de verdad) */
 function enMaquina(){return !!(window.T3PRE&&window.T3PRE.fantasma);}
@@ -15467,7 +15471,7 @@ function ataqueHTML(c,a){
   var pips="";for(var i=0;i<(a.costo||0);i++)pips+=energia();
   var tx=a.texto||(global.MafiaDuelo?global.MafiaDuelo.texto(a):"")||"";
   var largo=String(a.nombre||"").length,af=largo>24?.72:largo>19?.82:largo>15?.92:1;
-  return '<div class="mt-ataque"><span class="mt-costo">'+pips+'</span><b class="mt-at-nombre"'+(af<1?' style="--af:'+af+'"':'')+'>'+esc(a.nombre)+'</b><span class="mt-dano">'+(a.dano?esc(a.dano):"")+'</span>'+
+  return '<div class="mt-ataque"><span class="mt-costo">'+pips+'</span><b class="mt-at-nombre"'+(af<1?' style="--af:'+af+'"':'')+'>'+esc(a.nombre)+'</b><span class="mt-dano">'+(a.dano?esc(a.dano):(a.ef&&a.ef.porEnergia?esc(a.ef.porEnergia)+"×":""))+'</span>'+
     (tx?'<p class="mt-at-texto">'+esc(tx)+'</p>':'')+'</div>';
 }
 /* c: la carta (ver la lista CARTAS de T3.tcg). En una full art de foto alta, c.sube (0 a 20) la corre hacia arriba
@@ -15515,7 +15519,7 @@ global.MafiaCarta={TIPOS:TIPOS,sello:sello,energia:energia,cartaHTML:cartaHTML,d
 
    LAS REGLAS
    · Cada uno juega con un mazo de 10 cartas. Arranca con tres en
-     la mesa (una al frente, ya con una energía, y dos en la banca)
+     la mesa (una al frente y dos en la banca, todas sin energía)
      y dos en la mano.
    · En tu turno robás una carta y, en el orden que quieras:
        - bajás cartas de la mano a la banca (si hay lugar),
@@ -15531,8 +15535,9 @@ global.MafiaCarta={TIPOS:TIPOS,sello:sello,energia:energia,cartaHTML:cartaHTML,d
 
    LOS EFECTOS de un ataque (campo "ef" de cada ataque)
      cura:N        esta carta recupera N vidas
-     curaOtra:N    la carta tuya más golpeada de la banca recupera N
-     duerme:1      la carta rival no ataca en su próximo turno (cambiarla sí se puede)
+     curaOtra:N    la carta tuya más golpeada de la banca recupera N (si en la banca están todas sanas, nada)
+     duerme:1      la carta rival no ataca en su próximo turno (cambiarla sí se puede). La que se despierta queda
+                   "desvelada" hasta terminar su turno siguiente: no se la puede dormir dos turnos seguidos
      moneda:{…}    se tira una moneda; si sale cara vale lo de adentro
                    ({mas:N} = N más de daño, o cualquier otro efecto)
      roba:N        robás N cartas
@@ -15543,7 +15548,7 @@ global.MafiaCarta={TIPOS:TIPOS,sello:sello,energia:energia,cartaHTML:cartaHTML,d
      banca:N       además le pega N a cada carta de la banca rival
      retroceso:N   esta carta se hace N de daño
      cansa:1       esta carta no ataca en tu próximo turno
-     porEnergia:N  pega N más por cada energía que tenga esta carta
+     porEnergia:N  pega N más por cada energía que tenga esta carta (con daño 0, la carta muestra "N×")
      siHerida:N    pega N más si la carta rival ya estaba golpeada
    Un ataque también puede traer "nota": un texto de color, que en el juego no hace nada.
    ============================================================ */
@@ -15555,7 +15560,8 @@ var NOQUEOS=3;       /* noqueos para ganar */
 var MAZO=10;         /* cartas por mazo */
 var BANCA=2;         /* lugares en la banca */
 var MANO_INICIAL=2;  /* además de las tres que arrancan en la mesa */
-var ENERGIA_INICIAL=1;/* energías con que arranca la carta del frente (así el duelo no tarda en empezar) */
+var ENERGIA_INICIAL=0;/* energías con que arranca la carta del frente. Con 1, quien jugaba segundo abría con un ataque de dos
+                        energías y ganaba el 57% de los duelos; con 0 (26/11/2026) el primer golpe es uno de una y queda 53 a 47 */
 var TOPE_TURNOS=60;  /* por si un duelo no termina nunca: gana quien va mejor */
 
 /* ---------- azar con semilla (así un duelo se puede guardar y repetir) ---------- */
@@ -15573,7 +15579,7 @@ function mezclar(E,l){
 
 /* ---------- cartas en la mesa ---------- */
 function puesta(E,id){
-  return {id:id,pv:E.cartas[id].vidas,en:0,sinAtacar:0,recien:false,dormida:false,fuerza:0,escudo:0};
+  return {id:id,pv:E.cartas[id].vidas,en:0,sinAtacar:0,recien:false,dormida:false,desvelo:false,fuerza:0,escudo:0};
 }
 function def(E,c){return E.cartas[c.id];}
 function lugarDe(J,donde){return donde==="activa"?J.activa:J.banca[donde];}
@@ -15612,8 +15618,9 @@ function abrirTurno(E,ev){
 function cerrarTurno(E,ev){
   var J=E.jug[E.quien];
   todas(J).forEach(function(c){
+    if(c.desvelo)c.desvelo=false;                /* ya tuvo su turno despierta: se la puede volver a dormir */
     if(c.recien){c.recien=false;return;}
-    if(c.sinAtacar>0){c.sinAtacar--;if(!c.sinAtacar&&c.dormida){c.dormida=false;ev.push({e:"despierta",q:E.quien,id:c.id});}}
+    if(c.sinAtacar>0){c.sinAtacar--;if(!c.sinAtacar&&c.dormida){c.dormida=false;c.desvelo=true;ev.push({e:"despierta",q:E.quien,id:c.id});}}
   });
   if(E.turno>=TOPE_TURNOS){terminarPorTope(E,ev);return;}
   E.quien=1-E.quien;
@@ -15748,9 +15755,12 @@ function aplicarEfecto(E,ev,q,ef,estado){
   if(ef.curaOtra){
     var peor=null;
     J.banca.forEach(function(b){var falta=def(E,b).vidas-b.pv;if(falta>0&&(!peor||falta>def(E,peor).vidas-peor.pv))peor=b;});
-    if(peor)curar(E,ev,q,peor,ef.curaOtra);else curar(E,ev,q,c,ef.curaOtra);
+    if(peor)curar(E,ev,q,peor,ef.curaOtra);
   }
-  if(ef.duerme&&r&&r.pv>0){r.sinAtacar=1;r.recien=false;r.dormida=true;ev.push({e:"duerme",q:1-q,id:r.id});}
+  if(ef.duerme&&r&&r.pv>0){
+    if(r.desvelo)ev.push({e:"desvelada",q:1-q,id:r.id});      /* recién se despertó: esta vez no se duerme */
+    else{r.sinAtacar=1;r.recien=false;r.dormida=true;ev.push({e:"duerme",q:1-q,id:r.id});}
+  }
   if(ef.roba){for(var i=0;i<ef.roba&&J.mazo.length;i++){var id=J.mazo.shift();J.mano.push(id);ev.push({e:"roba",q:q,id:id});}}
   if(ef.quita&&r&&r.en>0){var n=Math.min(ef.quita,r.en);r.en-=n;ev.push({e:"quita",q:1-q,id:r.id,cant:n,en:r.en});}
   if(ef.carga){c.en+=ef.carga;ev.push({e:"energia",q:q,d:"activa",id:c.id,en:c.en,extra:true});}
@@ -15821,10 +15831,10 @@ function reponer(E,ev,q){
 }
 
 /* ---------- el efecto, dicho en palabras (así nunca dice una cosa y hace otra) ---------- */
-function frase(ef){
+function frase(ef,sinBase){
   var p=[];
   if(!ef)return p;
-  if(ef.porEnergia)p.push("Pega "+ef.porEnergia+" más por cada energía que tenga.");
+  if(ef.porEnergia)p.push("Pega "+ef.porEnergia+(sinBase?"":" más")+" por cada energía que tenga.");
   if(ef.siHerida)p.push("Pega "+ef.siHerida+" más si la carta rival ya está golpeada.");
   if(ef.cura)p.push("Se cura "+ef.cura+".");
   if(ef.curaOtra)p.push("Cura "+ef.curaOtra+" a una carta de tu banca.");
@@ -15842,7 +15852,7 @@ function frase(ef){
 function texto(a){
   var ef=a&&a.ef;
   if(!ef)return (a&&a.nota)||"";
-  var p=frase(ef);
+  var p=frase(ef,!a.dano);
   if(ef.moneda){
     var m=ef.moneda,q=[];
     if(m.mas)q.push("pega "+m.mas+" más");
@@ -15865,9 +15875,10 @@ function valorAtaque(E,q,i){
   if(ef.moneda&&ef.moneda.mas)d+=ef.moneda.mas/2;
   var v=Math.min(d,r.pv);
   if(d>=r.pv){v+=120;if(J.noqueos+1>=NOQUEOS)v+=1000;if(!R.banca.length&&!R.mano.length)v+=1000;}
-  if(ef.duerme&&d<r.pv)v+=28;
+  if(ef.duerme&&d<r.pv&&!r.desvelo)v+=28;
+  if(ef.moneda&&ef.moneda.duerme&&d<r.pv&&!r.desvelo)v+=14;
   if(ef.cura)v+=Math.min(ef.cura,def(E,c).vidas-c.pv)*.8;
-  if(ef.curaOtra)v+=10;
+  if(ef.curaOtra){var falta=0;J.banca.forEach(function(b){falta=Math.max(falta,def(E,b).vidas-b.pv);});v+=Math.min(ef.curaOtra,falta)*.6;}
   if(ef.quita&&r.en>0&&d<r.pv)v+=18;
   if(ef.carga)v+=14*ef.carga;
   if(ef.fuerza)v+=ef.fuerza*.6;
@@ -15905,12 +15916,26 @@ function puntajeCarta(E,q,c){
   if(r)v-=amenaza(E,q,c)*.4;
   return v;
 }
+/* una carta que todavía está en la mano: cuánto aguanta y cuánto pega */
+function puntajeMano(E,q,id){
+  var D=E.cartas[id],R=E.jug[1-q],r=R.activa,mejor=0;
+  D.ataques.forEach(function(a){
+    var d=(a.dano||0);if(a.ef&&a.ef.moneda&&a.ef.moneda.mas)d+=a.ef.moneda.mas/2;
+    if(r&&d>0){var t=E.tipos[E.cartas[r.id].tipo];if(t&&t.debil===D.tipo)d+=DEBIL;}
+    mejor=Math.max(mejor,d/(a.costo||1));
+  });
+  if(!mejor)mejor=25;                            /* la que no lastima se baja como una más: es parte del chiste */
+  var v=D.vidas*.5+mejor;
+  if(r){var tm=E.tipos[D.tipo];if(tm&&tm.debil===E.cartas[r.id].tipo)v-=8;}
+  return v;
+}
 function elegir(E,l,valor,torpeza){
   if(l.length>1&&azar(E)<torpeza)return l[Math.floor(azar(E)*l.length)];
   var mejor=l[0],mv=-1e9;
   l.forEach(function(x){var v=valor(x)+azar(E)*.01;if(v>mv){mv=v;mejor=x;}});
   return mejor;
 }
+function puedeAtacarTurno(E){return E.turno!==1;}
 /* una jugada del rival (se la llama hasta que el turno pasa) */
 function bot(E,torpeza){
   torpeza=torpeza==null?.25:torpeza;
@@ -15918,23 +15943,29 @@ function bot(E,torpeza){
   if(!l.length)return null;
   var q=quienDecide(E),J=E.jug[q],R=E.jug[1-q];
   if(E.fase==="subir"){
-    return elegir(E,l,function(x){return x.b!=null?puntajeCarta(E,q,J.banca[x.b]):E.cartas[J.mano[x.m]].vidas*.5;},torpeza);
+    return elegir(E,l,function(x){return x.b!=null?puntajeCarta(E,q,J.banca[x.b]):puntajeMano(E,q,J.mano[x.m]);},torpeza);
   }
   /* 1 · llenar la banca */
   var bajar=l.filter(function(x){return x.t==="bajar";});
-  if(bajar.length)return elegir(E,bajar,function(x){return E.cartas[J.mano[x.i]].vidas;},torpeza*.5);
+  if(bajar.length)return elegir(E,bajar,function(x){return puntajeMano(E,q,J.mano[x.i]);},torpeza*.5);
   /* 2 · ¿conviene cambiar la del frente? (nunca dos turnos seguidos: cada cambio cuesta una energía) */
   var cambios=l.filter(function(x){return x.t==="cambiar";});
   if(cambios.length&&azar(E)>=torpeza&&J.ultCambio!==E.turno-2){
     var c=J.activa,peligro=amenaza(E,q,c)>=c.pv;
     var ataca=puedeAtacar(E,q)&&def(E,c).ataques.some(function(a,i){return c.en+(J.energia?0:1)>=(a.costo||0)&&previsto(E,q,i).dano>=R.activa.pv;});
     var inofensiva=!def(E,c).ataques.some(function(a){return (a.dano||0)>0;});
-    if((peligro&&!ataca)||inofensiva){
-      var yo=puntajeCarta(E,q,c),mejor=null,mv=inofensiva?-1e9:yo+12;
+    var frenada=c.sinAtacar>0&&puedeAtacarTurno(E);     /* dormida o cansada: este turno no va a atacar */
+    if((peligro&&!ataca)||inofensiva||frenada){
+      var yo=puntajeCarta(E,q,c),mejor=null,mv=inofensiva?-1e9:(frenada?-1e9:yo+12);
       cambios.forEach(function(x){
         var b=J.banca[x.b];
         if(amenaza(E,q,b)>=b.pv)return;
         if(inofensiva&&!def(E,b).ataques.some(function(a){return (a.dano||0)>0;}))return;
+        if(frenada&&!inofensiva&&!(peligro&&!ataca)){
+          /* solo si la que entra puede pegar ya mismo (con la energía de este turno) */
+          var ya=def(E,b).ataques.some(function(a){return (a.dano||0)>0&&b.en+(J.energia?0:1)>=(a.costo||0);});
+          if(!ya||b.sinAtacar>0)return;
+        }
         var v=puntajeCarta(E,q,b);if(v>mv){mv=v;mejor=x;}
       });
       if(mejor){J.ultCambio=E.turno;return mejor;}
@@ -16202,6 +16233,7 @@ global.MafiaSonido={crear:crear,tocar:tocar,programarMusica:programarMusica,EFEC
      notaFinal,           un renglón para la pantalla del final
      sinOtro,             true = al terminar no ofrece jugar otro (no le quedan duelos hoy)
      notaRendirse,        un renglón más para el "¿te rendís?"
+     energiaInicial,      con cuántas energías arranca la carta del frente (si no viene, lo que diga MafiaDuelo: ninguna)
      clip(nombre,vol),    toca un audio de archivo de la app (el de la explosión); acá no se fabrica
      precargar(nombre),   lo va pidiendo, para que no tarde
      explosion            la tira de cuadros de la explosión (20 cuadros en fila)
@@ -16221,6 +16253,7 @@ var REGLAS=[
   "La del frente ataca si tiene las energías que pide el ataque. Atacar termina el turno.",
   "Cada tipo es débil a otro: de ese recibe <b>20 más</b>.",
   "Podés cambiar la del frente por una de la banca una vez por turno: la que sale deja una energía.",
+  "Una carta dormida no ataca en su turno. Cuando se despierta, no se la puede volver a dormir enseguida.",
   "Carta sin vidas, noqueada. <b>Gana quien noquea tres.</b>",
   "Tocá cualquier carta para verla en grande."
 ];
@@ -16235,7 +16268,7 @@ function abrir(op){
   var OPC_GRANDE={fotos:op.fotos||"",logo:op.logo||"",total:op.total||""};              /* la de la lupa */
   var E;
   if(op.guardado&&op.guardado.jug){E=op.guardado;E.cartas=op.cartas;E.tipos=op.tipos;}
-  else E=D.nuevo({cartas:op.cartas,tipos:op.tipos,mazos:[op.mazo,op.mazoRival],semilla:op.semilla,empieza:op.empieza});
+  else E=D.nuevo({cartas:op.cartas,tipos:op.tipos,mazos:[op.mazo,op.mazoRival],semilla:op.semilla,empieza:op.empieza,energiaInicial:op.energiaInicial});
 
   var capa=document.createElement("div");
   capa.className="ar-capa t3x-ocupa";
@@ -16480,6 +16513,7 @@ function abrir(op){
       else if(x.e==="dano")p=fxDano(x,ataque&&ataque.debil&&x.origen==="ataque");
       else if(x.e==="cura"){var f=buscar(x.q,x.id);flota(f,"+"+x.cant,"ar-f-cura");var b=f&&f.querySelector(".ar-stat b");if(b)b.textContent=x.pv;sonar("cura");p=tras(420);}
       else if(x.e==="duerme"){flota(buscar(x.q,x.id),"Zzz","ar-f-zzz");sonar("duerme");p=tras(420);}
+      else if(x.e==="desvelada"){flota(buscar(x.q,x.id),"no se duerme","ar-f-zzz");p=tras(520);}
       else if(x.e==="quita"){flota(buscar(x.q,x.id),"−"+x.cant+" energía","ar-f-mal");sonar("quita");p=tras(420);}
       else if(x.e==="escudo"){flota(buscar(x.q,x.id),"escudo "+x.cant,"ar-f-cura");sonar("escudo");p=tras(380);}
       else if(x.e==="cansa"){flota(buscar(x.q,x.id),"se cansó","ar-f-zzz");p=tras(380);}
@@ -16596,7 +16630,7 @@ function abrir(op){
         bs.push({t:"Pasarla al frente",s:puede?"la que sale deja una energía":J.cambio?"ya cambiaste en este turno":"la del frente necesita una energía para salir",no:!puede,fn:function(){hacer({t:"cambiar",b:+d});}});
       }
     }
-    var dato=c.pv+" de "+D0.vidas+" vidas · "+(c.en===1?"1 energía":c.en+" energías")+(c.dormida?" · dormida":c.sinAtacar>0?" · cansada":"")+(q===1?" · del programador":"");
+    var dato=c.pv+" de "+D0.vidas+" vidas · "+(c.en===1?"1 energía":c.en+" energías")+(c.dormida?" · dormida":c.sinAtacar>0?" · cansada":c.desvelo?" · recién se despertó: no se duerme":"")+(q===1?" · del programador":"");
     abrirLupa(c.id,bs,dato);
   }
   function tocarMano(i){

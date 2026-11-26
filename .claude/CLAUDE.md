@@ -75,7 +75,7 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   `.github/scripts/explosion.py` (no sale de ningún GIF). Si Mati manda un GIF de verdad, se reemplaza por una tira con
   esa misma forma.
 - Para probarlos: en el taller, **"la explosión"** abre un duelo de prueba con el perro al frente y listo para
-  atacar; el gorro, viajando al 1/12 y abriendo la ventanita 1; la Sorpresa, con "+1000 puntos" cinco veces.
+  atacar (solo en ese duelo las cartas del frente arrancan con una energía); el gorro, viajando al 1/12 y abriendo la ventanita 1; la Sorpresa, con "+1000 puntos" cinco veces.
 
 ## MafiaTCG (las cartas y el duelo)
 Rehecho en noviembre de 2026: las cartas son fotos de ellos, de la familia y de los bichos, con vidas y ataques,
@@ -91,6 +91,12 @@ y con 10 cartas se juega un duelo contra "el programador". Todo está en los EXT
 - `MafiaCarta` dibuja una carta (clases `mt-`), `MafiaDuelo` tiene las reglas, los efectos de los ataques y al
   rival (no toca la pantalla), `MafiaSonido` fabrica los efectos y la música con WebAudio y `MafiaArena` es la
   pantalla del duelo (clases `ar-`). Las clases de la pestaña son `mq-` y `t3x-`: `tq-` ya lo usa un juego viejo.
+- Reglas del duelo que se fijaron al cerrar los números (26/11/2026; están explicadas arriba de `MafiaDuelo` y, para
+  ella, en "Cómo se juega" de la pausa): **las cartas arrancan sin energía** (con una, quien jugaba segundo abría con
+  un ataque de dos y ganaba el 57% de los duelos; ahora es 53 a 47 para quien empieza); **una carta que se despierta
+  no se puede volver a dormir en el turno siguiente** (queda "desvelada": antes, con "Sueño" se podía dejar al rival
+  sin atacar nunca; la arena muestra "no se duerme"); y "cura a una carta de tu banca" cura solo a la banca. Un ataque
+  sin daño propio que pega por energía ("Más Nigiris") muestra "20×" en la carta.
 - Mati manda cada carta así: formato (normal, que él llama "común", o full art), nombre, foto y nombres de los
   ataques. Tipo, vidas, costos, daño y efectos los decide Claude. **"Perro de Mierda" pega 0: lo pidió él.** Y su
   ataque se muestra con la explosión (`fx:"explosion"`: ver "Los audios").
@@ -101,10 +107,17 @@ y con 10 cartas se juega un duelo contra "el programador". Todo está en los EXT
 - En una full art la foto se tiene que ver lo más entera posible (pedido de Mati). Si los ataques tapan una cara,
   el campo `sube` corre la foto hacia arriba.
 - La tipografía de las cartas (Barlow Condensed, licencia libre) está en `fuentes/`, no en Google Fonts.
-- El rival se ajusta solo (`torpeza`: si ella gana, la próxima juega mejor; si pierde, peor).
-- Al 20/11/2026 Mati seguía mandando cartas y los números eran provisorios: cuando diga que están todas hay que
-  cerrar tipos, vidas, costos y daños. `node .github/pruebas/c4.cjs` juega miles de duelos y dice cuánto pesa
-  cada carta.
+- El rival se ajusta solo (`torpeza`: si ella gana, la próxima juega mejor; si pierde, peor). Elige qué carta bajar
+  por lo que aguanta y lo que pega, y si la del frente está dormida o cansada la cambia por una de la banca que pueda
+  pegar ya. A Perro de Mierda lo baja como a una más (es parte del chiste: así la explosión también se ve de su lado).
+- **Las 30 cartas están todas (lo dijo Mati el 26/11/2026) y sus números quedaron cerrados ese día**: tipos, vidas,
+  costos, daños y efectos. Se midieron con cientos de miles de duelos hasta que el mazo que lleva cada carta gane entre
+  el 48 y el 53% de las veces (con mazos de 6; con los de 10 de la app, entre 49 y 52). Perro de Mierda queda en 34%:
+  es floja a propósito, y Mati confirmó que sigue sacándole una energía a la rival. `node .github/pruebas/c4.cjs` lo
+  vuelve a medir y exige que todas estén entre 45 y 55: hay que correrlo si se toca un número o se suma una carta
+  (una carta nueva se ajusta ella, sin mover las otras).
+- Seis fotos son chicas (256 px, y Sushito 360): Kirby, Mati Shiny, Siestita, Fantasma, Peque Mikasa y Sushito. Se le
+  pidieron los originales a Mati el 25/11: cuando los mande, reemplazar la foto (hasta 900 px) y su mini (360 px).
 
 ## La tienda, la ropa de Ponyta y el modo Pou (noviembre 2026)
 La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es gratis** (pedido de Mati). Todo en los EXTRAS:
@@ -170,7 +183,8 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   para capturas nítidas). Las capturas salen del registro:
   `gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>`.
 - En un duelo de prueba los mazos se barajan al azar aunque haya semilla: para que salga siempre igual hay que fijar
-  también `mazo` y `mazoRival` (así lo hace `c3` para ver una victoria). Y las pruebas que dependen de la hora (Ponyta
+  también `mazo` y `mazoRival` (así lo hace `c3` para ver una victoria; la semilla la busca la misma prueba, jugando
+  sin pantalla, para no depender de los números de las cartas). Y las pruebas que dependen de la hora (Ponyta
   duerme de noche) fijan `T3.ahora` y `T3.esDeNoche`, como `f`.
 - Diferencias de Safari que ya mordieron: `document.lastModified` viene en UTC (no en hora local), y
   `backface-visibility` falla en el WebKit de Linux del laboratorio (en el iPhone de verdad anda: lo confirmó

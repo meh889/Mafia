@@ -1,7 +1,9 @@
 /* Laboratorio · MafiaTCG: las reglas del duelo y el equilibrio de las cartas. No usa navegador:
    saca de index.html el motor (MafiaDuelo), los tipos (MafiaCarta) y la lista de cartas, prueba las reglas
    una por una con cartas fijas y después juega miles de duelos con las cartas de verdad.
-   Sirve para ajustar vidas, costos y daños: al final imprime cuánto pesa cada carta. */
+   Sirve para ajustar vidas, costos y daños: al final imprime cuánto pesa cada carta.
+   Los números de las 30 cartas se cerraron el 26/11/2026 con esta medición (más larga): si se toca alguno, o se
+   suma una carta, hay que volver a correrla y que todas queden entre 45 y 55 (menos Perro de Mierda). */
 const fs=require("fs"),path=require("path");
 const RAIZ=process.env.RAIZ||path.resolve(__dirname,"..","..");
 const html=fs.readFileSync(path.join(RAIZ,"index.html"),"utf8");
@@ -90,6 +92,26 @@ const at=(E,i)=>D.jugar(E,{t:"atacar",a:i});
   D.jugar(E,{t:"pasar"});
   t("despierta ataca",D.acciones(E).some(x=>x.t==="atacar"));
 }
+{ // no se puede dormir a la misma carta dos turnos seguidos: la que se despierta queda desvelada hasta terminar su turno siguiente
+  const E=armado(["estudiazo",1],["osakesko",2]);
+  at(E,0);                                   // la duerme
+  D.jugar(E,{t:"pasar"});                    // su turno, dormida: al terminar se despierta
+  t("la que se despierta queda desvelada",E.jug[1].activa.desvelo===true&&!E.jug[1].activa.dormida);
+  const ev=at(E,0);                          // la quieren dormir otra vez
+  t("recién despierta no se duerme",!E.jug[1].activa.dormida&&E.jug[1].activa.sinAtacar===0&&ev.some(x=>x.e==="desvelada")&&!ev.some(x=>x.e==="duerme"));
+  t("y en ese turno ataca",D.acciones(E).some(x=>x.t==="atacar"));
+  D.jugar(E,{t:"pasar"});                    // ya tuvo su turno despierta
+  t("después de su turno despierta se le va el desvelo",E.jug[1].activa.desvelo===false);
+  at(E,0);
+  t("y se la puede volver a dormir",E.jug[1].activa.dormida===true);
+}
+{ // el rival no se queda mirando con la carta dormida si en la banca tiene otra lista para pegar
+  const E=armado(["estudiazo",1],["osakesko",2],{b1:["disney"]});
+  E.jug[1].banca[0].en=1;
+  at(E,0);
+  const x=D.bot(E,0);
+  t("con la del frente dormida, el rival la cambia por una que puede pegar",x.t==="cambiar",JSON.stringify(x));
+}
 { // cansa: no ataca en SU próximo turno, pero sí en el siguiente
   const E=armado(["argentina",3],["disney",0]);
   at(E,1);t("cansada",E.jug[0].activa.sinAtacar===1);
@@ -157,6 +179,16 @@ const at=(E,i)=>D.jugar(E,{t:"atacar",a:i});
   t("pega a la banca",E.jug[1].banca.length===1&&E.jug[1].banca[0].id==="bebes"&&E.jug[1].banca[0].pv===80);
   t("noqueo de banca cuenta",E.jug[0].noqueos===1);
 }
+{ // "cura a una carta de tu banca": a la más golpeada de la banca; con la banca sana no cura a nadie (tampoco a ella)
+  const E=armado(["minilu",2],["osakesko",0],{b0:["disney","bebes"]});
+  E.jug[0].activa.pv=30;E.jug[0].banca[0].pv=100;E.jug[0].banca[1].pv=40;
+  at(E,1);
+  t("cura a la más golpeada de la banca",E.jug[0].banca[1].pv===70&&E.jug[0].banca[0].pv===100&&E.jug[0].activa.pv===30,
+    JSON.stringify([E.jug[0].activa.pv,E.jug[0].banca.map(c=>c.pv)]));
+  const F=armado(["minilu",2],["osakesko",0],{b0:["disney"]});F.jug[0].activa.pv=30;
+  const ev=at(F,1);
+  t("con la banca sana no cura a nadie",F.jug[0].activa.pv===30&&!ev.some(x=>x.e==="cura"));
+}
 { // cambiar cuesta una energía y es una vez por turno
   const E=armado(["pequepsy",2],["sushito",0],{b0:["disney"]});
   D.jugar(E,{t:"cambiar",b:0});
@@ -169,11 +201,18 @@ const at=(E,i)=>D.jugar(E,{t:"atacar",a:i});
   D.jugar(E,{t:"energia",d:"activa"});
   t("una energía por turno",!D.acciones(E).some(x=>x.t==="energia"));
   t("arranca con 3 en mesa y 3 en mano (2 + la que roba)",E.jug[0].banca.length===2&&E.jug[0].mano.length===3&&E.jug[0].mazo.length===4);
+  /* sin que nadie se lo pida, las cartas arrancan sin energía: con una, quien jugaba segundo ganaba el 57% */
+  const F=D.nuevo({cartas:CARTAS,tipos:TIPOS,mazos:[ids.slice(0,10),ids.slice(1,11)],semilla:3,empieza:0});
+  t("las cartas arrancan sin energía",F.jug[0].activa.en===0&&F.jug[1].activa.en===0&&F.jug[0].banca.every(c=>c.en===0));
+  const G=D.nuevo({cartas:CARTAS,tipos:TIPOS,mazos:[ids.slice(0,10),ids.slice(1,11)],semilla:3,empieza:0,energiaInicial:1});
+  t("y se puede pedir que arranquen con una (el duelo de prueba de la explosión)",G.jug[0].activa.en===1&&G.jug[1].activa.en===1);
 }
 { // el texto sale del efecto
   t("texto moneda",D.texto({ef:{moneda:{mas:40}}})==="Tirá una moneda: si sale cara, pega 40 más.",D.texto({ef:{moneda:{mas:40}}}));
   t("texto varios",D.texto({ef:{cura:30,duerme:1,cansa:1}})==="Se cura 30. Duerme a la carta rival. En tu próximo turno no ataca.",D.texto({ef:{cura:30,duerme:1,cansa:1}}));
   t("sin efecto, sin texto",D.texto({dano:20})==="");
+  t("texto por energía",D.texto({dano:10,ef:{porEnergia:10}})==="Pega 10 más por cada energía que tenga."&&
+    D.texto({dano:0,ef:{porEnergia:20}})==="Pega 20 por cada energía que tenga.",D.texto({dano:0,ef:{porEnergia:20}}));
 }
 { // mismo número de semilla, mismo duelo (se puede guardar y seguir)
   const a=duelo(99),b=duelo(99);let n=0;
@@ -211,7 +250,7 @@ t("ningún duelo se rompe",base.err===0,base.err);
 t("todos terminan antes del tope",!base.motivos.tope||base.motivos.tope<N*.01,JSON.stringify(base.motivos));
 console.log(`parejo (.25 vs .25): gana ella ${(base.g[0]/N*100).toFixed(1)}% · turnos ${(base.turnos/N).toFixed(1)} (máx ${base.max}) · gana quien empieza ${(base.empezoGano/N*100).toFixed(1)}% · ${JSON.stringify(base.motivos)}`);
 t("parejo da cerca de 50%",Math.abs(base.g[0]/N-.5)<.06);
-t("empezar no decide el duelo",Math.abs(base.empezoGano/N-.5)<.12,(base.empezoGano/N).toFixed(3));
+t("empezar no decide el duelo",Math.abs(base.empezoGano/N-.5)<.07,(base.empezoGano/N).toFixed(3));
 t("duelos de largo razonable",base.turnos/N>10&&base.turnos/N<24,(base.turnos/N).toFixed(1));
 for(const [a,b] of [[.05,.05],[.05,.25],[.05,.45],[.05,.65],[.25,.05],[.45,.05],[.65,.05],[.9,.05]]){
   const r=serie(N,a,b,{sal:a*100+b*10});
@@ -221,7 +260,8 @@ for(const [a,b] of [[.05,.05],[.05,.25],[.05,.45],[.05,.65],[.25,.05],[.45,.05],
 /* cuánto pesa cada carta: % de duelos que gana el mazo que la lleva (parejo) */
 {
   const cuenta={};rids.forEach(i=>cuenta[i]=[0,0]);
-  for(let s=1;s<=6000;s++){
+  const DUELOS=24000;
+  for(let s=1;s<=DUELOS;s++){
     const l=rids.slice();let x=(s*2654435761)>>>0;for(let i=l.length-1;i>0;i--){x=(x*1664525+1013904223)>>>0;const j=x%(i+1);[l[i],l[j]]=[l[j],l[i]];}
     const m0=l.slice(0,6),m1=l.slice(6,12);
     const E=D.nuevo({cartas:RC,tipos:RT,mazos:[m0,m1],semilla:s});let p=0;
@@ -233,6 +273,8 @@ for(const [a,b] of [[.05,.05],[.05,.25],[.05,.45],[.05,.65],[.25,.05],[.45,.05],
   console.log("  "+rids.map((i,k)=>RC[i].nombre+" "+pesos[k].toFixed(0)).join(" · "));
   /* "perro" queda afuera de la cuenta: es floja a propósito (su ataque pega 0, pedido de Mati) */
   const serios=pesos.filter((_,k)=>rids[k]!=="perro");
-  t("ninguna carta decide sola",Math.max(...serios)<62&&Math.min(...serios)>38,Math.min(...serios).toFixed(0)+"–"+Math.max(...serios).toFixed(0));
+  t("ninguna carta decide sola: todas entre 45 y 55",Math.max(...serios)<55&&Math.min(...serios)>45,Math.min(...serios).toFixed(1)+"–"+Math.max(...serios).toFixed(1));
+  const perro=pesos[rids.indexOf("perro")];
+  if(perro!=null)t("Perro de Mierda es la más floja, pero no regala el duelo (entre 28 y 42)",perro===Math.min(...pesos)&&perro>28&&perro<42,perro.toFixed(1));
 }
 console.log(`\n${ok} bien, ${mal} mal`);process.exit(mal?1:0);

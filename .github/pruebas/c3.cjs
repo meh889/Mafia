@@ -65,7 +65,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
       minis:Array.from(document.querySelectorAll(".ar-campo .mt-carta img")).every(i=>/\/tcg\/mini\//.test(i.getAttribute("src"))),
       propias:Array.from(document.querySelectorAll(".ar-campo .ar-ficha")).length};});
   chequear("la mesa: tres cartas de cada lado, mano, los dorsos con el logo y todo adentro de la pantalla",r.mias===3&&r.suyas===3&&r.mano>=2&&r.dorsos>=2&&r.entra,r);
-  chequear("la del frente arranca con una energía y quien empieza no ataca en el primer turno",r.energia===1&&r.primero===0,r);
+  chequear("las cartas arrancan sin energía y quien empieza no ataca en el primer turno",r.energia===0&&r.primero===0,r);
   chequear("el duelo se guarda solo y, mientras se juega, la app no se recarga por una publicación",r.guardado&&r.ocupa&&r.audio,r);
   chequear("las cartas de la mesa usan las fotos chicas",r.minis,r);
   await pg.screenshot({path:S+"c3-tu-turno.jpg"});
@@ -108,7 +108,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await opciones(pg,{rapido:.03});
   await pg.click('.mq-boton[data-tcg="duelo"]');await libre(pg);
   r=await pg.evaluate(()=>{const d=T3.leer("tcg2-duelo");return {turno:d.turno,activa:d.jug[0].activa.id,en:d.jug[0].activa.en,rival:d.jug[1].activa.id,banda:!!document.querySelector(".ar-banda-duelo"),energiaPuesta:!!document.querySelector(".ar-energia[disabled]")};});
-  chequear("sigue donde estaba: mismo turno, mismas cartas, la energía ya puesta",r.turno===antes.turno&&r.activa===antes.activa&&r.en===antes.en&&r.en===2&&r.rival===antes.rival&&r.energiaPuesta,[antes,r]);
+  chequear("sigue donde estaba: mismo turno, mismas cartas, la energía ya puesta",r.turno===antes.turno&&r.activa===antes.activa&&r.en===antes.en&&r.en===1&&r.rival===antes.rival&&r.energiaPuesta,[antes,r]);
   await pg.locator(".ar-pausa").click();
   r=await pg.evaluate(()=>({titulo:document.querySelector(".ar-menu h3").innerText,musica:document.querySelector('[data-ar="musica"]').innerText,efectos:document.querySelector('[data-ar="efectos"]').innerText}));
   chequear("la pausa ofrece música y sonidos",/pausa/i.test(r.titulo)&&/música: sí/i.test(r.musica)&&/sonidos: sí/i.test(r.efectos),r);
@@ -149,12 +149,12 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.waitForFunction(()=>!document.querySelector(".ar-final")&&document.querySelector('.ar[data-ocupada="0"]'),null,{timeout:20000});
   r=await pg.evaluate(()=>({turno:T3.leer("tcg2-duelo").turno,arenas:document.querySelectorAll(".ar-capa.ar-ver").length,diaN:T3.leer("tcg2").diaN}));
   chequear("«revancha» arranca otro duelo de cero, que gasta el segundo del día",r.turno<=2&&r.arenas===1&&r.diaN===2,r);
-  /* para distinguir un duelo nuevo del que estaba a medias: al que está a medias le pongo la energía (la del frente queda con 2) */
+  /* para distinguir un duelo nuevo del que estaba a medias: al que está a medias le pongo la energía (la del frente queda con una; en uno nuevo arranca sin ninguna) */
   const ponerEnergia=async()=>{if(await pg.locator(".ar.ar-subiendo").count())return;await pg.locator(".ar-energia").click();await pg.locator(".ar.ar-energizando").waitFor();await pg.locator(".ar-ficha.ar-mia.ar-activa").click();await libre(pg);};
   const delFrente=()=>pg.evaluate(()=>{const d=T3.leer("tcg2-duelo");return {turno:d.turno,en:d.jug[0].activa?d.jug[0].activa.en:-1,usada:!!document.querySelector(".ar-energia[disabled]"),raro:JSON.stringify(d).indexOf("una-que-ya-no-existe")>=0};});
   const salir=async()=>{await pg.locator(".ar-pausa").click();await pg.locator('[data-ar="salir"]').click();await pg.waitForTimeout(700);};
   await ponerEnergia();r=await delFrente();
-  chequear("(la energía quedó puesta en el duelo a medias)",r.en===2&&r.usada,r);
+  chequear("(la energía quedó puesta en el duelo a medias)",r.en===1&&r.usada,r);
   await salir();
   chequear("sin duelos para hoy no ofrece dejarlo por otro",!(await leer(pg)).otro);
   // dejarlo y empezar otro
@@ -162,7 +162,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await opciones(pg,{semilla:37,empieza:0,rapido:.03});
   await pg.click('[data-tcg="duelo-nuevo"]');await libre(pg);
   r=await delFrente();
-  chequear("«dejarlo y empezar otro» descarta el que estaba a medias y gasta otro duelo",r.turno===1&&r.en===1&&!r.usada&&await pg.evaluate(()=>T3.leer("tcg2").diaN===2),r);
+  chequear("«dejarlo y empezar otro» descarta el que estaba a medias y gasta otro duelo",r.turno===1&&r.en===0&&!r.usada&&await pg.evaluate(()=>T3.leer("tcg2").diaN===2),r);
   await ponerEnergia();await salir();
   await jugadosHoy(pg,1);
   // un duelo guardado con una carta que ya no existe (se cambió la lista) no rompe nada
@@ -170,7 +170,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await opciones(pg,{semilla:41,empieza:0,rapido:.03});
   await pg.click('.mq-boton[data-tcg="duelo"]');await libre(pg);
   r=await delFrente();
-  chequear("un duelo guardado con una carta que ya no está se descarta y empieza otro",r.turno===1&&r.en===1&&!r.usada&&!r.raro,r);
+  chequear("un duelo guardado con una carta que ya no está se descarta y empieza otro",r.turno===1&&r.en===0&&!r.usada&&!r.raro,r);
   await salir();
   // lo mismo, pero sin duelos para hoy: se descarta y no arranca nada
   await pg.evaluate(()=>{const d=T3.leer("tcg2-duelo");d.jug[0].mazo.push("una-que-ya-no-existe");T3.guardar("tcg2-duelo",d);});
@@ -181,13 +181,29 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await ctx.close();
 
   console.log("EL ÚLTIMO DUELO DEL DÍA, JUGADO HASTA EL FINAL");
-  /* con un rival torpe, los dos mazos fijos y esta semilla, el duelo sale siempre igual y la estrategia de la prueba gana:
-     así se ve también la pantalla de la victoria (sin fijar los mazos se barajan al azar y el resultado cambia) */
+  /* con un rival torpe, los dos mazos fijos y una semilla, el duelo sale siempre igual: así se ve también la pantalla de
+     la victoria (sin fijar los mazos se barajan al azar y el resultado cambia). La semilla no está escrita: se busca acá
+     mismo, jugando sin pantalla con la estrategia de esta prueba (energía al frente y pegar con lo más caro), una con la
+     que gane 3 a 0. Así no hay que volver a buscarla a mano cada vez que cambian los números o las reglas. */
   ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:semilla({dia:"2026-12-05",diaN:1,mp:90,torpeza:.6})}));
   await alTcg(pg);
   r=await leer(pg);
   chequear("con un duelo ya jugado hoy, la carpeta dice que queda uno",/A DUELO/i.test(r.boton)&&/hoy te queda un duelo/i.test(r.chico),r.chico);
-  await opciones(pg,{semilla:5,empieza:0,rapido:.03,mazo:mias.slice(0,10),mazoRival:mias.slice(2,12)});
+  const gana=await pg.evaluate(o=>{const D=MafiaDuelo,P={};T3.tcg.CARTAS.forEach(c=>{P[c.id]=c;});
+    for(let s=1;s<=400;s++){
+      const E=D.nuevo({cartas:P,tipos:MafiaCarta.TIPOS,mazos:[o.mio,o.suyo],semilla:s,empieza:0});let pasos=0,limpio=true;
+      while(E.fase!=="fin"&&pasos++<3000){
+        if(D.quienDecide(E)===1){D.jugar(E,D.bot(E,o.torpeza));continue;}
+        const l=D.acciones(E);
+        if(E.fase==="subir"||l.some(a=>a.t==="bajar")){limpio=false;break;}      /* que no haya nada que elegir: 3 a 0 */
+        const en=l.find(a=>a.t==="energia"&&a.d==="activa"),at=l.filter(a=>a.t==="atacar");
+        D.jugar(E,en||(at.length?at[at.length-1]:{t:"pasar"}));
+      }
+      if(limpio&&E.fase==="fin"&&E.ganador===0&&E.motivo==="noqueos"&&E.jug[1].noqueos===0)return s;
+    }
+    return 0;},{mio:mias.slice(0,10),suyo:mias.slice(2,12),torpeza:.6});
+  chequear("hay una semilla con la que la estrategia de la prueba gana 3 a 0",gana>0,gana);
+  await opciones(pg,{semilla:gana||1,empieza:0,rapido:.03,mazo:mias.slice(0,10),mazoRival:mias.slice(2,12)});
   await pg.click('.mq-boton[data-tcg="duelo"]');await libre(pg);
   fin=await jugar(pg);
   r=await leer(pg);
@@ -235,7 +251,8 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 
   console.log("EL ATAQUE DE PERRO DE MIERDA (LA EXPLOSIÓN)");
   /* pedido de Mati: cuando ataca Perro de Mierda, un edit entero con explosiones y el sonido que mandó, para terminar pegando 0.
-     Se arma un duelo de prueba donde ella tiene al perro al frente y empieza el programador: en su primer turno ya puede atacar. */
+     Se arma un duelo de prueba donde ella tiene al perro al frente y empieza el programador: en su primer turno le pone
+     la energía (las cartas arrancan sin ninguna) y ya puede atacar. */
   ({ctx,pg,errores}=await abrir(b,base,"2026-12-05",{semilla:{"pv-t3-set-escritas":'["2026-12-05"]',"pv-t3-set-abrio":'["2026-12-05"]',"pv-t3-vio-indice":"true"}}));
   const conPerro=["perro"].concat(lista.filter(id=>id!=="perro").slice(0,9)),sinPerro=lista.filter(id=>id!=="perro").slice(9,19);
   r=await pg.evaluate(o=>{const P={};T3.tcg.CARTAS.forEach(c=>{P[c.id]=c;});const a=P.perro.ataques[0];
@@ -251,7 +268,10 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await libre(pg);
   r=await pg.evaluate(()=>{const f=document.querySelector(".ar-ficha.ar-mia.ar-activa"),v=document.querySelector(".ar-ficha.ar-suya.ar-activa .ar-stat b");
     return {frente:f?f.getAttribute("aria-label"):"",ataque:(document.querySelector('[data-ar="atacar"][data-i="0"]')||{}).innerText||"",puede:!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'),vidas:v?v.textContent:""};});
-  chequear("al frente está Perro de Mierda y puede atacar con Hiperactividad",/Perro de Mierda/.test(r.frente)&&/Hiperactividad/i.test(r.ataque)&&r.puede,r);
+  chequear("al frente está Perro de Mierda, todavía sin la energía que pide Hiperactividad",/Perro de Mierda/.test(r.frente)&&/Hiperactividad/i.test(r.ataque)&&!r.puede&&/falta 1 energía/i.test(r.ataque),r);
+  await pg.locator(".ar-energia").click();await pg.locator(".ar.ar-energizando").waitFor();await pg.locator(".ar-ficha.ar-mia.ar-activa").click();await libre(pg);
+  r.puede=await pg.evaluate(()=>!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'));
+  chequear("con la energía del turno ya puede atacar",r.puede,r);
   const vidasAntes=r.vidas;
   /* con "reducir movimiento" (MOVIMIENTO=menos) la app no sacude ni destella: muestra una sola explosión, quieta */
   const menos=await pg.evaluate(()=>T3.util.reducido());
@@ -310,7 +330,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await libre(pg);
   r=await pg.evaluate(()=>{const f=document.querySelector(".ar-ficha.ar-mia.ar-activa");
     return {panel:!!document.querySelector(".t3-maquina-capa"),frente:f?f.getAttribute("aria-label"):"",puede:!!document.querySelector('[data-ar="atacar"][data-i="0"]:not(.ar-no)'),turno:(document.querySelector(".ar-turno-n")||{}).innerText||"",guardado:!!T3.leer("tcg2-duelo",null)};});
-  chequear("«la explosión», en el taller, abre un duelo de prueba con Perro de Mierda al frente y listo para atacar",!r.panel&&/Perro de Mierda/.test(r.frente)&&r.puede&&!r.guardado,r);
+  chequear("«la explosión», en el taller, abre un duelo de prueba con Perro de Mierda al frente y listo para atacar (ahí arranca con su energía)",!r.panel&&/Perro de Mierda/.test(r.frente)&&r.puede&&!r.guardado,r);
   await ojo();
   await pg.locator('[data-ar="atacar"][data-i="0"]').click();
   await pg.waitForFunction(()=>!!window.__boom.cero,null,{timeout:10000});

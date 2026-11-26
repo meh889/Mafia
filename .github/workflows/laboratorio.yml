@@ -74,6 +74,9 @@ jobs:
       - name: Ponyta se va de vacaciones y vuelve con gorro
         if: always()
         run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/e.cjs
+      - name: El adviento (el papelito, el mapa, el cofre y el cupón)
+        if: always()
+        run: NODE_PATH="$RUNNER_TEMP/pw/node_modules" SALIDA="$RUNNER_TEMP/capturas" node .github/pruebas/g.cjs
       # Los avisos se prueban con herramientas que solo tiene Chromium (el permiso de
       # notificaciones y la entrega de un push de mentira al service worker).
       - name: Avisos, del lado de la app

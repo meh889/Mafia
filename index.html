@@ -471,6 +471,13 @@ const CONFIG = {
     },
     /* CANJEAR HERRADURAS (en la solapa de Ponyta; deja una por día): cada tantas, un sobre con una nola o tantos puntos */
     herraduras: { cada: 50, puntos: 250 },
+    /* LA BÚSQUEDA DEL TESORO del adviento: las ventanitas 3, 6, 10 y 15 dan un pedazo de mapa con un número cada una
+       y la del 24 es un cofre que se abre con esos cuatro, en orden. Adentro hay un papel con el escondite. */
+    tesoro: {
+      clave: "2805",            /* los cuatro números del cofre (28/05) */
+      escondite: ""             /* lo que dice el papel de adentro: dónde está el regalo de verdad.
+                                   Vacío = "la última pista me la tenés que pedir a mí" */
+    },
     pedidos: []                 /* talonario propio: [{t:"Mimos", d:"Sin tope.", m:"lo que te llega", p:40}] (p = precio).
                                    Vacío = los que ya vienen */
   },
@@ -2991,6 +2998,21 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-compra-falta span{color:var(--t3-sello)}
 .t3x-compra-papel .t3x-boton+.t3x-boton{margin-top:10px}
 .t3x-compra-otra{display:block;margin-top:14px;font:500 17px/1.15 var(--t3-mano);color:var(--t3-tinta-azul);text-decoration:underline;text-underline-offset:3px}
+/* el cupón del adviento: el aviso en la tienda y el botón de la hoja de confirmar */
+.t3x-tie-cupon{display:flex;align-items:center;gap:11px;margin:10px 0 4px;padding:9px 12px 8px;border:1.500px dashed var(--t3-sello);border-radius:5px;background:rgba(252,248,238,.75);transform:rotate(-.6deg);text-align:left}
+.t3x-tie-cupon b{flex:none;font:600 30px/1 var(--t3-serif);letter-spacing:-.02em;color:var(--t3-sello)}
+.t3x-tie-cupon span{font:600 17px/1.12 var(--t3-mano);color:var(--t3-tinta)}
+.t3x-cupon-usar{appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:10px;box-sizing:border-box;width:100%;margin:-6px 0 14px;padding:9px 12px 8px;border:1.500px dashed var(--t3-sello);border-radius:5px;background:#FFFDF6;color:var(--t3-tinta);text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.t3x-cupon-usar i{flex:none;font:600 24px/1 var(--t3-serif);font-style:normal;letter-spacing:-.02em;color:var(--t3-sello)}
+.t3x-cupon-usar span{font:600 18px/1.1 var(--t3-mano)}
+.t3x-cupon-usar b{font-size:21px;color:var(--t3-sello)}
+.t3x-cupon-usar u{color:var(--t3-tinta-suave);text-underline-offset:2px}
+.t3x-cupon-puesto{border-style:solid;background:#FBE9E2}
+.t3x-cupon-usar:active{transform:translate(1px,1px)}
+.t3x-cupon-usar:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:2px}
+.t3x-compra-cuenta s{font:600 17px/1 var(--t3-mano);letter-spacing:0;text-transform:none;color:var(--t3-tinta-suave);text-decoration-thickness:1.500px}
+.t3x-compra-cupon{margin:10px 0 0;font:600 18px/1.15 var(--t3-mano);color:var(--t3-sello)}
+.t3x-compra-cupon b{font-size:21px}
 
 /* ============================================================
    MafiaTCG · la pestaña del cuaderno: el panel azul (logo, puntos
@@ -3792,6 +3814,147 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-gorro-suena .t3-adviento-pompon{animation:t3-adviento-pompon .84s ease-in-out infinite}
 @keyframes t3x-gorro-baila{0%,100%{transform:translateY(0) rotate(-4deg)}25%{transform:translateY(-8px) rotate(-1deg)}50%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(-8px) rotate(1deg)}}
 @media (prefers-reduced-motion:reduce){.t3x-gorro-suena .t3-adviento-pony-dib,.t3x-gorro-suena .t3-adviento-pompon,.t3x-nieve i{animation:none}.t3x-nieve{display:none}}
+
+/* ============================================================
+   Las ventanitas nuevas del adviento (26/11/2026): el mapa del tesoro, el cofre y el cupón.
+   Sin filtros (filter, backdrop-filter): ver la guía, "Diferencias de Safari".
+   ============================================================ */
+
+/* ---- un pedazo del mapa ---- */
+.t3x-mapa{position:relative;width:190px;max-width:62vw;display:flex;flex-direction:column;align-items:center;gap:10px;transform:rotate(var(--g,0deg))}
+.t3x-mapa-rot{font:500 9px/1.4 var(--t3-mono);letter-spacing:.2em;color:#CDBB9A;text-align:center;transform:rotate(calc(var(--g,0deg) * -1))}
+.t3x-mapa-svg{display:block;width:100%;height:auto;overflow:visible}
+.t3x-mapa-pie{font:600 23px/1 var(--t3-mano);color:#E8D6AE;transform:rotate(calc(var(--g,0deg) * -1))}
+.t3x-mapa-pie b{font-size:34px;color:#F0A085;margin-left:3px}
+.t3x-mapa-num{font:700 31px/1 var(--t3-mano)}
+.t3x-mapa-ord{font:500 7.5px/1 var(--t3-mono);letter-spacing:.06em}
+.t3x-mapa-titulo text{font:600 13px/1 var(--t3-serif)}
+.t3x-mapa-q{font:700 50px/1 var(--t3-mano);fill:rgba(235,217,174,.5)}
+.t3x-mapa-donde{font:500 9px/1 var(--t3-mono);letter-spacing:.14em;fill:rgba(235,217,174,.62)}
+
+/* ---- el cofre ---- */
+.t3x-tesoro{width:340px;max-width:calc(100vw - 36px);display:flex;flex-direction:column;align-items:center;gap:10px}
+.t3x-tesoro-mapa{width:100%}
+.t3x-cofre{width:196px;max-width:58vw}
+.t3x-cofre-svg{display:block;width:100%;height:auto;overflow:visible}
+.t3x-cofre-tapa{transform-origin:36px 92px;transition:transform .7s cubic-bezier(.3,1.35,.5,1)}
+.t3x-cofre-adentro{opacity:0;transition:opacity .45s ease .12s}
+.t3x-cofre-abierto .t3x-cofre-tapa{transform:translate(2px,-30px) rotate(-13deg)}
+.t3x-cofre-abierto .t3x-cofre-adentro{opacity:1}
+.t3x-cofre-no{animation:t3x-cofre-no .42s ease}
+@keyframes t3x-cofre-no{0%,100%{transform:none}20%{transform:translateX(-7px) rotate(-1.500deg)}45%{transform:translateX(6px) rotate(1.200deg)}70%{transform:translateX(-4px)}85%{transform:translateX(2px)}}
+.t3x-tesoro-abajo{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;transition:opacity .28s ease}
+.t3x-tesoro-abriendo:not(.t3x-tesoro-abierto) .t3x-tesoro-abajo{opacity:0;pointer-events:none}
+.t3x-cofre-clave{display:flex;justify-content:center;gap:10px}
+.t3x-rueda{display:flex;flex-direction:column;align-items:stretch;width:56px;border-radius:9px;overflow:hidden;
+  background:linear-gradient(#DDBB62,#B8892A);border:1.5px solid #6E5219;box-shadow:0 3px 0 #5C4414,inset 0 1px 0 rgba(255,246,214,.5)}
+.t3x-rueda button{appearance:none;-webkit-appearance:none;display:grid;place-items:center;height:40px;padding:0;margin:0;border:0;background:transparent;color:#3A2412;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.t3x-rueda button svg{width:15px;height:10px;fill:currentColor}
+.t3x-rueda button:active{background:rgba(58,36,18,.16)}
+.t3x-rueda button:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:-3px}
+.t3x-rueda b{display:block;text-align:center;font:600 31px/42px var(--t3-serif);color:#2B1A0E;background:#FBF5E7;border-top:1.5px solid #6E5219;border-bottom:1.5px solid #6E5219;
+  box-shadow:inset 0 4px 5px rgba(43,26,14,.32),inset 0 -4px 5px rgba(43,26,14,.22)}
+.t3x-rueda-gira b{animation:t3x-rueda-sube .16s ease-out}
+.t3x-rueda-baja b{animation:t3x-rueda-baja .16s ease-out}
+@keyframes t3x-rueda-sube{from{text-indent:0;line-height:62px;color:rgba(43,26,14,.3)}to{line-height:42px}}
+@keyframes t3x-rueda-baja{from{line-height:22px;color:rgba(43,26,14,.3)}to{line-height:42px}}
+.t3x-cofre-abrir{appearance:none;-webkit-appearance:none;font:500 12px/1 var(--t3-mono);letter-spacing:.24em;text-transform:uppercase;color:#2B1A0E;cursor:pointer;
+  background:linear-gradient(#EFD27A,#DDB850);border:1.5px solid #8A6B22;border-radius:3px;padding:15px 38px;min-height:46px;box-shadow:0 3px 0 #6E5219;-webkit-tap-highlight-color:transparent}
+.t3x-cofre-abrir:active{transform:translateY(2px);box-shadow:0 1px 0 #6E5219}
+.t3x-cofre-abrir:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:3px}
+/* el papel de adentro */
+.t3x-tesoro-nota{width:300px;max-width:100%;padding:16px 18px 12px;background:var(--t3-adviento-ruido),#F3E9D6;transform:rotate(var(--g,0deg));
+  box-shadow:2px 3px 0 rgba(20,14,10,.28),0 14px 22px rgba(0,0,0,.42);animation:t3x-nota-sale .55s cubic-bezier(.3,1.3,.5,1) both}
+@keyframes t3x-nota-sale{from{opacity:0;transform:translateY(-46px) scale(.7) rotate(0deg)}to{opacity:1;transform:rotate(var(--g,0deg))}}
+.t3x-tesoro-rot{display:block;font:500 9px/1.4 var(--t3-mono);letter-spacing:.2em;color:#B33A2B}
+.t3x-tesoro-nota p{margin:8px 0 2px;font:600 26px/29px var(--t3-mano);color:#2B2118;overflow-wrap:break-word}
+.t3x-tesoro-firma{display:block;text-align:right;font:600 22px/26px var(--t3-mano);color:#6E5C46}
+
+/* ---- el cupón ---- */
+.t3x-cupon{position:relative;width:306px;max-width:calc(100vw - 40px);padding:20px 22px 16px;background:var(--t3-adviento-ruido),#FBF5E7;border-radius:4px;
+  transform:rotate(var(--g,0deg));box-shadow:2px 3px 0 rgba(20,14,10,.26),0 16px 22px rgba(0,0,0,.42)}
+.t3x-cupon::before{content:"";position:absolute;inset:7px;border:1.5px dashed #B33A2B;border-radius:3px;pointer-events:none;opacity:.8}
+.t3x-cupon-tijera{position:absolute;left:22px;top:-3px;width:22px;height:20px;background:#FBF5E7;display:grid;place-items:center}
+.t3x-cupon-tijera svg{width:17px;height:17px;fill:none;stroke:#B33A2B;stroke-width:1.600;stroke-linecap:round}
+.t3x-cupon-cab{display:flex;justify-content:space-between;gap:8px;font:500 9px/1 var(--t3-mono);letter-spacing:.18em;color:#B33A2B;padding-top:4px}
+.t3x-cupon-pct{display:flex;align-items:flex-end;gap:5px;margin:12px 0 6px;color:#B33A2B}
+.t3x-cupon-pct b{font:600 92px/.74 var(--t3-serif);letter-spacing:-.03em}
+.t3x-cupon-pct i{font:600 46px/.9 var(--t3-serif);font-style:normal}
+.t3x-cupon-pct span{font:500 10px/1.35 var(--t3-mono);letter-spacing:.16em;text-transform:uppercase;color:#2B2118;margin:0 0 4px 6px}
+.t3x-cupon-que{font:700 27px/1.02 var(--t3-mano);color:#2B2118}
+.t3x-cupon-letra{font:600 21px/1.1 var(--t3-mano);color:#2F4A7A;margin-top:3px}
+.t3x-cupon-legal{font:500 7.5px/1.4 var(--t3-mono);letter-spacing:.16em;color:#6E5C46;margin-top:12px}
+.t3x-cupon-sello{position:absolute;right:20px;top:44px;padding:6px 8px 4px;border:3px double #B33A2B;color:#B33A2B;text-align:center;transform:rotate(-12deg);opacity:.86;background:rgba(251,245,231,.7)}
+.t3x-cupon-sello b{display:block;font:600 17px/1 var(--t3-mono);letter-spacing:.16em}
+.t3x-cupon-sello span{display:block;font:500 8.5px/1.5 var(--t3-mono);letter-spacing:.14em}
+.t3x-cupon-usado .t3x-cupon-pct,.t3x-cupon-usado .t3x-cupon-que,.t3x-cupon-usado .t3x-cupon-letra{opacity:.5}
+.t3x-cupon-ir{appearance:none;-webkit-appearance:none;font:500 11px/1 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase;color:#2B2118;cursor:pointer;
+  background:#E8D6AE;border:1px solid #8A7A5A;border-radius:2px;padding:15px 28px;min-height:46px;box-shadow:0 3px 0 rgba(20,14,10,.5);-webkit-tap-highlight-color:transparent}
+.t3x-cupon-ir:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(20,14,10,.5)}
+.t3x-cupon-ir:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:3px}
+.t3x-cupon-fue{margin:0;font:600 20px/1.2 var(--t3-mano);color:#E8D6AE;text-align:center;max-width:300px}
+
+/* ---- lo que se ve en el hueco de la ventanita, ya abierta ---- */
+.t3x-mini-mapa{flex-direction:column;gap:1px;background:var(--t3-adviento-ruido),#EBD9AE}
+.t3x-mini-mapa small{font:500 7.5px/1 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:#4A3323;opacity:.85;margin-top:12px}
+.t3x-mini-mapa b{display:grid;place-items:center;width:1.36em;height:1.36em;border:2px solid #B33A2B;border-radius:50%;margin:3px 0;
+  font:700 clamp(21px,calc(min(var(--w),var(--h)) * .44),38px)/1 var(--t3-mano);color:#B33A2B}
+.t3x-mini-mapa i{font:500 7px/1 var(--t3-mono);letter-spacing:.08em;font-style:normal;color:#4A3323}
+/* en las ventanitas anchas va a la derecha: la tapa abierta de la vecina suele tapar la izquierda */
+.t3-adviento-ancha .t3x-mini-mapa{flex-direction:row;justify-content:flex-end;gap:6px;padding:8px 9px 0 0}
+.t3-adviento-ancha .t3x-mini-mapa small{display:none}
+.t3-adviento-ancha .t3x-mini-mapa b{font-size:22px;margin:0}
+.t3x-mini-cofre{background:var(--t3-adviento-ruido),#BFA87E;padding:18% 14% 4%;align-items:flex-end}
+.t3x-mini-cofre .t3x-cofre-svg{width:100%}
+.t3x-mini-cupon{flex-direction:column;gap:2px;background:var(--t3-adviento-ruido),#FBF5E7}
+.t3x-mini-cupon::before{content:"";position:absolute;inset:4px;border:1px dashed #B33A2B;border-radius:inherit;opacity:.7}
+.t3-adviento-f-arco .t3x-mini-cupon::before{border-radius:999px 999px 2px 2px}
+.t3x-mini-cupon small{font:500 7.5px/1 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:#B33A2B;margin-top:10px}
+.t3x-mini-cupon b{font:600 clamp(15px,calc(min(var(--w),var(--h)) * .36),30px)/1 var(--t3-serif);color:#B33A2B;letter-spacing:-.02em}
+.t3x-mini-cupon i{font:600 7px/1 var(--t3-mono);letter-spacing:.12em;font-style:normal;color:#B33A2B;border:2px double #B33A2B;padding:2px 3px 1px;transform:rotate(-10deg)}
+.t3x-mini-usado b{opacity:.45}
+
+@media (prefers-reduced-motion:reduce){
+  .t3x-cofre-tapa,.t3x-cofre-adentro,.t3x-tesoro-abajo{transition:none}
+  .t3x-cofre-no,.t3x-rueda-gira b,.t3x-rueda-baja b,.t3x-tesoro-nota{animation:none}
+}
+
+/* el vale de la Nochebuena pasó a una ventanita más chica (la del 23): la palabra tiene que entrar */
+.t3-adviento-mini-nochebuena .t3-adviento-mini-vale-t{font-size:clamp(14px,calc(min(var(--w),var(--h)) * .185),26px)}
+
+/* ---- el papelito del 4: escrito a máquina, y las mayúsculas, cada una aparte y bien distintas (son la pista).
+        Nunca text-transform acá: el texto va tal cual lo dictó Mati. ---- */
+.t3x-papelito{position:relative;box-sizing:border-box;width:306px;max-width:calc(100vw - 40px);padding:34px 24px 26px;background:var(--t3-adviento-ruido),#F6EEDD;
+  transform:rotate(var(--g,0deg));box-shadow:2px 3px 0 rgba(20,14,10,.26),0 16px 22px rgba(0,0,0,.42)}
+.t3x-papelito::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px;
+  background:linear-gradient(-45deg,transparent 5px,#F6EEDD 5px) 0 0/10px 7px repeat-x,linear-gradient(45deg,transparent 5px,#F6EEDD 5px) 0 0/10px 7px repeat-x}
+.t3x-papelito-cinta{position:absolute;left:50%;top:-10px;width:92px;height:24px;margin-left:-46px;background:rgba(166,216,196,.86);box-shadow:0 1px 2px rgba(43,33,24,.25);transform:rotate(-3deg)}
+.t3x-papelito-texto{margin:0;text-transform:none;text-align:left;overflow-wrap:break-word;text-wrap:balance;color:#3A3129}
+.t3x-pal{display:inline-block;white-space:nowrap}
+.t3x-papelito-texto b{display:inline-block;text-transform:none;font-weight:inherit}
+/* a · el texto a máquina y las mayúsculas con sellos de goma, en rojo */
+.t3x-papelito-sello .t3x-papelito-texto{font:500 16.500px/2.250 var(--t3-mono);letter-spacing:.01em}
+.t3x-papelito-sello b{font:600 40px/.8 var(--t3-serif);color:#B33A2B;margin:0 0 0 1px;transform:rotate(var(--r,0deg)) translateY(5px);opacity:.92}
+/* b · el texto a máquina y las mayúsculas a mano, con marcador grueso */
+.t3x-papelito-marcador .t3x-papelito-texto{font:500 16.500px/2.250 var(--t3-mono);letter-spacing:.01em}
+.t3x-papelito-marcador b{font:700 46px/.7 var(--t3-mano);color:#17120E;margin:0 2px 0 1px;transform:rotate(var(--r,0deg)) translateY(6px)}
+/* c · el texto a mano y las mayúsculas, recortadas de revistas */
+.t3x-papelito-recortes .t3x-papelito-texto{font:600 25px/1.900 var(--t3-mano);color:#2B2118}
+.t3x-papelito-recortes b{font:700 24px/1 Georgia,"Times New Roman",serif;padding:4px 6px 3px;margin:0 2px 0 1px;background:#F2C94C;color:#17120E;transform:rotate(var(--r,0deg));box-shadow:1px 1.500px 0 rgba(20,14,10,.4)}
+.t3x-papelito-recortes b[data-i="1"]{font:800 22px/1 "Arial Black","Helvetica Neue",Arial,sans-serif;background:#17120E;color:#FBF5E7}
+.t3x-papelito-recortes b[data-i="2"]{font:500 25px/1 var(--t3-mono);background:#FBF5E7;color:#B33A2B}
+.t3x-papelito-recortes b[data-i="3"]{font:italic 600 27px/1 var(--t3-serif);background:#B33A2B;color:#FBF5E7}
+.t3x-papelito-recortes b[data-i="4"]{font:800 22px/1 "Arial Black","Helvetica Neue",Arial,sans-serif;background:#A9D8C3;color:#17120E}
+.t3x-papelito-recortes b[data-i="5"]{font:700 24px/1 Georgia,"Times New Roman",serif;background:#2F4A7A;color:#FBF5E7}
+/* en el hueco de la ventanita: el mismo papelito, chico */
+.t3x-mini-papelito{background:var(--t3-adviento-ruido),#CDBB9A;padding:16px 6px 5px;align-items:stretch}
+.t3x-papelito-chico{width:100%;max-width:none;padding:9px 7px 6px;box-shadow:1px 1px 0 rgba(20,14,10,.3);transform:rotate(-1.500deg)}
+.t3x-papelito-chico::after{display:none}
+.t3x-papelito-chico .t3x-papelito-cinta{top:-5px;width:30px;height:9px;margin-left:-15px}
+.t3x-papelito-chico .t3x-papelito-texto{font-size:clamp(6px,calc(var(--w) * .058),7.500px);line-height:1.700}
+.t3x-papelito-chico.t3x-papelito-recortes .t3x-papelito-texto{font-size:clamp(9px,calc(var(--w) * .092),12px);line-height:1.700}
+.t3x-papelito-chico b{font-size:2.100em;margin:0;transform:rotate(var(--r,0deg)) translateY(2px)}
+.t3x-papelito-chico.t3x-papelito-recortes b,.t3x-papelito-chico.t3x-papelito-recortes b[data-i]{font-size:1em;padding:1px 2px;margin:0 1px;transform:rotate(var(--r,0deg));box-shadow:.5px .5px 0 rgba(20,14,10,.4)}
 /*EXTRAS-CSS>>*/
 </style>
 </head>
@@ -10448,9 +10611,42 @@ function p2(n){return String(n).padStart(2,"0");}
 function miles(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,".");}
 function giro(sal,max){return+(((U.hash("adv·"+sal)%1000)/999*2-1)*max).toFixed(2);}
 var _uid=0;function uid(){return"t3adv"+(++_uid);}
-var INK="#0d131a";var CONTENIDO_ADVIENTO=[{tipo:"ponyta",traje:"gorrito",texto:"Arrancó diciembre y Ponyta ya se puso el gorro. No hay forma de sacárselo."},{tipo:"vale",que:"un helado de menta granizada",corto:"helado",letra:"Del tamaño que quieras. Yo pago, vos elegís el cucurucho."},{tipo:"foto",foto:"kioto-pabellon-dorado.jpg",y:55,texto:"Kioto. El Pabellón Dorado, un cielo así de azul, y nosotros."},{tipo:"frase",texto:"De La Salle a Olivos, diez cuadras y ocho años. Buen negocio."},{tipo:"dato",receta:"capicua"},{tipo:"voz",audio:"adviento-06.m4a",grabado:false,respaldo:"loro10.m4a",rotulo:"para vos",texto:"Te lo grabé yo. Subí el volumen."},{tipo:"lego",modelo:"arbolito",texto:"Arbolito de 5×5. No hay que regarlo ni desarmarlo en enero."},{tipo:"foto",foto:"cine-ponyo.jpg",y:50,texto:"Hall del cine, el afiche de Ponyo atrás, y tu cabeza en mi hombro."},{tipo:"ponyta",traje:"bufanda",texto:"Ponyta quiso una bufanda. Duró cuatro segundos."},{tipo:"foto",foto:"paris-torre-eiffel-campo-marte.jpg",y:55,texto:"París. La torre entera, y nosotros chiquititos abajo."},{tipo:"vale",que:"elegir la peli, y yo no me quejo",corto:"la peli",mini:"peli",letra:"Ni de la duración, ni del final, ni si es la tercera vez que la vemos."},{tipo:"dato",receta:"meses"},{tipo:"frase",texto:"Diez cuadras. Las haría en trineo, pero en Olivos no nieva."},{tipo:"vale",que:"un desayuno en la cama",corto:"desayuno",mini:"café",letra:"Con medialunas. Las migas corren por mi cuenta."},{tipo:"voz",audio:"adviento-15.m4a",grabado:false,respaldo:"loro7.m4a",rotulo:"lado B",texto:"Otra más. Con auriculares se escucha mejor."},{tipo:"vale",que:"un deseo de cumpleaños extra",corto:"un deseo",letra:"El de las velitas es aparte. Este lo pedís cuando quieras.",especial:"cumple"},{tipo:"lego",modelo:"regalo",texto:"Un regalo de 5×5. Adentro no entra nada, pero la intención está."},{tipo:"vale",que:"masajitos: quince minutos de reloj",corto:"masajitos",mini:"mimos",letra:"Sin preguntar “¿ya está?” a los cinco."},{tipo:"ponyta",traje:"reno",texto:"Se ofreció para tirar del trineo. Papá Noel le dijo que no, por el tema de los incendios."},{tipo:"vale",que:"una tarde entera de Legos",corto:"Legos",letra:"Uno grande, sin apuro. Yo te alcanzo las piezas que buscás."},{tipo:"dato",receta:"sol"},{tipo:"vale",que:"un “tenías razón”",corto:"tenías razón",letra:"Dicho en voz alta, entero, y sin agregar “pero”."},{tipo:"foto",foto:"selfie-living-arana.jpg",y:50,texto:"Buzo rojo de peluche, araña de caireles, cabeza con cabeza."},{tipo:"vale",que:"la Nochebuena que quieras",corto:"Nochebuena",letra:"Vos elegís dónde, qué se come, a qué hora se brinda y qué música suena. Yo digo que sí.",especial:"nochebuena"}];function contenido(n){var base=CONTENIDO_ADVIENTO[n-1]||{tipo:"frase",texto:"Acá había algo. Ponyta dice que no fue ella."};var o=T3.config&&T3.config.adviento,x=null;if(Array.isArray(o))x=o[n-1];else if(o&&typeof o==="object"){var c=o.contenido;x=o[n]||o[fechaDe(n)]||(Array.isArray(c)?c[n-1]:c&&c[n])||null;}
+var INK="#0d131a";var CONTENIDO_ADVIENTO=[
+/* QUÉ DA CADA VENTANITA (la lista es por número: la primera es la del 1). Rehecha el 26/11/2026 con Mati:
+   sin fotos, sin notas de voz y sin frases. Los tipos "mapa", "cofre", "cupon" y "papelito" los dibuja T3.ventanitas. */
+/* 1*/{tipo:"ponyta",traje:"gorrito",texto:"Arrancó diciembre y Ponyta ya se puso el gorro. No hay forma de sacárselo."},
+/* 2*/{tipo:"vale",que:"un helado de menta granizada",corto:"helado",letra:"Del tamaño que quieras. Yo pago, vos elegís el cucurucho."},
+/* 3*/{tipo:"mapa",orden:1},
+/* 4 · un papelito sobre algo que Mati compró y escondió (no es un vale ni tiene que ver con el cofre del 24).
+       El texto lo dictó él y va LETRA POR LETRA: las mayúsculas son a propósito (forman P-LA-C-A-R, que es donde
+       está). No se corrige, no se le agregan tildes ni se pasa a mayúsculas o minúsculas. De tres maneras de
+       marcar las mayúsculas, Mati eligió "recortes": letras recortadas de revista. */
+      {tipo:"papelito",estilo:"recortes",texto:"estoy escondido, Pero si LAs pistas CuestionAs capaz algo encontRas"},
+/* 5*/{tipo:"dato",receta:"capicua"},
+/* 6*/{tipo:"mapa",orden:2},
+/* 7*/{tipo:"lego",modelo:"arbolito",texto:"Arbolito de 5×5. No hay que regarlo ni desarmarlo en enero."},
+/* 8 · PROVISORIO: Mati todavía no dijo qué va acá (había una foto, y fotos no quiere). Mientras tanto, una cuenta. */
+      {tipo:"dato",receta:"dias"},
+/* 9*/{tipo:"ponyta",traje:"bufanda",texto:"Ponyta quiso una bufanda. Duró cuatro segundos."},
+/*10*/{tipo:"mapa",orden:3},
+/*11*/{tipo:"vale",que:"elegir la peli, y yo no me quejo",corto:"la peli",mini:"peli",letra:"Ni de la duración, ni del final, ni si es la tercera vez que la vemos."},
+/*12*/{tipo:"dato",receta:"meses"},
+/*13*/{tipo:"cupon",pct:50},
+/*14*/{tipo:"vale",que:"un desayuno en la cama",corto:"desayuno",mini:"café",letra:"Con medialunas. Las migas corren por mi cuenta."},
+/*15*/{tipo:"mapa",orden:4},
+/*16*/{tipo:"vale",que:"un deseo de cumpleaños extra",corto:"un deseo",letra:"El de las velitas es aparte. Este lo pedís cuando quieras.",especial:"cumple"},
+/*17*/{tipo:"lego",modelo:"regalo",texto:"Un regalo de 5×5. Adentro no entra nada, pero la intención está."},
+/*18*/{tipo:"vale",que:"masajitos: quince minutos de reloj",corto:"masajitos",mini:"mimos",letra:"Sin preguntar “¿ya está?” a los cinco."},
+/*19*/{tipo:"ponyta",traje:"reno",texto:"Se ofreció para tirar del trineo. Papá Noel le dijo que no, por el tema de los incendios."},
+/*20*/{tipo:"vale",que:"una tarde entera de Legos",corto:"Legos",letra:"Uno grande, sin apuro. Yo te alcanzo las piezas que buscás."},
+/*21*/{tipo:"dato",receta:"sol"},
+/*22*/{tipo:"vale",que:"un “tenías razón”",corto:"tenías razón",letra:"Dicho en voz alta, entero, y sin agregar “pero”."},
+/*23 · antes era la del 24: pasó acá para que tenga un día para elegir (y el 24 quedó para el cofre) */
+      {tipo:"vale",que:"la Nochebuena que quieras",corto:"Nochebuena",letra:"Vos elegís dónde, qué se come, a qué hora se brinda y qué música suena. Yo digo que sí.",especial:"nochebuena"},
+/*24*/{tipo:"cofre"}
+];function contenido(n){var base=CONTENIDO_ADVIENTO[n-1]||{tipo:"frase",texto:"Acá había algo. Ponyta dice que no fue ella."};var o=T3.config&&T3.config.adviento,x=null;if(Array.isArray(o))x=o[n-1];else if(o&&typeof o==="object"){var c=o.contenido;x=o[n]||o[fechaDe(n)]||(Array.isArray(c)?c[n-1]:c&&c[n])||null;}
 if(!x||typeof x!=="object")return base;x=limpio(x);if(!Object.keys(x).length)return base;var cambia=!!x.tipo&&x.tipo!==base.tipo;return ajustar(cambia?x:Object.assign({},base,x),base,x,cambia,n);}
-var TIPOS=["vale","foto","voz","ponyta","frase","dato","lego"];var TRAJES=["gorrito","bufanda","reno"];var RECETAS=["capicua","meses","sol","dias"];function vacio(v){return v==null||(typeof v==="string"&&!v.trim())||(Array.isArray(v)&&!v.length);}
+var TIPOS=["vale","foto","voz","ponyta","frase","dato","lego","mapa","cofre","cupon","papelito"];var TRAJES=["gorrito","bufanda","reno"];var RECETAS=["capicua","meses","sol","dias"];function vacio(v){return v==null||(typeof v==="string"&&!v.trim())||(Array.isArray(v)&&!v.length);}
 function limpio(x){var o={};Object.keys(x).forEach(function(key){var v=x[key];if(!vacio(v))o[key]=typeof v==="string"?v.trim():v;});["tipo","traje","receta","modelo"].forEach(function(key){if(typeof o[key]==="string")o[key]=o[key].toLowerCase();});if(o.tipo&&TIPOS.indexOf(o.tipo)<0)delete o.tipo;if(o.y!=null){var y=parseFloat(o.y);if(isFinite(y))o.y=Math.max(0,Math.min(100,y));else delete o.y;}
 if(typeof o.grabado==="string")o.grabado=!/^(false|0|no)$/i.test(o.grabado);return o;}
 var VACIAS=/^(un|una|unos|unas|el|la|los|las|lo|mi|mis|tu|tus|otro|otra|que|de|del|al|a|en|con|por|para|y|o|sin|se|te|me)$/i;function palabras(s){return String(s||"").replace(/[“”"«»¡!¿?.,;:()]/g," ").trim().split(/\s+/).filter(function(w){return w&&!VACIAS.test(w);});}
@@ -10513,7 +10709,7 @@ function cassetteSVG(rotulo,n){var carrete=function(cx){return'<g transform="tra
 carrete(110)+carrete(190)+'<rect x="78" y="62" width="144" height="52" rx="26" fill="none" stroke="#2B2118" stroke-width="3"/>'+'<path d="M70 188 L84 146 H216 L230 188" fill="#3A2C22" stroke="#4A3B2E" stroke-width="2"/>'+'<circle cx="104" cy="170" r="5" fill="#1B1410"/><circle cx="196" cy="170" r="5" fill="#1B1410"/><rect x="138" y="160" width="24" height="12" rx="2" fill="#1B1410"/>'+'<text x="36" y="36" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="2" fill="#FBF5E7">C-24 · Nº '+p2(n)+'</text>'+'</svg>'+'<div class="'+k("cassette-rotulo")+'">'+esc(rotulo||"para vos")+'</div>';}
 function datoDe(it,f){var P=T3.pareja,dias=P.diasJuntos(f),meses=P.mesesJuntos(f);var ult28=f.slice(8)>="28"?f.slice(0,8)+"28":T3.f.aTexto(new Date(+f.slice(0,4),+f.slice(5,7)-2,28));var resto=T3.f.dif(ult28,f),rev=String(dias).split("").reverse().join("");var vars={dias:miles(dias),alreves:miles(+rev),meses:meses,resto:resto,horas:miles(dias*24),navidad:+f.slice(0,4)-2017};var fill=function(s){return String(s).replace(/\{(\w+)\}/g,function(_,x){return vars[x]!=null?vars[x]:"{"+x+"}";});};var r=it.receta,d;if(r==="capicua"&&String(dias)!==rev)r="dias";if(r==="capicua")d={lineas:[["Días de novios","{dias}"],["Al revés","{alreves}"],["Diferencia","0"]],total:["Capicúa","sí"],nota:"Dicen que los capicúa traen suerte. Yo ya la tengo."};else if(r==="meses")d={lineas:[["Desde","28·05·2018"],["Meses","{meses}"],["Días sueltos","{resto}"]],total:["Total","{meses} m {resto} d"],nota:"Los conté a mano. (Mentira: los contó la app.)"};else if(r==="sol")d={lineas:[["Horas de sol","14 y pico"],["Día más largo","hoy"],["Noche más corta","esta"]],total:["Para nosotros","todas"],nota:"Da para helado, siesta y otro helado."};else d={lineas:[["Días de novios","{dias}"],["Horas","{horas}"],["Navidades","{navidad}"]],total:["Y contando","sí"],nota:"Número lindo. Lo anoto."};d=Object.assign(d,it.lineas?{lineas:it.lineas}:{},it.total?{total:it.total}:{},it.nota?{nota:it.nota}:{});return{lineas:d.lineas.map(function(l){return[fill(l[0]),fill(l[1])];}),total:[fill(d.total[0]),fill(d.total[1])],nota:fill(d.nota),grande:r==="sol"?"14 h":r==="meses"?String(meses):miles(dias),unidad:r==="sol"?"de sol":r==="meses"?"meses":"días"};}
 function huecoN(n,w){return'<span class="'+k("hueco-n")+'">'+(w<70?p2(n):"DIC·"+p2(n))+'</span>';}
-function mini(it,n,f){var t=it.tipo,g=GRILLA[n]||{};if(t==="foto")return'<div class="'+k("mini mini-foto")+'">'+fotoImg(it,n,"",true)+'</div>';if(t==="vale")return'<div class="'+k("mini mini-vale c-"+(it.especial==="nochebuena"?"sello":g.col||"menta")+(it.especial?" mini-"+it.especial:"")+(canjes()[f]?" mini-usado":""))+'"><span class="'+k("mini-vale-r")+'">vale</span><span class="'+k("mini-vale-t")+'">'+esc(((g.forma==="redonda"||g.w===1)&&it.mini)||it.corto||it.que)+'</span>'+
+function mini(it,n,f){var t=it.tipo,g=GRILLA[n]||{};if(T3.ventanitas&&T3.ventanitas.es(t))return T3.ventanitas.mini(it,n,f,g);if(t==="foto")return'<div class="'+k("mini mini-foto")+'">'+fotoImg(it,n,"",true)+'</div>';if(t==="vale")return'<div class="'+k("mini mini-vale c-"+(it.especial==="nochebuena"?"sello":g.col||"menta")+(it.especial?" mini-"+it.especial:"")+(canjes()[f]?" mini-usado":""))+'"><span class="'+k("mini-vale-r")+'">vale</span><span class="'+k("mini-vale-t")+'">'+esc(((g.forma==="redonda"||g.w===1)&&it.mini)||it.corto||it.que)+'</span>'+
 (canjes()[f]?'<span class="'+k("mini-canje")+'">USADO</span>':'')+'</div>';if(t==="voz")return'<div class="'+k("mini mini-voz")+'"><svg viewBox="0 0 60 40" aria-hidden="true"><rect x="1" y="1" width="58" height="38" rx="4" fill="#2B2118"/><rect x="6" y="5" width="48" height="22" rx="2" fill="#FBF5E7"/><rect x="6" y="5" width="48" height="5" fill="#B33A2B"/><circle cx="21" cy="18" r="5" fill="#2B2118"/><circle cx="39" cy="18" r="5" fill="#2B2118"/><circle cx="21" cy="18" r="2" fill="#F3E9D6"/><circle cx="39" cy="18" r="2" fill="#F3E9D6"/><path d="M14 39 l3 -8 h26 l3 8" fill="#3A2C22"/></svg></div>';if(t==="ponyta")return'<div class="'+k("mini mini-pony")+'">'+ponyDibujo(it.traje,it.traje==="bufanda"?"-10 -10 180 240":"-24 -44 190 200")+'</div>';if(t==="frase"){var fr=String(it.texto||"").split(/[.,:]/)[0].trim(),pal=fr.split(/\s+/);if(pal.length>3)fr=pal.slice(0,pal[2]&&pal[2].length<=3?4:3).join(" ").replace(/[,;:]$/,"")+"…";return'<div class="'+k("mini mini-frase")+'"><span>'+esc(fr)+'</span></div>';}
 if(t==="dato"){var dd=datoDe(it,f);return'<div class="'+k("mini mini-dato")+'"><b>'+esc(dd.grande)+'</b><small>'+esc(dd.unidad)+'</small></div>';}
 if(t==="lego")return'<div class="'+k("mini mini-lego")+'">'+legoSVG(it.modelo,false)+'</div>';return'<div class="'+k("mini")+'"></div>';}
@@ -10536,23 +10732,23 @@ el.classList.add(K+"abierta");el.setAttribute("aria-label","Ventanita "+n+", abi
 mostrarSorpresa(n,f,hueco,alTerminar);};if(reducido()||!tapas[0].animate){fin();return;}
 var g=GRILLA[n];tapas.forEach(function(t,i){var lado=g.forma==="doble"?(i?"de":"iz"):g.bis;var ang=+el.getAttribute("data-abre")||110;var dest=lado==="iz"?"rotateY(-"+ang+"deg)":lado==="de"?"rotateY("+ang+"deg)":"rotateX("+ang+"deg)";var medio=lado==="iz"?"rotateY(-8deg)":lado==="de"?"rotateY(8deg)":"rotateX(8deg)";t._a=t.animate([{transform:"none"},{transform:medio,offset:.18},{transform:dest}],{duration:820,easing:"cubic-bezier(.36,.9,.3,1.08)",fill:"forwards"});});tarde(fin,700);}
 function negar(el,n,f){T3.sonido("tic");el.classList.remove(K+"no");void el.offsetWidth;el.classList.add(K+"no");var viejo=el.querySelector("."+K+"cuando");if(viejo)viejo.remove();var q=document.createElement("span");q.className=K+"cuando";q.textContent=T3.f.dif(T3.hoy,f)===1?"mañana. una noche más":"se abre el "+T3.f.diaSemana(f)+" "+n;el.appendChild(q);tarde(function(){q.classList.add(K+"cuando-va");},1500);tarde(function(){if(q.parentNode)q.remove();},2100);}
-var abierto=null;function objetoHTML(it,n,f){var t=it.tipo;if(t==="vale")return it.especial==="nochebuena"?sobreHTML(valeHTML(it,n,f),n):valeHTML(it,n,f);if(t==="foto")return'<figure class="'+k("pola")+'" style="--g:'+giro("p"+n,2.5)+'deg"><div class="'+k("washi")+'"></div>'+'<div class="'+k("pola-img")+'">'+fotoImg(it,n,it.texto||"",false)+'</div>'+'<figcaption>'+esc(it.texto||"")+'</figcaption></figure>';if(t==="voz")return'<div class="'+k("cassette")+'" role="button" tabindex="0" aria-label="Reproducir la nota de voz">'+cassetteSVG(it.rotulo,n)+'</div>'+'<button class="'+k("tecla")+'" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1 L11 6 L2 11Z"/></svg><span>escuchar</span></button>';if(t==="ponyta")return'<div class="'+k("pony-carta")+'" style="--g:'+giro("y"+n,1.6)+'deg"><div class="'+k("pony-rot")+'">PONYTA · EDICIÓN DICIEMBRE</div>'+'<div class="'+k("pony-dib")+'" role="button" tabindex="0" aria-label="Tocar a Ponyta">'+ponyDibujo(it.traje)+'</div>'+'<p class="'+k("pony-texto")+'">'+esc(it.texto||"")+'</p></div>';if(t==="frase")return'<div class="'+k("nota")+'" style="--g:'+giro("n"+n,2)+'deg"><div class="'+k("nota-arriba")+'"><div class="'+k("nota-cara")+'"></div><div class="'+k("nota-dorso")+'"></div></div>'+'<div class="'+k("nota-papel")+'"><p>'+esc(it.texto||"")+'</p><span class="'+k("nota-firma")+'">'+esc(T3.firma(f))+'</span></div></div>';if(t==="dato"){var d=datoDe(it,f);return'<div class="'+k("ticket")+'"><div class="'+k("ticket-boca")+'"></div><div class="'+k("ticket-papel")+'">'+'<div class="'+k("ticket-cab")+'">CALCULADORA DE ADVIENTO<br>OLIVOS · CAJA 02<br>'+esc(T3.f.diaSemana(f).slice(0,3).toUpperCase()+" "+p2(n)+" DIC "+f.slice(0,4))+'</div>'+'<div class="'+k("ticket-raya")+'"></div>'+
+var abierto=null;function objetoHTML(it,n,f){var t=it.tipo;if(T3.ventanitas&&T3.ventanitas.es(t))return T3.ventanitas.objeto(it,n,f);if(t==="vale")return it.especial==="nochebuena"?sobreHTML(valeHTML(it,n,f),n):valeHTML(it,n,f);if(t==="foto")return'<figure class="'+k("pola")+'" style="--g:'+giro("p"+n,2.5)+'deg"><div class="'+k("washi")+'"></div>'+'<div class="'+k("pola-img")+'">'+fotoImg(it,n,it.texto||"",false)+'</div>'+'<figcaption>'+esc(it.texto||"")+'</figcaption></figure>';if(t==="voz")return'<div class="'+k("cassette")+'" role="button" tabindex="0" aria-label="Reproducir la nota de voz">'+cassetteSVG(it.rotulo,n)+'</div>'+'<button class="'+k("tecla")+'" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1 L11 6 L2 11Z"/></svg><span>escuchar</span></button>';if(t==="ponyta")return'<div class="'+k("pony-carta")+'" style="--g:'+giro("y"+n,1.6)+'deg"><div class="'+k("pony-rot")+'">PONYTA · EDICIÓN DICIEMBRE</div>'+'<div class="'+k("pony-dib")+'" role="button" tabindex="0" aria-label="Tocar a Ponyta">'+ponyDibujo(it.traje)+'</div>'+'<p class="'+k("pony-texto")+'">'+esc(it.texto||"")+'</p></div>';if(t==="frase")return'<div class="'+k("nota")+'" style="--g:'+giro("n"+n,2)+'deg"><div class="'+k("nota-arriba")+'"><div class="'+k("nota-cara")+'"></div><div class="'+k("nota-dorso")+'"></div></div>'+'<div class="'+k("nota-papel")+'"><p>'+esc(it.texto||"")+'</p><span class="'+k("nota-firma")+'">'+esc(T3.firma(f))+'</span></div></div>';if(t==="dato"){var d=datoDe(it,f);return'<div class="'+k("ticket")+'"><div class="'+k("ticket-boca")+'"></div><div class="'+k("ticket-papel")+'">'+'<div class="'+k("ticket-cab")+'">CALCULADORA DE ADVIENTO<br>OLIVOS · CAJA 02<br>'+esc(T3.f.diaSemana(f).slice(0,3).toUpperCase()+" "+p2(n)+" DIC "+f.slice(0,4))+'</div>'+'<div class="'+k("ticket-raya")+'"></div>'+
 d.lineas.map(function(l){return'<div class="'+k("ticket-l")+'"><span>'+esc(l[0])+'</span><i></i><b>'+esc(l[1])+'</b></div>';}).join("")+'<div class="'+k("ticket-raya")+'"></div>'+'<div class="'+k("ticket-l ticket-total")+'"><span>'+esc(d.total[0])+'</span><i></i><b>'+esc(d.total[1])+'</b></div>'+'<p class="'+k("ticket-nota")+'">'+esc(d.nota)+'</p>'+'<div class="'+k("ticket-pie")+'">GRACIAS POR SU VISITA · NO SE ACEPTAN DEVOLUCIONES</div></div></div>';}
 if(t==="lego")return'<div class="'+k("lego")+'" style="--g:'+giro("l"+n,1.5)+'deg"><div class="'+k("lego-cab")+'"><b class="'+k("lego-paso")+'">1</b>'+'<div class="'+k("lego-piezas")+'">'+legoPiezas(it.modelo)+'</div></div>'+'<div class="'+k("lego-modelo")+'">'+legoSVG(it.modelo,!reducido())+'</div>'+'<p class="'+k("lego-texto")+'">'+esc(it.texto||"")+'</p><span class="'+k("lego-folio")+'">'+p2(n)+'/24</span></div>';return'<div class="'+k("nota-papel")+'"><p>'+esc(it.texto||"")+'</p></div>';}
 function valeHTML(it,n,f){var c=canjes()[f],esp=it.especial||"",g=GRILLA[n]||{};return'<div class="'+k("vale c-"+(esp==="nochebuena"?"sello":g.col||"menta")+(esp?" vale-"+esp:"")+(c?" vale-usado":""))+'" style="--g:'+giro("v"+n,2)+'deg">'+'<div class="'+k("vale-cuerpo")+'">'+'<div class="'+k("vale-cab")+'"><span>VALE POR</span><span>Nº '+String(n).padStart(4,"0")+'</span></div>'+'<div class="'+k("vale-que")+'">'+esc(it.que||"")+'</div>'+'<div class="'+k("vale-letra")+'">'+esc(it.letra||"")+'</div>'+'<div class="'+k("vale-legal")+'">NO VENCE · INTRANSFERIBLE · OLIVOS</div>'+'<div class="'+k("vale-sello")+'">'+selloGoma(esp==="cumple"?"FELIZ CUMPLE · 16 DE DICIEMBRE · ":"ADVIENTO · OLIVOS · DIC "+f.slice(0,4)+" · ",esp==="cumple"?"16":String(n))+'</div>'+
 (c?canjeadoHTML(c,esp):"")+'</div>'+
 (c?"":'<div class="'+k("vale-talon")+'" role="button" tabindex="0" aria-label="Mantené apretado para canjear">'+'<span class="'+k("vale-talon-r")+'">CANJEAR</span><span class="'+k("vale-talon-m")+'">mantené apretado</span><span class="'+k("vale-talon-n")+'">Nº '+String(n).padStart(4,"0")+'</span></div>')+'</div>';}
 function canjeadoHTML(fc,esp){return'<div class="'+k("canjeado")+'"><b>'+(esp==="nochebuena"?"DIJE QUE SÍ":"CANJEADO")+'</b><span>'+esc(T3.f.corta(fc).toUpperCase())+'</span></div>';}
-function sobreHTML(vale,n){var id=uid();return'<div class="'+k("sobre")+'">'+'<div class="'+k("sobre-pony")+'" aria-hidden="true"><div>'+ponyDibujo(trajeCalendario())+'</div></div>'+'<div class="'+k("sobre-atras")+'"></div>'+'<div class="'+k("sobre-vale")+'">'+vale+'</div>'+'<div class="'+k("sobre-frente")+'" aria-hidden="true"><svg viewBox="0 0 318 150" preserveAspectRatio="none">'+'<path d="M0 0 L150 84 L0 150Z" fill="#A9352A"/><path d="M318 0 L168 84 L318 150Z" fill="#A9352A"/>'+'<path d="M0 150 L159 62 L318 150Z" fill="#BE4334"/>'+'<path d="M0 150 L159 62 L318 150 M0 0 L146 82 M318 0 L172 82" fill="none" stroke="rgba(60,14,9,.35)" stroke-width="1.2"/>'+'<path d="M4 146 L159 60" stroke="rgba(255,220,200,.18)" stroke-width="1"/></svg>'+'<span>PARA VOS · NO ABRIR ANTES DEL 24</span></div>'+'<div class="'+k("sobre-solapa")+'" aria-hidden="true">'+'<div class="'+k("solapa-cara")+'"><i></i><b class="'+k("lacre")+'"><svg viewBox="0 0 60 60"><defs><filter id="'+id+'"><feTurbulence type="fractalNoise" baseFrequency=".9" seed="7"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter></defs>'+'<circle cx="30" cy="30" r="26" fill="#7E1D14" filter="url(#'+id+')"/><circle cx="30" cy="30" r="18" fill="none" stroke="#5E130C" stroke-width="2"/>'+'<circle cx="30" cy="30" r="17" fill="none" stroke="#B3483B" stroke-width="1" opacity=".6"/>'+'<text x="30" y="37" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="600" font-size="20" fill="#C9584A">'+p2(n)+'</text></svg></b></div>'+'<div class="'+k("solapa-dorso")+'"><i></i></div>'+'</div>'+'</div>';}
+function sobreHTML(vale,n){var id=uid();return'<div class="'+k("sobre")+'">'+'<div class="'+k("sobre-pony")+'" aria-hidden="true"><div>'+ponyDibujo(trajeCalendario())+'</div></div>'+'<div class="'+k("sobre-atras")+'"></div>'+'<div class="'+k("sobre-vale")+'">'+vale+'</div>'+'<div class="'+k("sobre-frente")+'" aria-hidden="true"><svg viewBox="0 0 318 150" preserveAspectRatio="none">'+'<path d="M0 0 L150 84 L0 150Z" fill="#A9352A"/><path d="M318 0 L168 84 L318 150Z" fill="#A9352A"/>'+'<path d="M0 150 L159 62 L318 150Z" fill="#BE4334"/>'+'<path d="M0 150 L159 62 L318 150 M0 0 L146 82 M318 0 L172 82" fill="none" stroke="rgba(60,14,9,.35)" stroke-width="1.2"/>'+'<path d="M4 146 L159 60" stroke="rgba(255,220,200,.18)" stroke-width="1"/></svg>'+'<span>PARA VOS · NO ABRIR ANTES DEL '+n+'</span></div>'+'<div class="'+k("sobre-solapa")+'" aria-hidden="true">'+'<div class="'+k("solapa-cara")+'"><i></i><b class="'+k("lacre")+'"><svg viewBox="0 0 60 60"><defs><filter id="'+id+'"><feTurbulence type="fractalNoise" baseFrequency=".9" seed="7"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter></defs>'+'<circle cx="30" cy="30" r="26" fill="#7E1D14" filter="url(#'+id+')"/><circle cx="30" cy="30" r="18" fill="none" stroke="#5E130C" stroke-width="2"/>'+'<circle cx="30" cy="30" r="17" fill="none" stroke="#B3483B" stroke-width="1" opacity=".6"/>'+'<text x="30" y="37" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="600" font-size="20" fill="#C9584A">'+p2(n)+'</text></svg></b></div>'+'<div class="'+k("solapa-dorso")+'"><i></i></div>'+'</div>'+'</div>';}
 function montarSobre(velo,limpiezas){var sob=velo.querySelector("."+K+"sobre");if(!sob)return;var wrap=sob.querySelector("."+K+"sobre-vale"),vale=wrap.firstElementChild;var sol=sob.querySelector("."+K+"sobre-solapa"),pony=sob.querySelector("."+K+"sobre-pony > div");if(reducido()||!sob.animate){sob.classList.add(K+"sobre-quieto");return;}
 var tt=[],an=[];limpiezas.push(function(){tt.forEach(clearTimeout);an.forEach(function(a){try{a.cancel();}catch(e){}});});var g=vale.style.getPropertyValue("--g")||"0deg";var baja=wrap.offsetHeight-6;var hs=sob.querySelector("."+K+"sobre-atras").offsetHeight;wrap.style.clipPath="inset(-80px -40px "+(-(hs-14))+"px -40px)";an.push(vale.animate([{transform:"translateY("+baja+"px) rotate(0deg)"},{transform:"translateY("+baja+"px) rotate(0deg)",offset:.5},{transform:"translateY(-14px) rotate("+g+")",offset:.88},{transform:"translateY(0px) rotate("+g+")"}],{duration:1900,easing:"cubic-bezier(.3,.7,.3,1)",fill:"backwards"}));an[0].onfinish=function(){wrap.style.clipPath="";};an.push(sol.animate([{transform:"perspective(700px) rotateX(0deg)",zIndex:5},{transform:"perspective(700px) rotateX(0deg)",zIndex:5,offset:.3},{transform:"perspective(700px) rotateX(90deg)",zIndex:5,offset:.62},{transform:"perspective(700px) rotateX(90deg)",zIndex:1,offset:.63},{transform:"perspective(700px) rotateX(180deg)",zIndex:1}],{duration:1150,easing:"cubic-bezier(.4,.1,.3,1)",fill:"backwards"}));tt.push(setTimeout(function(){T3.sonido("papel",.8);},420));tt.push(setTimeout(function(){T3.sonido("pop",.8);},1200));an.push(pony.animate([{transform:"translateY(120px) rotate(0deg)"},{transform:"translateY(120px) rotate(0deg)",offset:.6},{transform:"translateY(-6px) rotate(-10deg)",offset:.86},{transform:"translateY(0px) rotate(-7deg)"}],{duration:3400,easing:"cubic-bezier(.3,1.3,.5,1)",fill:"backwards"}));tt.push(setTimeout(function(){T3.sonido("pop",.6);},2900));}
-function mostrarSorpresa(n,f,desde,alTerminar){if(abierto)abierto.cerrar(true);var it=contenido(n);var velo=document.createElement("div");velo.className=K+"velo";velo.setAttribute("role","dialog");velo.setAttribute("aria-label","Ventanita "+n);var pista={vale:"Cuando lo quieras usar, mantené apretado el talón.",voz:"Tocá el cassette.",ponyta:"Tocala.",frase:"",foto:"",dato:"",lego:""}[it.tipo]||"";if(it.tipo==="vale"&&canjes()[f])pista="Ya lo usaste. Igual queda acá.";velo.innerHTML='<div class="'+k("mesa")+'">'+'<div class="'+k("rotulo")+'">VENTANITA '+n+' · '+esc(T3.f.larga(f).toUpperCase())+'</div>'+'<div class="'+k("vuelo")+'"><div class="'+k("objeto o-"+it.tipo)+'">'+objetoHTML(it,n,f)+'</div></div>'+'<p class="'+k("pista")+'">'+esc(pista)+'</p>'+'<button class="'+k("guardar")+'" type="button">Guardar</button></div>';document.body.appendChild(velo);document.documentElement.classList.add(K+"bloqueo");var vuelo=velo.querySelector("."+K+"vuelo");var limpiezas=[];var cerrando=false;function cerrar(ya){if(cerrando)return;cerrando=true;limpiezas.forEach(function(fn){try{fn();}catch(e){}});document.removeEventListener("keydown",tecla,true);abierto=null;if(!document.querySelector("."+K+"escena-fija"))document.documentElement.classList.remove(K+"bloqueo");var fin=function(){if(velo.parentNode)velo.remove();if(alTerminar)alTerminar(n);};if(ya||reducido()||!vuelo.animate){fin();return;}
+function mostrarSorpresa(n,f,desde,alTerminar){if(abierto)abierto.cerrar(true);var it=contenido(n);var velo=document.createElement("div");velo.className=K+"velo";velo.setAttribute("role","dialog");velo.setAttribute("aria-label","Ventanita "+n);var pista={vale:"Cuando lo quieras usar, mantené apretado el talón.",voz:"Tocá el cassette.",ponyta:"Tocala.",frase:"",foto:"",dato:"",lego:""}[it.tipo]||"";if(it.tipo==="vale"&&canjes()[f])pista="Ya lo usaste. Igual queda acá.";if(T3.ventanitas&&T3.ventanitas.es(it.tipo))pista=T3.ventanitas.pie(it,n,f);velo.innerHTML='<div class="'+k("mesa")+'">'+'<div class="'+k("rotulo")+'">VENTANITA '+n+' · '+esc(T3.f.larga(f).toUpperCase())+'</div>'+'<div class="'+k("vuelo")+'"><div class="'+k("objeto o-"+it.tipo)+'">'+objetoHTML(it,n,f)+'</div></div>'+'<p class="'+k("pista")+'">'+esc(pista)+'</p>'+'<button class="'+k("guardar")+'" type="button">Guardar</button></div>';document.body.appendChild(velo);document.documentElement.classList.add(K+"bloqueo");var vuelo=velo.querySelector("."+K+"vuelo");var limpiezas=[];var cerrando=false;function cerrar(ya){if(cerrando)return;cerrando=true;limpiezas.forEach(function(fn){try{fn();}catch(e){}});document.removeEventListener("keydown",tecla,true);abierto=null;if(!document.querySelector("."+K+"escena-fija"))document.documentElement.classList.remove(K+"bloqueo");var fin=function(){if(velo.parentNode)velo.remove();if(alTerminar)alTerminar(n);};if(ya||reducido()||!vuelo.animate){fin();return;}
 T3.sonido("papel",.6);velo.classList.add(K+"velo-va");var a=vuelo.animate([{transform:"none",opacity:1},{transform:haciaOrigen(vuelo,desde),opacity:desde&&desde.isConnected?.2:0}],{duration:420,easing:"cubic-bezier(.5,0,.75,.4)",fill:"forwards"});a.onfinish=fin;}
 function tecla(e){if(e.key==="Escape")cerrar();}
 document.addEventListener("keydown",tecla,true);velo.addEventListener("click",function(e){if(e.target===velo||e.target.classList.contains(K+"mesa"))cerrar();});velo.querySelector("."+K+"guardar").addEventListener("click",function(){cerrar();});abierto={velo:velo,cerrar:cerrar};montarObjeto(it,n,f,velo,limpiezas);try{if(it.tipo==="vale"&&T3.vuelta&&T3.vuelta.enVale)T3.vuelta.enVale(velo,n,f,it,!!canjes()[f]);}catch(e){}try{if(T3.viaje&&T3.viaje.enSorpresa)T3.viaje.enSorpresa(velo,n,f,it,limpiezas);}catch(e){}T3.sonido("pop");if(!reducido()&&vuelo.animate){velo.animate([{opacity:0},{opacity:1}],{duration:260,easing:"ease-out"});vuelo.animate([{transform:haciaOrigen(vuelo,desde),opacity:.3},{transform:"none",opacity:1}],{duration:640,easing:"cubic-bezier(.3,1.25,.5,1)"});}
 return cerrar;}
 function haciaOrigen(el,desde){if(!desde||!desde.isConnected)return"translateY(60px) scale(.9)";var a=desde.getBoundingClientRect(),b=el.getBoundingClientRect();if(!b.width||!a.width)return"scale(.3)";var s=Math.max(.08,Math.min(a.width/b.width,a.height/b.height));var dx=(a.left+a.width/2)-(b.left+b.width/2),dy=(a.top+a.height/2)-(b.top+b.height/2);return"translate("+dx.toFixed(1)+"px,"+dy.toFixed(1)+"px) scale("+s.toFixed(3)+") rotate(-4deg)";}
-function montarObjeto(it,n,f,velo,limpiezas){var q=function(s){return velo.querySelector("."+K+s);};if(it.tipo==="vale"){var talon=q("vale-talon");if(talon)montarTalon(talon,n,f,velo);if(it.especial==="nochebuena")montarSobre(velo,limpiezas);}
+function montarObjeto(it,n,f,velo,limpiezas){var q=function(s){return velo.querySelector("."+K+s);};if(T3.ventanitas&&T3.ventanitas.es(it.tipo)){T3.ventanitas.montar(it,n,f,velo,limpiezas);return;}if(it.tipo==="vale"){var talon=q("vale-talon");if(talon)montarTalon(talon,n,f,velo);if(it.especial==="nochebuena")montarSobre(velo,limpiezas);}
 else if(it.tipo==="voz"){var cas=q("cassette"),tec=q("tecla"),audio=null;var propia=it.grabado===true&&it.audio?it.audio:null;var fuente=propia||it.respaldo||it.audio||"loro1.m4a";if(propia&&it.respaldo){try{var pre=new Audio(U.audio(propia));pre.preload="metadata";pre.addEventListener("error",function(){fuente=it.respaldo;});limpiezas.push(function(){try{pre.removeAttribute("src");pre.load();}catch(e){}});}catch(e){fuente=it.respaldo;}}
 var parar=function(){cas.classList.remove(K+"sonando");tec.classList.remove(K+"tecla-baja");};var fallo=function(){parar();q("pista").textContent="No sonó. Tocalo de nuevo.";};var sonar=function(){var a;try{a=new Audio(U.audio(fuente));}catch(e){fallo();return;}
 audio=a;tec.classList.add(K+"tecla-baja");a.addEventListener("playing",function(){if(audio===a)cas.classList.add(K+"sonando");});a.addEventListener("ended",function(){if(audio===a)parar();});a.addEventListener("pause",function(){if(audio===a)parar();});a.addEventListener("error",function(){if(audio===a){if(propia&&fuente===propia&&it.respaldo)fuente=it.respaldo;fallo();}});var pr;try{pr=a.play();}catch(e){fallo();return;}
@@ -10566,7 +10762,7 @@ function montarTalon(talon,n,f,velo){var timer=null,hecho=false;var soltar=funct
 var UP=54,GAP=6;var ADENTRO={vale:"adentro: un vale",foto:"adentro: una foto",voz:"adentro: mi voz",ponyta:"adentro: Ponyta",frase:"adentro: una nota",dato:"adentro: una cuenta",lego:"adentro: un Lego"};function medidas(g,u,gap,max,min){var w=g.w*u+(g.w-1)*gap,h=g.h*u+(g.h-1)*gap;if(min){var p=Math.max(1,min/Math.min(w,h));w=Math.round(w*p);h=Math.round(h*p);}
 if(max){var s=Math.min(1,max/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);}
 return{w:w,h:h};}
-function puerta(host,f){f=f||T3.hoy;var n=numDe(f);if(!host||!n)return null;var g=GRILLA[n];var raiz=document.createElement("div");raiz.className=K+"puerta";function pintar(){var m=medidas(g,UP,GAP,160,84);var ab=estaAbierta(f),fut=!sePuede(f),hoy=f===T3.hoy;var mano=ab?(ADENTRO[contenido(n).tipo]||"adentro: algo tuyo"):fut?"todavía no":hoy?(n===1&&!T3.leer("adviento-popup",false)?"tocala. hay más.":"la de hoy"):"te espera, sin apuro";raiz.innerHTML='<div class="'+k("recorte recorte-"+g.bis)+'" style="--g:'+giro("r"+f,3)+'deg">'+'<span class="'+k("recorte-washi"+(hoy&&!ab?" recorte-washi-hoy":""))+'" style="--g:'+giro("w"+f,9)+'deg"></span>'+
+function puerta(host,f){f=f||T3.hoy;var n=numDe(f);if(!host||!n)return null;var g=GRILLA[n];var raiz=document.createElement("div");raiz.className=K+"puerta";function pintar(){var m=medidas(g,UP,GAP,160,84);var ab=estaAbierta(f),fut=!sePuede(f),hoy=f===T3.hoy;var mano=ab?(ADENTRO[contenido(n).tipo]||(T3.ventanitas&&T3.ventanitas.adentro(contenido(n).tipo))||"adentro: algo tuyo"):fut?"todavía no":hoy?(n===1&&!T3.leer("adviento-popup",false)?"tocala. hay más.":"la de hoy"):"te espera, sin apuro";raiz.innerHTML='<div class="'+k("recorte recorte-"+g.bis)+'" style="--g:'+giro("r"+f,3)+'deg">'+'<span class="'+k("recorte-washi"+(hoy&&!ab?" recorte-washi-hoy":""))+'" style="--g:'+giro("w"+f,9)+'deg"></span>'+
 ventanaHTML(n,f,m.w,m.h)+'<span class="'+k("recorte-pie")+'">DIC · '+p2(n)+'</span>'+'</div>'+(mano?'<span class="'+k("puerta-mano"+(ab?" puerta-mano-lapiz":""))+'">'+esc(mano)+'</span>':'');var v=raiz.querySelector("."+K+"v");var tocar=function(e){if(e){e.stopPropagation();if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;if(e.type==="keydown")e.preventDefault();}
 if(!T3.leer("adviento-popup",false)&&sePuede(f)&&visible(T3.hoy)&&!reducido()){escenaCalendario(function(){pintar();});return;}
 tocarVentana(v,function(){pintar();});};v.addEventListener("click",tocar);v.addEventListener("keydown",tocar);}
@@ -14470,6 +14666,10 @@ function libro(){
   return l;
 }
 function saldo(){try{return T3.tcg&&T3.tcg.puntos?T3.tcg.puntos():0;}catch(e){return 0;}}
+/* EL CUPÓN DEL ADVIENTO (T3.ventanitas; ventanita 13): un descuento para UNA compra, la que ella quiera, también lo
+   caro. No se aplica solo: en la hoja de confirmar hay un botón para usarlo (y se puede arrepentir antes de comprar). */
+function cupon(){try{return T3.ventanitas&&T3.ventanitas.cupon?T3.ventanitas.cupon():null;}catch(e){return null;}}
+function rebajado(n){var k=cupon();return k?Math.ceil(n*(100-k.pct)/100):n;}
 function pagar(n){try{return !!(T3.tcg&&T3.tcg.gastar&&T3.tcg.gastar(n));}catch(e){return false;}}
 function tiene(id){return !!libro().cosas[id];}
 function nro(n){return String(n).padStart(4,"0");}
@@ -14477,23 +14677,33 @@ function mensaje(p,n){
   if(p.libre)return "🎟️ Pedido Nº "+nro(n)+" (comodín): ";
   return "🎟️ Pedido Nº "+nro(n)+": "+(p.m||p.t)+".";
 }
-/* canjea un pedido de la vida real: cobra, lo anota y devuelve su número (0 si no alcanzó) */
-function pedir(p){
-  if(!pagar(p.p))return 0;
-  var L=libro();
-  L.n++;L.log.push({n:L.n,id:p.id,t:p.t,f:T3.hoy,p:p.p});
+/* canjea un pedido de la vida real: cobra, lo anota y devuelve su número (0 si no alcanzó). con = usando el cupón */
+function pedir(p,con){
+  var k=con?cupon():null;
+  if(con&&!k)return 0;
+  var sale=k?rebajado(p.p):p.p;
+  if(!pagar(sale))return 0;
+  var L=libro(),r={n:L.n+1,id:p.id,t:p.t,f:T3.hoy,p:sale};
+  if(k)r.cupon=k.pct;
+  L.n++;L.log.push(r);
   if(L.log.length>200)L.log=L.log.slice(-200);
   T3.guardar(LL,L);
-  T3.stat("pedidos");T3.stat("pedido-"+p.id);T3.stat("tienda-gastado",p.p);
+  if(k)T3.ventanitas.usarCupon(p.t,p.p,sale);
+  T3.stat("pedidos");T3.stat("pedido-"+p.id);T3.stat("tienda-gastado",sale);
   return L.n;
 }
-/* compra algo de Ponyta: cobra, lo anota y, si es una prenda, se la pone */
-function comprar(c){
-  if(c.pronto||tiene(c.id)||!pagar(c.precio))return false;
+/* compra algo de Ponyta: cobra, lo anota y, si es una prenda, se la pone. con = usando el cupón */
+function comprar(c,con){
+  if(c.pronto||tiene(c.id))return false;
+  var k=con?cupon():null;
+  if(con&&!k)return false;
+  var sale=k?rebajado(c.precio):c.precio;
+  if(!pagar(sale))return false;
   var L=libro();
   L.cosas[c.id]=T3.hoy;
   T3.guardar(LL,L);
-  T3.stat("tienda-compras");T3.stat("tienda-gastado",c.precio);
+  if(k)T3.ventanitas.usarCupon(c.nombre,c.precio,sale);
+  T3.stat("tienda-compras");T3.stat("tienda-gastado",sale);
   (c.da||[]).forEach(function(id){if(T3.ropa&&T3.ropa.PRENDAS[id])L.cosas[id]=T3.hoy;});
   T3.guardar(LL,L);
   if(T3.ropa){
@@ -14535,6 +14745,7 @@ function pagina(host){
       '<header class="t3x-ped-cab t3x-tie-cab"><div><h2>La tienda</h2><p>Acá nada es gratis: todo sale MafiaPoints.</p></div>'+
       '<button type="button" class="t3x-saldo" data-tie="duelos" aria-label="Tenés '+S+' MafiaPoints. Ir a los duelos">'+moneda()+'<b>'+S+'</b><i>MafiaPoints</i></button></header>'+
       '<p class="t3x-tie-como">Se ganan en los duelos del TCG: '+(T3.tcg&&T3.tcg.POR_VICTORIA||10)+' por victoria, '+(T3.tcg&&T3.tcg.DUELOS_POR_DIA===1?"un duelo":(T3.tcg&&T3.tcg.DUELOS_POR_DIA||2)+" duelos")+' por día.</p>'+
+      (cupon()?'<p class="t3x-tie-cupon"><b>'+cupon().pct+'%</b><span>Tenés el cupón del adviento: vale para una compra, la que quieras. Lo usás al comprar.</span></p>':'')+
 
       '<h3 class="t3x-tie-palo">El talonario<small>pedidos de la vida real</small></h3>'+
       '<p class="t3x-tie-nota">Canjeás uno y me llega por WhatsApp. Se cumplen todos. (Casi todos.)</p>'+
@@ -14578,32 +14789,45 @@ function pagina(host){
     requestAnimationFrame(function(){if(capa===c)c.classList.add("t3x-ver");});
     T3.sonido("papel",.6);
   }
-  function cuenta(sale,S){
-    return sale>S?'<p class="t3x-compra-cuenta t3x-compra-falta">sale <b>'+sale+'</b> · tenés <b>'+S+'</b><span>te faltan '+(sale-S)+' MafiaPoints</span></p>'
-      :'<p class="t3x-compra-cuenta">sale <b>'+sale+'</b> · tenés <b>'+S+'</b><span>te quedan '+(S-sale)+'</span></p>';
+  /* antes = lo que salía sin el cupón (si se lo está usando) */
+  function cuenta(sale,S,antes){
+    var precio=antes?'sale <s>'+antes+'</s> <b>'+sale+'</b> con el cupón':'sale <b>'+sale+'</b>';
+    return sale>S?'<p class="t3x-compra-cuenta t3x-compra-falta">'+precio+' · tenés <b>'+S+'</b><span>te faltan '+(sale-S)+' MafiaPoints</span></p>'
+      :'<p class="t3x-compra-cuenta">'+precio+' · tenés <b>'+S+'</b><span>te quedan '+(S-sale)+'</span></p>';
   }
-  var enMano=null;     /* lo que está en la hoja: {ticket} o {cosa} */
-  function verTicket(p){
-    var L=libro(),S=saldo(),n=L.n+1,alcanza=S>=p.p;
-    enMano={ticket:p,n:n};
-    hoja('<p class="t3x-compra-rot">Pedido Nº '+nro(n)+'</p>'+X.dib(p.dib,"t3x-dib t3x-compra-dib")+
-      '<h3>'+esc(p.t)+'</h3><p class="t3x-compra-dice">'+esc(p.d)+'</p>'+cuenta(p.p,S)+
-      (alcanza?'<a class="t3x-boton" data-tie="pedir" href="'+esc(X.wa(mensaje(p,n)))+'" target="_blank" rel="noopener">Canjear y avisarle<i aria-hidden="true">↗</i></a>'+
+  /* el botón del cupón, en la hoja: lo pone y lo saca */
+  function botonCupon(k,usa,precio){
+    if(!k)return "";
+    return '<button type="button" class="t3x-cupon-usar'+(usa?" t3x-cupon-puesto":"")+'" data-tie="cupon" aria-pressed="'+(usa?"true":"false")+'">'+
+      '<i aria-hidden="true">'+k.pct+'%</i><span>'+(usa?'Con tu cupón del adviento. <u>No usarlo</u>':'Usar mi cupón: te sale <b>'+rebajado(precio)+'</b>')+'</span></button>';
+  }
+  var enMano=null;     /* lo que está en la hoja: {ticket} o {cosa}, y si va con el cupón */
+  function htmlTicket(p,con){
+    var L=libro(),S=saldo(),n=L.n+1,k=cupon(),usa=!!(con&&k),sale=usa?rebajado(p.p):p.p,alcanza=S>=sale;
+    enMano={ticket:p,n:n,cupon:usa};
+    var msj=mensaje(p,n)+(usa?" (con mi cupón del adviento)":"");
+    return '<p class="t3x-compra-rot">Pedido Nº '+nro(n)+'</p>'+X.dib(p.dib,"t3x-dib t3x-compra-dib")+
+      '<h3>'+esc(p.t)+'</h3><p class="t3x-compra-dice">'+esc(p.d)+'</p>'+cuenta(sale,S,usa?p.p:0)+botonCupon(k,usa,p.p)+
+      (alcanza?'<a class="t3x-boton" data-tie="pedir" href="'+esc(X.wa(msj))+'" target="_blank" rel="noopener">Canjear y avisarle<i aria-hidden="true">↗</i></a>'+
         '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Mejor no</button>'
-        :'<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>'),p.t);
+        :'<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>');
   }
-  function verCosa(c){
-    var S=saldo(),alcanza=S>=c.precio;
-    enMano={cosa:c};
+  function verTicket(p){hoja(htmlTicket(p,false),p.t);}
+  function htmlCosa(c,con){
+    var S=saldo(),k=c.pronto?null:cupon(),usa=!!(con&&k),sale=usa?rebajado(c.precio):c.precio,alcanza=S>=sale;
+    enMano={cosa:c,cupon:usa};
     var cab='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(conLogo(c)?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+esc(c.nombre)+'</h3><p class="t3x-compra-dice">'+esc(c.dice)+'</p>';
-    if(c.pronto){
-      hoja(cab+'<p class="t3x-compra-cuenta t3x-compra-falta">sale <b>'+c.precio+'</b> · tenés <b>'+S+'</b><span>todavía no llegó a la vidriera. andá juntando.</span></p>'+
-        '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>',c.nombre);
-      return;
-    }
-    hoja(cab+cuenta(c.precio,S)+
+    if(c.pronto)return cab+'<p class="t3x-compra-cuenta t3x-compra-falta">sale <b>'+c.precio+'</b> · tenés <b>'+S+'</b><span>todavía no llegó a la vidriera. andá juntando.</span></p>'+
+        '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>';
+    return cab+cuenta(sale,S,usa?c.precio:0)+botonCupon(k,usa,c.precio)+
       (alcanza?'<button type="button" class="t3x-boton" data-tie="comprar">Comprar</button><button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Mejor no</button>'
-        :'<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>'),c.nombre);
+        :'<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Cerrar</button>');
+  }
+  function verCosa(c){hoja(htmlCosa(c,false),c.nombre);}
+  /* lo que dice la hoja después de comprar, si fue con el cupón */
+  function conCuponHTML(){
+    var u=T3.ventanitas&&T3.ventanitas.cuponUsado?T3.ventanitas.cuponUsado():null;
+    return u?'<p class="t3x-compra-cupon">Con el cupón: pagaste <b>'+u.pago+'</b> en vez de '+u.antes+'.</p>':'';
   }
   function enHoja(ev){
     if(!capa)return;
@@ -14613,29 +14837,35 @@ function pagina(host){
     var que=b.getAttribute("data-tie"),papel=capa.querySelector(".t3x-compra-papel");
     if(que==="cerrar"){cerrar();return;}
     if(que==="ir-ponyta"){cerrar();try{T3.cuaderno.abrir("ponyta");}catch(e){}return;}
+    if(que==="cupon"&&enMano){
+      /* poner o sacar el cupón: la hoja se vuelve a escribir con la otra cuenta */
+      T3.sonido("tic",.8);
+      papel.innerHTML=enMano.ticket?htmlTicket(enMano.ticket,!enMano.cupon):htmlCosa(enMano.cosa,!enMano.cupon);
+      return;
+    }
     if(que==="pedir"&&enMano&&enMano.ticket){
       /* el toque ya abre WhatsApp (es un link): acá se cobra y se anota */
-      var p=enMano.ticket,n=pedir(p);
+      var p=enMano.ticket,conK=!!enMano.cupon,n=pedir(p,conK);
       enMano=null;
       if(!n){ev.preventDefault();cerrar();pintar();return;}
       T3.sonido("sello",.9);U.vibrar(18);
       papel.innerHTML='<p class="t3x-compra-rot">Pedido Nº '+nro(n)+'</p>'+X.dib(p.dib,"t3x-dib t3x-compra-dib")+
-        '<h3>Pedido hecho</h3><p class="t3x-compra-dice">'+esc(p.t)+'. Ya está anotado y cobrado.</p>'+
+        '<h3>Pedido hecho</h3><p class="t3x-compra-dice">'+esc(p.t)+'. Ya está anotado y cobrado.</p>'+(conK?conCuponHTML():'')+
         '<p class="t3x-compra-cuenta">te quedan <b>'+saldo()+'</b></p>'+
         '<button type="button" class="t3x-boton" data-tie="cerrar">Listo</button>'+
-        '<a class="t3x-compra-otra" href="'+esc(X.wa(mensaje(p,n)))+'" target="_blank" rel="noopener">¿no se abrió WhatsApp? mandarlo de nuevo ↗</a>';
+        '<a class="t3x-compra-otra" href="'+esc(X.wa(mensaje(p,n)+(conK?" (con mi cupón del adviento)":"")))+'" target="_blank" rel="noopener">¿no se abrió WhatsApp? mandarlo de nuevo ↗</a>';
       pintar();
       return;
     }
     if(que==="comprar"&&enMano&&enMano.cosa){
-      var c=enMano.cosa;
+      var c=enMano.cosa,conC=!!enMano.cupon;
       enMano=null;
-      if(!comprar(c)){cerrar();pintar();return;}
+      if(!comprar(c,conC)){cerrar();pintar();return;}
       T3.sonido("exito",.9);U.vibrar(24);
       try{U.confeti({cantidad:70});}catch(e){}
       try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
       papel.innerHTML='<div class="t3x-compra-foto'+(c.prenda?"":" t3x-compra-icono")+(conLogo(c)?" t3x-con-logo":"")+'">'+foto(c)+'</div><h3>'+(c.prenda?gen(c.id).titulo:"Es tuyo")+'</h3>'+
-        '<p class="t3x-compra-dice">'+esc(c.prenda?c.nombre+". No se "+gen(c.id).lo+" quiere sacar.":(c.listo||c.nombre+"."))+'</p>'+
+        '<p class="t3x-compra-dice">'+esc(c.prenda?c.nombre+". No se "+gen(c.id).lo+" quiere sacar.":(c.listo||c.nombre+"."))+'</p>'+(conC?conCuponHTML():'')+
         '<p class="t3x-compra-cuenta">te quedan <b>'+saldo()+'</b></p>'+
         '<button type="button" class="t3x-boton" data-tie="ir-ponyta">Ir a verla</button>'+
         '<button type="button" class="t3x-boton t3x-boton-claro" data-tie="cerrar">Seguir mirando</button>';
@@ -14674,7 +14904,7 @@ function pagina(host){
 }
 
 T3.tienda={activo:function(){return X.estrenado();},pagina:pagina,tiene:tiene,
-  _prueba:{tickets:tickets,cosas:cosas,libro:libro,mensaje:mensaje,pedir:pedir,comprar:comprar,saldo:saldo,LL:LL,ESPECIALES:ESPECIALES}};
+  _prueba:{tickets:tickets,cosas:cosas,libro:libro,mensaje:mensaje,pedir:pedir,comprar:comprar,saldo:saldo,cupon:cupon,rebajado:rebajado,LL:LL,ESPECIALES:ESPECIALES}};
 /* el cuaderno la conoce por su nombre viejo: la pestaña sigue siendo "pedidos" */
 T3.pedidos=T3.tienda;
 })();
@@ -18215,6 +18445,395 @@ function partio(raiz,o){
 marcar();
 T3.viaje={toca:toca,ausente:ausente,conGorro:conGorro,gorroPuesto:gorroPuesto,seAbrio:seAbrio,enSorpresa:enSorpresa,frase:frase,poner:poner,gorroRapidash:gorroRapidash,
   vestir:vestir,partio:partio,ida:ida,SALE:SALE,VUELVE:VUELVE,GORRO_HASTA:GORRO_HASTA};
+})();
+
+/* ------------------------------------------------------------
+   LAS VENTANITAS NUEVAS DEL ADVIENTO (26/11/2026)
+   Mati sacó del adviento las fotos, las notas de voz y las frases, y pidió dos cosas:
+
+   · LA BÚSQUEDA DEL TESORO. Cuatro ventanitas (3, 6, 10 y 15) dan un pedazo de un mapa, cada uno con un número.
+     La del 24 es un cofre con clave: los cuatro números, en el orden del mapa. Adentro hay un papel que dice dónde
+     escondió Mati un regalo de verdad. La clave y el escondite están en CONFIG.t3.tesoro (clave, escondite); si el
+     escondite está vacío, el papel la manda a pedirle la última pista a él.
+   · EL CUPÓN (ventanita 13): 50% de descuento en UNA compra de la tienda, la que ella quiera (también lo caro).
+     Se usa al comprar: la hoja de confirmar de T3.tienda ofrece usarlo.
+
+   · EL PAPELITO (ventanita 4). Un papel escrito a máquina con un texto que dictó Mati, sobre algo que compró y
+     escondió (no tiene que ver con el cofre). ⚠ El texto va LETRA POR LETRA: las mayúsculas que parecen puestas al
+     azar son la pista (forman P-LA-C-A-R). No se corrige, no se le agregan tildes ni se le aplica text-transform.
+     Él pidió que la diferencia entre mayúsculas y minúsculas sea bien alevosa: cada mayúscula se dibuja aparte,
+     con otra tipografía. Hay tres estilos ("sello", "marcador" y "recortes") y eligió "recortes": el texto escrito
+     a mano y las mayúsculas como letras recortadas de revista.
+
+   Son cuatro tipos nuevos de ventanita: "mapa" ({orden:1…4}), "cofre", "cupon" ({pct:50}) y "papelito" ({texto,
+   estilo}). El módulo del adviento
+   (minificado, más arriba) les pregunta a estas funciones cómo se dibuja cada uno: es(), mini(), objeto(), pie(),
+   montar() y adentro(). Qué ventanita lleva cada cosa está en su lista CONTENIDO_ADVIENTO.
+
+   Qué se guarda: las ventanitas abiertas ya las anota el adviento ("adviento"); el cupón usado va con los vales
+   canjeados ("adviento-canjes") y además en "cupon-usado" (en qué lo gastó); el cofre abierto, en "tesoro".
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3;
+if(!T3||!T3.x)return;
+var X=T3.x,esc=X.esc,U=T3.util,C=T3.config||{};
+var TIPOS={mapa:1,cofre:1,cupon:1,papelito:1};
+var CLAVE_DE_RESERVA="2805";
+var ORD=["primer","segundo","tercer","cuarto"];
+var _uid=0;
+function p2(n){return String(n).padStart(2,"0");}
+function reducido(){return !!(U.reducido&&U.reducido());}
+function anio(){var h=T3.hoy;return h.slice(5,7)==="01"?+h.slice(0,4)-1:+h.slice(0,4);}
+function fechaDe(n){return anio()+"-12-"+p2(n);}
+function contenido(n){try{return T3.adviento.contenido(n)||{};}catch(e){return {};}}
+function abierta(n){return T3.tiene("adviento",fechaDe(n));}
+function canjes(){return T3.leer("adviento-canjes",{})||{};}
+
+/* ============ la búsqueda del tesoro ============ */
+/* los cuatro números del cofre, en orden */
+function clave(){
+  var c=String((C.tesoro&&C.tesoro.clave)||"").replace(/\D/g,"");
+  return c.length===4?c:CLAVE_DE_RESERVA;
+}
+function escondite(){return String((C.tesoro&&C.tesoro.escondite)||"").trim();}
+/* los pedazos del mapa, en orden: [{orden, n (ventanita), abierta, num}] */
+function pedazos(){
+  var l=[];
+  for(var n=1;n<=24;n++){var it=contenido(n);if(it.tipo==="mapa")l.push({n:n,orden:+it.orden||0});}
+  l.sort(function(a,b){return (a.orden||99)-(b.orden||99)||a.n-b.n;});
+  l=l.slice(0,4);
+  var k=clave();
+  l.forEach(function(p,i){p.orden=i+1;p.abierta=abierta(p.n);p.num=k.charAt(i);});
+  return l;
+}
+function pedazoDe(n){return pedazos().filter(function(p){return p.n===n;})[0]||null;}
+function tesoro(){var t=T3.leer("tesoro",null);return t&&typeof t==="object"?t:{};}
+function cofreAbierto(){return !!tesoro().abierto;}
+
+/* ---- el mapa: un solo dibujo de 400×200, cortado en cuatro tiras de 100 ---- */
+var TINTA="#4A3323",ROJO="#B33A2B",PAPEL="#EBD9AE",PAPEL2="#DCC792";
+/* dónde va el número de cada tira (centro del círculo) */
+var NUMS=[[56,104],[152,136],[250,142],[346,142]];
+/* el título va abajo, repartido entre las cuatro tiras (sin letras sobre los cortes) */
+var TITULO=[["E",58],["L",82],["·",120],["T",148],["E",176],["S",222],["O",250],["R",278],["O",324]];
+function mapaTinta(k){
+  var s='<g fill="none" stroke="'+TINTA+'" stroke-linecap="round" stroke-linejoin="round">'+
+    /* el marco */
+    '<rect x="9" y="9" width="382" height="182" stroke-width="1.6"/><rect x="13.500" y="13.500" width="373" height="173" stroke-width=".6"/>'+
+    /* manchas del papel */
+    '<g stroke="none" fill="#B99A5E" opacity=".22"><ellipse cx="118" cy="52" rx="34" ry="16"/><ellipse cx="292" cy="158" rx="40" ry="14"/><ellipse cx="366" cy="40" rx="18" ry="22"/><ellipse cx="30" cy="176" rx="22" ry="10"/></g>'+
+    /* la rosa de los vientos */
+    '<g stroke-width="1.100"><circle cx="50" cy="46" r="15"/><circle cx="50" cy="46" r="2" fill="'+TINTA+'"/>'+
+    '<path d="M50 24 54 42 50 46 46 42Z M50 68 46 50 50 46 54 50Z M28 46 46 42 50 46 46 50Z M72 46 54 50 50 46 54 42Z" fill="'+PAPEL2+'"/>'+
+    '<path d="M50 24 50 46 54 42Z M50 68 50 46 46 50Z" fill="'+TINTA+'" stroke="none"/></g>'+
+    /* la casa de donde se sale */
+    '<g stroke-width="1.300"><path d="M28 160 28 148 38 139 48 148 48 160Z"/><path d="M35 160 35 152 41 152 41 160"/><path d="M24 150 38 137 52 150"/></g>'+
+    /* el camino, punteado */
+    '<path d="M54 152 C82 150 96 128 118 118 S160 96 188 104 S236 126 262 110 S306 70 330 86" stroke-width="2.200" stroke-dasharray=".5 7"/>'+
+    /* palmeras */
+    '<g stroke-width="1.300"><path d="M138 84 Q141 68 136 56"/><path d="M136 56 Q126 50 119 56 M136 56 Q130 44 121 44 M136 56 Q140 44 150 45 M136 56 Q147 52 152 60 M136 56 Q134 46 138 40"/>'+
+    '<path d="M166 78 Q168 66 165 58"/><path d="M165 58 Q157 53 152 58 M165 58 Q160 49 154 49 M165 58 Q169 49 176 50 M165 58 Q173 55 177 61"/></g>'+
+    /* las olas */
+    '<g stroke-width="1" stroke="#6F8F8A"><path d="M196 28 q5 -5 10 0 t10 0 t10 0"/><path d="M222 38 q5 -5 10 0 t10 0"/><path d="M300 26 q5 -5 10 0 t10 0"/><path d="M76 26 q4 -4 8 0 t8 0"/><path d="M110 34 q5 -5 10 0 t10 0"/><path d="M352 118 q4 -4 8 0 t8 0"/><path d="M22 84 q4 -4 8 0 t8 0"/></g>'+
+    /* los cerros */
+    '<g stroke-width="1.300"><path d="M222 86 240 52 254 78"/><path d="M246 86 266 44 290 86"/><path d="M240 52 244 62 M266 44 270 56 262 62 M270 56 276 60"/><path d="M216 86 H296" stroke-width=".8"/></g>'+
+    /* la cruz: ahí */
+    '<g stroke="'+ROJO+'" stroke-width="3.400"><path d="M322 76 342 98 M342 76 322 98"/></g><circle cx="332" cy="87" r="19" stroke="'+ROJO+'" stroke-width="1.100" stroke-dasharray="3 4"/>'+
+    '</g>'+
+    /* el título, repartido entre las cuatro tiras */
+    '<g class="t3x-mapa-titulo" fill="'+TINTA+'" text-anchor="middle">'+TITULO.map(function(l,i){return '<text x="'+l[1]+'" y="'+(i%2?180:181.500)+'">'+l[0]+'</text>';}).join("")+'</g>';
+  /* los números, en rojo y con su orden */
+  NUMS.forEach(function(p,i){
+    if(k[i]==null)return;
+    s+='<g class="t3x-mapa-n"><circle cx="'+p[0]+'" cy="'+p[1]+'" r="19" fill="'+PAPEL+'" stroke="'+ROJO+'" stroke-width="2"/>'+
+      '<path d="M'+(p[0]-17)+' '+(p[1]+9)+' Q'+p[0]+' '+(p[1]+27)+' '+(p[0]+18)+' '+(p[1]+6)+'" fill="none" stroke="'+ROJO+'" stroke-width="1" opacity=".6"/>'+
+      '<text class="t3x-mapa-num" x="'+p[0]+'" y="'+(p[1]+11)+'" text-anchor="middle" fill="'+ROJO+'">'+esc(k[i])+'</text>'+
+      '<text class="t3x-mapa-ord" x="'+(p[0]+22)+'" y="'+(p[1]-16)+'" text-anchor="start" fill="'+TINTA+'">'+(i+1)+'.º</text></g>';
+  });
+  return s;
+}
+/* el borde de una tira: recto donde termina el mapa, roto donde se cortó */
+function azar(sem){var a=sem|0;return function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296;};}
+function roto(x,y0,y1,sem){
+  var r=azar(sem),p=[],n=14,d=(y1-y0)/n;
+  for(var i=1;i<n;i++)p.push((x+(r()*2-1)*3.2).toFixed(1)+" "+(y0+d*i+(r()*2-1)*2).toFixed(1));
+  return p;
+}
+function tiraForma(i){
+  var x0=i*100,x1=x0+100;
+  var der=i<3?roto(x1,0,200,91+i*7):[],izq=i>0?roto(x0,0,200,91+(i-1)*7).reverse():[];
+  return "M"+x0+" 0 L"+x1+" 0 "+(der.length?"L"+der.join(" L")+" ":"")+"L"+x1+" 200 L"+x0+" 200 "+(izq.length?"L"+izq.join(" L")+" ":"")+"Z";
+}
+/* una tira suelta (la sorpresa de su ventanita) */
+function tiraSVG(i,num){
+  var id="t3xm"+(++_uid),k=[];k[i]=num;
+  return '<svg class="t3x-mapa-svg" viewBox="'+(i*100-6)+' -6 112 214" aria-hidden="true"><defs><clipPath id="'+id+'"><path d="'+tiraForma(i)+'"/></clipPath></defs>'+
+    '<path d="'+tiraForma(i)+'" transform="translate(2.500 3.500)" fill="rgba(20,12,6,.5)"/><path d="'+tiraForma(i)+'" fill="'+PAPEL+'"/>'+
+    '<g clip-path="url(#'+id+')">'+mapaTinta(k)+'</g><path d="'+tiraForma(i)+'" fill="none" stroke="rgba(74,51,35,.35)" stroke-width=".8"/></svg>';
+}
+/* el mapa armado con lo que haya (el del cofre): lo que falta, en línea de puntos */
+function mapaArmadoSVG(L){
+  var s='<svg class="t3x-mapa-svg t3x-mapa-armado" viewBox="-8 -8 428 220" role="img" aria-label="'+esc(mapaDicho(L))+'">';
+  for(var i=0;i<4;i++){
+    var p=L[i],dx=i*4,dy=[2,-2,3,0][i],g=[-1.200,.8,-.5,1.100][i];
+    var tr=' transform="translate('+dx+' '+dy+') rotate('+g+' '+(i*100+50)+' 100)"';
+    if(p&&p.abierta){
+      var id="t3xm"+(++_uid),k=[];k[i]=p.num;
+      s+='<g'+tr+'><defs><clipPath id="'+id+'"><path d="'+tiraForma(i)+'"/></clipPath></defs>'+
+        '<path d="'+tiraForma(i)+'" transform="translate(2 3)" fill="rgba(20,12,6,.5)"/><path d="'+tiraForma(i)+'" fill="'+PAPEL+'"/>'+
+        '<g clip-path="url(#'+id+')">'+mapaTinta(k)+'</g><path d="'+tiraForma(i)+'" fill="none" stroke="rgba(74,51,35,.35)" stroke-width=".8"/></g>';
+    }else{
+      s+='<g'+tr+' class="t3x-mapa-falta"><path d="'+tiraForma(i)+'" fill="rgba(235,217,174,.06)" stroke="rgba(235,217,174,.5)" stroke-width="1.200" stroke-dasharray="4 5"/>'+
+        '<text class="t3x-mapa-q" x="'+(i*100+50)+'" y="104" text-anchor="middle">?</text>'+
+        (p?'<text class="t3x-mapa-donde" x="'+(i*100+50)+'" y="132" text-anchor="middle">DIC·'+p2(p.n)+'</text>':'')+'</g>';
+    }
+  }
+  return s+'</svg>';
+}
+function mapaDicho(L){
+  var t=L.filter(function(p){return p.abierta;});
+  if(!t.length)return "El mapa del tesoro: todavía no tenés ningún pedazo.";
+  return "El mapa del tesoro. "+L.map(function(p){return ORD[p.orden-1]+" número: "+(p.abierta?p.num:"falta, está en la ventanita "+p.n);}).join("; ")+".";
+}
+function faltanDicho(L){
+  var f=L.filter(function(p){return !p.abierta;}).map(function(p){return "del "+p.n;});
+  if(!f.length)return "";
+  return f.length===1?"la ventanita "+f[0]:"las ventanitas "+f.slice(0,-1).join(", ")+" y "+f[f.length-1];
+}
+
+/* ---- el cofre ---- */
+function cofreSVG(abierto,chico){
+  var id="t3xc"+(++_uid);
+  return '<svg class="t3x-cofre-svg'+(abierto?" t3x-cofre-abierto":"")+'" viewBox="0 0 240 176" aria-hidden="true">'+
+    '<defs><radialGradient id="'+id+'" cx="50%" cy="60%" r="60%"><stop offset="0" stop-color="#FFE9A6" stop-opacity=".95"/><stop offset=".55" stop-color="#F2C24A" stop-opacity=".45"/><stop offset="1" stop-color="#F2C24A" stop-opacity="0"/></radialGradient></defs>'+
+    '<ellipse cx="120" cy="166" rx="96" ry="7" fill="rgba(0,0,0,.38)"/>'+
+    /* lo de adentro: se ve cuando la tapa sube */
+    '<g class="t3x-cofre-adentro"><ellipse cx="120" cy="70" rx="118" ry="64" fill="url(#'+id+')"/>'+
+    '<path d="M32 90 Q120 66 208 90 L208 96 L32 96Z" fill="#2A180C"/>'+
+    '<g fill="#F2C24A" stroke="#B8892A" stroke-width="1"><circle cx="78" cy="88" r="8"/><circle cx="96" cy="82" r="9"/><circle cx="116" cy="86" r="9"/><circle cx="136" cy="80" r="9"/><circle cx="154" cy="87" r="8"/><circle cx="170" cy="90" r="7"/><circle cx="106" cy="90" r="7"/><circle cx="146" cy="91" r="7"/></g></g>'+
+    /* la tapa */
+    '<g class="t3x-cofre-tapa"><path d="M26 92 Q26 44 120 40 Q214 44 214 92Z" fill="#8C5830"/>'+
+    '<path d="M34 86 Q40 52 120 48 Q200 52 206 86" fill="none" stroke="#6C4022" stroke-width="1.400"/><path d="M40 70 Q120 52 200 70" fill="none" stroke="#6C4022" stroke-width="1"/>'+
+    '<path d="M54 92 V58 Q60 53 68 51 V92Z M172 92 V51 Q180 53 186 58 V92Z" fill="#C9A24A" stroke="#8A6B22" stroke-width="1"/>'+
+    '<g fill="#8A6B22"><circle cx="61" cy="64" r="1.600"/><circle cx="61" cy="80" r="1.600"/><circle cx="179" cy="64" r="1.600"/><circle cx="179" cy="80" r="1.600"/></g>'+
+    '<rect x="22" y="86" width="196" height="11" rx="3" fill="#5C3519"/></g>'+
+    /* el cuerpo */
+    '<rect x="30" y="94" width="180" height="68" rx="5" fill="#7B4B27"/><path d="M30 116 H210 M30 139 H210" stroke="#5C3519" stroke-width="1.400"/>'+
+    '<path d="M54 94 H68 V162 H54Z M172 94 H186 V162 H172Z" fill="#C9A24A" stroke="#8A6B22" stroke-width="1"/>'+
+    '<g fill="#8A6B22"><circle cx="61" cy="104" r="1.600"/><circle cx="61" cy="128" r="1.600"/><circle cx="61" cy="152" r="1.600"/><circle cx="179" cy="104" r="1.600"/><circle cx="179" cy="128" r="1.600"/><circle cx="179" cy="152" r="1.600"/></g>'+
+    '<path d="M30 156 H210 V159 Q210 162 205 162 H35 Q30 162 30 159Z" fill="#5C3519"/>'+
+    /* la cerradura */
+    '<g class="t3x-cofre-cerradura"><rect x="103" y="90" width="34" height="34" rx="5" fill="#D8B45A" stroke="#8A6B22" stroke-width="1.400"/>'+
+    '<circle cx="120" cy="103" r="4.500" fill="#3A2412"/><path d="M117.500 105 H122.500 L124 116 H116Z" fill="#3A2412"/></g></svg>';
+}
+function ruedasHTML(){
+  var s='<div class="t3x-cofre-clave" role="group" aria-label="La clave del cofre: cuatro números">';
+  for(var i=0;i<4;i++)s+='<div class="t3x-rueda" data-i="'+i+'">'+
+    '<button type="button" data-cofre="mas" aria-label="Subir el '+ORD[i]+' número"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 7 6 1 11 7Z"/></svg></button>'+
+    '<b aria-live="polite" aria-label="'+ORD[i]+' número: 0">0</b>'+
+    '<button type="button" data-cofre="menos" aria-label="Bajar el '+ORD[i]+' número"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1 6 7 11 1Z"/></svg></button></div>';
+  return s+'</div><button type="button" class="t3x-cofre-abrir" data-cofre="abrir">Abrir</button>';
+}
+function notaTesoroHTML(f){
+  var e=escondite();
+  return '<div class="t3x-tesoro-nota" style="--g:'+X.giro("tesoro",1.6)+'deg"><span class="t3x-tesoro-rot">EL TESORO · ES DE VERDAD</span>'+
+    '<p>'+esc(e||"Existe y está escondido. La última pista me la tenés que pedir a mí.")+'</p>'+
+    '<span class="t3x-tesoro-firma">'+esc(T3.firma?T3.firma(f):"— Yo")+'</span></div>';
+}
+
+/* ============ el cupón ============ */
+/* la ventanita que lo trae: {n, f, pct} (o null si el adviento no tiene cupón) */
+function cuponDe(){
+  for(var n=1;n<=24;n++){var it=contenido(n);if(it.tipo==="cupon"){var p=Math.round(+it.pct);return {n:n,f:fechaDe(n),pct:p>0&&p<100?p:50};}}
+  return null;
+}
+/* el cupón, si lo tiene y todavía no lo usó */
+function cupon(){
+  var c=cuponDe();
+  if(!c||!T3.tiene("adviento",c.f)||canjes()[c.f])return null;
+  return c;
+}
+function rebajado(precio,c){c=c||cupon();return c?Math.ceil(precio*(100-c.pct)/100):precio;}
+/* lo gasta: que = en qué, antes = lo que salía, pago = lo que pagó */
+function usarCupon(que,antes,pago){
+  var c=cupon();
+  if(!c)return false;
+  var K=canjes();K[c.f]=T3.hoy;T3.guardar("adviento-canjes",K);
+  T3.guardar("cupon-usado",{f:T3.hoy,que:String(que||""),antes:+antes||0,pago:+pago||0,pct:c.pct});
+  T3.stat("cupon-usado");
+  return true;
+}
+function cuponUsado(){var u=T3.leer("cupon-usado",null);return u&&typeof u==="object"?u:null;}
+function cuponHTML(it,n,f){
+  var c=cuponDe()||{pct:50},usado=canjes()[f],u=cuponUsado();
+  return '<div class="t3x-cupon'+(usado?" t3x-cupon-usado":"")+'" style="--g:'+X.giro("cupon"+n,1.8)+'deg">'+
+    '<span class="t3x-cupon-tijera" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="3"/><circle cx="6" cy="17" r="3"/><path d="M8.500 8.500 21 18 M8.500 15.500 21 6"/></svg></span>'+
+    '<div class="t3x-cupon-cab"><span>CUPÓN DE ADVIENTO</span><span>Nº '+String(n).padStart(4,"0")+'</span></div>'+
+    '<div class="t3x-cupon-pct"><b>'+c.pct+'</b><i>%</i><span>de<br>descuento</span></div>'+
+    '<div class="t3x-cupon-que">en una compra de la tienda</div>'+
+    '<div class="t3x-cupon-letra">La que quieras. Hasta lo más caro.</div>'+
+    '<div class="t3x-cupon-legal">UN SOLO USO · NO VENCE · SE USA AL COMPRAR</div>'+
+    (usado?'<div class="t3x-cupon-sello"><b>USADO</b><span>'+esc(T3.f.corta(usado).toUpperCase())+'</span></div>':'')+
+    '</div>'+
+    (!usado&&T3.tienda&&T3.tienda.activo&&T3.tienda.activo()?'<button type="button" class="t3x-cupon-ir" data-cupon="tienda">Ir a la tienda</button>':'')+
+    (usado&&u&&u.que?'<p class="t3x-cupon-fue">Lo gastaste en: '+esc(u.que)+'. Pagaste '+u.pago+' en vez de '+u.antes+'.</p>':'');
+}
+
+/* ============ el papelito ============ */
+var ESTILOS={sello:1,marcador:1,recortes:1};
+/* el texto, tal cual, con cada mayúscula envuelta para dibujarla aparte (--r: lo torcida que va; data-i: cuál es).
+   Cada palabra va entera en su cajita, así el renglón nunca se corta en el medio de una palabra. */
+function marcado(texto){
+  var k=0,pos=0;
+  return String(texto||"").split(/(\s+)/).map(function(pal){
+    var ini=pos;pos+=pal.length;
+    if(!pal||/^\s+$/.test(pal))return pal?" ":"";
+    var s="";
+    for(var i=0;i<pal.length;i++){
+      var c=pal.charAt(i);
+      if(c!==c.toLowerCase()&&c===c.toUpperCase()){
+        var g=((U.hash("papelito"+(ini+i)+c)%1000)/999*2-1)*7;
+        s+='<b style="--r:'+g.toFixed(1)+'deg" data-i="'+(k++%6)+'">'+esc(c)+'</b>';
+      }else s+=esc(c);
+    }
+    return '<span class="t3x-pal">'+s+'</span>';
+  }).join("");
+}
+function papelitoHTML(it,n,chico){
+  var est=ESTILOS[it.estilo]?it.estilo:"recortes";
+  return '<div class="t3x-papelito t3x-papelito-'+est+(chico?" t3x-papelito-chico":"")+'"'+(chico?'':' style="--g:'+X.giro("papelito"+n,1.8)+'deg"')+'>'+
+    '<span class="t3x-papelito-cinta" aria-hidden="true"></span>'+
+    '<p class="t3x-papelito-texto" aria-label="'+esc(it.texto||"")+'"><span aria-hidden="true">'+marcado(it.texto)+'</span></p></div>';
+}
+
+/* ============ lo que le pregunta el adviento ============ */
+function es(t){return TIPOS[t]===1;}
+function adentro(t){return {mapa:"adentro: un pedazo de mapa",cofre:"adentro: el cofre",cupon:"adentro: un cupón",papelito:"adentro: un papelito"}[t]||"";}
+/* lo que se ve en el hueco de la ventanita, ya abierta */
+function mini(it,n,f,g){
+  var t=it.tipo;
+  if(t==="mapa"){
+    var p=pedazoDe(n)||{orden:1,num:"?"};
+    return '<div class="t3-adviento-mini t3x-mini-mapa"><small>mapa</small><b>'+esc(p.num)+'</b><i>'+p.orden+'.º de 4</i></div>';
+  }
+  if(t==="papelito")return '<div class="t3-adviento-mini t3x-mini-papelito">'+papelitoHTML(it,n,true)+'</div>';
+  if(t==="cofre")return '<div class="t3-adviento-mini t3x-mini-cofre">'+cofreSVG(cofreAbierto(),true)+'</div>';
+  if(t==="cupon"){
+    var c=cuponDe()||{pct:50};
+    return '<div class="t3-adviento-mini t3x-mini-cupon'+(canjes()[f]?" t3x-mini-usado":"")+'"><small>cupón</small><b>'+c.pct+'%</b>'+(canjes()[f]?'<i>USADO</i>':'')+'</div>';
+  }
+  return '<div class="t3-adviento-mini"></div>';
+}
+/* la sorpresa, en grande */
+function objeto(it,n,f){
+  var t=it.tipo;
+  if(t==="mapa"){
+    var p=pedazoDe(n)||{orden:1,num:"?"};
+    return '<div class="t3x-mapa" style="--g:'+X.giro("mapa"+n,2.2)+'deg" role="img" aria-label="Un pedazo del mapa del tesoro. '+ORD[p.orden-1]+' número: '+esc(p.num)+'.">'+
+      '<span class="t3x-mapa-rot">MAPA DEL TESORO · PEDAZO '+p.orden+' DE 4</span>'+tiraSVG(p.orden-1,p.num)+
+      '<span class="t3x-mapa-pie">'+ORD[p.orden-1]+' número: <b>'+esc(p.num)+'</b></span></div>';
+  }
+  if(t==="cofre"){
+    var L=pedazos(),ab=cofreAbierto();
+    return '<div class="t3x-tesoro'+(ab?" t3x-tesoro-abierto":"")+'">'+
+      '<div class="t3x-tesoro-mapa">'+mapaArmadoSVG(L)+'</div>'+
+      '<div class="t3x-cofre">'+cofreSVG(ab)+'</div>'+
+      '<div class="t3x-tesoro-abajo">'+(ab?notaTesoroHTML(f):ruedasHTML())+'</div></div>';
+  }
+  if(t==="cupon")return cuponHTML(it,n,f);
+  if(t==="papelito")return papelitoHTML(it,n,false);
+  return "";
+}
+/* el renglón escrito a mano que va abajo */
+function pie(it,n,f){
+  var t=it.tipo;
+  if(t==="mapa"){
+    var L=pedazos(),tengo=L.filter(function(p){return p.abierta;}).length;
+    if(tengo>=4)return "Están los cuatro. El 24 vas a saber para qué.";
+    if(tengo<=1)return "Es un pedazo de un mapa. Hay tres más. Guardalo.";
+    return "Otro pedazo: ya tenés "+tengo+" de 4.";
+  }
+  if(t==="cofre"){
+    if(cofreAbierto())return escondite()?"Andá a buscarlo.":"Ahora pedime la última pista.";
+    var falta=faltanDicho(pedazos());
+    return falta?"Te faltan pedazos del mapa: abrí "+falta+".":"Cuatro números, en el orden del mapa.";
+  }
+  if(t==="cupon")return canjes()[f]?"Ya lo usaste. Igual queda acá.":"Se usa en la tienda, al comprar. Sirve una sola vez.";
+  return "";
+}
+/* lo que se puede tocar */
+function montar(it,n,f,velo,limpiezas){
+  var t=it.tipo,renglon=velo.querySelector(".t3-adviento-pista");
+  function decir(s){if(renglon)renglon.textContent=s;}
+  if(t==="mapa"||t==="papelito"){
+    if(!reducido()){var tm=setTimeout(function(){T3.sonido("papel",.7);},380);limpiezas.push(function(){clearTimeout(tm);});}
+    return;
+  }
+  if(t==="cupon"){
+    var ir=velo.querySelector('[data-cupon="tienda"]');
+    if(ir)ir.addEventListener("click",function(){
+      T3.sonido("click");
+      var g=velo.querySelector(".t3-adviento-guardar");if(g)g.click();
+      setTimeout(function(){
+        var c=document.querySelector(".t3-adviento-escena-fija .t3-adviento-cerrar");if(c)c.click();
+        setTimeout(function(){try{T3.cuaderno.abrir("pedidos");}catch(e){}},c?460:60);
+      },reducido()?0:440);
+    });
+    return;
+  }
+  if(t!=="cofre")return;
+  var raiz=velo.querySelector(".t3x-tesoro");
+  if(!raiz||cofreAbierto())return;
+  var val=[0,0,0,0],intentos=0,listo=false,tt=[];
+  limpiezas.push(function(){tt.forEach(clearTimeout);});
+  function pintar(i){
+    var b=raiz.querySelector('.t3x-rueda[data-i="'+i+'"] b');
+    if(b){b.textContent=val[i];b.setAttribute("aria-label",ORD[i]+" número: "+val[i]);}
+  }
+  function abrir(){
+    if(listo)return;
+    if(val.join("")!==clave()){
+      intentos++;T3.sonido("error",.8);U.vibrar&&U.vibrar(30);T3.stat("tesoro-intentos");
+      var cl=raiz.querySelector(".t3x-cofre");cl.classList.remove("t3x-cofre-no");void cl.offsetWidth;cl.classList.add("t3x-cofre-no");
+      var falta=faltanDicho(pedazos());
+      decir(falta?"No es. Te faltan pedazos del mapa: abrí "+falta+".":intentos>2?"Tampoco. Los números están en el mapa, de izquierda a derecha.":"No es. Mirá bien el mapa.");
+      return;
+    }
+    listo=true;
+    T3.guardar("tesoro",{abierto:T3.hoy,intentos:intentos});T3.stat("tesoro-abierto");
+    T3.sonido("click");
+    raiz.classList.add("t3x-tesoro-abriendo");
+    var svg=raiz.querySelector(".t3x-cofre-svg");if(svg)svg.classList.add("t3x-cofre-abierto");
+    var fin=function(){
+      raiz.classList.add("t3x-tesoro-abierto");
+      var ab=raiz.querySelector(".t3x-tesoro-abajo");if(ab)ab.innerHTML=notaTesoroHTML(f);
+      decir(escondite()?"Andá a buscarlo.":"Ahora pedime la última pista.");
+      T3.sonido("exito",.9);U.vibrar&&U.vibrar(40);
+      try{var r=raiz.querySelector(".t3x-cofre").getBoundingClientRect();U.confeti({x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height/2)/innerHeight,cantidad:150});}catch(e){}
+      try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+      /* la ventanita del calendario pasa a mostrar el cofre abierto */
+      try{[].forEach.call(document.querySelectorAll('.t3-adviento-v[data-n="'+n+'"] .t3x-mini-cofre .t3x-cofre-svg'),function(s){s.classList.add("t3x-cofre-abierto");});}catch(e){}
+    };
+    if(reducido())fin();else{tt.push(setTimeout(function(){T3.sonido("campana",.8);},260));tt.push(setTimeout(fin,820));}
+  }
+  raiz.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-cofre]");
+    if(!b||listo)return;
+    var que=b.getAttribute("data-cofre");
+    if(que==="abrir"){abrir();return;}
+    var r=b.closest(".t3x-rueda"),i=r?+r.getAttribute("data-i"):-1;
+    if(i<0)return;
+    val[i]=(val[i]+(que==="mas"?1:9))%10;
+    pintar(i);T3.sonido("tic",.8);U.vibrar&&U.vibrar(6);
+    r.classList.remove("t3x-rueda-gira","t3x-rueda-baja");void r.offsetWidth;r.classList.add(que==="mas"?"t3x-rueda-gira":"t3x-rueda-baja");
+  });
+}
+
+T3.ventanitas={es:es,mini:mini,objeto:objeto,pie:pie,montar:montar,adentro:adentro,
+  cupon:cupon,rebajado:rebajado,usarCupon:usarCupon,cuponUsado:cuponUsado,
+  pedazos:pedazos,cofreAbierto:cofreAbierto,
+  _prueba:{clave:clave,escondite:escondite,cuponDe:cuponDe,fechaDe:fechaDe}};
 })();
 /*EXTRAS-JS>>*/
 (function(){try{if(window.T3&&T3.activo&&T3.cuaderno&&T3.cuaderno.arrancar)T3.cuaderno.arrancar();}

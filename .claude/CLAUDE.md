@@ -32,8 +32,8 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 - Entre `/*<<EXTRAS-JS*/` y `/*EXTRAS-JS>>*/` (y `EXTRAS-CSS` en los estilos) está lo sumado en noviembre
   de 2026, legible y comentado: `T3.x` (base, con los audios: ver "Los audios"), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
   (contestar cartas, vales), `T3.tienda` (la pestaña verde; el cuaderno la sigue llamando `pedidos`), MafiaTCG
-  (`T3.tcg` y cuatro módulos más: ver abajo), `T3.ropa`, `T3.pou` y `T3.herraduras` (ver "La tienda"), `T3.avisos` y
-  `T3.viaje`.
+  (`T3.tcg` y cuatro módulos más: ver abajo), `T3.ropa`, `T3.pou` y `T3.herraduras` (ver "La tienda"), `T3.avisos`,
+  `T3.viaje` y `T3.ventanitas` (ver "El adviento").
   Lo que es para Sofi (TCG, tienda, contestar, avisos) aparece recién desde `CONFIG.t3.estreno`.
 - `T3.viaje` (noviembre 2026): Ponyta se va de vacaciones. Desde `SALE`, la próxima corrida en su solapa es la
   de la ida: deja la herradura del día, no vuelve y queda una nota (los textos están arriba del bloque). Mientras
@@ -51,6 +51,38 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   en pantallas chicas, además se aleja (`kS`), para que no se corte contra el borde ni pise el botón (25/11/2026: era
   lo que se veía mal "al iniciar el calendario"; `e.cjs` lo mide en las dos entradas). Para verlo cuadro por cuadro,
   igual en cualquier navegador: `T3.adviento.pagina(host,{popup:true,retraso:0,congelar:ms})`.
+
+## El adviento (rehecho con Mati el 26/11/2026)
+- **En el adviento no van fotos, notas de voz ni frases**: las sacó Mati. Quedaron Ponyta (1, 9, 19), los vales, las
+  cuentas ("dato": 5, 12, 21) y los Legos (7, 17), más lo que pidió ese día. Qué da cada ventanita está en la lista
+  `CONTENIDO_ADVIENTO` (módulo minificado del adviento: esa lista es lo único de ahí que quedó legible, un renglón
+  por ventanita con su comentario), y se puede pisar una sola desde `CONFIG.t3.adviento`.
+- **El papelito del 4** (`tipo:"papelito"`): un papel pegado con cinta con un texto que dictó él, sobre algo que compró
+  y escondió. **No es un vale ni tiene que ver con el cofre.** ⚠ El texto va LETRA POR LETRA: "estoy escondido, Pero si
+  LAs pistas CuestionAs capaz algo encontRas". Las mayúsculas son la pista (forman P-LA-C-A-R, donde está el regalo): no
+  se corrigen, no se les agregan tildes y nunca llevan `text-transform`. Pidió que la diferencia con las minúsculas sea
+  "bien alevosa": cada mayúscula se dibuja aparte. De tres estilos (`sello`, `marcador`, `recortes`) eligió **recortes**:
+  letras recortadas de revista. El renglón de abajo queda vacío: no se le agrega texto propio.
+- **La búsqueda del tesoro**: las ventanitas 3, 6, 10 y 15 (`tipo:"mapa"`, `orden` 1 a 4) dan un pedazo de un mapa con un
+  número cada una; la del 24 (`tipo:"cofre"`) es un cofre con cuatro ruedas. Con la clave se abre y sale un papel que
+  dice dónde escondió Mati un regalo de verdad. `CONFIG.t3.tesoro`: `clave` (hoy "2805", por el 28/05) y `escondite`.
+  **El escondite todavía no lo pasó**: mientras esté vacío, el papel dice "la última pista me la tenés que pedir a mí".
+  (No es el placar: eso es lo del 4.) El vale de "la Nochebuena que quieras" pasó del 24 al 23, y su sobre dice 23.
+- **El cupón del 13** (`tipo:"cupon"`, `pct:50`): 50% en UNA compra de la tienda, la que ella quiera, también lo caro
+  (lo decidió Mati). No se aplica solo: la hoja de confirmar de `T3.tienda` trae un botón para usarlo y se puede
+  arrepentir antes de comprar. Redondea para arriba. Se gasta al comprar: queda con los vales canjeados
+  (`pv-t3-adviento-canjes`) y, en qué lo usó, en `pv-t3-cupon-usado`. El cofre abierto se guarda en `pv-t3-tesoro`.
+- **La ventanita 8 es provisoria** (una cuenta, "dato" con receta `dias`): había una foto y Mati todavía no dijo qué
+  va. Hay que preguntarle. Ideas que ya rechazó para las ventanitas libres: sobre de cartas, MafiaPoints de regalo,
+  raspadita, carta a Papá Noel, que Ponyta evolucione, un día con más duelos, prendas de Navidad. Le gustan las cosas con
+  vuelta: el cupón, la búsqueda del tesoro, el acertijo del 4. Se le propusieron nueve más y no contestó todavía: carta
+  promo, oferta relámpago, cambio de figuritas, un objeto para el duelo, doble o nada, regalito escondido, salida
+  sorpresa, tarjeta roja y "¿trato hecho?".
+- `T3.ventanitas` (EXTRAS) dibuja los tipos nuevos; el módulo del adviento le pregunta (`es`, `mini`, `objeto`, `pie`,
+  `montar`, `adentro`). `.github/pruebas/g.cjs` lo prueba todo tocando la pantalla.
+- Los días con evento en la hoja (4, 8, 16, 24, 25, 28 y 31) no sirven para probar el adviento con
+  `T3.cuaderno.abrir("adviento")`: mientras dura el evento el cuaderno no está armado. Se prueba desde otro día (el cofre,
+  desde el 26) o sembrando el evento como ya visto (`pv-t3-set-eventos-vistos`), como hace `g` con el mismo 24.
 
 ## Los audios que manda Mati (25/11/2026)
 - Son recortes cortos (memes, efectos, un pedacito de canción) y van **tal cual**: solo se les sacan las etiquetas, sin
@@ -176,7 +208,8 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   recorrido del TCG con capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla, el tope
   de 2 por día y la explosión de Perro de Mierda · `c4` reglas del duelo y equilibrio de las cartas (sin navegador) ·
   `d` avisos en la app · `d-envio` el envío (necesita `web-push`) · `e` el viaje de Ponyta, el gorro y su audio, y el despliegue del adviento · `f` la
-  tienda con puntos, la ropa de Ponyta, el modo Pou, la música de la Sorpresa y canjear herraduras. Los audios se
+  tienda con puntos, la ropa de Ponyta, el modo Pou, la música de la Sorpresa y canjear herraduras · `g` el adviento
+  nuevo: el papelito del 4, el mapa, el cofre y el cupón (con la compra en la tienda). Los audios se
   prueban por `T3.x.clipLog`: en Chromium tienen que sonar; donde el navegador no sepa leer el mp3, solo no romper. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
   (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia

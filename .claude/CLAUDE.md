@@ -116,8 +116,9 @@ y con 10 cartas se juega un duelo contra "el programador". Todo está en los EXT
   es floja a propósito, y Mati confirmó que sigue sacándole una energía a la rival. `node .github/pruebas/c4.cjs` lo
   vuelve a medir y exige que todas estén entre 45 y 55: hay que correrlo si se toca un número o se suma una carta
   (una carta nueva se ajusta ella, sin mover las otras).
-- Seis fotos son chicas (256 px, y Sushito 360): Kirby, Mati Shiny, Siestita, Fantasma, Peque Mikasa y Sushito. Se le
-  pidieron los originales a Mati el 25/11: cuando los mande, reemplazar la foto (hasta 900 px) y su mini (360 px).
+- Seis fotos son chicas (256 px, y Sushito 360): Kirby, Mati Shiny, Siestita, Fantasma, Peque Mikasa y Sushito.
+  Quedan así: lo decidió Mati el 26/11 ("las imágenes son chicas, pero las cartas también"). No hay que volver a
+  pedirle los originales.
 
 ## La tienda, la ropa de Ponyta y el modo Pou (noviembre 2026)
 La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es gratis** (pedido de Mati). Todo en los EXTRAS:

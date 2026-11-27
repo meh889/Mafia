@@ -189,7 +189,7 @@ async function publicada() {
   if (!r.ok) falla("publicado", "la página responde " + r.status);
   else if (Buffer.compare(local, remoto) !== 0) falla("publicado", "lo que está publicado no es este commit (publicado: " + remoto.length + " bytes, del " + lm + "; repo: " + local.length + " bytes). Puede que todavía se esté publicando.");
   else console.log("  ✓ lo publicado es idéntico a este commit (" + remoto.length + " bytes, del " + lm + ")");
-  for (const f of ["manifest.json", "sw.js", "audios/win.wav", "icon.png", "audios/gorro.mp3", "audios/sorpresa.mp3", "audios/explosion.mp3", "fotos/t3/tcg/explosion.webp"]) {
+  for (const f of ["manifest.json", "sw.js", "audios/win.wav", "icon.png", "audios/gorro.mp3", "audios/sorpresa.mp3", "audios/explosion.mp3", "fotos/t3/tcg/explosion.webp", "fotos/t3/tienda/casco.webp"]) {
     try { const x = await fetch(SITIO + "/" + f + "?_=" + Date.now(), { method: "HEAD", cache: "no-store" }); if (!x.ok) falla("publicado", f + " responde " + x.status); }
     catch (e) { falla("publicado", f + ": " + e.message); }
   }

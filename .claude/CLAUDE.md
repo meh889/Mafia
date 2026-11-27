@@ -15,7 +15,8 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   (corre la misma prueba en Chromium y en WebKit, el motor del iPhone).
   Para revisar lo que quedó publicado: `gh workflow run prueba.yml -R meh889/Mafia --ref main -f vivo=true`.
 - Cada push es una publicación, y la app abierta se recarga sola cuando ve una nueva: mejor juntar los
-  cambios en un solo push.
+  cambios en un solo push. Cuando Mati pide "armemos todo y actualizás de una" (26/11/2026), se trabaja en commits
+  locales y no se sube nada (tampoco a otra rama) hasta que él da el ok.
 
 ## Mapa de `index.html`
 - `<head>`: arranque temprano (máquina del tiempo), `CONFIG` (todo el contenido editable) y los estilos.
@@ -40,7 +41,8 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   no está, tampoco sale en el señalador, en "Ponyta dice" ni en el mapa de Olivos. Vuelve el día `VUELVE`
   (primer día del adviento). **El gorro es la sorpresa de la ventanita 1 del adviento: se lo pone recién cuando
   Sofi la abre** (antes no lo lleva en ningún lado, tampoco la Ponyta que adorna el calendario, y lo que dice ese
-  día no lo nombra) y le dura hasta `GORRO_HASTA`. Se guarda en `pv-t3-ponyta-viaje`.
+  día no lo nombra) y le dura hasta `GORRO_HASTA` (el 31/12: el 1 de enero se va todo lo de Navidad). Se guarda en
+  `pv-t3-ponyta-viaje`.
   El módulo minificado de Ponyta solo pregunta: `T3.viaje.toca()`, `.ausente(f)`, `.conGorro(f)`, `.poner(…)`;
   el del adviento avisa con `T3.viaje.seAbrio(n,f)` y `T3.viaje.enSorpresa(velo,…)` (cuando muestra la sorpresa: si es
   la del gorro, suena el audio) y pregunta `T3.viaje.gorroPuesto()`.
@@ -52,37 +54,87 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   lo que se veía mal "al iniciar el calendario"; `e.cjs` lo mide en las dos entradas). Para verlo cuadro por cuadro,
   igual en cualquier navegador: `T3.adviento.pagina(host,{popup:true,retraso:0,congelar:ms})`.
 
-## El adviento (rehecho con Mati el 26/11/2026)
-- **En el adviento no van fotos, notas de voz ni frases**: las sacó Mati. Quedaron Ponyta (1, 9, 19), los vales, las
-  cuentas ("dato": 5, 12, 21) y los Legos (7, 17), más lo que pidió ese día. Qué da cada ventanita está en la lista
+## El adviento (repasado con Mati, ventanita por ventanita, el 26/11/2026)
+- **En el adviento no van fotos, notas de voz ni frases**: las sacó Mati. Qué da cada ventanita está en la lista
   `CONTENIDO_ADVIENTO` (módulo minificado del adviento: esa lista es lo único de ahí que quedó legible, un renglón
-  por ventanita con su comentario), y se puede pisar una sola desde `CONFIG.t3.adviento`.
+  por ventanita con su comentario), y se puede pisar una sola desde `CONFIG.t3.adviento`. Hoy:
+  1 Ponyta con el gorro · 2 vale (mimitos) · 3 mapa · 4 el papelito · 5 la ruleta · 6 un casco para Ponyta ·
+  7 el Lego que se arma · 8 elegir la cita · 9 Ponyta con bufanda · 10 mapa · 11 penales · 12 mapa · 13 el cupón ·
+  14 vale (masajitos) · 15 mapa · 16 la carta de cumple · 17 un sobre de MafiaTCG · 18 guantes para Ponyta ·
+  19 Ponyta reno · 20 la otra cita · 21 la Generala · 22 vale (cafecito en Kuta) · 23 la frase en alemán · 24 el cofre.
+- Los tipos "ponyta" y "vale" los dibuja el módulo del adviento. Todo lo demás, `T3.ventanitas` (EXTRAS, cuatro bloques
+  seguidos: la base —mapa, cofre, cupón, papelito—, "las que se juegan", "las que le dejan algo a Ponyta o a la carpeta"
+  y "las que terminan en la vida real"). Cada tipo se anota con `registrar(tipo,{mini,objeto,pie,montar,adentro})` y el
+  módulo del adviento pregunta (`es`, `mini`, `objeto`, `pie`, `montar`, `adentro`). Lo común está en
+  `T3.ventanitas.util` (la ficha de MafiaPoints, los botones, los fuegos artificiales, `irA` una pestaña, `refrescarMini`).
+- **Habla Mati, en primera persona** ("me llega por WhatsApp", "decímelo", "invito yo"), como en el resto de la app. Lo que
+  dictó va literal: el papelito, las cuatro citas, la carta del 16, el papel del cofre, la frase en alemán, los vales.
+- **Todo lo que se juega se juega una sola vez**, se anota y se cobra en el momento (si cierra a mitad de una animación
+  no pierde nada ni cobra dos veces) y, si vuelve a entrar, ve cómo terminó. Si cierra sin jugar, la espera.
 - **El papelito del 4** (`tipo:"papelito"`): un papel pegado con cinta con un texto que dictó él, sobre algo que compró
   y escondió. **No es un vale ni tiene que ver con el cofre.** ⚠ El texto va LETRA POR LETRA: "estoy escondido, Pero si
   LAs pistas CuestionAs capaz algo encontRas". Las mayúsculas son la pista (forman P-LA-C-A-R, donde está el regalo): no
   se corrigen, no se les agregan tildes y nunca llevan `text-transform`. Pidió que la diferencia con las minúsculas sea
   "bien alevosa": cada mayúscula se dibuja aparte. De tres estilos (`sello`, `marcador`, `recortes`) eligió **recortes**:
   letras recortadas de revista. El renglón de abajo queda vacío: no se le agrega texto propio.
-- **La búsqueda del tesoro**: las ventanitas 3, 6, 10 y 15 (`tipo:"mapa"`, `orden` 1 a 4) dan un pedazo de un mapa con un
-  número cada una; la del 24 (`tipo:"cofre"`) es un cofre con cuatro ruedas. Con la clave se abre y sale un papel que
-  dice dónde escondió Mati un regalo de verdad. `CONFIG.t3.tesoro`: `clave` (hoy "2805", por el 28/05) y `escondite`.
-  **El escondite todavía no lo pasó**: mientras esté vacío, el papel dice "la última pista me la tenés que pedir a mí".
-  (No es el placar: eso es lo del 4.) El vale de "la Nochebuena que quieras" pasó del 24 al 23, y su sobre dice 23.
-- **El cupón del 13** (`tipo:"cupon"`, `pct:50`): 50% en UNA compra de la tienda, la que ella quiera, también lo caro
-  (lo decidió Mati). No se aplica solo: la hoja de confirmar de `T3.tienda` trae un botón para usarlo y se puede
-  arrepentir antes de comprar. Redondea para arriba. Se gasta al comprar: queda con los vales canjeados
-  (`pv-t3-adviento-canjes`) y, en qué lo usó, en `pv-t3-cupon-usado`. El cofre abierto se guarda en `pv-t3-tesoro`.
-- **La ventanita 8 es provisoria** (una cuenta, "dato" con receta `dias`): había una foto y Mati todavía no dijo qué
-  va. Hay que preguntarle. Ideas que ya rechazó para las ventanitas libres: sobre de cartas, MafiaPoints de regalo,
-  raspadita, carta a Papá Noel, que Ponyta evolucione, un día con más duelos, prendas de Navidad. Le gustan las cosas con
-  vuelta: el cupón, la búsqueda del tesoro, el acertijo del 4. Se le propusieron nueve más y no contestó todavía: carta
-  promo, oferta relámpago, cambio de figuritas, un objeto para el duelo, doble o nada, regalito escondido, salida
-  sorpresa, tarjeta roja y "¿trato hecho?".
-- `T3.ventanitas` (EXTRAS) dibuja los tipos nuevos; el módulo del adviento le pregunta (`es`, `mini`, `objeto`, `pie`,
-  `montar`, `adentro`). `.github/pruebas/g.cjs` lo prueba todo tocando la pantalla.
+- **La búsqueda del tesoro**: las ventanitas 3, 10, 12 y 15 (`tipo:"mapa"`, `orden` 1 a 4) dan un pedazo de un mapa con un
+  número cada una; la del 24 (`tipo:"cofre"`) es un cofre con cuatro ruedas. `CONFIG.t3.tesoro`: `clave` (hoy "2805", por
+  el 28/05), `escondite` (lo que dice el papel de adentro; lo dictó Mati: "El tesoro son los recuerdos que hicimos en
+  este viaje... Ok no, decime la contraseña y arranca.": lo que viene después de los puntos suspensivos aparece un
+  momento después) y `despues` (el renglón de abajo: "Ya sabés qué decirme."). Con `escondite` vacío, el papel la manda a
+  pedirle la última pista. El regalo de verdad lo esconde él. (No es el placar: eso es lo del 4.)
+- **La ruleta del 5** (`tipo:"ruleta"`): idea y números de Mati. "3.113 días juntos" que se pueden pasar a MafiaPoints
+  jugándolos: 8 (los años) 80%, 102 (los meses) 19% y 3.113 (los días) 1%. Cada porción mide lo que su chance; una de
+  cada tres veces frena pegada a la astilla del 3.113, para sufrir. Guarda en `pv-t3-ruleta`.
+- **Los regalos para Ponyta** (`tipo:"regalo"`, `prenda`): el 6 es la última carrera del año → un casco (la foto la mandó
+  Mati: `fotos/t3/tienda/casco.webp`, tal cual, sin la sombra); el 18 ella va a ver boxeo → unos guantes colgados del
+  cuello. Son prendas de `T3.ropa` con `de:"adviento"`: no se venden; la ventanita las regala con `T3.tienda.regalar(id)`,
+  Ponyta se las pone y después aparecen en la vidriera para sacárselas y ponérselas. No son de Navidad: no se van.
+- **El Lego del 7** (`tipo:"armar"`): el arbolito de 5×5 lo arma ella, copiando el modelo. Cuando lo termina queda parado
+  en la solapa de Ponyta hasta el 31/12. Guarda en `pv-t3-lego-arbolito` (`pv-t3-arbolito` a secas es otra cosa: el
+  árbol que ella decora en el evento del 8/12 y que vuelve a aparecer en el de Navidad).
+- **Las citas** (`tipo:"cita"`; 8 y 20): el 8 elige entre las cuatro que dictó Mati (A, B y C el viernes 11; la D, el
+  sábado 12, con sushitos en casa el viernes); marca una, confirma y le llega a él por WhatsApp (así tiene tiempo de
+  organizar). El 20 (`ronda:2`, `dia`) ofrece las tres que NO eligió, para el sábado 26 (la D, sin los sushitos); si el 8
+  todavía no eligió, primero la manda ahí. Si abre tarde y alguna fecha ya pasó, el menú dice "a combinar".
+  Guarda en `pv-t3-citas`.
+- **Los penales del 11** (`tipo:"penales"`): cinco tiros, 10 MafiaPoints por gol; ataja "el programador", que elige un
+  palo al azar. **La Generala del 21** (`tipo:"generala"`): una mano, hasta tres tiradas apartando dados; paga escalera 20,
+  full 30, póker 40, generala 50 y generala servida 100 (lo confirmó Mati). Guardan en `pv-t3-penales` y `pv-t3-generala`.
+- **El cupón del 13** (`tipo:"cupon"`, `pct:30`; Mati lo bajó del 50): 30% en UNA compra de la tienda, la que ella quiera,
+  también lo caro. No se aplica solo: la hoja de confirmar de `T3.tienda` trae un botón para usarlo y se puede arrepentir
+  antes de comprar. Redondea para arriba. Se gasta al comprar: queda con los vales canjeados (`pv-t3-adviento-canjes`) y,
+  en qué lo usó, en `pv-t3-cupon-usado`. No vence: sigue en la tienda después de diciembre.
+- **La carta del 16** (`tipo:"carta"`): un sobre con una carta de Mati (texto literal). Al abrirla hay fuegos
+  artificiales y, desde que abre la ventanita, la solapa de Ponyta se llena de globos **por todo ese día** (si la abre
+  más tarde, el día en que la abre). Guarda en `pv-t3-carta-cumple` (`puerta`, `f`).
+- **El sobre del 17** (`tipo:"sobre"`): un sobre de MafiaTCG de una sola carta, que sí o sí es una que no tiene
+  (`T3.tcg.darNola("adviento")`; se abre en la pestaña del TCG, en rojo). Con la carpeta completa son 250 MafiaPoints.
+- **La frase en alemán del 23** (`tipo:"aleman"`): ella colecciona cartas de Ponyta en todos los idiomas y él tiene varias
+  en alemán. Un corazón de Lebkuchen trae la frase que pidió Mati ("¿Por casualidad tenés un regalito para hoy?"); elige
+  la traducción entre tres (dos en chiste) y después se la tiene que decir a él: aparece cómo se lee y un botón para
+  escucharla (la voz en alemán del teléfono). **No se muestra ninguna carta**: el regalito es sorpresa.
+- **Los vales** (2, 14 y 22): llevan una firma abajo (la de la app, "Yo") y el sello de goma en esa esquina.
+- **El 1 de enero se va todo lo de Navidad** (lo pidió Mati: "lo de Reyes no, el 1 desaparece todo"): la pestaña del
+  adviento, el gorro (`GORRO_HASTA`) y el arbolito. Lo ya ganado no se pierde: cada hoja de diciembre conserva su
+  ventanita (se puede abrir, jugar o canjear desde ahí), el casco y los guantes quedan en el ropero y el cupón sigue
+  valiendo. Por eso el "año del adviento" es el del último diciembre, no el de hoy (`anio()` en `T3.ventanitas`).
+- Ideas que Mati ya rechazó para el adviento: sobre de cartas de regalo "porque sí", MafiaPoints de regalo, raspadita,
+  carta a Papá Noel, que Ponyta evolucione, un día con más duelos, prendas de Navidad, y varias tandas de ideas
+  genéricas ("no me gustan las ideas"). Le gustan las cosas atadas a la vida de ellos (la carrera, el boxeo, Kuta, las
+  cartas en alemán) y las que tienen vuelta (el cupón, la búsqueda del tesoro, el acertijo del 4).
+- La sorpresa va centrada en la pantalla y **clavada donde arrancó**: si después crece (aparece un botón, el renglón de
+  abajo pasa a ocupar dos) lo nuevo va hacia abajo, y solo sube si de otra forma no entraría (`anclar` en
+  `T3.ventanitas`). Los textos del renglón de abajo pueden traer un `\n` donde termina la frase. Para que todo entre sin
+  desplazar se descuentan la isla y la rayita del iPhone (`--t3x-isla`, `--t3x-rayita`); en un iPhone bajito (SE) hay
+  reglas aparte al final de los estilos.
+- **Ojo con los nombres nuevos**: una clase `t3x-…` o una clave `pv-t3-…` puede pisar una que ya existe sin que
+  ninguna prueba salte. Pasó dos veces armando esto: `t3x-mini-carta` ya era la carta chica de la carpeta del TCG (se
+  le desacomodó la carpeta) y `arbolito` ya era el árbol del evento del 8/12 (le iba a borrar el Lego al día siguiente).
+  Antes de estrenar un nombre, buscarlo en todo `index.html`.
 - Los días con evento en la hoja (4, 8, 16, 24, 25, 28 y 31) no sirven para probar el adviento con
   `T3.cuaderno.abrir("adviento")`: mientras dura el evento el cuaderno no está armado. Se prueba desde otro día (el cofre,
-  desde el 26) o sembrando el evento como ya visto (`pv-t3-set-eventos-vistos`), como hace `g` con el mismo 24.
+  desde el 26) o sembrando el evento como ya visto (`pv-t3-set-eventos-vistos`), como hacen las pruebas.
 
 ## Los audios que manda Mati (25/11/2026)
 - Son recortes cortos (memes, efectos, un pedacito de canción) y van **tal cual**: solo se les sacan las etiquetas, sin
@@ -153,7 +205,9 @@ y con 10 cartas se juega un duelo contra "el programador". Todo está en los EXT
   pedirle los originales.
 
 ## La tienda, la ropa de Ponyta y el modo Pou (noviembre 2026)
-La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es gratis** (pedido de Mati). Todo en los EXTRAS:
+La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es gratis** (pedido de Mati); lo único que no se
+paga son los dos regalos del adviento (el casco y los guantes: ver "El adviento"), que tampoco se venden. Los MafiaPoints
+se ganan en los duelos y, en diciembre, en las ventanitas que se juegan (la ruleta, los penales, la Generala). Todo en los EXTRAS:
 - `T3.tienda`: el **talonario** (pedidos de la vida real: se canjea, se cobra y se abre WhatsApp con el pedido
   numerado) y la **vidriera de Ponyta**. Antes de gastar siempre aparece una hoja para confirmar. Guarda en
   `pv-t3-tienda` (`cosas`, `puesto`, `n`, `log`). Para cambiar un precio: buscar "PARA CAMBIAR UN PRECIO", o pisarlo en
@@ -190,7 +244,8 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   solapa al correr, **una por día** (la primera corrida). Cada 50 se canjean, a elección, por un **sobre de herraduras**
   (una sola carta, sí o sí una nola: `T3.tcg.darNola()`, se abre en la pestaña del TCG) o por 250 MafiaPoints
   (`T3.tcg.sumar()`). Las marcas no se borran: las canjeadas quedan apagadas. Guarda en `pv-t3-herraduras`. Si ya no
-  le faltan cartas, solo ofrece los puntos.
+  le faltan cartas, solo ofrece los puntos. El sobre de la ventanita 17 del adviento es igual, pero rojo y con su nombre
+  (`T3.tcg.darNola("adviento")`; `T3.tcg.sobresDeUna("adviento")` dice si todavía no lo abrió).
 
 ## Para ver una fecha
 - `?fecha=AAAA-MM-DD` en la URL, o la máquina del tiempo (5 toques rápidos en el número de hoja → PIN),
@@ -208,11 +263,15 @@ La pestaña verde ("Tienda") es donde se gastan los MafiaPoints. **Nada es grati
   recorrido del TCG con capturas y una hoja con todas las cartas · `c3` el duelo, jugado tocando la pantalla, el tope
   de 2 por día y la explosión de Perro de Mierda · `c4` reglas del duelo y equilibrio de las cartas (sin navegador) ·
   `d` avisos en la app · `d-envio` el envío (necesita `web-push`) · `e` el viaje de Ponyta, el gorro y su audio, y el despliegue del adviento · `f` la
-  tienda con puntos, la ropa de Ponyta, el modo Pou, la música de la Sorpresa y canjear herraduras · `g` el adviento
-  nuevo: el papelito del 4, el mapa, el cofre y el cupón (con la compra en la tienda). Los audios se
+  tienda con puntos, la ropa de Ponyta, el modo Pou, la música de la Sorpresa y canjear herraduras · `g` el adviento:
+  qué da cada ventanita, el papelito, el mapa, el cofre, los vales, el cupón (con la compra en la tienda) y el 1 de
+  enero · `h` las ventanitas que se juegan (la ruleta, los penales y la Generala, con la suerte arreglada por
+  `T3.ventanitas._juegos.conAzar`) · `i` los regalos para Ponyta, el Lego, la carta con sus globos, el sobre de
+  MafiaTCG, las citas y el alemán. Los audios se
   prueban por `T3.x.clipLog`: en Chromium tienen que sonar; donde el navegador no sepa leer el mp3, solo no romper. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
   (capturas en `SALIDA=carpeta`).
-- WebKit no está instalado en la sesión, solo en GitHub: `gh workflow run laboratorio.yml -R meh889/Mafia
+- WebKit no está instalado en la sesión ni se puede instalar (el sitio de donde Playwright lo baja está bloqueado):
+  solo en GitHub, y sobre algo ya subido. `gh workflow run laboratorio.yml -R meh889/Mafia
   --ref main` corre todos los escenarios en WebKit y Chromium con las tipografías de verdad (`-f densidad=2`
   para capturas nítidas). Las capturas salen del registro:
   `gh run view <id> -R meh889/Mafia --log | node .github/pruebas/rearmar.cjs <carpeta>`.

@@ -471,12 +471,14 @@ const CONFIG = {
     },
     /* CANJEAR HERRADURAS (en la solapa de Ponyta; deja una por día): cada tantas, un sobre con una nola o tantos puntos */
     herraduras: { cada: 50, puntos: 250 },
-    /* LA BÚSQUEDA DEL TESORO del adviento: las ventanitas 3, 6, 10 y 15 dan un pedazo de mapa con un número cada una
-       y la del 24 es un cofre que se abre con esos cuatro, en orden. Adentro hay un papel con el escondite. */
+    /* LA BÚSQUEDA DEL TESORO del adviento: las ventanitas 3, 10, 12 y 15 dan un pedazo de mapa con un número cada una
+       y la del 24 es un cofre que se abre con esos cuatro, en orden. Adentro hay un papel. */
     tesoro: {
       clave: "2805",            /* los cuatro números del cofre (28/05) */
-      escondite: ""             /* lo que dice el papel de adentro: dónde está el regalo de verdad.
-                                   Vacío = "la última pista me la tenés que pedir a mí" */
+      /* lo que dice el papel de adentro. Lo dictó Mati el 26/11/2026 (va tal cual): es un chiste, y después ella le
+         tiene que decir la contraseña. Vacío = "la última pista me la tenés que pedir a mí" */
+      escondite: "El tesoro son los recuerdos que hicimos en este viaje... Ok no, decime la contraseña y arranca.",
+      despues: "Ya sabés qué decirme."      /* el renglón escrito a mano que queda abajo del papel */
     },
     pedidos: []                 /* talonario propio: [{t:"Mimos", d:"Sin tope.", m:"lo que te llega", p:40}] (p = precio).
                                    Vacío = los que ya vienen */
@@ -3820,9 +3822,32 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
    Sin filtros (filter, backdrop-filter): ver la guía, "Diferencias de Safari".
    ============================================================ */
 
+/* ---- lo que comparten todas las sorpresas (pulido del 26/11/2026) ---- */
+/* el rótulo de arriba ("VENTANITA 16 · MIÉRCOLES 16 DE DICIEMBRE") entra en un renglón; si la pantalla es angosta, se parte parejo */
+.t3-adviento-rotulo{max-width:100%;text-wrap:balance}
+/* cuánto le sacan a la pantalla la isla de arriba y la rayita de abajo del iPhone (lo usa lo que se mide por el alto) */
+.t3-adviento-velo{--t3x-isla:env(safe-area-inset-top,0px);--t3x-rayita:env(safe-area-inset-bottom,0px)}
+/* el renglón a mano de abajo: sin palabras sueltas en el segundo renglón. Los textos pueden traer un salto (\n)
+   donde termina la frase: se respeta (y si la pantalla es angosta, igual se parte donde haga falta) */
+.t3-adviento-pista{white-space:pre-line;max-width:min(100%,332px);text-wrap:balance}
+
+/* ---- los vales (2, 14 y 22): la firma y el sello de goma van abajo. Así el título queda libre (el sello lo pisaba)
+        y el cuerpo, que mide lo que el talón, no queda medio vacío ---- */
+.t3-adviento-vale-cuerpo{display:flex;flex-direction:column}
+.t3-adviento-vale-que{margin-right:4px}
+.t3-adviento-vale-firma{margin-top:auto;padding-top:12px}
+.t3-adviento-vale-firma b{display:block;box-sizing:border-box;width:112px;padding:0 0 1px 12px;border-bottom:1px solid rgba(43,33,24,.5);font:600 25px/1 var(--t3-mano);color:#2F4A7A}
+.t3-adviento-vale-firma i{display:block;margin-top:4px;font:500 7px/1 var(--t3-mono);font-style:normal;letter-spacing:.2em;text-transform:uppercase;color:#8F8577}
+.t3-adviento-vale-legal{margin-top:9px}
+.t3-adviento-vale-sello{top:auto;right:8px;bottom:17px;width:74px;height:74px;transform:rotate(-12deg)}
+/* el sello de "canjeado" cae abajo a la derecha (donde estaba el de goma), sin tapar lo escrito */
+.t3-adviento-vale:not(.t3-adviento-vale-nochebuena) .t3-adviento-canjeado{left:70%;top:75%}
+.t3-adviento-vale-nochebuena .t3-adviento-vale-firma b{color:#FBF5E7;border-bottom-color:rgba(255,236,214,.5)}
+.t3-adviento-vale-nochebuena .t3-adviento-vale-firma i{color:rgba(255,236,214,.65)}
+
 /* ---- un pedazo del mapa ---- */
 .t3x-mapa{position:relative;width:190px;max-width:62vw;display:flex;flex-direction:column;align-items:center;gap:10px;transform:rotate(var(--g,0deg))}
-.t3x-mapa-rot{font:500 9px/1.4 var(--t3-mono);letter-spacing:.2em;color:#CDBB9A;text-align:center;transform:rotate(calc(var(--g,0deg) * -1))}
+.t3x-mapa-rot{font:500 9px/1.4 var(--t3-mono);letter-spacing:.2em;color:#CDBB9A;text-align:center;white-space:nowrap;transform:rotate(calc(var(--g,0deg) * -1))}
 .t3x-mapa-svg{display:block;width:100%;height:auto;overflow:visible}
 .t3x-mapa-pie{font:600 23px/1 var(--t3-mano);color:#E8D6AE;transform:rotate(calc(var(--g,0deg) * -1))}
 .t3x-mapa-pie b{font-size:34px;color:#F0A085;margin-left:3px}
@@ -3869,6 +3894,9 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-tesoro-rot{display:block;font:500 9px/1.4 var(--t3-mono);letter-spacing:.2em;color:#B33A2B}
 .t3x-tesoro-nota p{margin:8px 0 2px;font:600 26px/29px var(--t3-mano);color:#2B2118;overflow-wrap:break-word}
 .t3x-tesoro-firma{display:block;text-align:right;font:600 22px/26px var(--t3-mano);color:#6E5C46}
+/* el remate del papel llega un momento después (solo cuando se acaba de abrir) */
+.t3x-tesoro-nota-nueva .t3x-tesoro-remate,.t3x-tesoro-nota-nueva .t3x-tesoro-firma{animation:t3x-tesoro-remate .45s ease-out 1.900s both}
+@keyframes t3x-tesoro-remate{from{opacity:0}to{opacity:1}}
 
 /* ---- el cupón ---- */
 .t3x-cupon{position:relative;width:306px;max-width:calc(100vw - 40px);padding:20px 22px 16px;background:var(--t3-adviento-ruido),#FBF5E7;border-radius:4px;
@@ -3892,7 +3920,7 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
   background:#E8D6AE;border:1px solid #8A7A5A;border-radius:2px;padding:15px 28px;min-height:46px;box-shadow:0 3px 0 rgba(20,14,10,.5);-webkit-tap-highlight-color:transparent}
 .t3x-cupon-ir:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(20,14,10,.5)}
 .t3x-cupon-ir:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:3px}
-.t3x-cupon-fue{margin:0;font:600 20px/1.2 var(--t3-mano);color:#E8D6AE;text-align:center;max-width:300px}
+.t3x-cupon-fue{margin:0;font:600 20px/1.2 var(--t3-mano);color:#E8D6AE;text-align:center;max-width:300px;text-wrap:balance}
 
 /* ---- lo que se ve en el hueco de la ventanita, ya abierta ---- */
 .t3x-mini-mapa{flex-direction:column;gap:1px;background:var(--t3-adviento-ruido),#EBD9AE}
@@ -3916,11 +3944,11 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 
 @media (prefers-reduced-motion:reduce){
   .t3x-cofre-tapa,.t3x-cofre-adentro,.t3x-tesoro-abajo{transition:none}
-  .t3x-cofre-no,.t3x-rueda-gira b,.t3x-rueda-baja b,.t3x-tesoro-nota{animation:none}
+  .t3x-cofre-no,.t3x-rueda-gira b,.t3x-rueda-baja b,.t3x-tesoro-nota,.t3x-tesoro-nota-nueva .t3x-tesoro-remate,.t3x-tesoro-nota-nueva .t3x-tesoro-firma{animation:none}
 }
 
-/* el vale de la Nochebuena pasó a una ventanita más chica (la del 23): la palabra tiene que entrar */
-.t3-adviento-mini-nochebuena .t3-adviento-mini-vale-t{font-size:clamp(14px,calc(min(var(--w),var(--h)) * .185),26px)}
+/* una palabra larga en una ventanita redonda (el vale de masajitos del 14): más chica, para que entre */
+.t3-adviento-f-redonda .t3-adviento-mini-vale-t{font-size:clamp(10px,calc(var(--w) * .215),16px)}
 
 /* ---- el papelito del 4: escrito a máquina, y las mayúsculas, cada una aparte y bien distintas (son la pista).
         Nunca text-transform acá: el texto va tal cual lo dictó Mati. ---- */
@@ -3955,6 +3983,432 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-papelito-chico.t3x-papelito-recortes .t3x-papelito-texto{font-size:clamp(9px,calc(var(--w) * .092),12px);line-height:1.700}
 .t3x-papelito-chico b{font-size:2.100em;margin:0;transform:rotate(var(--r,0deg)) translateY(2px)}
 .t3x-papelito-chico.t3x-papelito-recortes b,.t3x-papelito-chico.t3x-papelito-recortes b[data-i]{font-size:1em;padding:1px 2px;margin:0 1px;transform:rotate(var(--r,0deg));box-shadow:.5px .5px 0 rgba(20,14,10,.4)}
+
+/* ---- lo que comparten las ventanitas del repaso (26/11/2026) ---- */
+/* los fuegos artificiales van atrás de la sorpresa, sobre la mesa oscura */
+.t3-adviento-velo>.t3x-fuegos{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.t3-adviento-velo>.t3-adviento-mesa{position:relative;z-index:1}
+/* un botón sobre la mesa oscura: de papel o, el que hace algo grande, de bronce */
+.t3x-mesa-boton{appearance:none;-webkit-appearance:none;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:14px 28px;margin:0;
+  font:500 11.500px/1.2 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;text-decoration:none;color:#2B2118;cursor:pointer;
+  background:#E8D6AE;border:1px solid #8A7A5A;border-radius:3px;box-shadow:0 3px 0 rgba(20,14,10,.5);-webkit-tap-highlight-color:transparent}
+.t3x-mesa-boton:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(20,14,10,.5)}
+.t3x-mesa-boton:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:3px}
+.t3x-mesa-boton:disabled{opacity:.45;pointer-events:none}
+.t3x-mesa-boton-oro{color:#2B1A0E;background:linear-gradient(#EFD27A,#DDB850);border:1.5px solid #8A6B22;box-shadow:0 3px 0 #6E5219;padding-left:40px;padding-right:40px}
+.t3x-mesa-boton-oro:active{box-shadow:0 1px 0 #6E5219}
+.t3x-mesa-boton-sobrio{color:#E8DAC2;background:rgba(255,240,215,.06);border-color:rgba(255,240,215,.3);box-shadow:none}
+.t3x-mesa-boton-sobrio:active{transform:none;background:rgba(255,240,215,.14)}
+/* la fichita de los MafiaPoints ganados */
+.t3x-ficha{display:inline-flex;align-items:center;gap:9px;padding:9px 18px 9px 11px;border-radius:999px;background:#FBF5E7;color:#2B2118;box-shadow:0 3px 0 rgba(20,14,10,.5),inset 0 0 0 1.5px #2B2118}
+.t3x-ficha .t3x-moneda{font-size:19px}
+.t3x-ficha b{font:600 30px/1 var(--t3-serif);letter-spacing:-.01em;color:#B33A2B}
+.t3x-ficha small{font:500 9px/1.2 var(--t3-mono);letter-spacing:.16em;text-transform:uppercase;color:#6E5C46}
+.t3x-ficha-entra{animation:t3x-ficha-entra .6s var(--t3-rebote,cubic-bezier(.3,1.4,.5,1)) both}
+@keyframes t3x-ficha-entra{from{opacity:0;transform:translateY(-22px) scale(.6)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.t3x-ficha-entra{animation:none}}
+/* ============================================================
+   Las ventanitas que se juegan: la ruleta (5), los penales (11) y la Generala (21).
+   Sin filtros (filter, backdrop-filter): ver la guía, "Diferencias de Safari".
+   ============================================================ */
+
+/* ---- la ruleta del 5: una boleta con la cuenta y, abajo, la rueda de kermés ---- */
+.t3x-rul{display:flex;flex-direction:column;align-items:center;gap:12px;width:330px;max-width:calc(100vw - 36px)}
+.t3x-rul-boleta{position:relative;box-sizing:border-box;width:292px;max-width:100%;padding:16px 20px 13px;background:var(--t3-adviento-ruido),#FBF5E7;transform:rotate(var(--g,0deg));
+  box-shadow:2px 3px 0 rgba(20,14,10,.26),0 14px 20px rgba(0,0,0,.4)}
+.t3x-rul-boleta::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px;
+  background:linear-gradient(-45deg,transparent 5px,#FBF5E7 5px) 0 0/10px 7px repeat-x,linear-gradient(45deg,transparent 5px,#FBF5E7 5px) 0 0/10px 7px repeat-x}
+.t3x-rul-dias{margin:0;font:700 27px/1 var(--t3-mano);color:#2B2118;white-space:nowrap}
+.t3x-rul-dias b{font:600 60px/.78 var(--t3-serif);color:#B33A2B;letter-spacing:-.02em;margin-right:7px}
+.t3x-rul-dice{margin:9px 0 10px;font:600 20.500px/1.1 var(--t3-mano);color:#2F4A7A}
+.t3x-rul-tabla{list-style:none;margin:0;padding:8px 0 0;border-top:1.5px dashed rgba(43,33,24,.42);display:grid;gap:1px}
+.t3x-rul-tabla li{display:grid;grid-template-columns:58px 1fr auto;align-items:baseline;gap:8px}
+.t3x-rul-tabla b{font:600 22px/1.1 var(--t3-serif);color:#2B2118;text-align:right}
+.t3x-rul-tabla span{font:600 20px/1.1 var(--t3-mano);color:#6E5C46}
+.t3x-rul-tabla i{font:500 11px/1 var(--t3-mono);font-style:normal;letter-spacing:.06em;color:#2B2118}
+/* la rueda mide lo que deja la pantalla (con la isla y la rayita del iPhone descontadas), así todo entra sin desplazar */
+.t3x-rul-mesa{position:relative;width:min(300px,82vw,calc(100vh - var(--t3x-isla,0px) - var(--t3x-rayita,0px) - 494px));min-width:190px;aspect-ratio:1;margin:-6px 0 -14px}
+.t3x-rul-gira{position:absolute;inset:0;will-change:transform}
+.t3x-rul-rueda{display:block;width:100%;height:100%;overflow:visible}
+.t3x-rul-num{font-family:var(--t3-serif);font-weight:600;letter-spacing:-.02em}
+.t3x-rul-por{font-family:var(--t3-mono);font-weight:500;font-size:8px;letter-spacing:.16em;text-transform:uppercase;opacity:.82}
+.t3x-rul-band{font-family:var(--t3-mono);font-weight:600;font-size:10.500px;letter-spacing:.02em}
+.t3x-rul-puntero{position:absolute;left:50%;top:1.500%;width:12%;margin-left:-6%;height:auto;overflow:visible;transform-origin:50% 14%}
+.t3x-rul-toc{animation:t3x-rul-toc .13s ease-out}
+@keyframes t3x-rul-toc{0%{transform:rotate(-20deg)}100%{transform:none}}
+.t3x-rul-abajo{min-height:54px;display:flex;align-items:center;justify-content:center}
+.t3x-rul-espera{font:500 20px/1 var(--t3-mono);letter-spacing:.3em;color:#CDBB9A}
+/* en el hueco de la ventanita */
+.t3x-mini-rul{gap:5px;justify-content:flex-end;padding:0 8px 0 4px;background:var(--t3-adviento-ruido),#FBF5E7}
+.t3x-mini-rul-rueda{flex:none;width:calc(var(--h) * .86);height:calc(var(--h) * .86)}
+.t3x-mini-rul-rueda svg{display:block;width:100%;height:100%;overflow:visible}
+.t3x-mini-rul-txt{display:flex;flex-direction:column;align-items:flex-start;line-height:1}
+.t3x-mini-rul-txt b{font:600 clamp(15px,calc(var(--h) * .42),26px)/1 var(--t3-serif);color:#B33A2B;letter-spacing:-.02em}
+.t3x-mini-rul-txt small{font:500 6.500px/1.3 var(--t3-mono);letter-spacing:.12em;text-transform:uppercase;color:#4A3323}
+@media (prefers-reduced-motion:reduce){.t3x-rul-toc{animation:none}}
+/* en un iPhone bajito (SE) la boleta se aprieta un poco para dejarle lugar a la rueda */
+@media (max-height:700px){
+  .t3x-rul{gap:8px}
+  .t3x-rul-boleta{padding:11px 18px 8px}
+  .t3x-rul-dias{font-size:24px}
+  .t3x-rul-dias b{font-size:48px}
+  .t3x-rul-dice{margin:6px 0 6px;font-size:18.500px}
+  .t3x-rul-tabla{padding-top:4px}
+  .t3x-rul-tabla b{font-size:19px}
+  .t3x-rul-tabla span{font-size:18px}
+  .t3x-rul-mesa{width:min(300px,82vw,calc(100vh - var(--t3x-isla,0px) - var(--t3x-rayita,0px) - 430px))}
+}
+
+/* ---- los penales del 11: el arco, el arquero ("el programador") y, abajo, la planilla de los cinco tiros ---- */
+.t3x-pen{display:flex;flex-direction:column;align-items:center;gap:12px;width:332px;max-width:calc(100vw - 36px)}
+.t3x-pen-svg{display:block;width:100%;height:auto;border-radius:8px;overflow:hidden;box-shadow:2px 3px 0 rgba(20,14,10,.3),0 16px 22px rgba(0,0,0,.42);-webkit-tap-highlight-color:transparent}
+.t3x-pen-cartel{font-family:var(--t3-mono);font-weight:600;font-size:8.500px;letter-spacing:.16em;fill:#2B2118}
+.t3x-pen-zona{cursor:pointer;outline:none}
+.t3x-pen-arquero,.t3x-pen-pelota,.t3x-pen-grito{pointer-events:none}
+.t3x-pen-zona circle{transition:opacity .2s ease}
+.t3x-pen-zona:active circle:first-of-type{stroke-width:3.600}
+.t3x-pen-zona:focus-visible circle:first-of-type{stroke:#fff;stroke-width:3}
+.t3x-pen-pateando .t3x-pen-zona,.t3x-pen-fin .t3x-pen-zona{pointer-events:none}
+.t3x-pen-pateando .t3x-pen-zona circle,.t3x-pen-fin .t3x-pen-zona circle{opacity:0}
+/* la pelota sale del punto del penal al lugar elegido; el arquero se tira para donde eligió él */
+.t3x-pen-pelota{transition:transform .42s cubic-bezier(.2,.7,.3,1)}
+.t3x-pen-svg[data-tiro="i"] .t3x-pen-pelota{transform:translate(-78px,-130px) scale(.6) rotate(-300deg)}
+.t3x-pen-svg[data-tiro="c"] .t3x-pen-pelota{transform:translate(0,-164px) scale(.6) rotate(240deg)}
+.t3x-pen-svg[data-tiro="d"] .t3x-pen-pelota{transform:translate(78px,-130px) scale(.6) rotate(300deg)}
+/* mientras espera, el arquero se mueve sobre la línea; se queda quieto cuando ella patea y cuando terminó la tanda */
+.t3x-pen-arquero{animation:t3x-pen-espera 1.700s ease-in-out infinite alternate}
+@keyframes t3x-pen-espera{from{transform:translateX(-8px)}to{transform:translateX(8px)}}
+.t3x-pen-pateando .t3x-pen-arquero{animation-play-state:paused}
+.t3x-pen-fin .t3x-pen-arquero{animation:none}
+.t3x-pen-cuerpo{transition:transform .36s cubic-bezier(.3,.9,.4,1)}
+.t3x-pen-svg[data-ataja="i"] .t3x-pen-cuerpo{transform:translate(-40px,-6px) rotate(-58deg)}
+.t3x-pen-svg[data-ataja="d"] .t3x-pen-cuerpo{transform:translate(40px,-6px) rotate(58deg)}
+.t3x-pen-svg[data-ataja="c"] .t3x-pen-cuerpo{transform:translate(0,-22px)}
+.t3x-pen-grito{font-family:"Barlow Condensed","Avenir Next Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:40px;letter-spacing:.04em;fill:#FBF5E7;stroke:#0d131a;stroke-width:5px;paint-order:stroke;opacity:0;pointer-events:none}
+.t3x-pen-gol .t3x-pen-grito,.t3x-pen-atajada .t3x-pen-grito{opacity:1;animation:t3x-pen-grito .5s cubic-bezier(.3,1.5,.5,1) both}
+.t3x-pen-gol .t3x-pen-grito{fill:#F2C24A}
+@keyframes t3x-pen-grito{from{opacity:0;font-size:18px}to{opacity:1;font-size:40px}}
+.t3x-pen-gol .t3x-pen-red{animation:t3x-pen-red .5s ease-out}
+@keyframes t3x-pen-red{0%,100%{transform:none}35%{transform:translateY(-4px)}}
+.t3x-pen-tabla{list-style:none;display:flex;gap:4px;margin:0;padding:8px 10px 6px;background:var(--t3-adviento-ruido),#FBF5E7;transform:rotate(-.8deg);box-shadow:2px 3px 0 rgba(20,14,10,.26),0 10px 16px rgba(0,0,0,.36)}
+.t3x-pen-tabla li{width:50px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.t3x-pen-tabla span{display:grid;place-items:center;box-sizing:border-box;width:32px;height:32px;border-radius:50%;border:1.5px dashed rgba(43,33,24,.4);font:600 17px/1 var(--t3-serif);color:#8F8577}
+.t3x-pen-tabla i{min-height:10px;font:500 7.500px/1.3 var(--t3-mono);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:#6E5C46}
+.t3x-pen-toca span{border-style:solid;border-color:#2B2118;color:#2B2118}
+.t3x-pen-gol span{background:#3F7A4F;border:1.5px solid #2B2118;color:#FBF5E7}
+.t3x-pen-gol i{color:#3F7A4F}
+.t3x-pen-atajo span{border:1.5px solid #B33A2B;color:#B33A2B;font-size:22px;line-height:.9}
+.t3x-pen-atajo i{color:#B33A2B}
+.t3x-pen-abajo{min-height:8px;display:flex;justify-content:center}
+.t3x-pen-fin+.t3x-pen-abajo{min-height:54px}
+/* en la redonda el número va abajo: la pelota, arriba */
+.t3x-mini-pen{align-items:flex-start;background:var(--t3-adviento-ruido),repeating-linear-gradient(#3F7A4F 0 9px,#37704A 9px 18px)}
+.t3x-mini-pen svg{display:block;width:54%;height:auto;margin-top:11%}
+
+/* ---- la Generala del 21: el anotador de papel y el paño con los cinco dados ---- */
+.t3x-gen{display:flex;flex-direction:column;align-items:center;gap:14px;width:330px;max-width:calc(100vw - 36px)}
+.t3x-gen-anotador{box-sizing:border-box;width:272px;max-width:100%;padding:13px 18px 11px;background:var(--t3-adviento-ruido),#FBF5E7;transform:rotate(var(--g,0deg));
+  box-shadow:2px 3px 0 rgba(20,14,10,.26),0 14px 20px rgba(0,0,0,.4)}
+.t3x-gen-tit{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 6px;font:700 31px/1 var(--t3-mano);color:#2B2118}
+.t3x-gen-tit span{font:500 8.500px/1.35 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:#6E5C46;text-align:right}
+.t3x-gen-anotador ul{list-style:none;margin:0;padding:0;border-top:1.5px solid #2B2118}
+.t3x-gen-anotador li{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 -6px;padding:2.500px 6px;border-bottom:1px dashed rgba(43,33,24,.34);font:600 20.500px/1.15 var(--t3-mano);color:#2B2118}
+.t3x-gen-anotador li b{font:600 21px/1 var(--t3-serif)}
+.t3x-gen-anotador li.t3x-gen-tiene{background:rgba(242,194,74,.42)}
+.t3x-gen-anotador li.t3x-gen-anotado{background:#B33A2B;color:#FBF5E7;border-bottom-color:transparent}
+.t3x-gen-pano{box-sizing:border-box;width:100%;padding:24px 8px 9px;border-radius:14px;border:7px solid #6C4022;
+  background:var(--t3-adviento-ruido),radial-gradient(120% 90% at 50% 30%,#3B7A5A,#2A5C43);box-shadow:inset 0 3px 10px rgba(0,0,0,.5),0 0 0 1.5px #3A2412,0 14px 20px rgba(0,0,0,.42)}
+.t3x-gen-dados{display:flex;justify-content:center;gap:8px}
+.t3x-gen-dado{position:relative;appearance:none;-webkit-appearance:none;flex:none;width:50px;height:50px;padding:0;margin:0;border:0;background:none;cursor:pointer;
+  transform:rotate(var(--r,0deg));transition:transform .2s var(--t3-rebote,cubic-bezier(.3,1.4,.5,1));-webkit-tap-highlight-color:transparent}
+.t3x-gen-dado svg{display:block;width:100%;height:100%;overflow:visible}
+.t3x-gen-dado:disabled{cursor:default}
+.t3x-gen-dado:focus-visible{outline:2px solid #F2C24A;outline-offset:3px;border-radius:10px}
+.t3x-gen-aparte{transform:translateY(-13px)}
+.t3x-gen-aparte svg rect:nth-of-type(2){stroke:#C79430;stroke-width:3.200}
+.t3x-gen-aparte::after{content:"guardo";position:absolute;left:-4px;right:-4px;bottom:-14px;text-align:center;font:500 7.500px/1 var(--t3-mono);letter-spacing:.12em;text-transform:uppercase;color:#F2C24A}
+.t3x-gen-rueda{animation:t3x-gen-rueda .72s cubic-bezier(.3,.6,.4,1) var(--d,0ms) both}
+@keyframes t3x-gen-rueda{0%{transform:translateY(-36px) rotate(-200deg) scale(.86)}55%{transform:translateY(4px) rotate(24deg)}78%{transform:translateY(-7px) rotate(-8deg)}100%{transform:rotate(var(--r,0deg))}}
+.t3x-gen-q{font-family:var(--t3-serif);font-weight:600;font-size:27px;fill:#CDBB9A}
+.t3x-gen-tiro{margin:14px 0 0;text-align:center;font:500 8.500px/1 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:rgba(251,245,231,.62)}
+.t3x-gen-abajo{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;min-height:54px}
+.t3x-mini-gen{flex-direction:column;gap:3px;background:var(--t3-adviento-ruido),#2F6B4F}
+.t3x-mini-gen-dados{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:10px}
+.t3x-mini-gen-dados svg{display:block;width:calc(var(--w) * .46);height:auto}
+.t3x-mini-gen-dados svg:first-child{transform:rotate(-8deg)}
+.t3x-mini-gen-dados svg:last-child{transform:rotate(7deg)}
+.t3x-mini-gen b{font:600 13px/1 var(--t3-serif);color:#FBF5E7}
+@media (prefers-reduced-motion:reduce){
+  .t3x-pen-pelota,.t3x-pen-cuerpo,.t3x-gen-dado{transition:none}
+  .t3x-pen-arquero{animation:none}
+  .t3x-pen-gol .t3x-pen-grito,.t3x-pen-atajada .t3x-pen-grito,.t3x-pen-gol .t3x-pen-red,.t3x-gen-rueda{animation:none}
+}
+/* ============================================================
+   Las ventanitas que le dejan algo a Ponyta o a la carpeta: los regalos (6 y 18), el Lego que se arma (7),
+   la carta de cumple con sus globos (16) y el sobre de MafiaTCG (17).
+   Sin filtros (filter, backdrop-filter): ver la guía, "Diferencias de Safari".
+   ============================================================ */
+
+/* ---- el regalo del 6: un pase de boxes colgado de su cinta, con la foto de la piloto ---- */
+.t3x-pase{position:relative;width:236px;max-width:66vw;padding-top:56px;transform:rotate(var(--g,0deg));transform-origin:50% 0}
+/* cuelga de su cinta: llega torcido y se hamaca hasta quedar quieto (también el corazón del 23) */
+.t3x-pase,.t3x-ale-corazon{animation:t3x-cuelga 2.600s ease-in-out .2s both}
+@keyframes t3x-cuelga{0%{transform:rotate(calc(var(--g,0deg) + 9deg))}20%{transform:rotate(calc(var(--g,0deg) - 6.500deg))}40%{transform:rotate(calc(var(--g,0deg) + 4deg))}60%{transform:rotate(calc(var(--g,0deg) - 2.200deg))}80%{transform:rotate(calc(var(--g,0deg) + 1deg))}100%{transform:rotate(var(--g,0deg))}}
+.t3x-pase-cinta{position:absolute;left:10%;top:0;width:80%;height:72px;overflow:visible}
+.t3x-pase-cuerpo{position:relative;box-sizing:border-box;padding:0 14px 26px;border-radius:11px;overflow:hidden;background:var(--t3-adviento-ruido),#FBF5E7;
+  box-shadow:2px 3px 0 rgba(20,14,10,.3),0 16px 22px rgba(0,0,0,.42)}
+.t3x-pase-rot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -14px;padding:20px 14px 9px;background:#B33A2B;color:#FBF5E7;
+  font:600 11px/1 var(--t3-mono);letter-spacing:.24em;text-transform:uppercase}
+.t3x-pase-rot span{font-weight:500;letter-spacing:.14em;opacity:.85}
+.t3x-pase-carrera{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:9px 0 8px;font:500 8.500px/1.3 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:#6E5C46}
+.t3x-pase-carrera span{color:#2B2118;white-space:nowrap}
+.t3x-pase-foto{box-sizing:border-box;padding:8px 10px 2px 30px;border-radius:5px;background:#E6DFD0;background-image:radial-gradient(rgba(43,33,24,.08) 1px,transparent 1.400px);background-size:9px 9px;
+  box-shadow:inset 0 0 0 1.500px rgba(43,33,24,.2);overflow:hidden}
+.t3x-pase-foto .t3-ponyta-svg,.t3x-afiche-foto .t3-ponyta-svg,.t3x-etiqueta-foto .t3-ponyta-svg{display:block;width:100%;height:auto;margin:0;overflow:visible;animation:none!important;pointer-events:none}
+.t3x-pase-nombre{margin:6px 0 0;font:700 46px/.9 var(--t3-mano);color:#2B2118}
+.t3x-pase-cargo{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:2px 0 0;font:600 12px/1.2 var(--t3-mono);letter-spacing:.24em;text-transform:uppercase;color:#B33A2B}
+.t3x-pase-cargo span{font-weight:500;font-size:8.500px;letter-spacing:.14em;color:#6E5C46}
+.t3x-pase-cuadros{position:absolute;left:0;right:0;bottom:0;height:16px;
+  background:conic-gradient(#2B2118 25%,#FBF5E7 0 50%,#2B2118 0 75%,#FBF5E7 0) 0 0/16px 16px}
+
+/* ---- el regalo del 18: el afiche de la pelea ---- */
+.t3x-afiche{position:relative;box-sizing:border-box;width:262px;max-width:72vw;padding:15px 16px 14px;text-align:center;background:var(--t3-adviento-ruido),#EBD9AE;color:#2B2118;
+  transform:rotate(var(--g,0deg));box-shadow:2px 3px 0 rgba(20,14,10,.3),0 16px 22px rgba(0,0,0,.42)}
+.t3x-afiche::before{content:"";position:absolute;inset:6px;border:2px solid #2B2118;pointer-events:none}
+.t3x-afiche::after{content:"";position:absolute;inset:10px;border:1px solid #2B2118;pointer-events:none}
+.t3x-afiche-fecha{margin:6px 6px 0;padding:4px 0;border-top:2px solid #2B2118;border-bottom:2px solid #2B2118;font:600 9.500px/1.2 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase}
+.t3x-afiche-titulo{margin:4px 0 -2px;font:700 92px/.88 "Barlow Condensed","Avenir Next Condensed","Arial Narrow",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:#B33A2B}
+.t3x-afiche-foto{box-sizing:border-box;width:74%;margin:0 auto;padding:6px 0 0 8%}
+.t3x-afiche-rincon{margin:4px 0 0;font:600 9.500px/1.2 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase}
+.t3x-afiche-rincon::before,.t3x-afiche-rincon::after{content:"★";margin:0 7px;color:#B33A2B;letter-spacing:0}
+.t3x-afiche-nombre{margin:1px 0 0;font:700 58px/.92 "Barlow Condensed","Avenir Next Condensed","Arial Narrow",sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.t3x-afiche-nombre-largo{font-size:46px;letter-spacing:.04em}
+.t3x-afiche-record{margin:3px 0 4px;font:600 12px/1.2 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase;color:#B33A2B}
+.t3x-afiche-record span{display:block;margin-top:2px;font-weight:500;font-size:8.500px;letter-spacing:.16em;color:#2B2118}
+/* un regalo cualquiera (si algún día se suma otro) */
+.t3x-etiqueta{box-sizing:border-box;width:230px;max-width:66vw;padding:14px 16px;background:var(--t3-adviento-ruido),#FBF5E7;transform:rotate(var(--g,0deg));box-shadow:2px 3px 0 rgba(20,14,10,.3),0 16px 22px rgba(0,0,0,.42)}
+.t3x-etiqueta-para{margin:0 0 6px;font:700 30px/1 var(--t3-mano);color:#B33A2B}
+/* en el hueco de la ventanita */
+/* a la izquierda y arriba: la tapa de la ventanita de abajo, cuando se abre, le tapa la mitad inferior */
+.t3x-mini-casco{justify-content:flex-start;align-items:flex-start;padding:4% 0 0 9%;background:var(--t3-adviento-ruido),#E6DFD0}
+.t3x-mini-casco img{display:block;height:90%;width:auto}
+.t3x-mini-guantes{background:var(--t3-adviento-ruido),#EBD9AE;padding:16% 12% 4%}
+.t3x-mini-guantes svg{display:block;width:100%;height:100%}
+.t3x-mini-regalo{color:#B33A2B;background:var(--t3-adviento-ruido),#FBF5E7}
+.t3x-mini-regalo svg{width:56%;height:auto}
+
+/* ---- el Lego del 7: la hoja de instrucciones, con la base para armar y la bandeja de piezas ---- */
+.t3x-lego{position:relative;box-sizing:border-box;width:312px;max-width:calc(100vw - 36px);padding:12px 14px 12px;background:var(--t3-adviento-ruido),#CBD5DE;transform:rotate(var(--g,0deg));
+  box-shadow:2px 3px 0 rgba(20,14,10,.3),0 16px 22px rgba(0,0,0,.42)}
+.t3x-lego-cab{display:flex;align-items:flex-start;gap:10px;min-height:66px}
+.t3x-lego-paso{flex:none;font:700 54px/.82 "Barlow Condensed","Avenir Next Condensed","Arial Narrow",sans-serif;color:#2B2118}
+.t3x-lego-bandeja{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
+.t3x-lego-pieza{appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:3px;min-height:44px;padding:5px 6px 5px 5px;margin:0;cursor:pointer;
+  background:#FBF9F4;border:1.500px solid #8AA0B4;border-radius:9px;font:700 17px/1 "Barlow Condensed","Avenir Next Condensed","Arial Narrow",sans-serif;color:#2B2118;-webkit-tap-highlight-color:transparent}
+.t3x-lego-pieza svg{display:block;width:23px;height:23px}
+.t3x-lego-pieza[aria-pressed="true"]{border-color:#2B2118;box-shadow:0 0 0 2px #2B2118,0 3px 0 rgba(43,33,24,.3);transform:translateY(-2px)}
+.t3x-lego-pieza.t3x-lego-sin{opacity:.4}
+.t3x-lego-pieza:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:2px}
+.t3x-lego-modelo{flex:none;width:66px;text-align:center}
+.t3x-lego-modelo i{display:block;margin-bottom:2px;font:500 7px/1.2 var(--t3-mono);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:#4F6172}
+.t3x-lego-svg{display:block;width:100%;height:auto;overflow:visible}
+.t3x-lego-base{width:86%;margin:6px auto 4px}
+.t3x-lego-celda{cursor:pointer;outline:none}
+.t3x-lego-celda:focus-visible{stroke:#2B2118;stroke-width:2;stroke-dasharray:3 3}
+.t3x-lego-listo .t3x-lego-celda{pointer-events:none}
+.t3x-lego-cae{animation:t3x-lego-cae .3s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes t3x-lego-cae{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
+.t3x-lego-mal{animation:t3x-lego-mal .5s ease-in-out 3}
+@keyframes t3x-lego-mal{0%,100%{transform:none}25%{transform:translateX(-2.500px)}75%{transform:translateX(2.500px)}}
+.t3x-lego-festeja{animation:t3x-lego-festeja .7s cubic-bezier(.3,1.4,.5,1)}
+@keyframes t3x-lego-festeja{0%{transform:none}35%{transform:translateY(-12px) rotate(-3deg)}100%{transform:none}}
+.t3x-lego-texto{margin:6px 30px 0 2px;font:600 20px/1.1 var(--t3-mano);color:#2B2118}
+.t3x-lego-folio{position:absolute;right:12px;bottom:10px;font:500 8.500px/1 var(--t3-mono);letter-spacing:.1em;color:#4F6172}
+.t3x-lego-abajo{min-height:4px;display:flex;justify-content:center}
+.t3x-lego-abajo:not(:empty){min-height:50px}
+.t3x-mini-lego{background:var(--t3-adviento-ruido),#CBD5DE;padding:12%}
+.t3x-mini-lego svg{display:block;width:100%;height:auto}
+.t3x-mini-lego-falta svg{opacity:.7}
+/* el arbolito, ya armado, parado en la solapa de Ponyta (hasta el 31/12) */
+.t3x-arbolito{position:absolute;right:0;bottom:1.500%;width:20%;margin:0;padding:0;border:0;background:none;cursor:pointer;transform-origin:50% 96%;-webkit-tap-highlight-color:transparent;-webkit-appearance:none;appearance:none}
+.t3x-arbolito svg{display:block;width:100%;height:auto;overflow:visible}
+.t3x-arbolito:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:2px}
+.t3x-arbolito-toc{animation:t3x-arbolito-toc .5s ease-out}
+@keyframes t3x-arbolito-toc{0%,100%{transform:none}25%{transform:rotate(-7deg)}55%{transform:rotate(5deg)}80%{transform:rotate(-2deg)}}
+
+/* ---- la carta del 16: el sobre y, cuando lo abre, la hoja ---- */
+.t3x-carta{position:relative;display:flex;flex-direction:column;align-items:center;width:320px;max-width:calc(100vw - 36px)}
+.t3x-carta-sobre{position:relative;appearance:none;-webkit-appearance:none;display:block;width:286px;max-width:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;
+  transform:rotate(var(--g,0deg));-webkit-tap-highlight-color:transparent}
+.t3x-carta-sobre[hidden]{display:none}
+.t3x-carta-sobre-svg{display:block;width:100%;height:auto;overflow:visible}
+.t3x-carta-sobre>.t3x-carta-sobre-svg{box-shadow:2px 3px 0 rgba(20,14,10,.3),0 16px 22px rgba(0,0,0,.42);border-radius:5px}
+.t3x-carta-para{position:absolute;left:0;right:0;bottom:17%;text-align:center;font:700 34px/1 var(--t3-mano);color:#2B2118}
+.t3x-carta-lacre{position:absolute;left:50%;top:44%;width:54px;height:54px;margin:-27px 0 0 -27px;display:grid;place-items:center;border-radius:50%;background:#B33A2B;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.22),0 2px 3px rgba(43,33,24,.4);animation:t3x-carta-late 1.600s ease-in-out infinite}
+.t3x-carta-lacre svg{width:30px;height:30px;fill:#FBF5E7}
+@keyframes t3x-carta-late{0%,100%{transform:none}12%{transform:scale(1.1)}24%{transform:none}36%{transform:scale(1.07)}48%{transform:none}}
+.t3x-carta-estampilla{position:absolute;right:5%;top:8%;display:flex;flex-direction:column;align-items:center;justify-content:center;width:38px;height:46px;background:#A9D8C3;color:#2B2118;
+  outline:2px dashed #F6EEDD;outline-offset:-1px;box-shadow:0 0 0 1px rgba(43,33,24,.35);transform:rotate(4deg)}
+.t3x-carta-estampilla b{font:600 21px/.9 var(--t3-serif)}
+.t3x-carta-estampilla i{font:500 7.500px/1.2 var(--t3-mono);font-style:normal;letter-spacing:.12em;text-transform:uppercase}
+.t3x-carta-hoja{display:none;position:relative;box-sizing:border-box;width:306px;max-width:100%;padding:30px 24px 20px 36px;color:#2B2118;transform:rotate(var(--g,0deg));
+  background:linear-gradient(90deg,transparent 25px,rgba(217,138,134,.75) 25px,rgba(217,138,134,.75) 26.500px,transparent 26.500px),
+    repeating-linear-gradient(transparent 0 36px,rgba(143,170,196,.55) 36px 37.500px),var(--t3-adviento-ruido),#FBF5E7;background-position:0 0,0 22px,0 0,0 0;
+  box-shadow:2px 3px 0 rgba(20,14,10,.3),0 16px 22px rgba(0,0,0,.42)}
+.t3x-carta-abierta .t3x-carta-hoja,.t3x-carta-abriendo .t3x-carta-hoja{display:block}
+.t3x-carta-texto{margin:0;font:600 29px/37.500px var(--t3-mano);overflow-wrap:break-word}
+.t3x-carta-firma{display:block;margin-top:37.500px;text-align:right;font:600 26px/37.500px var(--t3-mano);color:#6E5C46}
+.t3x-carta-corazon{position:absolute;left:28px;bottom:14px;width:44px;height:44px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.t3x-carta-corazon svg{display:block;width:30px;height:30px;margin:7px;fill:#B33A2B;transition:transform .2s var(--t3-rebote,cubic-bezier(.3,1.4,.5,1))}
+.t3x-carta-corazon:active svg{transform:scale(1.3)}
+.t3x-carta-corazon:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:1px;border-radius:50%}
+/* mientras se abre: el sobre se va para abajo y la hoja sale */
+.t3x-carta-abriendo .t3x-carta-sobre{position:absolute;top:0;animation:t3x-carta-sobre-va .52s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes t3x-carta-sobre-va{to{transform:translateY(90px) rotate(8deg) scale(.86);opacity:0}}
+.t3x-carta-abriendo .t3x-carta-hoja,.t3x-carta-abierta .t3x-carta-hoja{animation:t3x-carta-hoja-sale .62s cubic-bezier(.3,1.25,.5,1) both}
+@keyframes t3x-carta-hoja-sale{from{opacity:0;transform:translateY(46px) scale(.72) rotate(0deg)}to{opacity:1;transform:rotate(var(--g,0deg))}}
+.t3x-carta-abajo{min-height:4px;display:flex;justify-content:center}
+.t3x-carta-abajo:not(:empty){min-height:50px}
+/* su tapa se abre para arriba y tapa el tercio de arriba del hueco: el sobre va en el medio, más abajo */
+.t3x-mini-cumple{flex-direction:column;gap:7px;padding-top:30%;background:var(--t3-adviento-ruido),#A9D8C3}
+.t3x-mini-cumple-sobre{position:relative;display:block;width:82%;transform:rotate(-4deg);box-shadow:1px 2px 0 rgba(20,14,10,.3)}
+.t3x-mini-cumple-lacre{position:absolute;left:50%;top:44%;width:30%;height:auto;margin:-15% 0 0 -15%;fill:#B33A2B}
+.t3x-mini-cumple small{font:700 clamp(13px,calc(var(--w) * .16),19px)/1 var(--t3-mano);color:#2B2118}
+
+/* ---- los globos del cumple, en la solapa de Ponyta ---- */
+.t3x-globos{position:absolute;display:block;pointer-events:none}
+.t3x-globos-fondo{left:-8%;top:-13%;width:116%;height:110%}
+.t3x-globos-arriba{left:0;top:0;width:100%;height:100%;z-index:4}
+
+/* ---- el sobre del 17 ---- */
+.t3x-regsobre{--li3:#5B3FB8;--f:"Barlow Condensed","Avenir Next Condensed","Arial Narrow",-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;gap:16px;padding:6px 0}
+.t3x-regsobre-sobre{font-size:19px;cursor:default;transform:rotate(var(--g,0deg))}
+.t3x-regsobre-abierto .t3x-regsobre-sobre{opacity:.5}
+.t3x-regsobre-nota{box-sizing:border-box;width:270px;max-width:calc(100vw - 48px);margin:0;padding:16px 18px;background:var(--t3-adviento-ruido),#FBF5E7;font:600 24px/1.15 var(--t3-mano);color:#2B2118;
+  transform:rotate(var(--g,0deg));box-shadow:2px 3px 0 rgba(20,14,10,.26),0 14px 20px rgba(0,0,0,.4)}
+.t3x-regsobre-abajo{min-height:4px;display:flex;justify-content:center}
+.t3x-regsobre-abajo:not(:empty){min-height:50px}
+.t3x-mini-sobre{--li3:#5B3FB8;--f:"Barlow Condensed","Avenir Next Condensed","Arial Narrow",-apple-system,sans-serif;background:var(--t3-adviento-ruido),#CDBB9A}
+.t3x-mini-sobre .t3x-sobre{font-size:calc(min(var(--w),var(--h)) * .058);cursor:default;transform:rotate(-6deg);margin-top:8%}
+/* el sobre del adviento, en rojo (también en la pestaña del TCG y cuando se abre) */
+.t3x-sobre-adv .t3x-sobre-cuerpo{background-image:linear-gradient(180deg,rgba(34,8,8,.4),transparent .55em),
+    linear-gradient(100deg,#E3A200 0%,#FFE477 18%,#FECA0B 36%,#FFF3B8 50%,#F0B400 64%,#FFE477 84%,#E3A200 100%),
+    repeating-conic-gradient(from 6deg at 50% 38%,rgba(255,255,255,.13) 0 7.500deg,transparent 7.500deg 15deg),
+    linear-gradient(100deg,#7E1F18 0%,#C8473A 20%,#9C2B22 38%,#E0685A 50%,#8A241C 64%,#BE4334 84%,#7E1F18 100%)}
+.t3x-sobre-adv .t3x-sobre-n{color:#FFE9E2}
+.t3x-tcg-mesa-adv{background:rgba(190,67,52,.14);border-color:rgba(142,42,32,.5)}
+
+@media (prefers-reduced-motion:reduce){
+  .t3x-pase,.t3x-ale-corazon,.t3x-lego-cae,.t3x-lego-mal,.t3x-lego-festeja,.t3x-arbolito-toc,.t3x-carta-lacre,.t3x-carta-abriendo .t3x-carta-sobre,.t3x-carta-abriendo .t3x-carta-hoja,.t3x-carta-abierta .t3x-carta-hoja{animation:none}
+}
+/* ============================================================
+   Las ventanitas que terminan en la vida real: elegir la cita (8 y 20) y la frase en alemán (23).
+   Sin filtros (filter, backdrop-filter): ver la guía, "Diferencias de Safari".
+   ============================================================ */
+
+/* ---- la cita: un menú de papel; se marca una con birome y se confirma ---- */
+.t3x-cita{position:relative;box-sizing:border-box;width:332px;max-width:calc(100vw - 32px);padding:16px 18px 16px;background:var(--t3-adviento-ruido),#FBF5E7;color:#2B2118;
+  transform:rotate(var(--g,0deg));box-shadow:2px 3px 0 rgba(20,14,10,.26),0 16px 22px rgba(0,0,0,.42)}
+.t3x-cita-rot{display:flex;justify-content:space-between;gap:8px;margin:0;font:500 9px/1 var(--t3-mono);letter-spacing:.2em;text-transform:uppercase;color:#B33A2B}
+.t3x-cita-titulo{margin:11px 0 0;font:italic 500 40px/.95 var(--t3-serif);letter-spacing:-.01em;color:#2B2118}
+.t3x-cita-sub{margin:5px 0 0;font:600 21px/1.1 var(--t3-mano);color:#2F4A7A}
+.t3x-cita-lista{list-style:none;margin:12px 0 0;padding:0;border-top:1.500px solid #2B2118}
+.t3x-cita-lista li{border-bottom:1px dashed rgba(43,33,24,.36)}
+.t3x-cita-op{position:relative;appearance:none;-webkit-appearance:none;box-sizing:border-box;display:grid;grid-template-columns:27px minmax(0,1fr) auto;align-items:center;column-gap:8px;
+  width:100%;min-height:58px;margin:0;padding:8px 4px;border:0;background:none;color:inherit;text-align:left;cursor:pointer;transition:opacity .25s ease;-webkit-tap-highlight-color:transparent}
+.t3x-cita-op:disabled{cursor:default}
+.t3x-cita-op:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:-2px}
+.t3x-cita-letra{font:600 32px/1 var(--t3-serif);color:#B33A2B;text-align:center}
+.t3x-cita-txt{display:block;min-width:0}
+.t3x-cita-nom{display:block;font:700 24.500px/1.02 var(--t3-mano);text-wrap:balance}
+.t3x-cita-mas{display:block;margin-top:1px;font:600 17.500px/1.05 var(--t3-mano);color:#6E5C46;text-wrap:balance}
+.t3x-cita-dia{padding:5px 6px 4px;border:1px solid rgba(43,33,24,.5);border-radius:2px;font:500 9.500px/1 var(--t3-mono);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.t3x-cita-dia-libre{border-style:dashed;color:#6E5C46}
+/* el óvalo de birome */
+.t3x-cita-marca{position:absolute;left:-7px;top:-2px;width:calc(100% + 14px);height:calc(100% + 4px);overflow:visible;pointer-events:none;visibility:hidden}
+.t3x-cita-marca path{fill:none;stroke:#2F4A7A;stroke-width:2.300;stroke-linecap:round;stroke-dasharray:var(--l,1400);stroke-dashoffset:var(--l,1400)}
+.t3x-cita-esta .t3x-cita-marca{visibility:visible}
+.t3x-cita-esta .t3x-cita-marca path{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease-out}
+.t3x-cita-con-marca .t3x-cita-op:not(.t3x-cita-esta),.t3x-cita-hecha .t3x-cita-op:not(.t3x-cita-esta){opacity:.4}
+.t3x-cita-sello{position:absolute;right:14px;top:32px;padding:7px 9px 5px;border:3px double #B33A2B;color:#B33A2B;text-align:center;background:rgba(251,245,231,.82);transform:rotate(-10deg);pointer-events:none}
+.t3x-cita-sello b{display:block;font:500 17px/1 var(--t3-mono);letter-spacing:.18em}
+.t3x-cita-sello span{display:block;font:500 8.500px/1.5 var(--t3-mono);letter-spacing:.14em}
+.t3x-cita-sello-cae{animation:t3x-cita-sello .34s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes t3x-cita-sello{from{opacity:0;transform:rotate(-10deg) scale(2.2)}to{opacity:1;transform:rotate(-10deg)}}
+.t3x-cita-traba{margin:14px 0 4px;font:600 23px/1.15 var(--t3-mano);color:#6E5C46}
+.t3x-cita-abajo{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;min-height:54px}
+.t3x-cita-abajo:empty{min-height:4px}
+.t3x-cita-abajo .t3x-mesa-boton i{font-style:normal;font-size:14px;letter-spacing:0}
+.t3x-cita-otra-vez{padding:14px 8px;font:500 10px/1 var(--t3-mono);letter-spacing:.12em;color:#CDBB9A;text-decoration:underline;text-underline-offset:3px}
+/* en el hueco de la ventanita */
+.t3x-mini-cita{flex-direction:column;gap:0;background:var(--t3-adviento-ruido),#FBF5E7}
+.t3x-mini-cita small{margin-top:10px;font:500 7px/1 var(--t3-mono);letter-spacing:.14em;text-transform:uppercase;color:#B33A2B}
+.t3x-mini-cita b{font:italic 500 clamp(20px,calc(min(var(--w),var(--h)) * .46),54px)/.95 var(--t3-serif);color:#8F8577}
+.t3x-mini-cita-ya b{font-style:normal;font-weight:600;color:#B33A2B}
+.t3x-mini-cita i{font:500 7.500px/1.2 var(--t3-mono);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:#2B2118}
+/* en la redonda el número va abajo: la letra, arriba y más chica */
+.t3x-mini-cita-chica{justify-content:flex-start}
+.t3x-mini-cita-chica b{margin-top:9%;font-size:calc(min(var(--w),var(--h)) * .5)}
+
+/* ---- la frase en alemán: el corazón de Lebkuchen, el cartelito con la frase y las tres traducciones ---- */
+.t3x-ale{display:flex;flex-direction:column;align-items:center;width:324px;max-width:calc(100vw - 36px)}
+.t3x-ale-corazon{width:172px;max-width:46vw;margin-bottom:-4px;transform:rotate(var(--g,0deg));transform-origin:50% 0}
+.t3x-ale-svg{display:block;width:100%;height:auto;overflow:visible}
+.t3x-ale-glase{font-family:var(--t3-mano);font-weight:700;font-size:26.500px;fill:#FBF5E7}
+.t3x-ale-cartel{position:relative;z-index:1;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:13px 10px 13px 18px;background:var(--t3-adviento-ruido),#FBF5E7;
+  transform:rotate(var(--g,0deg));box-shadow:2px 3px 0 rgba(20,14,10,.26),0 14px 20px rgba(0,0,0,.4)}
+.t3x-ale-frase{flex:1;margin:0;font:italic 500 25.500px/1.08 var(--t3-serif);color:#2B2118;text-wrap:balance}
+.t3x-ale-oir{flex:none;appearance:none;-webkit-appearance:none;display:grid;place-items:center;width:46px;height:46px;margin:0;padding:0;border:1.500px solid #2B2118;border-radius:50%;background:#F2C24A;cursor:pointer;
+  box-shadow:0 3px 0 rgba(43,33,24,.5);-webkit-tap-highlight-color:transparent}
+.t3x-ale-oir:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(43,33,24,.5)}
+.t3x-ale-oir:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:3px}
+.t3x-ale-oir svg{display:block;width:26px;height:26px;fill:#2B2118;stroke:#2B2118;stroke-width:1.700;stroke-linejoin:round;stroke-linecap:round}
+.t3x-ale-onda{fill:none}
+.t3x-ale-suena-ya .t3x-ale-onda{animation:t3x-ale-onda .9s ease-out 2}
+@keyframes t3x-ale-onda{0%{opacity:.2}40%{opacity:1}100%{opacity:.2}}
+.t3x-ale-opciones{display:flex;flex-direction:column;gap:9px;width:100%;margin-top:16px}
+.t3x-ale-opciones[hidden],.t3x-ale-fin[hidden]{display:none}
+.t3x-ale-q{margin:0 0 1px;text-align:center;font:500 9.500px/1 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase;color:#CDBB9A}
+.t3x-ale-op{appearance:none;-webkit-appearance:none;box-sizing:border-box;width:100%;min-height:50px;margin:0;padding:9px 14px 8px;text-align:left;cursor:pointer;
+  background:#E8D6AE;border:1px solid #8A7A5A;border-radius:3px;box-shadow:0 3px 0 rgba(20,14,10,.5);font:700 22.500px/1.08 var(--t3-mano);color:#2B2118;text-wrap:balance;-webkit-tap-highlight-color:transparent}
+.t3x-ale-op:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(20,14,10,.5)}
+.t3x-ale-op:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:3px}
+.t3x-ale-no{opacity:.45;text-decoration:line-through;box-shadow:none;cursor:default;animation:t3x-ale-no .4s ease}
+@keyframes t3x-ale-no{0%,100%{transform:none}25%{transform:translateX(-6px)}60%{transform:translateX(5px)}80%{transform:translateX(-2px)}}
+.t3x-ale-fin{box-sizing:border-box;width:100%;margin-top:16px;padding:14px 18px 13px;background:var(--t3-adviento-ruido),#F3E9D6;transform:rotate(.6deg);
+  box-shadow:2px 3px 0 rgba(20,14,10,.26),0 14px 20px rgba(0,0,0,.4)}
+.t3x-ale-fin-entra{animation:t3x-ale-fin .5s cubic-bezier(.3,1.3,.5,1) both}
+@keyframes t3x-ale-fin{from{opacity:0;transform:translateY(-18px) scale(.9)}to{opacity:1;transform:rotate(.6deg)}}
+.t3x-ale-dice{margin:0;font:700 25px/1.08 var(--t3-mano);color:#2B2118}
+.t3x-ale-ahora{margin:10px 0 0;padding-top:9px;border-top:1.500px dashed rgba(43,33,24,.42);font:500 10.500px/1.3 var(--t3-mono);letter-spacing:.18em;text-transform:uppercase;color:#B33A2B}
+.t3x-ale-suena{margin:7px 0 0;font:500 16px/1.35 var(--t3-mono);color:#2B2118}
+.t3x-ale-suena span{display:block;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:#6E5C46}
+.t3x-mini-ale{flex-direction:column;gap:0;background:var(--t3-adviento-ruido),#D9C08A;padding-top:2%}
+.t3x-mini-ale svg{display:block;width:64%;height:auto;overflow:visible;transform:rotate(-5deg)}
+.t3x-mini-ale small{font:italic 500 clamp(11px,calc(var(--w) * .13),16px)/1 var(--t3-serif);color:#2B2118}
+
+@media (prefers-reduced-motion:reduce){
+  .t3x-cita-esta .t3x-cita-marca path{transition:none}
+  .t3x-cita-sello-cae,.t3x-ale-suena-ya .t3x-ale-onda,.t3x-ale-no,.t3x-ale-fin-entra{animation:none}
+}
+/* ============================================================
+   Las ventanitas en un iPhone bajito (el SE: 667 de alto): todo un poco más junto, para que la sorpresa entre
+   sin desplazar. Va al final, después de las reglas de cada ventanita, para poder pisarlas.
+   (La ruleta se acomoda sola, en su archivo: la rueda mide lo que deja la pantalla.)
+   ============================================================ */
+@media (max-height:700px){
+  .t3-adviento-mesa{gap:12px}
+  /* el cofre del 24 */
+  .t3x-tesoro{gap:6px}
+  .t3x-tesoro-mapa{width:92%}
+  .t3x-cofre{width:150px}
+  .t3x-rueda button{height:34px}
+  /* la frase en alemán del 23 */
+  .t3x-ale-corazon{width:124px}
+  .t3x-ale-opciones{gap:7px;margin-top:10px}
+  .t3x-ale-op{min-height:46px;padding:7px 14px 6px}
+}
 /*EXTRAS-CSS>>*/
 </style>
 </head>
@@ -10612,41 +11066,66 @@ function miles(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,".");}
 function giro(sal,max){return+(((U.hash("adv·"+sal)%1000)/999*2-1)*max).toFixed(2);}
 var _uid=0;function uid(){return"t3adv"+(++_uid);}
 var INK="#0d131a";var CONTENIDO_ADVIENTO=[
-/* QUÉ DA CADA VENTANITA (la lista es por número: la primera es la del 1). Rehecha el 26/11/2026 con Mati:
-   sin fotos, sin notas de voz y sin frases. Los tipos "mapa", "cofre", "cupon" y "papelito" los dibuja T3.ventanitas. */
+/* QUÉ DA CADA VENTANITA (la lista es por número: la primera es la del 1). La repasó Mati una por una el 26/11/2026:
+   sin fotos, sin notas de voz y sin frases. Todo lo que no es "ponyta" ni "vale" lo dibuja T3.ventanitas (EXTRAS).
+   Los textos que dictó él van literales. */
 /* 1*/{tipo:"ponyta",traje:"gorrito",texto:"Arrancó diciembre y Ponyta ya se puso el gorro. No hay forma de sacárselo."},
-/* 2*/{tipo:"vale",que:"un helado de menta granizada",corto:"helado",letra:"Del tamaño que quieras. Yo pago, vos elegís el cucurucho."},
+/* 2*/{tipo:"vale",que:"mimitos",corto:"mimitos",letra:"Sin reloj. Se cobran cuando quieras."},
 /* 3*/{tipo:"mapa",orden:1},
 /* 4 · un papelito sobre algo que Mati compró y escondió (no es un vale ni tiene que ver con el cofre del 24).
        El texto lo dictó él y va LETRA POR LETRA: las mayúsculas son a propósito (forman P-LA-C-A-R, que es donde
        está). No se corrige, no se le agregan tildes ni se pasa a mayúsculas o minúsculas. De tres maneras de
        marcar las mayúsculas, Mati eligió "recortes": letras recortadas de revista. */
       {tipo:"papelito",estilo:"recortes",texto:"estoy escondido, Pero si LAs pistas CuestionAs capaz algo encontRas"},
-/* 5*/{tipo:"dato",receta:"capicua"},
-/* 6*/{tipo:"mapa",orden:2},
-/* 7*/{tipo:"lego",modelo:"arbolito",texto:"Arbolito de 5×5. No hay que regarlo ni desarmarlo en enero."},
-/* 8 · PROVISORIO: Mati todavía no dijo qué va acá (había una foto, y fotos no quiere). Mientras tanto, una cuenta. */
-      {tipo:"dato",receta:"dias"},
+/* 5 · la ruleta (idea y números de Mati): los 3.113 días juntos se pueden pasar a MafiaPoints, pero jugándolos.
+       Cada porción tiene el tamaño de su chance. Una sola tirada; si no gira, la espera. */
+      {tipo:"ruleta",porciones:[{n:8,pct:80,por:"los años",uno:"año"},{n:102,pct:19,por:"los meses",uno:"mes"},{n:3113,pct:1,por:"los días",uno:"día"}]},
+/* 6 · el 6 es la última carrera del año: un casco para Ponyta (la foto la mandó Mati; va tal cual). Queda en su ropero. */
+      {tipo:"regalo",prenda:"casco"},
+/* 7 · el arbolito de Lego lo arma ella, copiando el modelo; cuando lo termina queda en la solapa de Ponyta hasta el 31/12 */
+      {tipo:"armar",modelo:"arbolito",texto:"Arbolito de 5×5. No hay que regarlo."},
+/* 8 · elegir la cita. Las opciones las dictó Mati; son para después de ese día, así tiene tiempo de organizar:
+       A, B y C el viernes 11; la D, el sábado 12, con sushitos en casa el viernes (masDia: se escribe solo, "el viernes 11").
+       Lo que elige le llega por WhatsApp. Si abre la ventanita cuando alguna fecha ya pasó, el menú dice "a combinar". */
+      {tipo:"cita",ronda:1,opciones:[
+        {id:"A",t:"Vecino",dia:"2026-12-11"},
+        {id:"B",t:"FranksGrill",dia:"2026-12-11"},
+        {id:"C",t:"Taco Box + Via Flaminia",dia:"2026-12-11"},
+        {id:"D",t:"Mega pulga aventurera a algo cool",dia:"2026-12-12",mas:"y sushitos chill en casa",masDia:"2026-12-11"}]},
 /* 9*/{tipo:"ponyta",traje:"bufanda",texto:"Ponyta quiso una bufanda. Duró cuatro segundos."},
-/*10*/{tipo:"mapa",orden:3},
-/*11*/{tipo:"vale",que:"elegir la peli, y yo no me quejo",corto:"la peli",mini:"peli",letra:"Ni de la duración, ni del final, ni si es la tercera vez que la vemos."},
-/*12*/{tipo:"dato",receta:"meses"},
-/*13*/{tipo:"cupon",pct:50},
-/*14*/{tipo:"vale",que:"un desayuno en la cama",corto:"desayuno",mini:"café",letra:"Con medialunas. Las migas corren por mi cuenta."},
+/*10*/{tipo:"mapa",orden:2},
+/*11 · cinco penales: cada gol, 10 MafiaPoints. Una sola tanda. */
+      {tipo:"penales",tiros:5,porGol:10},
+/*12*/{tipo:"mapa",orden:3},
+/*13 · el cupón: 30% (Mati lo bajó del 50) en UNA compra de la tienda, la que quiera */
+      {tipo:"cupon",pct:30},
+/*14*/{tipo:"vale",que:"masajitos: quince minutos de reloj",corto:"masajitos",mini:"masajitos",letra:"Sin preguntar “¿ya está?” a los cinco."},
 /*15*/{tipo:"mapa",orden:4},
-/*16*/{tipo:"vale",que:"un deseo de cumpleaños extra",corto:"un deseo",letra:"El de las velitas es aparte. Este lo pedís cuando quieras.",especial:"cumple"},
-/*17*/{tipo:"lego",modelo:"regalo",texto:"Un regalo de 5×5. Adentro no entra nada, pero la intención está."},
-/*18*/{tipo:"vale",que:"masajitos: quince minutos de reloj",corto:"masajitos",mini:"mimos",letra:"Sin preguntar “¿ya está?” a los cinco."},
+/*16 · su cumple: una carta de Mati (el texto es de él, literal). Al abrirla hay fuegos artificiales y, desde que abre
+       la ventanita, la solapa de Ponyta se llena de globos por todo ese día. */
+      {tipo:"carta",texto:"Hola Hermosa, feliz cumpleaños, te amo!!! Espero que te esté gustando Mafiapp, lo armé con mucho cariño."},
+/*17 · un sobre de MafiaTCG con una sola carta, que sí o sí es una que no tiene */
+      {tipo:"sobre"},
+/*18 · el 18 va a ver boxeo: unos guantes para Ponyta, colgados del cuello. Quedan en su ropero. */
+      {tipo:"regalo",prenda:"guantes"},
 /*19*/{tipo:"ponyta",traje:"reno",texto:"Se ofreció para tirar del trineo. Papá Noel le dijo que no, por el tema de los incendios."},
-/*20*/{tipo:"vale",que:"una tarde entera de Legos",corto:"Legos",letra:"Uno grande, sin apuro. Yo te alcanzo las piezas que buscás."},
-/*21*/{tipo:"dato",receta:"sol"},
-/*22*/{tipo:"vale",que:"un “tenías razón”",corto:"tenías razón",letra:"Dicho en voz alta, entero, y sin agregar “pero”."},
-/*23 · antes era la del 24: pasó acá para que tenga un día para elegir (y el 24 quedó para el cofre) */
-      {tipo:"vale",que:"la Nochebuena que quieras",corto:"Nochebuena",letra:"Vos elegís dónde, qué se come, a qué hora se brinda y qué música suena. Yo digo que sí.",especial:"nochebuena"},
-/*24*/{tipo:"cofre"}
+/*20 · otra cita, para el sábado 26: las tres opciones que no eligió el 8 (la D, sin los sushitos) */
+      {tipo:"cita",ronda:2,dia:"2026-12-26"},
+/*21 · una mano de Generala, con tres tiradas. Los puntos los confirmó Mati. */
+      {tipo:"generala",premios:{escalera:20,full:30,poker:40,generala:50,servida:100}},
+/*22*/{tipo:"vale",que:"cafecito en Kuta",corto:"cafecito",mini:"Kuta",letra:"Con algo dulce (o salado), obvio. Invito yo."},
+/*23 · una frase en alemán (ella colecciona cartas de Ponyta en todos los idiomas, y él tiene varias en alemán). La tiene
+       que traducir eligiendo entre tres (dos son en chiste) y después decírsela a él, en alemán. La frase la pidió Mati:
+       "¿Por casualidad tenés un regalito para hoy?". No se muestra ninguna carta: el regalito es sorpresa. */
+      {tipo:"aleman",frase:"Hast du zufällig ein kleines Geschenk für heute?",dice:"¿Por casualidad tenés un regalito para hoy?",
+        otras:[{t:"¿Tenés un pañuelito? Acabo de estornudar.",no:"Nein. Aunque «Geschenk» suena a estornudo, sí."},
+               {t:"¿Hasta qué hora abre el kiosco hoy?",no:"Nein. «Hast du» no es «hasta»."}],
+        suena:"jast du tsu-FÉ-lij ain KLÁI-nes gue-SHÉNK fiur JÓI-te?",corazon:"Frohe Weihnachten"},
+/*24 · el cofre: se abre con los cuatro números del mapa. Lo que dice el papel de adentro está en CONFIG.t3.tesoro. */
+      {tipo:"cofre"}
 ];function contenido(n){var base=CONTENIDO_ADVIENTO[n-1]||{tipo:"frase",texto:"Acá había algo. Ponyta dice que no fue ella."};var o=T3.config&&T3.config.adviento,x=null;if(Array.isArray(o))x=o[n-1];else if(o&&typeof o==="object"){var c=o.contenido;x=o[n]||o[fechaDe(n)]||(Array.isArray(c)?c[n-1]:c&&c[n])||null;}
 if(!x||typeof x!=="object")return base;x=limpio(x);if(!Object.keys(x).length)return base;var cambia=!!x.tipo&&x.tipo!==base.tipo;return ajustar(cambia?x:Object.assign({},base,x),base,x,cambia,n);}
-var TIPOS=["vale","foto","voz","ponyta","frase","dato","lego","mapa","cofre","cupon","papelito"];var TRAJES=["gorrito","bufanda","reno"];var RECETAS=["capicua","meses","sol","dias"];function vacio(v){return v==null||(typeof v==="string"&&!v.trim())||(Array.isArray(v)&&!v.length);}
+var TIPOS=["vale","foto","voz","ponyta","frase","dato","lego","mapa","cofre","cupon","papelito","ruleta","regalo","armar","cita","penales","carta","sobre","generala","aleman"];var TRAJES=["gorrito","bufanda","reno"];var RECETAS=["capicua","meses","sol","dias"];function vacio(v){return v==null||(typeof v==="string"&&!v.trim())||(Array.isArray(v)&&!v.length);}
 function limpio(x){var o={};Object.keys(x).forEach(function(key){var v=x[key];if(!vacio(v))o[key]=typeof v==="string"?v.trim():v;});["tipo","traje","receta","modelo"].forEach(function(key){if(typeof o[key]==="string")o[key]=o[key].toLowerCase();});if(o.tipo&&TIPOS.indexOf(o.tipo)<0)delete o.tipo;if(o.y!=null){var y=parseFloat(o.y);if(isFinite(y))o.y=Math.max(0,Math.min(100,y));else delete o.y;}
 if(typeof o.grabado==="string")o.grabado=!/^(false|0|no)$/i.test(o.grabado);return o;}
 var VACIAS=/^(un|una|unos|unas|el|la|los|las|lo|mi|mis|tu|tus|otro|otra|que|de|del|al|a|en|con|por|para|y|o|sin|se|te|me)$/i;function palabras(s){return String(s||"").replace(/[“”"«»¡!¿?.,;:()]/g," ").trim().split(/\s+/).filter(function(w){return w&&!VACIAS.test(w);});}
@@ -10674,7 +11153,7 @@ var GRILLA={7:{c:1,r:1,w:2,h:2,col:"sello",forma:"rect",bis:"de"},13:{c:3,r:1,w:
 function fechaDe(n){return anioCal()+"-12-"+p2(n);}
 function numDe(f){if(!f||f.slice(5,7)!=="12")return 0;var d=+f.slice(8,10);return d>=1&&d<=24?d:0;}
 function activo(f){return numDe(f||T3.hoy)>0;}
-function visible(f){f=f||T3.hoy;var m=f.slice(5,7),d=+f.slice(8,10);return m==="12"||(m==="01"&&d<=6);}
+function visible(f){f=f||T3.hoy;return f.slice(5,7)==="12";}
 function fechaN(n,f){return(f?f.slice(0,4):anioCal())+"-12-"+p2(n);}
 /* el traje de la Ponyta que adorna el calendario y los sobres: el gorro, pero recién cuando ya salió de la ventanita 1 (T3.viaje) */function trajeCalendario(){return T3.viaje&&T3.viaje.gorroPuesto&&!T3.viaje.gorroPuesto()?"nada":"gorrito";}/* al abrir una ventanita: si era la del gorro, Ponyta se lo pone (acá, la del calendario; T3.viaje, las demás) */function alAbrirVentana(n,f){try{if(T3.viaje&&T3.viaje.seAbrio)T3.viaje.seAbrio(n,f);if(trajeCalendario()==="gorrito")setTimeout(function(){[].forEach.call(document.querySelectorAll("."+K+"pop-centro"),function(c){if(!c.querySelector("."+K+"gorro"))c.innerHTML=ponyDibujo("gorrito");});},reducido()?0:1500);}catch(e){}}function estaAbierta(f){return T3.tiene("adviento",f);}
 function sePuede(f){return f<=T3.hoy;}
@@ -10735,7 +11214,7 @@ function negar(el,n,f){T3.sonido("tic");el.classList.remove(K+"no");void el.offs
 var abierto=null;function objetoHTML(it,n,f){var t=it.tipo;if(T3.ventanitas&&T3.ventanitas.es(t))return T3.ventanitas.objeto(it,n,f);if(t==="vale")return it.especial==="nochebuena"?sobreHTML(valeHTML(it,n,f),n):valeHTML(it,n,f);if(t==="foto")return'<figure class="'+k("pola")+'" style="--g:'+giro("p"+n,2.5)+'deg"><div class="'+k("washi")+'"></div>'+'<div class="'+k("pola-img")+'">'+fotoImg(it,n,it.texto||"",false)+'</div>'+'<figcaption>'+esc(it.texto||"")+'</figcaption></figure>';if(t==="voz")return'<div class="'+k("cassette")+'" role="button" tabindex="0" aria-label="Reproducir la nota de voz">'+cassetteSVG(it.rotulo,n)+'</div>'+'<button class="'+k("tecla")+'" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1 L11 6 L2 11Z"/></svg><span>escuchar</span></button>';if(t==="ponyta")return'<div class="'+k("pony-carta")+'" style="--g:'+giro("y"+n,1.6)+'deg"><div class="'+k("pony-rot")+'">PONYTA · EDICIÓN DICIEMBRE</div>'+'<div class="'+k("pony-dib")+'" role="button" tabindex="0" aria-label="Tocar a Ponyta">'+ponyDibujo(it.traje)+'</div>'+'<p class="'+k("pony-texto")+'">'+esc(it.texto||"")+'</p></div>';if(t==="frase")return'<div class="'+k("nota")+'" style="--g:'+giro("n"+n,2)+'deg"><div class="'+k("nota-arriba")+'"><div class="'+k("nota-cara")+'"></div><div class="'+k("nota-dorso")+'"></div></div>'+'<div class="'+k("nota-papel")+'"><p>'+esc(it.texto||"")+'</p><span class="'+k("nota-firma")+'">'+esc(T3.firma(f))+'</span></div></div>';if(t==="dato"){var d=datoDe(it,f);return'<div class="'+k("ticket")+'"><div class="'+k("ticket-boca")+'"></div><div class="'+k("ticket-papel")+'">'+'<div class="'+k("ticket-cab")+'">CALCULADORA DE ADVIENTO<br>OLIVOS · CAJA 02<br>'+esc(T3.f.diaSemana(f).slice(0,3).toUpperCase()+" "+p2(n)+" DIC "+f.slice(0,4))+'</div>'+'<div class="'+k("ticket-raya")+'"></div>'+
 d.lineas.map(function(l){return'<div class="'+k("ticket-l")+'"><span>'+esc(l[0])+'</span><i></i><b>'+esc(l[1])+'</b></div>';}).join("")+'<div class="'+k("ticket-raya")+'"></div>'+'<div class="'+k("ticket-l ticket-total")+'"><span>'+esc(d.total[0])+'</span><i></i><b>'+esc(d.total[1])+'</b></div>'+'<p class="'+k("ticket-nota")+'">'+esc(d.nota)+'</p>'+'<div class="'+k("ticket-pie")+'">GRACIAS POR SU VISITA · NO SE ACEPTAN DEVOLUCIONES</div></div></div>';}
 if(t==="lego")return'<div class="'+k("lego")+'" style="--g:'+giro("l"+n,1.5)+'deg"><div class="'+k("lego-cab")+'"><b class="'+k("lego-paso")+'">1</b>'+'<div class="'+k("lego-piezas")+'">'+legoPiezas(it.modelo)+'</div></div>'+'<div class="'+k("lego-modelo")+'">'+legoSVG(it.modelo,!reducido())+'</div>'+'<p class="'+k("lego-texto")+'">'+esc(it.texto||"")+'</p><span class="'+k("lego-folio")+'">'+p2(n)+'/24</span></div>';return'<div class="'+k("nota-papel")+'"><p>'+esc(it.texto||"")+'</p></div>';}
-function valeHTML(it,n,f){var c=canjes()[f],esp=it.especial||"",g=GRILLA[n]||{};return'<div class="'+k("vale c-"+(esp==="nochebuena"?"sello":g.col||"menta")+(esp?" vale-"+esp:"")+(c?" vale-usado":""))+'" style="--g:'+giro("v"+n,2)+'deg">'+'<div class="'+k("vale-cuerpo")+'">'+'<div class="'+k("vale-cab")+'"><span>VALE POR</span><span>Nº '+String(n).padStart(4,"0")+'</span></div>'+'<div class="'+k("vale-que")+'">'+esc(it.que||"")+'</div>'+'<div class="'+k("vale-letra")+'">'+esc(it.letra||"")+'</div>'+'<div class="'+k("vale-legal")+'">NO VENCE · INTRANSFERIBLE · OLIVOS</div>'+'<div class="'+k("vale-sello")+'">'+selloGoma(esp==="cumple"?"FELIZ CUMPLE · 16 DE DICIEMBRE · ":"ADVIENTO · OLIVOS · DIC "+f.slice(0,4)+" · ",esp==="cumple"?"16":String(n))+'</div>'+
+function valeHTML(it,n,f){var c=canjes()[f],esp=it.especial||"",g=GRILLA[n]||{};return'<div class="'+k("vale c-"+(esp==="nochebuena"?"sello":g.col||"menta")+(esp?" vale-"+esp:"")+(c?" vale-usado":""))+'" style="--g:'+giro("v"+n,2)+'deg">'+'<div class="'+k("vale-cuerpo")+'">'+'<div class="'+k("vale-cab")+'"><span>VALE POR</span><span>Nº '+String(n).padStart(4,"0")+'</span></div>'+'<div class="'+k("vale-que")+'">'+esc(it.que||"")+'</div>'+'<div class="'+k("vale-letra")+'">'+esc(it.letra||"")+'</div>'+'<div class="'+k("vale-firma")+'"><b>'+esc(String(T3.firma(f)||"").replace(/^[\u2014\u2013-]\s*/,""))+'</b><i>firma</i></div>'+'<div class="'+k("vale-legal")+'">NO VENCE · INTRANSFERIBLE · OLIVOS</div>'+'<div class="'+k("vale-sello")+'">'+selloGoma(esp==="cumple"?"FELIZ CUMPLE · 16 DE DICIEMBRE · ":"ADVIENTO · OLIVOS · DIC "+f.slice(0,4)+" · ",esp==="cumple"?"16":String(n))+'</div>'+
 (c?canjeadoHTML(c,esp):"")+'</div>'+
 (c?"":'<div class="'+k("vale-talon")+'" role="button" tabindex="0" aria-label="Mantené apretado para canjear">'+'<span class="'+k("vale-talon-r")+'">CANJEAR</span><span class="'+k("vale-talon-m")+'">mantené apretado</span><span class="'+k("vale-talon-n")+'">Nº '+String(n).padStart(4,"0")+'</span></div>')+'</div>';}
 function canjeadoHTML(fc,esp){return'<div class="'+k("canjeado")+'"><b>'+(esp==="nochebuena"?"DIJE QUE SÍ":"CANJEADO")+'</b><span>'+esc(T3.f.corta(fc).toUpperCase())+'</span></div>';}
@@ -10769,7 +11248,7 @@ tocarVentana(v,function(){pintar();});};v.addEventListener("click",tocar);v.addE
 pintar();raiz.desmontar=function(){limpiarPendientes();if(abierto)abierto.cerrar(true);};host.appendChild(raiz);return raiz;}
 function escenaCalendario(alCerrar){var capa=document.createElement("div");capa.className=K+"escena-fija";capa.innerHTML='<button class="'+k("cerrar")+'" type="button" aria-label="Volver al cuaderno">volver al cuaderno</button><div class="'+k("escena-scroll")+'"></div>';document.body.appendChild(capa);document.documentElement.classList.add(K+"bloqueo");var pg=null,cerrada=false;var cerrar=function(){if(cerrada)return;cerrada=true;if(pg&&pg.desmontar)pg.desmontar();document.removeEventListener("keydown",tecla,true);document.documentElement.classList.remove(K+"bloqueo");var fin=function(){if(capa.parentNode)capa.remove();if(alCerrar)alCerrar();};if(reducido()||!capa.animate){fin();return;}
 T3.sonido("papel",.7);capa.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(40px) scale(.96)"}],{duration:380,easing:"cubic-bezier(.5,0,.75,.4)",fill:"forwards"}).onfinish=fin;};var tecla=function(e){if(e.key==="Escape"&&!abierto)cerrar();};document.addEventListener("keydown",tecla,true);capa.querySelector("."+K+"cerrar").addEventListener("click",cerrar);pg=pagina(capa.querySelector("."+K+"escena-scroll"),{popup:true});}
-function notaPie(){var h=T3.hoy,n=numDe(h);if(h.slice(5,7)==="01"||(h.slice(5,7)==="12"&&+h.slice(8)>24))return"Ya están todas. Las que no abriste siguen ahí: no se vencen.";if(!visible(h))return"Arranca el 1 de diciembre. No espíes.";if(n===24)return"Hoy la grande. La guardé para el final.";if(n===23)return"Mañana la grande.";return"Una por día. Las que tienen cinta, todavía no: ya probé despegarlas y no se puede.";}
+function notaPie(){var h=T3.hoy,n=numDe(h);if(h.slice(5,7)==="01"||(h.slice(5,7)==="12"&&+h.slice(8)>24))return"Ya están todas. El calendario se guarda el 31; cada ventanita queda en la hoja de su día.";if(!visible(h))return"Arranca el 1 de diciembre. No espíes.";if(n===24)return"Hoy la grande. La guardé para el final.";if(n===23)return"Mañana la grande.";return"Una por día. Las que tienen cinta, todavía no: ya probé despegarlas y no se puede.";}
 function pagina(host,op){op=op||{};if(!host)return null;var W=Math.max(300,Math.min(440,host.clientWidth||window.innerWidth||390));var margen=W<360?10:14,pad=11;var interior=W-margen*2-pad*2;var u=Math.floor((interior-GAP*5)/6);var pliegue=0;var celdas=function(desde,hasta){var s="";Object.keys(GRILLA).forEach(function(key){var n=+key,g=GRILLA[n];if(g.r<desde||g.r>hasta)return;var m=medidas(g,u,GAP);s+='<div class="'+k("celda")+'" style="grid-area:'+(g.r-desde+1)+' / '+g.c+' / span '+g.h+' / span '+g.w+'">'+
 ventanaHTML(n,fechaN(n),m.w,m.h)+'</div>';});DECO.forEach(function(d){if(d.r<desde||d.r>hasta)return;if(d.libre&&fechaN(d.libre)===T3.hoy&&!estaAbierta(T3.hoy))return;s+='<div class="'+k("deco deco-"+d.que)+'" style="grid-area:'+(d.r-desde+1)+' / '+d.c+' / span '+d.h+' / span '+d.w+'">'+decoSVG(d.que)+'</div>';});return s;};var grilla=function(desde,hasta){return'<div class="'+k("grilla")+'" style="grid-template-columns:repeat(6,'+u+'px);grid-template-rows:repeat(6,'+u+'px);gap:'+GAP+'px">'+celdas(desde,hasta)+'</div>';};var raiz=document.createElement("div");raiz.className=K+"pag";if(!host.classList.contains(K+"escena-scroll"))raiz.classList.add(K+"en-hoja");raiz.style.setProperty("--u",u+"px");raiz.style.setProperty("--margen",margen+"px");raiz.innerHTML='<div class="'+k("escena")+'">'+'<div class="'+k("pagina-arriba")+'">'+'<div class="'+k("guirnalda")+'">'+guirnalda()+'</div>'+'<div class="'+k("sellito s1")+'">'+selloGoma("ADVIENTO · OLIVOS · "+anioCal()+" · ","✶")+'</div>'+'<div class="'+k("tablero-arriba")+'">'+'<div class="'+k("cara")+'">'+'<div class="'+k("cab")+'">'+'<div class="'+k("cab-rot")+'">DICIEMBRE · '+anioCal()+' · 24 VENTANITAS</div>'+'<h2 class="'+k("titulo")+'">Calendario<em>de adviento</em></h2>'+'<div class="'+k("cab-mano")+'">una por día, como corresponde</div>'+'</div>'+
 grilla(1,6)+'</div>'+'<div class="'+k("dorso-mitad")+'"><span>FRÁGIL</span><b>contiene diciembre</b><span>ABRIR DEL LADO DE LA MENTA</span></div>'+'<div class="'+k("pop pop-estrella")+'">'+estrellaPapel()+'</div>'+'<div class="'+k("pop pop-menta")+'">'+ramitaMenta()+'</div>'+'</div>'+'</div>'+'<div class="'+k("pagina-abajo")+'">'+'<div class="'+k("tablero-abajo")+'">'+grilla(7,12)+'</div>'+'<p class="'+k("pie")+'">'+esc(notaPie())+'<span>'+esc(T3.firma(T3.hoy))+'</span></p>'+'<div class="'+k("sellito s2")+'">'+selloGoma("HECHO A MANO · NO SE VENCE · ","24")+'</div>'+'</div>'+'<div class="'+k("pop-base")+'" aria-hidden="true"><i class="'+k("pop-sombra")+'"></i>'+'<svg viewBox="0 0 120 30"><path d="M58 8 L12 3 L18 25 L55 21 Z"/><path d="M62 8 L108 3 L102 25 L65 21 Z"/>'+'<path d="M58 8 L55 21 M62 8 L65 21" fill="none" stroke="rgba(43,33,24,.35)" stroke-width="1"/></svg></div>'+'<div class="'+k("pop-centro")+'">'+ponyDibujo(trajeCalendario())+'</div>'+'</div>';host.appendChild(raiz);var alCerrar=function(n){var el=raiz.querySelector("."+K+"v[data-n='"+n+"']");if(el){var c=el.querySelector("."+K+"circulo, ."+K+"flecha");if(c)c.remove();}};raiz.addEventListener("click",function(e){var v=e.target.closest&&e.target.closest("."+K+"v");if(!v||!raiz.contains(v))return;e.stopPropagation();tocarVentana(v,alCerrar);});raiz.addEventListener("keydown",function(e){if(e.key!=="Enter"&&e.key!==" ")return;var v=e.target.closest&&e.target.closest("."+K+"v");if(!v)return;e.preventDefault();tocarVentana(v,alCerrar);});raiz.querySelector("."+K+"pop-estrella").addEventListener("click",function(e){e.stopPropagation();if(!(raiz._pop&&raiz._pop.activo))popup(raiz,{retraso:0});});raiz.desmontar=function(){var P=raiz._pop;if(P){P.tt.forEach(clearTimeout);P.anims.forEach(function(a){try{a.cancel();}catch(e){}});P.activo=false;}
@@ -13805,7 +14284,7 @@ bloque.addEventListener("pointerdown",abajo);bloque.addEventListener("pointermov
 function doblar(){if(!vista||vista.leaf.extra>=0)return;var f=vista.leaf.f;var ya=T3.tiene("orejas",f);if(ya)T3.quitar("orejas",f);else T3.agregar("orejas",f);vista.el.classList.toggle(P+"doblada",!ya);T3.sonido("papel",.5);U.vibrar(10);aviso(ya?"desdoblada":U.azar(["doblada. esta queda marcada","punta doblada: la encontrás en el ♥","marcada para volver"],"dob"+f));actualizarPestanas();}
 function actualizarPie(){var a=$("."+P+"flecha-antes",raiz),d=$("."+P+"flecha-despues",raiz);if(a)a.setAttribute("aria-disabled",String(!especial&&pos<=0));if(d)d.setAttribute("aria-disabled",String(!!especial||pos>=hojas.length-1));actualizarPestanas();}
 function mesesExistentes(){var vistos=[],res=[];hojas.forEach(function(l){var m=l.f.slice(0,7);if(vistos.indexOf(m)<0){vistos.push(m);res.push(l.f);}});return res;}
-function armarPestanas(){var cont=$("."+P+"pestanas",raiz);if(!cont)return;var html="";mesesExistentes().forEach(function(f){html+='<button type="button" class="'+k("pestana")+'" data-mes="'+f.slice(0,7)+'" data-ir="'+f+'" aria-label="ir a '+esc(T3.f.mes(f))+'">'+T3.f.mesCorto(f)+"</button>";});html+='<button type="button" class="'+k("pestana pestana-corazon")+'" data-pest="dobladas" aria-label="las hojas dobladas">♥</button>';if(T3.pedidos&&T3.pedidos.activo&&T3.pedidos.activo())html+='<button type="button" class="'+k("pestana pestana-pedidos")+'" data-pest="pedidos" aria-label="la tienda">Tienda</button>';cont.innerHTML=html;var arriba=$("."+P+"pestanas-arriba",raiz),h2="";if(T3.tcg&&T3.tcg.activo&&T3.tcg.activo())h2+='<button type="button" class="'+k("pestana-sup pestana-tcg"+(T3.tcg.haySobre&&T3.tcg.haySobre()?" con-sobre":""))+'" data-pest="tcg">TCG</button>';if(T3.hoy>="2026-12-01"&&T3.hoy<="2027-01-06")h2+='<button type="button" class="'+k("pestana-sup pestana-adviento")+'" data-pest="adviento">Adviento</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-mapa")+'" data-pest="mapa">Mapa</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-ponyta")+'" data-pest="ponyta">Ponyta</button>';if(arriba)arriba.innerHTML=h2;actualizarPestanas();}
+function armarPestanas(){var cont=$("."+P+"pestanas",raiz);if(!cont)return;var html="";mesesExistentes().forEach(function(f){html+='<button type="button" class="'+k("pestana")+'" data-mes="'+f.slice(0,7)+'" data-ir="'+f+'" aria-label="ir a '+esc(T3.f.mes(f))+'">'+T3.f.mesCorto(f)+"</button>";});html+='<button type="button" class="'+k("pestana pestana-corazon")+'" data-pest="dobladas" aria-label="las hojas dobladas">♥</button>';if(T3.pedidos&&T3.pedidos.activo&&T3.pedidos.activo())html+='<button type="button" class="'+k("pestana pestana-pedidos")+'" data-pest="pedidos" aria-label="la tienda">Tienda</button>';cont.innerHTML=html;var arriba=$("."+P+"pestanas-arriba",raiz),h2="";if(T3.tcg&&T3.tcg.activo&&T3.tcg.activo())h2+='<button type="button" class="'+k("pestana-sup pestana-tcg"+(T3.tcg.haySobre&&T3.tcg.haySobre()?" con-sobre":""))+'" data-pest="tcg">TCG</button>';if(T3.hoy>="2026-12-01"&&T3.hoy<="2026-12-31")h2+='<button type="button" class="'+k("pestana-sup pestana-adviento")+'" data-pest="adviento">Adviento</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-mapa")+'" data-pest="mapa">Mapa</button>';h2+='<button type="button" class="'+k("pestana-sup pestana-ponyta")+'" data-pest="ponyta">Ponyta</button>';if(arriba)arriba.innerHTML=h2;actualizarPestanas();}
 function actualizarPestanas(){if(!raiz||!vista)return;var mes=vista.leaf.f.slice(0,7);$$("."+P+"pestana, ."+P+"pestana-sup",raiz).forEach(function(b){var act=especial?b.getAttribute("data-pest")===especial.nombre:b.getAttribute("data-mes")===mes;b.classList.toggle(P+"activa",!!act);});}
 function engancharPestanas(){[$("."+P+"pestanas",raiz),$("."+P+"pestanas-arriba",raiz)].forEach(function(cont){if(cont)cont.addEventListener("click",clicPestana);});function clicPestana(ev){var b=ev.target.closest("button");if(!b||animando)return;T3.sonido("click",.6);if(b.hasAttribute("data-ir")){var destino=indiceDe(b.getAttribute("data-ir"));if(especial)volverDeEspecial().then(function(){irIdx(destino);});else irIdx(destino);return;}
 var p=b.getAttribute("data-pest");if(p==="dobladas")abrirIndice({dobladas:true});else abrir(p);}}
@@ -14712,6 +15191,18 @@ function comprar(c,con){
   }
   return true;
 }
+/* un regalo (los del adviento: el casco, los guantes): pasa a ser suyo sin cobrar nada y Ponyta se lo pone.
+   Devuelve true si era nuevo (si ya lo tenía no hace nada: puede estar guardado en el ropero) */
+function regalar(id){
+  if(!T3.ropa||!T3.ropa.PRENDAS[id])return false;
+  var L=libro();
+  if(L.cosas[id])return false;
+  L.cosas[id]=T3.hoy;
+  T3.guardar(LL,L);
+  T3.ropa.poner(id,true);
+  T3.stat("tienda-regalos");
+  return true;
+}
 /* cómo se dice de cada prenda: "la tiene puesta", "lo tiene puesto", "los tiene puestos"… o lo que diga ella ("dicho") */
 function gen(id){
   var p=(T3.ropa&&T3.ropa.PRENDAS[id])||{},g=p.gen,d=p.dicho||{};
@@ -14903,7 +15394,7 @@ function pagina(host){
   return {desmontar:function(){vivo=false;host.removeEventListener("click",clic);if(capa&&capa.parentNode)capa.parentNode.removeChild(capa);capa=null;}};
 }
 
-T3.tienda={activo:function(){return X.estrenado();},pagina:pagina,tiene:tiene,
+T3.tienda={activo:function(){return X.estrenado();},pagina:pagina,tiene:tiene,regalar:regalar,
   _prueba:{tickets:tickets,cosas:cosas,libro:libro,mensaje:mensaje,pedir:pedir,comprar:comprar,saldo:saldo,cupon:cupon,rebajado:rebajado,LL:LL,ESPECIALES:ESPECIALES}};
 /* el cuaderno la conoce por su nombre viejo: la pestaña sigue siendo "pedidos" */
 T3.pedidos=T3.tienda;
@@ -15052,13 +15543,15 @@ function opc(mas){
 function carta(c){return M().cartaHTML(c,opc());}
 function mini(c){return M().cartaHTML(c,opc({solo:true,perezosa:true,fotos:U.asset("tcg/mini/")}));}
 function dorso(){return M().dorsoHTML(opc());}
-/* nola: el sobre de herraduras (una carta, que no tiene) */
+/* nola: el sobre de una sola carta, que no tiene. true = el de herraduras · "adviento" = el de la ventanita 17 */
 function sobre(n,nola){
   return '<span class="t3x-sobre-tira" aria-hidden="true"></span>'+
     '<span class="t3x-sobre-cuerpo"><img class="t3x-sobre-logo" src="'+esc(opc().logo)+'" alt="Mafia TCG" draggable="false">'+
     '<span class="t3x-sobre-set">'+(nola?'1 nola':POR_SOBRE+' cartas')+'</span>'+
-    '<span class="t3x-sobre-n">'+(nola?'de herraduras':n?'sobre Nº '+String(n).padStart(4,"0"):'MafiaTCG')+'</span></span>';
+    '<span class="t3x-sobre-n">'+(nola==="adviento"?'del adviento':nola?'de herraduras':n?'sobre Nº '+String(n).padStart(4,"0"):'MafiaTCG')+'</span></span>';
 }
+/* de los sobres de una carta que tiene sin abrir, el de arriba: "adviento" si le queda alguno del adviento */
+function cualNola(e){return e.nolasAdv>0?"adviento":true;}
 
 /* ---------------- estado y reglas ---------------- */
 function estado(){
@@ -15067,7 +15560,8 @@ function estado(){
   if(!e.cartas||typeof e.cartas!=="object")e.cartas={};
   if(!Array.isArray(e.bonos))e.bonos=[];
   e.sobres=Math.max(0,+e.sobres||0);
-  e.nolas=Math.max(0,Math.floor(+e.nolas||0));      /* sobres de herraduras sin abrir */
+  e.nolas=Math.max(0,Math.floor(+e.nolas||0));      /* sobres de una carta sin abrir (de herraduras o del adviento) */
+  e.nolasAdv=Math.min(e.nolas,Math.max(0,Math.floor(+e.nolasAdv||0)));   /* cuántos de esos son del adviento */
   e.abiertos=+e.abiertos||0;
   e.sinNueva=+e.sinNueva||0;
   e.sinFull=+e.sinFull||0;
@@ -15165,6 +15659,7 @@ function tirarNola(e,azar){
   a.n=(+a.n||0)+1;if(!a.f)a.f=T3.hoy;
   e.cartas[c.id]=a;
   e.nolas=Math.max(0,(+e.nolas||0)-1);
+  if(e.nolasAdv>0)e.nolasAdv--;                    /* primero se abre el del adviento */
   e.nolasAbiertas=(+e.nolasAbiertas||0)+1;
   if(!tenia)e.sinNueva=0;
   if(c.formato==="full")e.sinFull=0;
@@ -15217,11 +15712,13 @@ function sumar(n){
 /* ---- los sobres de herraduras ---- */
 /* cuántas cartas le faltan, sin contar las que ya le van a tocar en los sobres de herraduras que tiene sin abrir */
 function faltan(){try{var e=estado();return Math.max(0,TOTAL-tengo(e)-e.nolas);}catch(x){return 0;}}
-/* le deja un sobre de herraduras en la pestaña. No lo da si ya no le quedan cartas por conseguir */
-function darNola(){
+/* le deja un sobre de una carta en la pestaña (de: "adviento" = el de la ventanita 17; si no, de herraduras).
+   No lo da si ya no le quedan cartas por conseguir */
+function darNola(de){
   if(faltan()<1)return false;
   var e=estado();
   e.nolas++;
+  if(de==="adviento")e.nolasAdv=(+e.nolasAdv||0)+1;
   guardar(e);
   marcarPestana();
   if(paginaViva)paginaViva();
@@ -15386,9 +15883,10 @@ function pagina(host){
     }
     h+='</section>';
     if(e.nolas>0){
-      h+='<section class="t3x-tcg-mesa t3x-tcg-mesa-nola"><button type="button" class="t3x-sobre t3x-sobre-nola t3x-tcg-sobre" data-tcg="abrir-nola" aria-label="Abrir un sobre de herraduras">'+sobre(0,true)+
+      var deAdv=cualNola(e)==="adviento";
+      h+='<section class="t3x-tcg-mesa t3x-tcg-mesa-nola'+(deAdv?" t3x-tcg-mesa-adv":"")+'"><button type="button" class="t3x-sobre t3x-sobre-nola'+(deAdv?" t3x-sobre-adv":"")+' t3x-tcg-sobre" data-tcg="abrir-nola" aria-label="Abrir un sobre '+(deAdv?"del adviento":"de herraduras")+'">'+sobre(0,cualNola(e))+
         (e.nolas>1?'<span class="t3x-sobre-cuantos">×'+e.nolas+'</span>':'')+'</button>'+
-        '<div class="t3x-tcg-lado"><p class="t3x-tcg-hay">'+(e.nolas===1?"Un sobre de herraduras":e.nolas+" sobres de herraduras")+'<small>una carta sola. nola, seguro.</small></p>'+
+        '<div class="t3x-tcg-lado"><p class="t3x-tcg-hay">'+(e.nolas===1?(deAdv?"Un sobre del adviento":"Un sobre de herraduras"):e.nolasAdv>=e.nolas?e.nolas+" sobres del adviento":e.nolasAdv>0?e.nolas+" sobres de una carta":e.nolas+" sobres de herraduras")+'<small>una carta sola. nola, seguro.</small></p>'+
         '<button type="button" class="mq-boton t3x-tcg-abrir-nola" data-tcg="abrir-nola">Abrir</button></div></section>';
     }
     if(!e.abiertos)h+='<p class="t3x-tcg-nota">Lo prometido: MafiaTCG. Un sobre por día; si ganás el juego del día, otro. Con '+MINIMO+' cartas se puede jugar. '+({5:"Cinco",6:"Seis",7:"Siete",8:"Ocho"}[REPES]||REPES)+' repetidas valen un sobre más.</p>';
@@ -15512,6 +16010,7 @@ function pagina(host){
     if(capa||arena||(nola?e.nolas<1:e.sobres<1))return;
     var numero=e.abiertos+1;
     var antes=tengo(e);
+    var deDonde=nola?cualNola(e):false;            /* antes de tirar: tirarNola gasta primero el del adviento */
     var tirada=nola?tirarNola(e):tirar(e);
     guardar(e);                                   /* queda anotado antes de la animación */
     T3.stat(nola?"tcg-nolas":"tcg-sobres");
@@ -15519,8 +16018,8 @@ function pagina(host){
     marcarPestana();
     var R=U.reducido();
     var ap=U.el('<div class="t3x-apertura t3x-ocupa" role="dialog" aria-label="Abrir un sobre">'+
-      '<p class="t3x-ap-rotulo">'+(nola?'sobre de herraduras':'sobre Nº '+String(numero).padStart(4,"0"))+' · MafiaTCG</p>'+
-      '<div class="t3x-ap-escena"><button type="button" class="t3x-sobre t3x-ap-sobre'+(nola?" t3x-sobre-nola":"")+'" aria-label="Abrir el sobre">'+sobre(numero,nola)+'</button>'+
+      '<p class="t3x-ap-rotulo">'+(deDonde==="adviento"?'sobre del adviento':nola?'sobre de herraduras':'sobre Nº '+String(numero).padStart(4,"0"))+' · MafiaTCG</p>'+
+      '<div class="t3x-ap-escena"><button type="button" class="t3x-sobre t3x-ap-sobre'+(nola?" t3x-sobre-nola":"")+(deDonde==="adviento"?" t3x-sobre-adv":"")+'" aria-label="Abrir el sobre">'+sobre(numero,deDonde)+'</button>'+
       '<div class="t3x-ap-fila">'+tirada.map(function(x,i){
         var c=POR_ID[x.id];
         return '<div class="t3x-ap-lugar"><div class="t3x-ap-carta t3x-ap-'+c.formato+'" data-i="'+i+'" role="button" tabindex="0" aria-label="carta '+(i+1)+', boca abajo">'+
@@ -15658,7 +16157,11 @@ T3.tcg={
   activo:function(){return X.estrenado();},
   haySobre:haySobre,pagina:pagina,alGanar:alGanar,CARTAS:CARTAS,
   probarDuelo:probarDuelo,probarExplosion:probarExplosion,filaTaller:filaTaller,clicTaller:clicTaller,
-  puntos:puntos,gastar:gastar,sumar:sumar,darNola:darNola,faltan:faltan,POR_VICTORIA:POR_VICTORIA,DUELOS_POR_DIA:DUELOS_POR_DIA,
+  puntos:puntos,gastar:gastar,sumar:sumar,darNola:darNola,faltan:faltan,
+  /* el sobre de una carta, dibujado (lo muestra la ventanita 17 del adviento): de = "adviento" o true (herraduras) */
+  sobreHTML:function(de){return sobre(0,de||true);},POR_VICTORIA:POR_VICTORIA,DUELOS_POR_DIA:DUELOS_POR_DIA,
+  /* cuántos sobres de una carta tiene sin abrir (de = "adviento": solo los del adviento) */
+  sobresDeUna:function(de){try{var e=estado();return de==="adviento"?e.nolasAdv:e.nolas;}catch(x){return 0;}},
   _prueba:{opciones:PRUEBA,estado:estado,guardar:guardar,ponerAlDia:ponerAlDia,tirar:tirar,tirarNola:tirarNola,repes:repes,canjear:canjear,tengo:tengo,carta:carta,dorso:dorso,
     anotarDuelo:anotarDuelo,duelosHoy:duelosHoy,quedanDuelos:quedanDuelos,arrancarDuelo:arrancarDuelo,darPuntos:darPuntos,
     repintar:function(){if(paginaViva)paginaViva();},
@@ -17168,10 +17671,46 @@ var PRENDAS={
     texto:[{t:"LARRY ES REAL",x:0,y:-7,tam:26,largo:116},{t:"aunque lo oculten",x:0,y:17,tam:20,largo:104}]},
   poster1d:{gen:"m",de:"sorpresa",nombre:"Póster de One Direction",lugar:"pared",dice:"Pegado con cinta en su hoja.",
     dicho:{si:"lo pegó en su hoja.",no:"lo despegó. queda guardado.",estado:"pegado en su hoja",guardada:"guardado"},
-    pared:{src:"1d-foto.webp",pie:"los cinco",alto:true,fondo:"#DCEBF5"}}
+    pared:{src:"1d-foto.webp",pie:"los cinco",alto:true,fondo:"#DCEBF5"}},
+
+  /* ---- los regalos del adviento (repaso del 26/11/2026). No se venden: los da su ventanita (T3.ventanitas, tipo
+     "regalo"), con T3.tienda.regalar(id). Como las de los paquetes, aparecen en la vidriera recién cuando las tiene
+     (de:"adviento"), y ahí se las pone y se las saca. No son de Navidad: no se van el 1 de enero. ---- */
+  /* el 6/12, la última carrera del año: el casco es la foto que mandó Mati, tal cual (se le sacó la sombra y se
+     achicó). Va puesto entero, así que el gorro de Navidad se guarda mientras lo lleve. La silueta de abajo le da el
+     borde de tinta de sticker y es lo que se dibuja a lápiz (con el visor). */
+  casco:{gen:"m",de:"adviento",nombre:"Casco de carrera",lugar:"cabeza",dice:"El de la última carrera del año.",
+    dicho:{si:"se lo puso. no ve nada.",no:"se lo sacó. queda en el ropero.",estado:"lo tiene puesto"},
+    formas:[["M101.5 24.1L94.3 20.8L87 18.3L78.5 16.7L61.8 10.2L53.1 8.8L43.5 8.6L31.1 10.1L22.8 12.7L12.9 18.3L4.3 25.8L-1 32.6L-4.8 39.6L-8.4 50.5L-10.5 63.6L-13.7 64.9L-15.2 91.3L-16.5 95.5L-16.4 103.3L-11.6 120.1L-3.3 137.6L1.1 140.5L8.2 141.2L18.3 139.9L28.1 136.9L43.1 133.8L45.3 132.8L46.3 131.2L71.4 120.7L81.3 117.4L85.5 114.2L91.3 111.8L94.8 109.2L98.9 100.5L104.9 94.8L106.3 94.4L107.4 92.3L104.1 83.3L105.9 73.8L106.4 64.2L105.8 58.4L107.1 51.7L104.7 35.6Z","#E9E4DA"]],
+    rayas:[["M-14.6 79.9L-4.8 72.3L26.9 68.5L59.7 69.1L63.4 80.8L43.1 90.5L12.4 97.2L-13.4 96.4Z","#2B2118",2.4,1]],
+    lapiz:[0],
+    fotos:[{src:"casco.webp",x:-20,y:8,w:130,h:130,giro:-6}],
+    rapi:"translate(0 24) rotate(-12) scale(.8)",
+    fotosRapi:[{src:"casco.webp",x:-20,y:8,w:130,h:130,giro:-6}]},
+  /* el 18/12 ella va a ver boxeo: unos guantes colgados del cuello, como los llevan los boxeadores (así los pidió Mati) */
+  guantes:{gen:"mp",de:"adviento",nombre:"Guantes de boxeo",lugar:"cuello",dice:"Colgados, como las campeonas.",
+    dicho:{si:"se los colgó.",no:"se los sacó. quedan en el ropero.",estado:"los lleva colgados"},
+    formas:[
+      ["M81.6 173.3L61.3 178.4L63 192C54.3 193.6 51.6 200.2 54.3 206.6C55.9 211.1 59.1 213 62.8 212.6C64 222 73 227.4 83.1 224.8C93.8 222.2 98.4 212.4 94.6 201.4C92.3 194.4 89.5 189.7 86.5 186.1Z","#D23B30"],
+      ["M37.9 165.5L58.5 169.9L57.2 183.6C66 184.9 68.9 191.5 66.5 197.9C65 202.4 61.8 204.4 58.1 204.2C57.2 213.7 48.5 219.3 38.2 217.1C27.4 214.8 22.5 205.2 25.9 194.1C28 187.1 30.6 182.2 33.5 178.6Z","#D23B30"]],
+    rayas:[
+      ["M52 147C68 147 90 138 105 126","#0d131a",3.2,1],
+      ["M58 150L48.2 167.7","#0d131a",2.6,1],
+      ["M58 150L71.5 175.8","#0d131a",2.6,1],
+      ["M81.6 173.3L61.3 178.4L62.3 185.7L84.1 180.2Z","#8E2A20",0,1],
+      ["M84.1 180.2L62.3 185.7L63 192L86.5 186.1Z","#FBF5E7",0,1],
+      ["M37.9 165.5L58.5 169.9L57.6 177.3L35.7 172.6Z","#8E2A20",0,1],
+      ["M35.7 172.6L57.6 177.3L57.2 183.6L33.5 178.6Z","#FBF5E7",0,1],
+      ["M81.6 173.3L61.3 178.4L63 192C54.3 193.6 51.6 200.2 54.3 206.6C55.9 211.1 59.1 213 62.8 212.6C64 222 73 227.4 83.1 224.8C93.8 222.2 98.4 212.4 94.6 201.4C92.3 194.4 89.5 189.7 86.5 186.1Z","#0d131a",4.5,1],
+      ["M37.9 165.5L58.5 169.9L57.2 183.6C66 184.9 68.9 191.5 66.5 197.9C65 202.4 61.8 204.4 58.1 204.2C57.2 213.7 48.5 219.3 38.2 217.1C27.4 214.8 22.5 205.2 25.9 194.1C28 187.1 30.6 182.2 33.5 178.6Z","#0d131a",4.5,1],
+      ["M63 194.1C64.3 201.4 64.8 207.8 62.8 212.6","#7A1E18",1.9,1],
+      ["M57.2 185.8C56.2 193.1 55.9 199.4 58.1 204.2","#7A1E18",1.9,1],
+      ["M88.3 199.8C90.8 209.9 87.2 217.3 80.9 220","#F28B7D",2.6,0.9],
+      ["M32.2 192.2C30.1 202.5 33.9 209.8 40.3 212.2","#F28B7D",2.6,0.9]],
+    lapiz:[0,1,2,9,10],rapi:"translate(10 52) scale(.86)"}
 };
 /* el orden de la vidriera */
-var ORDEN=["anteojos","monio","bonete","bufanda","boina","nigiri","peludo","corona","racing","alpine","f1","franco","pasacalle1d","cartel1d","poster1d"];
+var ORDEN=["anteojos","monio","bonete","bufanda","boina","nigiri","peludo","corona","racing","alpine","f1","franco","pasacalle1d","cartel1d","poster1d","casco","guantes"];
 Object.keys(PRENDAS).forEach(function(id){PRENDAS[id].id=id;});
 
 /* ---------------- el corte de las camisetas ----------------
@@ -17517,6 +18056,8 @@ function adornar(ctl,host,op){
   if(!ctl||!ctl._raiz||(op&&op.papel===false))return;
   if(T3.viaje&&T3.viaje.ausente&&T3.viaje.ausente())return;
   var raiz=ctl._raiz,l=enLaPared();
+  /* lo que el adviento deja en su solapa: el arbolito de Lego y, el día del cumple, los globos (T3.ventanitas) */
+  try{if(T3.ventanitas&&T3.ventanitas.enSolapa)T3.ventanitas.enSolapa(raiz,ctl);}catch(e){}
   /* el pasacalle cuelga arriba de la escena */
   var pc=elPasacalle(),escena=raiz.querySelector(".t3-ponyta-escena");
   if(pc&&escena&&!raiz.querySelector(".t3x-pasacalle")){
@@ -18281,7 +18822,7 @@ if(!T3||!T3.util)return;
 
 var SALE="2026-11-19";          /* desde este día, la próxima corrida es la de la ida */
 var VUELVE="2026-12-01";        /* el primer día del adviento */
-var GORRO_HASTA="2027-01-06";   /* el adviento cierra en Reyes */
+var GORRO_HASTA="2026-12-31";   /* el 1 de enero se va todo lo de Navidad (lo pidió Mati el 26/11/2026) */
 var LL="ponyta-viaje";          /* {ida:"AAAA-MM-DD"} */
 
 /* lo que deja escrito cuando se va (el renglón de la fecha se arma solo; \u00a0 = espacio que no corta el renglón) */
@@ -18448,30 +18989,35 @@ T3.viaje={toca:toca,ausente:ausente,conGorro:conGorro,gorroPuesto:gorroPuesto,se
 })();
 
 /* ------------------------------------------------------------
-   LAS VENTANITAS NUEVAS DEL ADVIENTO (26/11/2026)
-   Mati sacó del adviento las fotos, las notas de voz y las frases, y pidió dos cosas:
+   LAS VENTANITAS DEL ADVIENTO (26/11/2026)
+   Mati sacó del adviento las fotos, las notas de voz y las frases, y lo repasó ventanita por ventanita. Todo lo que no
+   es "ponyta" ni "vale" (eso lo dibuja el módulo del adviento, minificado, más arriba) se dibuja acá y en los tres
+   archivos que siguen. Qué ventanita lleva cada cosa está en la lista CONTENIDO_ADVIENTO de ese módulo, que les
+   pregunta a estas funciones cómo se dibuja cada tipo: es(), mini(), objeto(), pie(), montar() y adentro().
 
-   · LA BÚSQUEDA DEL TESORO. Cuatro ventanitas (3, 6, 10 y 15) dan un pedazo de un mapa, cada uno con un número.
-     La del 24 es un cofre con clave: los cuatro números, en el orden del mapa. Adentro hay un papel que dice dónde
-     escondió Mati un regalo de verdad. La clave y el escondite están en CONFIG.t3.tesoro (clave, escondite); si el
-     escondite está vacío, el papel la manda a pedirle la última pista a él.
-   · EL CUPÓN (ventanita 13): 50% de descuento en UNA compra de la tienda, la que ella quiera (también lo caro).
-     Se usa al comprar: la hoja de confirmar de T3.tienda ofrece usarlo.
+   En este archivo, lo que comparten todas y cuatro tipos:
+   · LA BÚSQUEDA DEL TESORO. Cuatro ventanitas ("mapa", {orden:1…4}: hoy la 3, la 10, la 12 y la 15) dan un pedazo de un
+     mapa, cada uno con un número. La del 24 ("cofre") es un cofre con clave: los cuatro números, en el orden del mapa.
+     Adentro hay un papel. La clave, lo que dice el papel y el renglón de abajo están en CONFIG.t3.tesoro (clave,
+     escondite, despues); si el escondite está vacío, el papel la manda a pedirle la última pista a Mati.
+   · EL CUPÓN ("cupon", {pct}: hoy 30, la ventanita 13): un descuento en UNA compra de la tienda, la que ella quiera
+     (también lo caro). Se usa al comprar: la hoja de confirmar de T3.tienda ofrece usarlo. No vence.
+   · EL PAPELITO ("papelito", {texto, estilo}: la ventanita 4). Un papel con un texto que dictó Mati, sobre algo que
+     compró y escondió (no tiene que ver con el cofre). ⚠ El texto va LETRA POR LETRA: las mayúsculas que parecen
+     puestas al azar son la pista (forman P-LA-C-A-R). No se corrige, no se le agregan tildes ni se le aplica
+     text-transform. Él pidió que la diferencia entre mayúsculas y minúsculas sea bien alevosa: cada mayúscula se
+     dibuja aparte, con otra tipografía. Hay tres estilos ("sello", "marcador" y "recortes") y eligió "recortes": el
+     texto escrito a mano y las mayúsculas como letras recortadas de revista.
 
-   · EL PAPELITO (ventanita 4). Un papel escrito a máquina con un texto que dictó Mati, sobre algo que compró y
-     escondió (no tiene que ver con el cofre). ⚠ El texto va LETRA POR LETRA: las mayúsculas que parecen puestas al
-     azar son la pista (forman P-LA-C-A-R). No se corrige, no se le agregan tildes ni se le aplica text-transform.
-     Él pidió que la diferencia entre mayúsculas y minúsculas sea bien alevosa: cada mayúscula se dibuja aparte,
-     con otra tipografía. Hay tres estilos ("sello", "marcador" y "recortes") y eligió "recortes": el texto escrito
-     a mano y las mayúsculas como letras recortadas de revista.
-
-   Son cuatro tipos nuevos de ventanita: "mapa" ({orden:1…4}), "cofre", "cupon" ({pct:50}) y "papelito" ({texto,
-   estilo}). El módulo del adviento
-   (minificado, más arriba) les pregunta a estas funciones cómo se dibuja cada uno: es(), mini(), objeto(), pie(),
-   montar() y adentro(). Qué ventanita lleva cada cosa está en su lista CONTENIDO_ADVIENTO.
+   Los demás tipos (la ruleta, los regalos para Ponyta, el Lego que se arma, las citas, los penales, la carta, el sobre,
+   la Generala y la frase en alemán) se anotan desde sus archivos con registrar(tipo, {mini, objeto, pie, montar, adentro}).
 
    Qué se guarda: las ventanitas abiertas ya las anota el adviento ("adviento"); el cupón usado va con los vales
    canjeados ("adviento-canjes") y además en "cupon-usado" (en qué lo gastó); el cofre abierto, en "tesoro".
+
+   El 1 de enero se va la pestaña del adviento (lo pidió Mati), pero cada hoja de diciembre conserva su ventanita: se
+   puede seguir abriendo, jugando o canjeando desde ahí. Por eso acá no se da por hecho que es diciembre: el año del
+   adviento es el del último diciembre (anio()).
    ------------------------------------------------------------ */
 (function(){
 "use strict";
@@ -18479,16 +19025,130 @@ var T3=window.T3;
 if(!T3||!T3.x)return;
 var X=T3.x,esc=X.esc,U=T3.util,C=T3.config||{};
 var TIPOS={mapa:1,cofre:1,cupon:1,papelito:1};
+/* Los tipos que se sumaron en el repaso del 26/11 (la ruleta, los regalos para Ponyta, el Lego que se arma, la cita,
+   los penales, la carta, el sobre, la Generala y la frase en alemán) viven en los archivos que siguen y se anotan acá
+   con registrar(tipo, {mini, objeto, pie, montar, adentro}). */
+var REG={};
+function registrar(t,d){REG[t]=d;}
 var CLAVE_DE_RESERVA="2805";
 var ORD=["primer","segundo","tercer","cuarto"];
 var _uid=0;
 function p2(n){return String(n).padStart(2,"0");}
 function reducido(){return !!(U.reducido&&U.reducido());}
-function anio(){var h=T3.hoy;return h.slice(5,7)==="01"?+h.slice(0,4)-1:+h.slice(0,4);}
+/* el año del adviento: el del último diciembre. (No "el de hoy": la tienda y las cartas siguen después de enero, y
+   el cupón sin usar o una ventanita que se abre desde su hoja tienen que seguir encontrando lo de este diciembre.) */
+function anio(){var h=T3.hoy;return h.slice(5,7)==="12"?+h.slice(0,4):+h.slice(0,4)-1;}
 function fechaDe(n){return anio()+"-12-"+p2(n);}
 function contenido(n){try{return T3.adviento.contenido(n)||{};}catch(e){return {};}}
 function abierta(n){return T3.tiene("adviento",fechaDe(n));}
 function canjes(){return T3.leer("adviento-canjes",{})||{};}
+
+/* ============ lo que comparten todas las ventanitas ============ */
+/* lo guardado de una (siempre un objeto) */
+function leer(nombre){var v=null;try{v=T3.leer(nombre,null);}catch(e){}return v&&typeof v==="object"&&!Array.isArray(v)?v:{};}
+/* el renglón escrito a mano que va abajo de la sorpresa */
+function decir(velo,s){var r=velo&&velo.querySelector(".t3-adviento-pista");if(r)r.textContent=s||"";}
+/* cierra la sorpresa (y el calendario, si está desplegado a pantalla completa) y abre una pestaña del cuaderno */
+function irA(velo,pest){
+  T3.sonido("click");
+  var g=velo&&velo.querySelector(".t3-adviento-guardar");if(g)g.click();
+  setTimeout(function(){
+    var c=document.querySelector(".t3-adviento-escena-fija .t3-adviento-cerrar");if(c)c.click();
+    setTimeout(function(){try{T3.cuaderno.abrir(pest);}catch(e){}},c?460:60);
+  },reducido()?0:440);
+}
+/* vuelve a dibujar lo que se ve en el hueco de una ventanita ya abierta (cuando cambió lo de adentro: giró, eligió, armó) */
+function refrescarMini(n){
+  try{
+    var f=fechaDe(n),it=contenido(n),G=(T3.adviento&&T3.adviento.GRILLA)||{};
+    [].forEach.call(document.querySelectorAll('.t3-adviento-v[data-n="'+n+'"] .t3-adviento-hueco > .t3-adviento-mini'),function(m){
+      var d=document.createElement("div");d.innerHTML=mini(it,n,f,G[n]||{});
+      if(d.firstElementChild)m.parentNode.replaceChild(d.firstElementChild,m);
+    });
+  }catch(e){}
+}
+/* La sorpresa va centrada en la pantalla. Si después crece (aparece un botón, el renglón de abajo pasa a ocupar dos),
+   centrada se correría para arriba justo cuando la están tocando. Entonces se la deja clavada donde arrancó y lo
+   nuevo aparece hacia abajo; solo sube si de otra forma no entraría en la pantalla. */
+function anclar(velo,limpiezas){
+  var mesa=velo&&velo.querySelector(".t3-adviento-mesa");
+  if(!mesa||!window.ResizeObserver||mesa.children.length<2)return;
+  var primero=mesa.firstElementChild,ultimo=mesa.lastElementChild;
+  function alto(){return ultimo.getBoundingClientRect().bottom-primero.getBoundingClientRect().top;}
+  function libre(){var cs=getComputedStyle(velo);return velo.clientHeight-(parseFloat(cs.paddingTop)||0)-(parseFloat(cs.paddingBottom)||0);}
+  var arriba=Math.max(0,(libre()-alto())/2);
+  if(arriba<1)return;                                  /* no sobra lugar: ya arranca desde arriba */
+  mesa.style.boxSizing="border-box";mesa.style.justifyContent="flex-start";
+  function poner(){ultimo=mesa.lastElementChild||ultimo;mesa.style.paddingTop=Math.max(0,Math.min(arriba,libre()-alto())).toFixed(1)+"px";}
+  poner();
+  var ro=new ResizeObserver(poner);
+  [].forEach.call(mesa.children,function(h){ro.observe(h);});
+  window.addEventListener("resize",poner);
+  if(limpiezas)limpiezas.push(function(){try{ro.disconnect();}catch(e){}window.removeEventListener("resize",poner);});
+}
+/* MafiaPoints de premio (los de la tienda). Devuelve cuántos tiene ahora */
+function premiar(n){try{return T3.tcg&&T3.tcg.sumar?T3.tcg.sumar(n):0;}catch(e){return 0;}}
+/* la fichita "+30 MafiaPoints" */
+function fichaHTML(n,clase){
+  return '<span class="t3x-ficha'+(clase?" "+clase:"")+'"><i class="t3x-moneda" aria-hidden="true">M</i><b>+'+miles(n)+'</b><small>MafiaPoints</small></span>';
+}
+function miles(n){return String(Math.round(+n||0)).replace(/\B(?=(\d{3})+(?!\d))/g,".");}
+/* un botón de los que van abajo de la sorpresa (en la mesa oscura) */
+function botonHTML(texto,dato,clase){return '<button type="button" class="t3x-mesa-boton'+(clase?" "+clase:"")+'" '+dato+'>'+texto+'</button>';}
+/* fuegos artificiales sobre la mesa oscura: un lienzo fijo detrás de la sorpresa. Sin filtros. Devuelve cómo cortarlos.
+   Con "reducir movimiento" no hay (queda el sonido de uno solo). */
+function fuegos(velo,op){
+  op=op||{};
+  if(!velo)return function(){};
+  if(reducido()){try{T3.sonido("fuegos",.5);}catch(e){}return function(){};}
+  var cv=document.createElement("canvas");cv.className="t3x-fuegos";cv.setAttribute("aria-hidden","true");
+  velo.insertBefore(cv,velo.firstChild);
+  var dpr=Math.min(window.devicePixelRatio||1,2),W=0,H=0,x=cv.getContext("2d");
+  function medir(){W=window.innerWidth;H=window.innerHeight;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);x.setTransform(dpr,0,0,dpr,0,0);}
+  medir();
+  var COL=op.colores||["#F2C24A","#FF8A5B","#F4A3B8","#A9D8C3","#9CC3F0","#FBF5E7","#E9584A"];
+  var ps=[],cohetes=[],vivo=true,t0=performance.now(),dur=op.duracion||5200,ult=t0,sig=0,nR=0,max=op.rafagas||9;
+  function lanzar(){
+    var cx=W*(.14+Math.random()*.72),cy=H*(.1+Math.random()*.32);
+    cohetes.push({x:cx+(Math.random()-.5)*40,y:H+10,tx:cx,ty:cy,t:0,d:520+Math.random()*240,c:COL[nR%COL.length]});
+    if(nR%2===0){try{T3.sonido("fuegos",.5);}catch(e){}}
+    nR++;
+  }
+  function estallar(c){
+    var n=46+Math.floor(Math.random()*26),v=2.2+Math.random()*1.6,col2=COL[(COL.indexOf(c.c)+3)%COL.length],anillo=Math.random()<.35;
+    for(var i=0;i<n;i++){
+      var a=i/n*6.283+Math.random()*.2,s=anillo?v*1.15:v*(.35+Math.random()*.75);
+      ps.push({x:c.tx,y:c.ty,vx:Math.cos(a)*s,vy:Math.sin(a)*s,v:1,d:.011+Math.random()*.01,c:i%4===0?col2:c.c,r:1.3+Math.random()*1.3});
+    }
+  }
+  function parar(){if(!vivo)return;vivo=false;if(cv.parentNode)cv.parentNode.removeChild(cv);}
+  function cuadro(t){
+    if(!vivo)return;
+    if(!cv.isConnected){vivo=false;return;}
+    var dt=Math.min(40,t-ult)/16.7;ult=t;
+    var k=(t-t0)/dur;
+    x.globalCompositeOperation="destination-out";x.globalAlpha=1;x.fillStyle="rgba(0,0,0,.2)";x.fillRect(0,0,W,H);
+    x.globalCompositeOperation="lighter";
+    if(k<.8&&t>=sig&&nR<max){lanzar();sig=t+240+Math.random()*520;}
+    cohetes=cohetes.filter(function(c){
+      c.t+=dt*16.7;
+      var q=Math.min(1,c.t/c.d),e=1-(1-q)*(1-q),px=c.x+(c.tx-c.x)*e,py=c.y+(c.ty-c.y)*e;
+      x.fillStyle=c.c;x.globalAlpha=.9;x.beginPath();x.arc(px,py,1.8,0,6.283);x.fill();
+      if(q>=1){estallar(c);return false;}
+      return true;
+    });
+    ps=ps.filter(function(p){
+      p.vx*=.985;p.vy=p.vy*.985+.035*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.v-=p.d*dt;
+      if(p.v<=0)return false;
+      x.globalAlpha=Math.max(0,p.v);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fill();
+      return true;
+    });
+    x.globalAlpha=1;
+    if(k<1||ps.length||cohetes.length)requestAnimationFrame(cuadro);else parar();
+  }
+  requestAnimationFrame(cuadro);
+  return parar;
+}
 
 /* ============ la búsqueda del tesoro ============ */
 /* los cuatro números del cofre, en orden */
@@ -18497,6 +19157,8 @@ function clave(){
   return c.length===4?c:CLAVE_DE_RESERVA;
 }
 function escondite(){return String((C.tesoro&&C.tesoro.escondite)||"").trim();}
+/* el renglón a mano de abajo, una vez abierto el cofre */
+function despuesDelCofre(){return escondite()?String((C.tesoro&&C.tesoro.despues)||"").trim():"Ahora pedime la última pista.";}
 /* los pedazos del mapa, en orden: [{orden, n (ventanita), abierta, num}] */
 function pedazos(){
   var l=[];
@@ -18635,10 +19297,12 @@ function ruedasHTML(){
     '<button type="button" data-cofre="menos" aria-label="Bajar el '+ORD[i]+' número"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1 6 7 11 1Z"/></svg></button></div>';
   return s+'</div><button type="button" class="t3x-cofre-abrir" data-cofre="abrir">Abrir</button>';
 }
-function notaTesoroHTML(f){
-  var e=escondite();
-  return '<div class="t3x-tesoro-nota" style="--g:'+X.giro("tesoro",1.6)+'deg"><span class="t3x-tesoro-rot">EL TESORO · ES DE VERDAD</span>'+
-    '<p>'+esc(e||"Existe y está escondido. La última pista me la tenés que pedir a mí.")+'</p>'+
+/* recien = se acaba de abrir: si el papel tiene remate (lo que viene después de unos puntos suspensivos), llega un momento después */
+function notaTesoroHTML(f,recien){
+  var t=escondite()||"Existe y está escondido. La última pista me la tenés que pedir a mí.";
+  var m=/^([\s\S]*?(?:\.{3,}|…))\s+([\s\S]+)$/.exec(t);
+  return '<div class="t3x-tesoro-nota'+(recien&&m?" t3x-tesoro-nota-nueva":"")+'" style="--g:'+X.giro("tesoro",1.6)+'deg"><span class="t3x-tesoro-rot">EL TESORO · ES DE VERDAD</span>'+
+    '<p>'+(m?esc(m[1])+' <span class="t3x-tesoro-remate">'+esc(m[2])+'</span>':esc(t))+'</p>'+
     '<span class="t3x-tesoro-firma">'+esc(T3.firma?T3.firma(f):"— Yo")+'</span></div>';
 }
 
@@ -18707,12 +19371,23 @@ function papelitoHTML(it,n,chico){
     '<p class="t3x-papelito-texto" aria-label="'+esc(it.texto||"")+'"><span aria-hidden="true">'+marcado(it.texto)+'</span></p></div>';
 }
 
+/* Varias ventanitas usan la letra de las cartas (Barlow Condensed: el afiche de boxeo, el Lego, el grito de gol), que
+   si no se pidió antes se carga recién al dibujarlas y hace pegar un saltito a lo que ya está en pantalla. Se pide
+   apenas se dibuja el calendario o la ventanita de una hoja, así cuando se abre la sorpresa ya está. */
+var _letras=false;
+function pedirLetras(){
+  if(_letras)return;_letras=true;
+  try{if(document.fonts&&document.fonts.load){document.fonts.load('700 20px "Barlow Condensed"');document.fonts.load('600 20px "Barlow Condensed"');}}catch(e){}
+}
+
 /* ============ lo que le pregunta el adviento ============ */
-function es(t){return TIPOS[t]===1;}
-function adentro(t){return {mapa:"adentro: un pedazo de mapa",cofre:"adentro: el cofre",cupon:"adentro: un cupón",papelito:"adentro: un papelito"}[t]||"";}
+function es(t){return TIPOS[t]===1||!!REG[t];}
+function adentro(t){return (REG[t]&&REG[t].adentro)||{mapa:"adentro: un pedazo de mapa",cofre:"adentro: el cofre",cupon:"adentro: un cupón",papelito:"adentro: un papelito"}[t]||"";}
 /* lo que se ve en el hueco de la ventanita, ya abierta */
 function mini(it,n,f,g){
   var t=it.tipo;
+  pedirLetras();
+  if(REG[t])return REG[t].mini?REG[t].mini(it,n,f,g||{}):'<div class="t3-adviento-mini"></div>';
   if(t==="mapa"){
     var p=pedazoDe(n)||{orden:1,num:"?"};
     return '<div class="t3-adviento-mini t3x-mini-mapa"><small>mapa</small><b>'+esc(p.num)+'</b><i>'+p.orden+'.º de 4</i></div>';
@@ -18728,6 +19403,8 @@ function mini(it,n,f,g){
 /* la sorpresa, en grande */
 function objeto(it,n,f){
   var t=it.tipo;
+  pedirLetras();
+  if(REG[t])return REG[t].objeto?REG[t].objeto(it,n,f):"";
   if(t==="mapa"){
     var p=pedazoDe(n)||{orden:1,num:"?"};
     return '<div class="t3x-mapa" style="--g:'+X.giro("mapa"+n,2.2)+'deg" role="img" aria-label="Un pedazo del mapa del tesoro. '+ORD[p.orden-1]+' número: '+esc(p.num)+'.">'+
@@ -18748,23 +19425,26 @@ function objeto(it,n,f){
 /* el renglón escrito a mano que va abajo */
 function pie(it,n,f){
   var t=it.tipo;
+  if(REG[t])return REG[t].pie?REG[t].pie(it,n,f):"";
   if(t==="mapa"){
     var L=pedazos(),tengo=L.filter(function(p){return p.abierta;}).length;
-    if(tengo>=4)return "Están los cuatro. El 24 vas a saber para qué.";
-    if(tengo<=1)return "Es un pedazo de un mapa. Hay tres más. Guardalo.";
+    if(tengo>=4)return "Están los cuatro.\nEl 24 vas a saber para qué.";
+    if(tengo<=1)return "Es un pedazo de un mapa.\nHay tres más. Guardalo.";
     return "Otro pedazo: ya tenés "+tengo+" de 4.";
   }
   if(t==="cofre"){
-    if(cofreAbierto())return escondite()?"Andá a buscarlo.":"Ahora pedime la última pista.";
+    if(cofreAbierto())return despuesDelCofre();
     var falta=faltanDicho(pedazos());
     return falta?"Te faltan pedazos del mapa: abrí "+falta+".":"Cuatro números, en el orden del mapa.";
   }
-  if(t==="cupon")return canjes()[f]?"Ya lo usaste. Igual queda acá.":"Se usa en la tienda, al comprar. Sirve una sola vez.";
+  if(t==="cupon")return canjes()[f]?"Ya lo usaste. Igual queda acá.":"Se usa al comprar en la tienda.\nSirve una sola vez.";
   return "";
 }
 /* lo que se puede tocar */
 function montar(it,n,f,velo,limpiezas){
   var t=it.tipo,renglon=velo.querySelector(".t3-adviento-pista");
+  try{anclar(velo,limpiezas);}catch(e){}
+  if(REG[t]){if(REG[t].montar)REG[t].montar(it,n,f,velo,limpiezas);return;}
   function decir(s){if(renglon)renglon.textContent=s;}
   if(t==="mapa"||t==="papelito"){
     if(!reducido()){var tm=setTimeout(function(){T3.sonido("papel",.7);},380);limpiezas.push(function(){clearTimeout(tm);});}
@@ -18797,7 +19477,7 @@ function montar(it,n,f,velo,limpiezas){
       intentos++;T3.sonido("error",.8);U.vibrar&&U.vibrar(30);T3.stat("tesoro-intentos");
       var cl=raiz.querySelector(".t3x-cofre");cl.classList.remove("t3x-cofre-no");void cl.offsetWidth;cl.classList.add("t3x-cofre-no");
       var falta=faltanDicho(pedazos());
-      decir(falta?"No es. Te faltan pedazos del mapa: abrí "+falta+".":intentos>2?"Tampoco. Los números están en el mapa, de izquierda a derecha.":"No es. Mirá bien el mapa.");
+      decir(falta?"No es. Te faltan pedazos del mapa: abrí "+falta+".":intentos>2?"Tampoco. Los números están en el mapa,\nde izquierda a derecha.":"No es. Mirá bien el mapa.");
       return;
     }
     listo=true;
@@ -18807,8 +19487,8 @@ function montar(it,n,f,velo,limpiezas){
     var svg=raiz.querySelector(".t3x-cofre-svg");if(svg)svg.classList.add("t3x-cofre-abierto");
     var fin=function(){
       raiz.classList.add("t3x-tesoro-abierto");
-      var ab=raiz.querySelector(".t3x-tesoro-abajo");if(ab)ab.innerHTML=notaTesoroHTML(f);
-      decir(escondite()?"Andá a buscarlo.":"Ahora pedime la última pista.");
+      var ab=raiz.querySelector(".t3x-tesoro-abajo");if(ab)ab.innerHTML=notaTesoroHTML(f,!reducido());
+      decir(despuesDelCofre());
       T3.sonido("exito",.9);U.vibrar&&U.vibrar(40);
       try{var r=raiz.querySelector(".t3x-cofre").getBoundingClientRect();U.confeti({x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height/2)/innerHeight,cantidad:150});}catch(e){}
       try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
@@ -18830,10 +19510,1255 @@ function montar(it,n,f,velo,limpiezas){
   });
 }
 
-T3.ventanitas={es:es,mini:mini,objeto:objeto,pie:pie,montar:montar,adentro:adentro,
+T3.ventanitas={es:es,mini:mini,objeto:objeto,pie:pie,montar:montar,adentro:adentro,registrar:registrar,
   cupon:cupon,rebajado:rebajado,usarCupon:usarCupon,cuponUsado:cuponUsado,
   pedazos:pedazos,cofreAbierto:cofreAbierto,
+  /* lo que usan los otros archivos de ventanitas */
+  util:{p2:p2,reducido:reducido,fechaDe:fechaDe,contenido:contenido,abierta:abierta,leer:leer,decir:decir,irA:irA,refrescarMini:refrescarMini,
+    premiar:premiar,fichaHTML:fichaHTML,miles:miles,botonHTML:botonHTML,fuegos:fuegos},
   _prueba:{clave:clave,escondite:escondite,cuponDe:cuponDe,fechaDe:fechaDe}};
+})();
+
+/* ------------------------------------------------------------
+   LAS VENTANITAS QUE SE JUEGAN (repaso del 26/11/2026 con Mati): la ruleta del 5, los penales del 11 y la Generala
+   del 21. Las tres dan MafiaPoints (los de la tienda) y se juegan UNA sola vez: lo que salió queda guardado y, si
+   vuelve a abrir la ventanita, ve cómo terminó. Si la cierra sin jugar, la espera.
+
+   · LA RULETA (5; tipo "ruleta"). La idea y los números son de Mati: "3.113 días juntos. Estos días pueden pasarse a
+     MafiaPoints, pero hay que jugarlos a la ruleta". Tres porciones, cada una del tamaño de su chance: 8 (los años)
+     80%, 102 (los meses) 19% y 3.113 (los días) 1%. Guarda en "ruleta": {f, salio, ang}.
+   · LOS PENALES (11; tipo "penales"). Cinco tiros; cada gol, 10 MafiaPoints. Ataja "el programador", que elige un
+     palo al azar: si es el mismo que ella, lo ataja. Guarda en "penales": {tiros:[1,0,…], f (cuando terminó)}.
+   · LA GENERALA (21; tipo "generala"). Una mano, hasta tres tiradas, apartando dados. Los números los confirmó Mati:
+     escalera 20, full 30, póker 40, generala 50 y generala servida (de la primera tirada) 100. Cualquier otra cosa, 0.
+     Guarda en "generala": {dados, aparte, tiradas, f (cuando terminó), juego, puntos}.
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3,V=T3&&T3.ventanitas;
+if(!V||!V.registrar)return;
+var X=T3.x,esc=X.esc,U=T3.util,K=V.util;
+var _uid=0;
+/* la suerte de los tres juegos. Las pruebas la cambian (T3.ventanitas._juegos.conAzar) para que salga lo que necesitan */
+var _azar=null;
+function azar(){return _azar?_azar():Math.random();}
+
+/* ============================ LA RULETA ============================ */
+var PORCIONES=[{n:8,pct:80,por:"los años",uno:"año"},{n:102,pct:19,por:"los meses",uno:"mes"},{n:3113,pct:1,por:"los días",uno:"día"}];
+var CADA=15,CORRE=7.5;      /* los clavos del borde: uno cada 15°, corridos 7,5° para que ninguno caiga en un corte */
+var ARRANCA=150;            /* cómo está girada antes de tirar: el puntero sobre el 8 y el banderín lejos */
+function porciones(it){
+  var l=(Array.isArray(it.porciones)?it.porciones:PORCIONES).map(function(p){return {n:Math.round(+p.n)||0,pct:+p.pct||0,por:String(p.por||""),uno:String(p.uno||"")};}).filter(function(p){return p.pct>0;});
+  var t=l.reduce(function(a,p){return a+p.pct;},0)||1,a=0;
+  l.forEach(function(p){p.de=a;p.a=a+p.pct/t*360;p.p=p.pct/t;a=p.a;});
+  return l;
+}
+function ruleta(){return K.leer("ruleta");}
+function polar(r,g){var a=(g-90)*Math.PI/180;return [(r*Math.cos(a)).toFixed(2),(r*Math.sin(a)).toFixed(2)];}
+function gajo(r,de,a){
+  var p0=polar(r,de),p1=polar(r,a);
+  return "M0 0L"+p0[0]+" "+p0[1]+"A"+r+" "+r+" 0 "+(a-de>180?1:0)+" 1 "+p1[0]+" "+p1[1]+"Z";
+}
+/* la rueda: los gajos del tamaño de su chance, los números, los clavos y el banderín del gajo finito */
+function ruedaSVG(P,chica){
+  var COL=["#FBF5E7","#A9D8C3","#B33A2B"],TXT=["#B33A2B","#2B2118","#FBF5E7"];
+  var s='<svg class="t3x-rul-rueda" viewBox="-150 -150 300 300" aria-hidden="true">'+
+    '<circle r="126" fill="#5C3519"/><circle r="122" fill="#8C5830"/><circle r="113" fill="#3A2412"/>';
+  P.forEach(function(p,i){s+='<path d="'+gajo(110,p.de,p.a)+'" fill="'+COL[i%COL.length]+'"/>';});
+  P.forEach(function(p){var q=polar(110,p.de);s+='<path d="M0 0L'+q[0]+' '+q[1]+'" stroke="#3A2412" stroke-width="1.400"/>';});
+  /* los números: el gajo grande lo repite, así siempre hay uno cerca del puntero */
+  P.forEach(function(p,i){
+    var ancho=p.a-p.de;
+    if(ancho<12)return;
+    var veces=ancho>200?3:1,tam=ancho>200?44:ancho>40?27:15;
+    for(var k=0;k<veces;k++){
+      var g=p.de+ancho*(k+.5)/veces,c=polar(ancho>200?66:72,g);
+      s+='<g transform="translate('+c[0]+' '+c[1]+') rotate('+g.toFixed(1)+')">'+
+        '<text class="t3x-rul-num" y="'+(tam*.3).toFixed(1)+'" font-size="'+tam+'" text-anchor="middle" fill="'+TXT[i%TXT.length]+'">'+K.miles(p.n)+'</text>'+
+        (chica?'':'<text class="t3x-rul-por" y="'+(tam*.3+13).toFixed(1)+'" text-anchor="middle" fill="'+TXT[i%TXT.length]+'">'+esc(p.por)+'</text>')+'</g>';
+    }
+  });
+  /* los clavos */
+  for(var g2=CORRE;g2<360;g2+=CADA){var c2=polar(117.500,g2);s+='<circle cx="'+c2[0]+'" cy="'+c2[1]+'" r="2.700" fill="#E8C76A" stroke="#6E5219" stroke-width=".8"/>';}
+  /* el banderín del gajo finito: sale para afuera, así se ve dónde está */
+  P.forEach(function(p,i){
+    if(p.a-p.de>=12)return;
+    var m=(p.de+p.a)/2;
+    s+='<g transform="rotate('+m.toFixed(2)+')"><path d="M0 -108V-141" stroke="#3A2412" stroke-width="2.200" stroke-linecap="round"/>'+
+      '<path d="M1 -141H'+(chica?26:39)+'L'+(chica?21:33)+' -133.500L'+(chica?26:39)+' -126H1Z" fill="#F2C24A" stroke="#3A2412" stroke-width="1.400" stroke-linejoin="round"/>'+
+      (chica?'':'<text class="t3x-rul-band" x="4.500" y="-130" fill="#3A2412">'+K.miles(p.n)+'</text>')+'</g>';
+  });
+  /* el centro */
+  s+='<circle r="19" fill="#5C3519"/><circle r="15.500" fill="#E8C76A" stroke="#8A6B22" stroke-width="1.400"/><circle r="5" fill="#8A6B22"/></svg>';
+  return s;
+}
+function punteroSVG(){
+  return '<svg class="t3x-rul-puntero" viewBox="-20 -8 40 52" aria-hidden="true"><path d="M-12 0H12L1.500 38Q0 42 -1.500 38Z" fill="#B33A2B" stroke="#3A2412" stroke-width="1.800" stroke-linejoin="round"/>'+
+    '<circle cy="2" r="4.500" fill="#E8C76A" stroke="#6E5219" stroke-width="1.200"/></svg>';
+}
+function boletaHTML(it,P,n){
+  var dias=P.reduce(function(a,p){return Math.max(a,p.n);},0);
+  return '<div class="t3x-rul-boleta" style="--g:'+X.giro("rul"+n,1.4)+'deg">'+
+    '<p class="t3x-rul-dias"><b>'+K.miles(dias)+'</b> días juntos</p>'+
+    '<p class="t3x-rul-dice">'+esc(it.texto||"Estos días se pueden pasar a MafiaPoints. Pero hay que jugárselos a la ruleta.")+'</p>'+
+    '<ul class="t3x-rul-tabla">'+P.map(function(p){return '<li><b>'+K.miles(p.n)+'</b><span>'+esc(p.por)+'</span><i>'+String(Math.round(p.pct*10)/10).replace(".",",")+'%</i></li>';}).join("")+'</ul></div>';
+}
+function ruletaHTML(it,n,f){
+  var P=porciones(it),st=ruleta(),hecho=st.salio!=null;
+  return '<div class="t3x-rul'+(hecho?" t3x-rul-hecha":"")+'">'+boletaHTML(it,P,n)+
+    '<div class="t3x-rul-mesa"><div class="t3x-rul-gira" style="transform:rotate('+(hecho?(+st.ang||0):ARRANCA)+'deg)">'+ruedaSVG(P,false)+'</div>'+punteroSVG()+'</div>'+
+    '<div class="t3x-rul-abajo">'+(hecho?K.fichaHTML(st.salio):K.botonHTML("Girar",'data-rul="girar" aria-label="Girar la ruleta"',"t3x-mesa-boton-oro"))+'</div></div>';
+}
+function dichoRuleta(P,salio,recien){
+  var p=P.filter(function(x){return x.n===salio;})[0]||{por:"",uno:""},chica=P.reduce(function(a,x){return x.p<a.p?x:a;},P[0]);
+  var cada=p.uno?": uno por cada "+p.uno:"";
+  if(p===chica)return "¡"+K.miles(salio)+"!"+(p.uno?" Uno por cada "+p.uno+".":"")+" Era una en cien.";
+  return recien?"Te tocó el "+K.miles(salio)+cada+". Ya son tuyos.":"Ya giraste. Te tocó el "+K.miles(salio)+cada+".";
+}
+/* qué sale: cada porción, con su chance (r: un número al azar entre 0 y 1) */
+function sortear(P,r){
+  var ac=0,toca=P[0];
+  for(var i=0;i<P.length;i++){ac+=P[i].p;toca=P[i];if(r<ac)break;}
+  return toca;
+}
+/* dónde frena: el ángulo de la rueda que queda bajo el puntero, adentro de su gajo y lejos de los cortes.
+   Una de cada tres veces, pegadito al gajo finito (para sufrir un poco). */
+function frenar(P,toca){
+  var ancho=toca.a-toca.de,borde=Math.min(4,ancho*.25),g=toca.de+borde+azar()*(ancho-borde*2);
+  var chica=P.reduce(function(a,x){return x.p<a.p?x:a;},P[0]);
+  if(toca!==chica&&azar()<.34){
+    var antes=(chica.de-(2.5+azar()*6)+360)%360,despues=(chica.a+2.5+azar()*6)%360;
+    [antes,despues].sort(function(){return azar()-.5;}).some(function(c){if(c>toca.de+1.5&&c<toca.a-1.5){g=c;return true;}return false;});
+  }
+  /* que el puntero no quede justo arriba de un clavo: se corre un poquito, para el lado que pueda */
+  function lejosDeClavo(x){var m=((x-CORRE)%CADA+CADA)%CADA;return m>=2.2&&m<=CADA-2.2;}
+  if(!lejosDeClavo(g))[2.5,-2.5,5,-5].some(function(d){var c=g+d;if(c>toca.de+1&&c<toca.a-1&&lejosDeClavo(c)){g=c;return true;}return false;});
+  return g;
+}
+/* cuánto gira la rueda (cinco vueltas y lo que falte) para que ese ángulo quede bajo el puntero */
+function giroHasta(g){return ARRANCA+360*5+(((360-g-ARRANCA)%360)+360)%360;}
+function montarRuleta(it,n,f,velo,limpiezas){
+  var raiz=velo.querySelector(".t3x-rul");
+  if(!raiz)return;
+  var P=porciones(it),gira=raiz.querySelector(".t3x-rul-gira"),punt=raiz.querySelector(".t3x-rul-puntero"),abajo=raiz.querySelector(".t3x-rul-abajo");
+  var andando=false,cuadro=0,tt=[];
+  limpiezas.push(function(){andando=false;cancelAnimationFrame(cuadro);tt.forEach(clearTimeout);});
+  function terminar(salio,recien){
+    raiz.classList.add("t3x-rul-hecha");
+    abajo.innerHTML=K.fichaHTML(salio,recien?"t3x-ficha-entra":"");
+    K.decir(velo,dichoRuleta(P,salio,recien));
+    if(!recien)return;
+    var chica=P.reduce(function(a,x){return x.p<a.p?x:a;},P[0]);
+    T3.sonido(salio===chica.n?"victoria":"exito",.9);U.vibrar&&U.vibrar(salio===chica.n?[30,60,30,60,80]:28);
+    try{var r=abajo.getBoundingClientRect();U.confeti({x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height/2)/innerHeight,cantidad:salio===chica.n?260:70});}catch(e){}
+    if(salio===chica.n)limpiezas.push(K.fuegos(velo,{duracion:7000,rafagas:14}));
+    try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+    K.refrescarMini(n);
+  }
+  raiz.addEventListener("click",function(ev){
+    if(!ev.target.closest('[data-rul="girar"]')||andando||ruleta().salio!=null)return;
+    var toca=sortear(P,azar()),hasta=giroHasta(frenar(P,toca));
+    /* se anota y se cobra ya: si cierra a mitad del giro, no pierde nada */
+    T3.guardar("ruleta",{f:T3.hoy,salio:toca.n,ang:+(hasta%360).toFixed(2)});
+    K.premiar(toca.n);T3.stat("ruleta");T3.stat("ruleta-"+toca.n);
+    andando=true;
+    abajo.innerHTML='<span class="t3x-rul-espera">…</span>';
+    K.decir(velo,"");
+    if(K.reducido()){gira.style.transform="rotate("+hasta+"deg)";andando=false;terminar(toca.n,true);return;}
+    T3.sonido("click");
+    var t0=performance.now(),dur=5600,ultClavo=Math.floor((ARRANCA-CORRE)/CADA),ultTic=0;
+    (function paso(t){
+      if(!andando)return;
+      var u=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-u,4.2),ang=ARRANCA+(hasta-ARRANCA)*e;
+      gira.style.transform="rotate("+ang.toFixed(2)+"deg)";
+      var c=Math.floor((ang-CORRE)/CADA);
+      if(c!==ultClavo){
+        ultClavo=c;
+        if(t-ultTic>46){ultTic=t;T3.sonido("tic",.5+.4*u);punt.classList.remove("t3x-rul-toc");void punt.getBoundingClientRect();punt.classList.add("t3x-rul-toc");}
+      }
+      if(u<1){cuadro=requestAnimationFrame(paso);return;}
+      andando=false;
+      tt.push(setTimeout(function(){terminar(toca.n,true);},360));
+    })(t0);
+  });
+}
+function miniRuleta(it,n,f,g){
+  var P=porciones(it),st=ruleta(),dias=P.reduce(function(a,p){return Math.max(a,p.n);},0);
+  return '<div class="t3-adviento-mini t3x-mini-rul"><span class="t3x-mini-rul-rueda">'+ruedaSVG(P,true)+'</span>'+
+    (st.salio!=null?'<span class="t3x-mini-rul-txt"><b>+'+K.miles(st.salio)+'</b><small>MafiaPoints</small></span>'
+      :'<span class="t3x-mini-rul-txt"><b>'+K.miles(dias)+'</b><small>días</small></span>')+'</div>';
+}
+V.registrar("ruleta",{adentro:"adentro: una ruleta",mini:miniRuleta,objeto:ruletaHTML,montar:montarRuleta,
+  pie:function(it){var st=ruleta();return st.salio!=null?dichoRuleta(porciones(it),st.salio,false):"Se gira una sola vez. Cuando te animes.";}});
+
+/* ============================ LOS PENALES ============================ */
+var LL_PEN="penales",LADOS=["i","c","d"],NOM_LADO={i:"a la izquierda",c:"al medio",d:"a la derecha"};
+function pen(){var p=K.leer(LL_PEN);if(!Array.isArray(p.tiros))p.tiros=[];return p;}
+function cuantosTiros(it){var n=Math.round(+it.tiros);return n>=1&&n<=9?n:5;}
+function porGol(it){var n=Math.round(+it.porGol);return n>0?n:10;}
+function goles(p){return p.tiros.reduce(function(a,x){return a+(x?1:0);},0);}
+function pelotaSVG(){
+  return '<circle r="13" fill="#FBF9F4" stroke="#0d131a" stroke-width="2.200"/><path d="M0 -5.500L5.200 -1.700L3.200 4.400H-3.200L-5.200 -1.700Z" fill="#0d131a"/>'+
+    '<path d="M0 -5.500V-12M5.200 -1.700L11.400 -3.700M3.200 4.400L7 9.800M-3.200 4.400L-7 9.800M-5.200 -1.700L-11.400 -3.700" stroke="#0d131a" stroke-width="1.600" stroke-linecap="round"/>';
+}
+/* el arquero: "el programador". Un muñeco de buzo azul con guantes amarillos (no es nadie en particular) */
+function arqueroSVG(){
+  var T="#0d131a";
+  return '<g class="t3x-pen-arquero"><g class="t3x-pen-cuerpo">'+
+    '<path d="M-9 0V-22M9 0V-22" stroke="'+T+'" stroke-width="9" stroke-linecap="round"/><path d="M-9 0V-22M9 0V-22" stroke="#2B2118" stroke-width="5" stroke-linecap="round"/>'+
+    '<path d="M-22 -50L-36 -74M22 -50L36 -74" stroke="'+T+'" stroke-width="11" stroke-linecap="round"/><path d="M-22 -50L-36 -74M22 -50L36 -74" stroke="#2F4A7A" stroke-width="7" stroke-linecap="round"/>'+
+    '<rect x="-17" y="-58" width="34" height="40" rx="9" fill="#2F4A7A" stroke="'+T+'" stroke-width="2.200"/>'+
+    '<path d="M-6 -52H6" stroke="#FBF5E7" stroke-width="2.600" stroke-linecap="round" opacity=".85"/>'+
+    '<circle cx="-38" cy="-79" r="8.500" fill="#F2C24A" stroke="'+T+'" stroke-width="2.200"/><circle cx="38" cy="-79" r="8.500" fill="#F2C24A" stroke="'+T+'" stroke-width="2.200"/>'+
+    '<circle cy="-71" r="12" fill="#F1D7B0" stroke="'+T+'" stroke-width="2.200"/>'+
+    '<path d="M-12 -74Q0 -90 12 -74Q6 -80 0 -80Q-6 -80 -12 -74Z" fill="#2B2118"/>'+
+    '<circle cx="-4.500" cy="-70" r="3.400" fill="none" stroke="'+T+'" stroke-width="1.500"/><circle cx="4.500" cy="-70" r="3.400" fill="none" stroke="'+T+'" stroke-width="1.500"/><path d="M-1.100 -70H1.100" stroke="'+T+'" stroke-width="1.500"/>'+
+    '</g></g>';
+}
+function canchaSVG(){
+  var red="",x,y;
+  for(x=52;x<280;x+=19)red+='M'+x+' 36V148';
+  for(y=52;y<150;y+=16)red+='M40 '+y+'H280';
+  return '<svg class="t3x-pen-svg" viewBox="0 0 320 262" role="group" aria-label="El arco">'+
+    '<rect x="0" y="0" width="320" height="262" rx="6" fill="#1C2B24"/>'+
+    /* el cartel de atrás */
+    '<rect x="78" y="8" width="164" height="19" rx="2" fill="#FBF5E7"/><text class="t3x-pen-cartel" x="160" y="21.500" text-anchor="middle">ATAJA: EL PROGRAMADOR</text>'+
+    /* el pasto, a franjas */
+    '<rect x="0" y="150" width="320" height="112" fill="#3F7A4F"/><path d="M0 150H320V172H0ZM0 194H320V216H0ZM0 238H320V262H0Z" fill="#37704A"/>'+
+    '<path d="M0 262V150H320V262" fill="none"/><rect x="0" y="0" width="320" height="262" rx="6" fill="none" stroke="rgba(251,245,231,.2)" stroke-width="1.500"/>'+
+    /* la red y el arco */
+    '<g class="t3x-pen-red"><rect x="40" y="36" width="240" height="114" fill="rgba(251,245,231,.05)"/><path d="'+red+'" stroke="rgba(251,245,231,.34)" stroke-width="1" fill="none"/></g>'+
+    '<path d="M36 152V32H284V152" fill="none" stroke="#FBF5E7" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<path d="M20 152H300" stroke="rgba(251,245,231,.75)" stroke-width="2.400"/>'+
+    /* dónde se puede patear */
+    LADOS.map(function(l,i){var cx=[82,160,238][i],cy=l==="c"?58:92;
+      return '<g class="t3x-pen-zona" data-pen="'+l+'" role="button" tabindex="0" aria-label="Patear '+NOM_LADO[l]+'"><rect x="'+(40+i*80)+'" y="36" width="80" height="114" fill="transparent"/>'+
+        '<circle cx="'+cx+'" cy="'+cy+'" r="19" fill="none" stroke="#F2C24A" stroke-width="2" stroke-dasharray="4 5"/><circle cx="'+cx+'" cy="'+cy+'" r="3" fill="#F2C24A"/></g>';}).join("")+
+    '<g transform="translate(160 150)">'+arqueroSVG()+'</g>'+
+    /* el punto del penal y la pelota */
+    '<ellipse cx="160" cy="236" rx="16" ry="4" fill="rgba(13,19,26,.3)"/><circle cx="160" cy="226" r="2.500" fill="#FBF5E7" opacity=".6"/>'+
+    '<g transform="translate(160 222)"><g class="t3x-pen-pelota">'+pelotaSVG()+'</g></g>'+
+    '<text class="t3x-pen-grito" x="160" y="204" text-anchor="middle"></text></svg>';
+}
+function tablaPen(it,p){
+  var n=cuantosTiros(it),s="";
+  for(var i=0;i<n;i++){var v=p.tiros[i];s+='<li class="'+(v==null?(i===p.tiros.length?"t3x-pen-toca":""):v?"t3x-pen-gol":"t3x-pen-atajo")+'"><span>'+(v===0?"×":(i+1))+'</span><i>'+(v==null?"":v?"gol":"atajó")+'</i></li>';}
+  return '<ol class="t3x-pen-tabla" aria-label="Los '+n+' penales">'+s+'</ol>';
+}
+function finPen(it,p){return p.tiros.length>=cuantosTiros(it);}
+function penalesHTML(it,n,f){
+  var p=pen(),fin=finPen(it,p);
+  return '<div class="t3x-pen'+(fin?" t3x-pen-fin":"")+'">'+canchaSVG()+tablaPen(it,p)+'</div>'+
+    '<div class="t3x-pen-abajo">'+(fin&&goles(p)?K.fichaHTML(goles(p)*porGol(it)):"")+'</div>';
+}
+function dichoPen(it,p,recien){
+  var g=goles(p),n=cuantosTiros(it),nom=["Cero","Uno","Dos","Tres","Cuatro","Cinco","Seis","Siete","Ocho","Nueve"];
+  if(!finPen(it,p))return p.tiros.length?"Va el "+(p.tiros.length+1)+".º. Elegí dónde.":(nom[n]||n)+" penales: cada gol, "+porGol(it)+" MafiaPoints.\nTocá en el arco dónde patear.";
+  var cola=g===n?"El programador pidió el cambio.":g===0?"\nEl programador no lo puede creer. Yo tampoco.":g*2>=n?"Nada mal.":"Hoy el arco estaba chico.";
+  return (nom[g]||g)+" de "+(nom[n]||n).toLowerCase()+". "+cola;
+}
+function montarPenales(it,n,f,velo,limpiezas){
+  var raiz=velo.querySelector(".t3x-pen");
+  if(!raiz)return;
+  var svg=raiz.querySelector(".t3x-pen-svg"),ocupado=false,tt=[];
+  limpiezas.push(function(){tt.forEach(clearTimeout);});
+  /* con "reducir movimiento" la pelota y el arquero no viajan (aparecen donde terminan), pero el resultado igual se
+     queda un momento a la vista antes del tiro que sigue */
+  var R=K.reducido(),T_RESULTADO=R?0:430,T_SIGUE=R?950:1450;
+  function luego(fn,ms){tt.push(setTimeout(fn,ms));}
+  function patear(lado){
+    var p=pen();
+    if(ocupado||finPen(it,p)||LADOS.indexOf(lado)<0)return;
+    ocupado=true;
+    var va=LADOS[Math.floor(azar()*3)%3],gol=va!==lado;
+    p.tiros.push(gol?1:0);
+    var fin=finPen(it,p);
+    if(fin){p.f=T3.hoy;if(goles(p))K.premiar(goles(p)*porGol(it));T3.stat("penales");T3.stat("penales-goles",goles(p));}
+    T3.guardar(LL_PEN,p);
+    svg.setAttribute("data-tiro",lado);svg.setAttribute("data-ataja",va);
+    svg.classList.remove("t3x-pen-gol","t3x-pen-atajada");svg.classList.add("t3x-pen-pateando");
+    T3.sonido("pop",.9);U.vibrar&&U.vibrar(10);
+    K.decir(velo,"");
+    luego(function(){
+      svg.classList.add(gol?"t3x-pen-gol":"t3x-pen-atajada");
+      var g=svg.querySelector(".t3x-pen-grito");if(g)g.textContent=gol?"¡GOL!":"ATAJÓ";
+      T3.sonido(gol?"exito":"error",gol?.8:.7);U.vibrar&&U.vibrar(gol?[16,30,16]:28);
+      var tabla=raiz.querySelector(".t3x-pen-tabla");if(tabla)tabla.outerHTML=tablaPen(it,p);
+      K.decir(velo,gol?"¡Gol!":"Lo atajó.");
+    },T_RESULTADO);
+    luego(function(){
+      svg.classList.remove("t3x-pen-pateando","t3x-pen-gol","t3x-pen-atajada");
+      svg.removeAttribute("data-tiro");svg.removeAttribute("data-ataja");
+      var g=svg.querySelector(".t3x-pen-grito");if(g)g.textContent="";
+      ocupado=false;
+      if(!fin){K.decir(velo,dichoPen(it,p,true));return;}
+      raiz.classList.add("t3x-pen-fin");
+      var ab=velo.querySelector(".t3x-pen-abajo");
+      if(ab&&goles(p))ab.innerHTML=K.fichaHTML(goles(p)*porGol(it),"t3x-ficha-entra");
+      K.decir(velo,dichoPen(it,p,true));
+      if(goles(p)){T3.sonido("victoria",.8);try{var q=svg.getBoundingClientRect();U.confeti({x:(q.left+q.width/2)/innerWidth,y:(q.top+q.height*.4)/innerHeight,cantidad:goles(p)*30});}catch(e){}}
+      try{if(goles(p)&&T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+      K.refrescarMini(n);
+    },T_SIGUE);
+  }
+  raiz.addEventListener("click",function(ev){var z=ev.target.closest("[data-pen]");if(z)patear(z.getAttribute("data-pen"));});
+  raiz.addEventListener("keydown",function(ev){
+    if(ev.key!=="Enter"&&ev.key!==" ")return;
+    var z=ev.target.closest&&ev.target.closest("[data-pen]");
+    if(z){ev.preventDefault();patear(z.getAttribute("data-pen"));}
+  });
+}
+function miniPenales(it,n,f,g){
+  var p=pen(),fin=finPen(it,p);
+  return '<div class="t3-adviento-mini t3x-mini-pen'+(fin?" t3x-mini-pen-fin":"")+'"><svg viewBox="-16 -16 32 32" aria-hidden="true">'+pelotaSVG()+'</svg></div>';
+}
+V.registrar("penales",{adentro:"adentro: una tanda de penales",mini:miniPenales,objeto:penalesHTML,montar:montarPenales,
+  pie:function(it){return dichoPen(it,pen(),false);}});
+
+/* ============================ LA GENERALA ============================ */
+var LL_GEN="generala",PREMIOS={escalera:20,full:30,poker:40,generala:50,servida:100},TIRADAS=3;
+var JUEGOS=[["escalera","Escalera"],["full","Full"],["poker","Póker"],["generala","Generala"],["servida","Generala servida"]];
+function premios(it){var p={},q=it.premios||{};Object.keys(PREMIOS).forEach(function(k){var v=Math.round(+q[k]);p[k]=v>0?v:PREMIOS[k];});return p;}
+function gen(){
+  var g=K.leer(LL_GEN);
+  g.dados=Array.isArray(g.dados)&&g.dados.length===5&&g.dados.every(function(d){return d>=1&&d<=6;})?g.dados.map(Number):[];
+  g.aparte=Array.isArray(g.aparte)&&g.aparte.length===5?g.aparte.map(function(a){return a?1:0;}):[0,0,0,0,0];
+  g.tiradas=Math.max(0,Math.min(TIRADAS,Math.round(+g.tiradas||0)));
+  if(!g.dados.length)g.tiradas=0;
+  return g;
+}
+/* qué juego hay en la mesa: "generala", "poker", "full", "escalera" o "" */
+function juegoDe(d){
+  if(!d||d.length!==5)return "";
+  var c={},s=d.slice().sort(function(a,b){return a-b;}).join("");
+  d.forEach(function(x){c[x]=(c[x]||0)+1;});
+  var v=Object.keys(c).map(function(k){return c[k];}).sort(function(a,b){return b-a;});
+  if(v[0]===5)return "generala";
+  if(v[0]===4)return "poker";
+  if(v[0]===3&&v[1]===2)return "full";
+  if(s==="12345"||s==="23456"||s==="13456")return "escalera";
+  return "";
+}
+function puntosDe(it,d,tiradas){
+  var j=juegoDe(d),P=premios(it);
+  if(!j)return {juego:"",puntos:0};
+  if(j==="generala"&&tiradas===1)return {juego:"servida",puntos:P.servida};
+  return {juego:j,puntos:P[j]};
+}
+var PUNTOS_DADO={1:[[24,24]],2:[[13,13],[35,35]],3:[[13,13],[24,24],[35,35]],4:[[13,13],[35,13],[13,35],[35,35]],5:[[13,13],[35,13],[24,24],[13,35],[35,35]],6:[[13,13],[35,13],[13,24],[35,24],[13,35],[35,35]]};
+function dadoSVG(v){
+  var p=PUNTOS_DADO[v]||[];
+  return '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="2.500" y="4.500" width="43" height="42" rx="9" fill="#C9BC9F"/><rect x="2.500" y="2" width="43" height="42" rx="9" fill="#FBF5E7" stroke="#2B2118" stroke-width="2.200"/>'+
+    (v?p.map(function(q){return '<circle cx="'+q[0]+'" cy="'+(q[1]-1)+'" r="4.300" fill="'+(v===1?"#B33A2B":"#2B2118")+'"/>';}).join(""):'<text class="t3x-gen-q" x="24" y="31" text-anchor="middle">?</text>')+'</svg>';
+}
+function dadosHTML(g,fin){
+  var s="";
+  for(var i=0;i<5;i++){
+    var v=g.dados[i]||0,ap=!!g.aparte[i]&&!fin;
+    s+='<button type="button" class="t3x-gen-dado'+(ap?" t3x-gen-aparte":"")+'" data-gen="dado" data-i="'+i+'" style="--r:'+X.giro("dado"+i+v,9)+'deg" aria-pressed="'+(ap?"true":"false")+'" aria-label="dado '+(i+1)+(v?": "+v:"")+(ap?", guardado":"")+'"'+(v&&!fin&&g.tiradas<TIRADAS?"":" disabled")+'>'+dadoSVG(v)+'</button>';
+  }
+  return s;
+}
+function anotadorHTML(it,g){
+  var P=premios(it),hay=g.f?String(g.juego||""):g.dados.length?puntosDe(it,g.dados,g.tiradas).juego:"";
+  return '<div class="t3x-gen-anotador" style="--g:'+X.giro("gen",1.3)+'deg"><p class="t3x-gen-tit">Generala<span>paga en MafiaPoints</span></p><ul>'+
+    JUEGOS.map(function(j){return '<li class="'+(hay===j[0]?(g.f?"t3x-gen-anotado":"t3x-gen-tiene"):"")+'"><span>'+j[1]+'</span><b>'+P[j[0]]+'</b></li>';}).join("")+'</ul></div>';
+}
+function botonesGen(it,g){
+  if(g.f)return g.puntos?K.fichaHTML(g.puntos):"";
+  if(!g.tiradas)return K.botonHTML("Tirar los dados",'data-gen="tirar"',"t3x-mesa-boton-oro");
+  var hay=puntosDe(it,g.dados,g.tiradas);
+  return K.botonHTML("Tirar de nuevo",'data-gen="tirar"',"t3x-mesa-boton-oro")+(hay.juego?K.botonHTML("Plantarme",'data-gen="plantar"',"t3x-mesa-boton-sobrio"):"");
+}
+function generalaHTML(it,n,f){
+  var g=gen();
+  return '<div class="t3x-gen'+(g.f?" t3x-gen-fin":"")+'">'+anotadorHTML(it,g)+
+    '<div class="t3x-gen-pano"><div class="t3x-gen-dados">'+dadosHTML(g,!!g.f)+'</div><p class="t3x-gen-tiro">'+tiroTxt(g)+'</p></div></div>'+
+    '<div class="t3x-gen-abajo">'+botonesGen(it,g)+'</div>';
+}
+function tiroTxt(g){return g.f?"mano cerrada":g.tiradas?"tirada "+g.tiradas+" de "+TIRADAS:"sin tirar";}
+var NOMBRE_JUEGO={escalera:"Escalera",full:"Full",poker:"Póker",generala:"Generala",servida:"Generala servida"};
+function dichoGen(it,g){
+  if(g.f){
+    if(g.juego==="servida")return "¡Generala servida! De una. No lo puedo creer.";
+    if(g.juego==="generala")return "¡Generala! Cinco iguales.";
+    if(g.juego)return NOMBRE_JUEGO[g.juego]+". Anotado.";
+    return "Nada. Pasa en las mejores familias.";
+  }
+  if(!g.tiradas)return "Tres tiradas. Después de cada una,\ntocá los dados que querés guardar.";
+  if(g.aparte.every(function(a){return a;})&&!puntosDe(it,g.dados,g.tiradas).juego)return "Guardaste los cinco.\nSoltá alguno para volver a tirar.";
+  var hay=puntosDe(it,g.dados,g.tiradas);
+  var quedan=TIRADAS-g.tiradas;
+  if(hay.juego)return "Tenés "+NOMBRE_JUEGO[hay.juego].toLowerCase()+(g.aparte.every(function(a){return a;})?".\nPlantate, o soltá alguno para arriesgar.":". Te plantás o arriesgás: "+(quedan===1?"queda una tirada.":"quedan "+quedan+"."));
+  return "Tocá los que guardás y tirá de nuevo. "+(quedan===1?"Queda una.":"Quedan "+quedan+".");
+}
+function montarGenerala(it,n,f,velo,limpiezas){
+  var raiz=velo.querySelector(".t3x-gen"),abajo=velo.querySelector(".t3x-gen-abajo");
+  if(!raiz||!abajo)return;
+  var g=gen(),rodando=false,tt=[],reloj=null;
+  limpiezas.push(function(){tt.forEach(clearTimeout);if(reloj)clearInterval(reloj);});
+  var R=K.reducido();
+  function pintar(){
+    var a=raiz.querySelector(".t3x-gen-anotador");if(a)a.outerHTML=anotadorHTML(it,g);
+    raiz.querySelector(".t3x-gen-dados").innerHTML=dadosHTML(g,!!g.f);
+    raiz.querySelector(".t3x-gen-tiro").textContent=tiroTxt(g);
+    abajo.innerHTML=botonesGen(it,g);
+    raiz.classList.toggle("t3x-gen-fin",!!g.f);
+  }
+  function cerrar(recien){
+    var r=puntosDe(it,g.dados,g.tiradas);
+    g.f=T3.hoy;g.juego=r.juego;g.puntos=r.puntos;g.aparte=[0,0,0,0,0];
+    T3.guardar(LL_GEN,g);
+    if(r.puntos)K.premiar(r.puntos);
+    T3.stat("generala");if(r.juego)T3.stat("generala-"+r.juego);
+    pintar();
+    K.decir(velo,dichoGen(it,g));
+    K.refrescarMini(n);
+    if(!recien)return;
+    if(r.puntos){
+      var f1=abajo.querySelector(".t3x-ficha");if(f1)f1.classList.add("t3x-ficha-entra");
+      T3.sonido(r.juego==="generala"||r.juego==="servida"?"victoria":"exito",.9);U.vibrar&&U.vibrar([20,40,30]);
+      try{var q=raiz.querySelector(".t3x-gen-pano").getBoundingClientRect();U.confeti({x:(q.left+q.width/2)/innerWidth,y:(q.top+q.height/2)/innerHeight,cantidad:r.puntos*2+40});}catch(e){}
+      if(r.juego==="generala"||r.juego==="servida")limpiezas.push(K.fuegos(velo,{duracion:6500,rafagas:12}));
+      try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+    }else T3.sonido("error",.5);
+  }
+  function tirar(){
+    if(rodando||g.f||g.tiradas>=TIRADAS)return;
+    rodando=true;
+    var nuevos=g.dados.length===5?g.dados.slice():[0,0,0,0,0];
+    for(var i=0;i<5;i++)if(!g.tiradas||!g.aparte[i])nuevos[i]=1+Math.floor(azar()*6)%6;
+    var cuales=[];for(i=0;i<5;i++)if(!g.tiradas||!g.aparte[i])cuales.push(i);
+    g.dados=nuevos;g.tiradas++;
+    T3.guardar(LL_GEN,{dados:g.dados,aparte:g.aparte,tiradas:g.tiradas});     /* queda anotado antes de que terminen de rodar */
+    abajo.innerHTML="";K.decir(velo,"");
+    var dados=[].slice.call(raiz.querySelectorAll(".t3x-gen-dado"));
+    var terminar=function(){
+      if(reloj){clearInterval(reloj);reloj=null;}
+      rodando=false;
+      if(g.tiradas>=TIRADAS||!cuales.length){cerrar(true);return;}
+      pintar();K.decir(velo,dichoGen(it,g));
+    };
+    if(R){terminar();return;}
+    T3.sonido("click",.8);
+    cuales.forEach(function(i){var b=dados[i];if(!b)return;b.classList.remove("t3x-gen-rueda");void b.offsetWidth;b.style.setProperty("--d",(i*45)+"ms");b.classList.add("t3x-gen-rueda");});
+    var pasos=0;
+    reloj=setInterval(function(){
+      pasos++;
+      cuales.forEach(function(i){var b=dados[i];if(b)b.innerHTML=dadoSVG(1+Math.floor(Math.random()*6)%6);});
+      if(pasos%2===0)T3.sonido("tic",.5);
+    },70);
+    tt.push(setTimeout(function(){
+      if(reloj){clearInterval(reloj);reloj=null;}
+      cuales.forEach(function(i){var b=dados[i];if(b)b.innerHTML=dadoSVG(g.dados[i]);});
+      T3.sonido("pop",.7);U.vibrar&&U.vibrar(12);
+      tt.push(setTimeout(terminar,260));
+    },760));
+  }
+  /* si cerró la ventanita mientras rodaba la última tirada, la mano quedó tirada pero sin cerrar: se cierra ahora */
+  if(!g.f&&g.tiradas>=TIRADAS)cerrar(false);
+  velo.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-gen]");
+    if(!b||rodando||g.f)return;
+    var que=b.getAttribute("data-gen");
+    if(que==="tirar"){tirar();return;}
+    if(que==="plantar"){if(g.tiradas&&puntosDe(it,g.dados,g.tiradas).juego)cerrar(true);return;}
+    if(que==="dado"&&g.tiradas&&g.tiradas<TIRADAS){
+      var i=+b.getAttribute("data-i");
+      g.aparte[i]=g.aparte[i]?0:1;
+      T3.guardar(LL_GEN,{dados:g.dados,aparte:g.aparte,tiradas:g.tiradas});
+      b.classList.toggle("t3x-gen-aparte",!!g.aparte[i]);b.setAttribute("aria-pressed",g.aparte[i]?"true":"false");
+      T3.sonido("tic",.7);U.vibrar&&U.vibrar(6);
+      /* si los guardó todos, no queda nada para tirar */
+      var todos=g.aparte.every(function(a){return a;});
+      var bt=abajo.querySelector('[data-gen="tirar"]');if(bt)bt.disabled=todos;
+      K.decir(velo,dichoGen(it,g));
+    }
+  });
+}
+function miniGenerala(it,n,f,g0){
+  var g=gen();
+  return '<div class="t3-adviento-mini t3x-mini-gen"><span class="t3x-mini-gen-dados">'+dadoSVG(g.f&&g.dados[0]?g.dados[0]:5)+dadoSVG(g.f&&g.dados[1]?g.dados[1]:2)+'</span>'+
+    (g.f?'<b>'+(g.puntos?"+"+g.puntos:"0")+'</b>':'')+'</div>';
+}
+V.registrar("generala",{adentro:"adentro: una mano de Generala",mini:miniGenerala,objeto:generalaHTML,montar:montarGenerala,
+  pie:function(it){return dichoGen(it,gen());}});
+
+V._juegos={conAzar:function(fn){_azar=typeof fn==="function"?fn:null;},porciones:porciones,ARRANCA:ARRANCA,sortear:sortear,frenar:frenar,giroHasta:giroHasta,juegoDe:juegoDe,puntosDe:puntosDe,pen:pen,gen:gen,LL_PEN:LL_PEN,LL_GEN:LL_GEN};
+})();
+
+/* ------------------------------------------------------------
+   LAS VENTANITAS QUE LE DEJAN ALGO A PONYTA O A LA CARPETA (repaso del 26/11/2026 con Mati)
+
+   · LOS REGALOS PARA PONYTA (tipo "regalo", {prenda}). El 6, la última carrera del año: un casco (la foto la mandó
+     Mati). El 18, que ella va a ver boxeo: unos guantes colgados del cuello. Son prendas de T3.ropa que no se venden
+     (de:"adviento"): la ventanita se las regala con T3.tienda.regalar(id), Ponyta se las pone y después quedan en la
+     vidriera para sacárselas y ponérselas. No son de Navidad: no se van el 1 de enero.
+   · EL LEGO QUE SE ARMA (7; tipo "armar"). El arbolito de 5×5 lo arma ella, copiando el modelo, pieza por pieza.
+     Cuando lo termina queda en la solapa de Ponyta hasta el 31/12 (el 1 de enero se va todo lo de Navidad).
+     Guarda en "lego-arbolito": {t (las 25 celdas), f (el día que lo terminó)}.
+   · LA CARTA DE CUMPLE (16; tipo "carta"). Un sobre con una carta de Mati (el texto es de él, literal). Al abrirla
+     hay fuegos artificiales. Y desde que abre la ventanita, la solapa de Ponyta se llena de globos por todo ese día
+     (el 16; si la abre más tarde, el día en que la abre).
+     Guarda en "carta-cumple": {puerta (el día que abrió la ventanita), f (el día que abrió el sobre)}.
+   · EL SOBRE (17; tipo "sobre"). Un sobre de MafiaTCG con una sola carta, que sí o sí es una que no tiene
+     (T3.tcg.darNola("adviento")): se abre en la pestaña del TCG. Si ya las tiene todas, son 250 MafiaPoints.
+     Guarda en "sobre-adviento": {f, dio:"sobre"|"puntos"}.
+
+   enSolapa(raiz): lo llama T3.ropa cuando se arma la solapa de Ponyta; acá se le suma el arbolito y los globos.
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3,V=T3&&T3.ventanitas;
+if(!V||!V.registrar)return;
+var X=T3.x,esc=X.esc,U=T3.util,K=V.util;
+var DIA=["dom","lun","mar","mié","jue","vie","sáb"],MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function diaCorto(f){var d=T3.f.aDate(f);return DIA[d.getDay()]+" "+d.getDate()+" "+MES[d.getMonth()];}
+function muestra(id){try{return T3.ropa&&T3.ropa.muestra?T3.ropa.muestra(id):"";}catch(e){return "";}}
+
+/* ============================ LOS REGALOS PARA PONYTA ============================ */
+var REGALOS={
+  casco:{nuevo:"Es para Ponyta. Ya se lo puso: no ve nada.",puesto:"Lo tiene puesto. No ve nada.",guardado:"Lo guardó en su ropero.\nSe lo ponés desde la tienda.",adentro:"adentro: un casco"},
+  guantes:{nuevo:"Son para Ponyta. Ya se los colgó.",puesto:"Los lleva colgados.",guardado:"Los guardó en su ropero.\nSe los ponés desde la tienda.",adentro:"adentro: unos guantes"}
+};
+var OTRO={nuevo:"Es para Ponyta. Ya lo tiene.",puesto:"Lo tiene puesto.",guardado:"Lo guardó en su ropero.\nSe lo ponés desde la tienda."};
+function prendaDe(it){var id=String(it.prenda||"");return T3.ropa&&T3.ropa.PRENDAS&&T3.ropa.PRENDAS[id]?id:"";}
+/* cómo se llama ahora (su solapa dice "Rapidash" cuando evolucionó): el pase y el afiche llevan ese nombre */
+function nombreDeElla(){try{return T3.ponyta&&T3.ponyta.forma&&T3.ponyta.forma()==="rapidash"?"Rapidash":"Ponyta";}catch(e){return "Ponyta";}}
+/* el pase de boxes: una credencial colgada de su cinta, con la foto de la piloto */
+function paseHTML(it,n,f,id){
+  return '<div class="t3x-pase" style="--g:'+X.giro("pase"+n,1.5)+'deg">'+
+    '<svg class="t3x-pase-cinta" viewBox="0 0 200 74" preserveAspectRatio="none" aria-hidden="true"><path d="M-6 -4L86 60H106L16 -4Z" fill="#B33A2B"/><path d="M206 -4L114 60H94L184 -4Z" fill="#9C3024"/>'+
+    '<rect x="84" y="52" width="32" height="20" rx="4" fill="#C9CDD2" stroke="#6E747B" stroke-width="2"/><rect x="92" y="59" width="16" height="6" rx="3" fill="#2B2118"/></svg>'+
+    '<div class="t3x-pase-cuerpo">'+
+    '<p class="t3x-pase-rot">Pase de boxes<span>Nº '+K.p2(n)+'</span></p>'+
+    '<p class="t3x-pase-carrera">Última carrera del año<span>'+esc(diaCorto(f))+'</span></p>'+
+    '<div class="t3x-pase-foto">'+muestra(id)+'</div>'+
+    '<p class="t3x-pase-nombre">'+nombreDeElla()+'</p>'+
+    '<p class="t3x-pase-cargo">piloto<span>acceso total</span></p>'+
+    '<span class="t3x-pase-cuadros" aria-hidden="true"></span></div></div>';
+}
+/* el afiche de la pelea, con la boxeadora en el rincón rojo */
+function aficheHTML(it,n,f,id){
+  return '<div class="t3x-afiche" style="--g:'+X.giro("afiche"+n,1.5)+'deg">'+
+    '<p class="t3x-afiche-fecha">'+esc(T3.f.larga(f))+'</p>'+
+    '<p class="t3x-afiche-titulo">Boxeo</p>'+
+    '<div class="t3x-afiche-foto">'+muestra(id)+'</div>'+
+    '<p class="t3x-afiche-rincon">en el rincón rojo</p>'+
+    '<p class="t3x-afiche-nombre'+(nombreDeElla().length>6?" t3x-afiche-nombre-largo":"")+'">'+nombreDeElla()+'</p>'+
+    '<p class="t3x-afiche-record">invicta<span>todavía no peleó</span></p></div>';
+}
+function etiquetaHTML(it,n,f,id){
+  return '<div class="t3x-etiqueta" style="--g:'+X.giro("eti"+n,1.5)+'deg"><p class="t3x-etiqueta-para">Para Ponyta</p><div class="t3x-etiqueta-foto">'+muestra(id)+'</div></div>';
+}
+function regaloHTML(it,n,f){
+  var id=prendaDe(it);
+  return (id==="casco"?paseHTML:id==="guantes"?aficheHTML:etiquetaHTML)(it,n,f,id)+
+    (id?K.botonHTML("Ir a verla",'data-reg="ver"'):"");
+}
+function pieRegalo(it){
+  var id=prendaDe(it),R=REGALOS[id]||OTRO;
+  if(!id||!T3.ropa.tiene(id))return "";
+  return T3.ropa.lleva(id)?R.puesto:R.guardado;
+}
+function montarRegalo(it,n,f,velo,limpiezas){
+  var id=prendaDe(it),R=REGALOS[id]||OTRO,nuevo=false;
+  try{nuevo=!!(id&&T3.tienda&&T3.tienda.regalar&&T3.tienda.regalar(id));}catch(e){}
+  if(nuevo){
+    K.decir(velo,R.nuevo);
+    T3.stat("regalo-"+id);
+    /* la Ponyta de la tarjeta ya tiene el regalo puesto: festeja */
+    var tm=setTimeout(function(){
+      T3.sonido("exito",.8);U.vibrar&&U.vibrar(20);
+      try{var r=velo.querySelector(".t3x-pase-foto,.t3x-afiche-foto,.t3x-etiqueta-foto").getBoundingClientRect();U.confeti({x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height/2)/innerHeight,cantidad:60});}catch(e){}
+      try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+    },K.reducido()?0:620);
+    limpiezas.push(function(){clearTimeout(tm);});
+  }
+  var b=velo.querySelector('[data-reg="ver"]');
+  if(b)b.addEventListener("click",function(){K.irA(velo,"ponyta");});
+}
+function miniRegalo(it,n,f,g){
+  var id=prendaDe(it);
+  if(id==="casco")return '<div class="t3-adviento-mini t3x-mini-casco"><img src="'+esc(T3.ropa.carpeta()+"casco.webp")+'" alt="" draggable="false"></div>';
+  if(id==="guantes")return '<div class="t3-adviento-mini t3x-mini-guantes">'+T3.ropa.suelta("guantes","22 138 86 98")+'</div>';
+  return '<div class="t3-adviento-mini t3x-mini-regalo">'+X.dib("regalo","t3x-dib")+'</div>';
+}
+V.registrar("regalo",{adentro:"adentro: algo para Ponyta",mini:miniRegalo,objeto:regaloHTML,pie:pieRegalo,montar:montarRegalo});
+
+/* ============================ EL LEGO QUE SE ARMA ============================ */
+var MODELOS={arbolito:["..A..","..V..",".VVV.","VVVVV","..M.."]};
+var LEGO={V:{c:["#3F7A4F","#2E5C3B","#5E9A6C"],nom:"verde"},A:{c:["#F2C230","#C99A14","#FFE36B"],nom:"amarilla"},M:{c:["#8B6B47","#6E5338","#A88863"],nom:"marrón"}};
+var LL_ARBOL="lego-arbolito";      /* ("arbolito" a secas ya es el árbol que ella decora en el evento del 8/12: no pisarlo) */
+function modelo(it){return MODELOS[it&&it.modelo]||MODELOS.arbolito;}
+function arbol(){return K.leer(LL_ARBOL);}
+function vacio(){return new Array(26).join(".");}
+function tablero(it){
+  var a=arbol(),m=modelo(it).join("");
+  if(a.f)return m;                                   /* ya armado: es el modelo */
+  var t=String(a.t||"");
+  return t.length===25&&/^[.VAM]+$/.test(t)?t:vacio();
+}
+function cuenta(s){var c={};for(var i=0;i<s.length;i++)if(s[i]!==".")c[s[i]]=(c[s[i]]||0)+1;return c;}
+var LS=34,LO=8;      /* el lado de una celda y el margen de la base, en el dibujo */
+function ladrillo(ch,x,y,clase,extra){
+  var c=LEGO[ch].c,Xp=LO+x*LS,Yp=LO+y*LS,s=LS;
+  return '<g class="t3x-lego-ladrillo'+(clase?" "+clase:"")+'"'+(extra||"")+'>'+
+    '<rect x="'+(Xp+1)+'" y="'+(Yp+4)+'" width="'+(s-2)+'" height="'+(s-2)+'" rx="2" fill="'+c[1]+'"/>'+
+    '<rect x="'+(Xp+1)+'" y="'+(Yp+1)+'" width="'+(s-2)+'" height="'+(s-3)+'" rx="2" fill="'+c[0]+'" stroke="rgba(0,0,0,.18)" stroke-width="1"/>'+
+    '<circle cx="'+(Xp+s/2)+'" cy="'+(Yp+s/2+1.5)+'" r="'+(s*.27)+'" fill="'+c[1]+'"/>'+
+    '<circle cx="'+(Xp+s/2)+'" cy="'+(Yp+s/2-.5)+'" r="'+(s*.27)+'" fill="'+c[0]+'" stroke="rgba(0,0,0,.14)" stroke-width="1"/>'+
+    '<path d="M'+(Xp+s/2-5)+' '+(Yp+s/2-3)+' a6 6 0 0 1 7 -3.500" fill="none" stroke="'+c[2]+'" stroke-width="2.200" stroke-linecap="round"/></g>';
+}
+/* la base de 5×5 con lo que haya puesto. tocable: cada celda es un botón */
+function baseSVG(t,op){
+  op=op||{};
+  var s=LS,o=LO,out='<rect x="'+(o-3)+'" y="'+(o-3)+'" width="'+(5*s+6)+'" height="'+(5*s+6)+'" rx="3" fill="#B9B1A3"/>'+
+    '<rect x="'+(o-3)+'" y="'+(o+5*s+1)+'" width="'+(5*s+6)+'" height="4" rx="2" fill="#948B7C"/>';
+  for(var y=0;y<5;y++)for(var x=0;x<5;x++)out+='<circle cx="'+(o+x*s+s/2)+'" cy="'+(o+y*s+s/2)+'" r="'+(s*.27)+'" fill="#C7C0B3" stroke="#A39A8B" stroke-width="1"/>';
+  for(y=0;y<5;y++)for(x=0;x<5;x++){
+    var ch=t.charAt(y*5+x),i=y*5+x;
+    if(LEGO[ch])out+=ladrillo(ch,x,y,op.nueva===i?"t3x-lego-cae":op.mal&&op.mal[i]?"t3x-lego-mal":"");
+    if(op.tocable)out+='<rect class="t3x-lego-celda" data-i="'+i+'" x="'+(o+x*s)+'" y="'+(o+y*s)+'" width="'+s+'" height="'+s+'" fill="transparent" role="button" tabindex="0" aria-label="fila '+(y+1)+', columna '+(x+1)+': '+(LEGO[ch]?"pieza "+LEGO[ch].nom:"vacío")+'"/>';
+  }
+  return '<svg class="t3x-lego-svg" viewBox="0 0 '+(5*s+16)+' '+(5*s+20)+'"'+(op.tocable?' role="group" aria-label="La base, de cinco por cinco"':' aria-hidden="true"')+'>'+out+'</svg>';
+}
+function piezaSVG(ch){
+  var c=LEGO[ch].c;
+  return '<svg viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="3" width="20" height="18" rx="2" fill="'+c[1]+'"/><rect x="1" y="1" width="20" height="18" rx="2" fill="'+c[0]+'"/><circle cx="11" cy="10" r="5.500" fill="'+c[1]+'"/><circle cx="11" cy="9" r="5.500" fill="'+c[0]+'" stroke="rgba(0,0,0,.15)"/></svg>';
+}
+function bandejaHTML(it,t,elegida){
+  var total=cuenta(modelo(it).join("")),puestas=cuenta(t);
+  return Object.keys(total).map(function(ch){
+    var q=Math.max(0,total[ch]-(puestas[ch]||0));
+    return '<button type="button" class="t3x-lego-pieza'+(q?"":" t3x-lego-sin")+'" data-lego="color" data-c="'+ch+'" aria-pressed="'+(ch===elegida?"true":"false")+'" aria-label="pieza '+LEGO[ch].nom+': quedan '+q+'">'+piezaSVG(ch)+'<b>'+q+'×</b></button>';
+  }).join("");
+}
+function armarHTML(it,n,f){
+  var a=arbol(),t=tablero(it),listo=!!a.f;
+  return '<div class="t3x-lego'+(listo?" t3x-lego-listo":"")+'" style="--g:'+X.giro("lego"+n,1.3)+'deg">'+
+    '<div class="t3x-lego-cab"><b class="t3x-lego-paso">1</b>'+
+    '<div class="t3x-lego-bandeja" role="group" aria-label="Las piezas">'+(listo?"":bandejaHTML(it,t,""))+'</div>'+
+    '<div class="t3x-lego-modelo"><i>así queda</i>'+baseSVG(modelo(it).join(""))+'</div></div>'+
+    '<div class="t3x-lego-base">'+baseSVG(t,{tocable:!listo})+'</div>'+
+    '<p class="t3x-lego-texto">'+esc(it.texto||"")+'</p><span class="t3x-lego-folio">'+K.p2(n)+'/24</span></div>'+
+    '<div class="t3x-lego-abajo">'+(listo?K.botonHTML("Ir a verla",'data-lego="ver"'):"")+'</div>';
+}
+var ARMADO="Armado. Se lo llevó Ponyta:\nlo tiene en su solapa.";
+function pieArmar(it){
+  var a=arbol();
+  if(a.f)return ARMADO;
+  return "Elegí una pieza y tocá dónde va.\nIgualito al modelo.";
+}
+function montarArmar(it,n,f,velo,limpiezas){
+  var raiz=velo.querySelector(".t3x-lego");
+  if(!raiz||arbol().f)return enlazarVer(velo);
+  var M=modelo(it).join(""),t=tablero(it),elegida="",tt=[],cerrado=false;
+  var base=raiz.querySelector(".t3x-lego-base"),bandeja=raiz.querySelector(".t3x-lego-bandeja");
+  limpiezas.push(function(){tt.forEach(clearTimeout);});
+  function quedan(ch){var tot=cuenta(M),p=cuenta(t);return Math.max(0,(tot[ch]||0)-(p[ch]||0));}
+  function elegirSola(){
+    if(elegida&&quedan(elegida)>0)return;
+    elegida=Object.keys(cuenta(M)).filter(function(ch){return quedan(ch)>0;})[0]||"";
+  }
+  function pintar(op){
+    elegirSola();
+    bandeja.innerHTML=bandejaHTML(it,t,elegida);
+    base.innerHTML=baseSVG(t,Object.assign({tocable:true},op||{}));
+  }
+  function terminar(){
+    T3.guardar(LL_ARBOL,{t:M,f:T3.hoy});T3.stat("lego-armado");
+    raiz.classList.add("t3x-lego-listo");
+    bandeja.innerHTML="";
+    base.innerHTML=baseSVG(M,{});
+    base.classList.add("t3x-lego-festeja");
+    K.decir(velo,ARMADO);
+    T3.sonido("exito",.9);U.vibrar&&U.vibrar([20,40,30]);
+    try{var r=base.getBoundingClientRect();U.confeti({x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height/2)/innerHeight,cantidad:110});}catch(e){}
+    try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+    var ab=velo.querySelector(".t3x-lego-abajo");
+    if(ab){ab.innerHTML=K.botonHTML("Ir a verla",'data-lego="ver"');enlazarVer(velo);}
+    K.refrescarMini(n);
+  }
+  function tocar(i){
+    if(cerrado||arbol().f)return;
+    var ch=t.charAt(i);
+    if(ch!=="."){                                     /* había una: se saca y vuelve a la bandeja */
+      t=t.slice(0,i)+"."+t.slice(i+1);elegida=ch;
+      T3.sonido("tic",.8);U.vibrar&&U.vibrar(6);
+      K.decir(velo,pieArmar(it));
+    }else{
+      elegirSola();
+      if(!elegida){K.decir(velo,"Ya pusiste todas. Si alguna quedó corrida,\ntocala para sacarla.");T3.sonido("tic",.6);return;}
+      t=t.slice(0,i)+elegida+t.slice(i+1);
+      T3.sonido("click",.9);U.vibrar&&U.vibrar(8);
+    }
+    T3.guardar(LL_ARBOL,{t:t});
+    if(t===M){cerrado=true;pintar({nueva:i});tt.push(setTimeout(terminar,K.reducido()?0:380));return;}
+    /* todas puestas pero no es: se marcan las corridas */
+    var sinPiezas=Object.keys(cuenta(M)).every(function(c){return quedan(c)===0;});
+    if(sinPiezas){
+      var mal={};for(var k=0;k<25;k++)if(t.charAt(k)!==M.charAt(k)&&t.charAt(k)!==".")mal[k]=1;
+      pintar({mal:mal});
+      K.decir(velo,"Casi. Las que tiemblan están corridas:\ntocalas para sacarlas.");
+      return;
+    }
+    pintar(ch==="."?{nueva:i}:{});
+  }
+  /* si cerró la ventanita justo cuando puso la última pieza, quedó armado pero sin anotar: se anota ahora */
+  if(t===M){cerrado=true;terminar();return;}
+  raiz.addEventListener("click",function(ev){
+    var c=ev.target.closest('[data-lego="color"]');
+    if(c){elegida=c.getAttribute("data-c");if(quedan(elegida)<1){elegida="";}T3.sonido("tic",.6);pintar();return;}
+    var cel=ev.target.closest(".t3x-lego-celda");
+    if(cel)tocar(+cel.getAttribute("data-i"));
+  });
+  raiz.addEventListener("keydown",function(ev){
+    if(ev.key!=="Enter"&&ev.key!==" ")return;
+    var cel=ev.target.closest&&ev.target.closest(".t3x-lego-celda");
+    if(cel){ev.preventDefault();tocar(+cel.getAttribute("data-i"));}
+  });
+  pintar();
+}
+function enlazarVer(velo){
+  var b=velo.querySelector('[data-lego="ver"]');
+  if(b&&!b._t3x){b._t3x=1;b.addEventListener("click",function(){K.irA(velo,"ponyta");});}
+}
+function miniArmar(it,n,f,g){
+  return '<div class="t3-adviento-mini t3x-mini-lego'+(arbol().f?"":" t3x-mini-lego-falta")+'">'+baseSVG(tablero(it))+'</div>';
+}
+V.registrar("armar",{adentro:"adentro: un Lego para armar",mini:miniArmar,objeto:armarHTML,pie:pieArmar,montar:montarArmar});
+
+/* ---- el arbolito ya armado, parado en la solapa de Ponyta (visto de frente: ladrillos apilados) ---- */
+function arbolitoSVG(it){
+  var m=modelo(it),w=20,h=17,INK="#0d131a",s="",x,y;
+  for(y=0;y<m.length;y++)for(x=0;x<5;x++){
+    var ch=m[y].charAt(x);
+    if(!LEGO[ch])continue;
+    var c=LEGO[ch].c,X0=6+x*w,Y0=10+y*h,arriba=y===0||!LEGO[m[y-1].charAt(x)];
+    if(arriba)s+='<rect x="'+(X0+5)+'" y="'+(Y0-5)+'" width="10" height="6" rx="1.500" fill="'+c[0]+'" stroke="'+INK+'" stroke-width="2"/>';
+    s+='<rect x="'+X0+'" y="'+Y0+'" width="'+w+'" height="'+h+'" rx="1.500" fill="'+c[0]+'" stroke="'+INK+'" stroke-width="2.200"/>'+
+      '<path d="M'+(X0+3)+' '+(Y0+4)+'H'+(X0+w-7)+'" stroke="'+c[2]+'" stroke-width="2.200" stroke-linecap="round"/>'+
+      '<path d="M'+(X0+2)+' '+(Y0+h-3)+'H'+(X0+w-2)+'" stroke="'+c[1]+'" stroke-width="2.400" opacity=".8"/>';
+  }
+  return '<svg viewBox="0 0 112 104" aria-hidden="true"><ellipse cx="56" cy="98" rx="46" ry="4.500" fill="rgba(43,33,24,.2)"/>'+s+'</svg>';
+}
+function ponerArbolito(raiz,escena){
+  var a=arbol();
+  if(!a.f||T3.hoy<a.f||T3.hoy>a.f.slice(0,4)+"-12-31"||escena.querySelector(".t3x-arbolito"))return;
+  var ancla=escena.querySelector(".t3-ponyta-anda");
+  var b=U.el('<button type="button" class="t3x-arbolito" aria-label="El arbolito de Lego que armaste">'+arbolitoSVG({modelo:"arbolito"})+'</button>');
+  if(ancla)escena.insertBefore(b,ancla);else escena.appendChild(b);
+  b.addEventListener("click",function(ev){
+    ev.stopPropagation();
+    b.classList.remove("t3x-arbolito-toc");void b.offsetWidth;b.classList.add("t3x-arbolito-toc");
+    T3.sonido("click",.8);U.vibrar&&U.vibrar(8);
+    X.aviso("lo armaste vos, el "+(+a.f.slice(8))+". no hay que regarlo.");
+  });
+}
+
+/* ============================ LA CARTA DE CUMPLE ============================ */
+var LL_CARTA="carta-cumple";
+function cartaVista(){return !!K.leer(LL_CARTA).f;}
+function sobreCartaSVG(){
+  return '<svg class="t3x-carta-sobre-svg" viewBox="0 0 300 200" aria-hidden="true">'+
+    '<rect x="1.500" y="1.500" width="297" height="197" rx="5" fill="#F6EEDD" stroke="rgba(43,33,24,.35)" stroke-width="1.500"/>'+
+    '<path d="M2 4L150 112L298 4" fill="#EFE4CD" stroke="rgba(43,33,24,.3)" stroke-width="1.500" stroke-linejoin="round"/>'+
+    '<path d="M2 196L112 96M298 196L188 96" fill="none" stroke="rgba(43,33,24,.16)" stroke-width="1.300"/></svg>';
+}
+function cartaHTML(it,n,f){
+  var vista=cartaVista();
+  return '<div class="t3x-carta'+(vista?" t3x-carta-abierta":"")+'">'+
+    '<button type="button" class="t3x-carta-sobre" data-carta="abrir" aria-label="Abrir la carta" style="--g:'+X.giro("carta"+n,2)+'deg"'+(vista?" hidden":"")+'>'+sobreCartaSVG()+
+    '<span class="t3x-carta-para">Para vos</span><span class="t3x-carta-lacre" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 39C12 31 8 25 8 19a8 8 0 0 1 16-3 8 8 0 0 1 16 3c0 6-4 12-16 20z"/></svg></span>'+
+    '<span class="t3x-carta-estampilla" aria-hidden="true"><b>'+(+f.slice(8))+'</b><i>dic</i></span></button>'+
+    '<div class="t3x-carta-hoja" style="--g:'+X.giro("hoja"+n,1.2)+'deg">'+
+    '<p class="t3x-carta-texto">'+esc(it.texto||"")+'</p>'+
+    '<span class="t3x-carta-firma">'+esc(T3.firma?T3.firma(f):"— Yo")+'</span>'+
+    '<button type="button" class="t3x-carta-corazon" data-carta="fuegos" aria-label="Más fuegos artificiales"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 39C12 31 8 25 8 19a8 8 0 0 1 16-3 8 8 0 0 1 16 3c0 6-4 12-16 20z"/></svg></button></div></div>'+
+    '<div class="t3x-carta-abajo">'+(vista?K.botonHTML("Ir a ver a Ponyta",'data-carta="ver"'):"")+'</div>';
+}
+/* los globos: todo el día de la carta, desde que abre la ventanita (o, si la abre tarde, el día en que la abre) */
+function hayGlobos(f){
+  if(!f||!T3.tiene("adviento",f))return false;
+  return T3.hoy===f||T3.hoy===K.leer(LL_CARTA).puerta;
+}
+function anotarPuerta(){var st=K.leer(LL_CARTA);if(!st.puerta){st.puerta=T3.hoy;T3.guardar(LL_CARTA,st);}}
+function pieCarta(it,n,f){
+  if(!cartaVista())return "Es para vos. Abrila.";
+  return hayGlobos(f)?"Feliz cumple. Y pasá por lo de Ponyta,\nque te preparó algo.":"Tu carta del "+(+String(f).slice(8)||n)+".";
+}
+function montarCarta(it,n,f,velo,limpiezas){
+  var raiz=velo.querySelector(".t3x-carta");
+  if(!raiz)return;
+  anotarPuerta();
+  var parar=null,tt=[];
+  limpiezas.push(function(){tt.forEach(clearTimeout);if(parar)parar();});
+  function largar(){if(parar)parar();parar=K.fuegos(velo,{duracion:8200,rafagas:17});}
+  function botonVer(){
+    var ab=velo.querySelector(".t3x-carta-abajo");
+    if(ab&&!ab.firstChild)ab.innerHTML=K.botonHTML("Ir a ver a Ponyta",'data-carta="ver"');
+  }
+  velo.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-carta]");
+    if(!b)return;
+    var que=b.getAttribute("data-carta");
+    if(que==="ver"){K.irA(velo,"ponyta");return;}
+    if(que==="fuegos"){T3.sonido("pop",.8);largar();return;}
+    if(que==="abrir"&&!raiz.classList.contains("t3x-carta-abierta")&&!raiz.classList.contains("t3x-carta-abriendo")){
+      var st=K.leer(LL_CARTA);st.f=T3.hoy;if(!st.puerta)st.puerta=T3.hoy;
+      T3.guardar(LL_CARTA,st);T3.stat("carta-cumple");
+      T3.sonido("papel",.9);U.vibrar&&U.vibrar(14);
+      raiz.classList.add("t3x-carta-abriendo");
+      var fin=function(){
+        raiz.classList.remove("t3x-carta-abriendo");raiz.classList.add("t3x-carta-abierta");
+        b.hidden=true;
+        K.decir(velo,pieCarta(it,n,f));
+        botonVer();largar();
+        K.refrescarMini(n);
+      };
+      if(K.reducido())fin();else tt.push(setTimeout(fin,520));
+    }
+  });
+}
+function miniCarta(it,n,f,g){
+  return '<div class="t3-adviento-mini t3x-mini-cumple'+(cartaVista()?" t3x-mini-cumple-vista":"")+'"><span class="t3x-mini-cumple-sobre">'+sobreCartaSVG()+
+    '<svg class="t3x-mini-cumple-lacre" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 39C12 31 8 25 8 19a8 8 0 0 1 16-3 8 8 0 0 1 16 3c0 6-4 12-16 20z"/></svg></span>'+
+    '<small>'+(cartaVista()?"tu carta":"para vos")+'</small></div>';
+}
+V.registrar("carta",{adentro:"adentro: una carta",mini:miniCarta,objeto:cartaHTML,pie:pieCarta,montar:montarCarta});
+
+/* ---- los globos del cumple, en la solapa de Ponyta: un techo lleno, atrás de ella, y otros que van subiendo por la hoja.
+        Dos lienzos (sin filtros) y un solo reloj, a unos 30 cuadros por segundo. Con "reducir movimiento" quedan quietos.
+        Los del fondo (son cientos, chiquitos) se dibujan una sola vez en un lienzo aparte, que se mece entero: así cada
+        cuadro pinta ese lienzo y solo los de adelante, uno por uno. ---- */
+var COLORES=["#E9584A","#F2C24A","#A9D8C3","#9CC3F0","#F4A3B8","#B9A4F6","#FF8A5B"];
+function fechaCumple(){
+  for(var n=1;n<=24;n++){if(K.contenido(n).tipo==="carta")return K.fechaDe(n);}
+  return "";
+}
+function azarFijo(sem){var a=sem|0;return function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296;};}
+function dibGlobo(x,cx,cy,r,col,borde,hilo){
+  if(hilo){x.beginPath();x.moveTo(cx,cy+r+3);x.bezierCurveTo(cx+hilo*.3,cy+r+18,cx-hilo*.3,cy+r+34,cx+hilo*.12,cy+r+52);x.strokeStyle="rgba(43,33,24,.42)";x.lineWidth=.9;x.stroke();}
+  x.beginPath();x.moveTo(cx-2.300,cy+r+3.600);x.lineTo(cx,cy+r-1);x.lineTo(cx+2.300,cy+r+3.600);x.closePath();x.fillStyle=col;x.fill();
+  x.beginPath();x.ellipse(cx,cy,r*.84,r,0,0,6.2832);x.fillStyle=col;x.fill();
+  if(borde){x.lineWidth=1.200;x.strokeStyle="rgba(13,19,26,.55)";x.stroke();}
+  x.beginPath();x.ellipse(cx-r*.3,cy-r*.38,r*.15,r*.28,-.5,0,6.2832);x.fillStyle="rgba(255,255,255,.55)";x.fill();
+}
+function ponerGlobos(raiz,escena){
+  var f=fechaCumple();
+  if(!hayGlobos(f)||raiz.querySelector(".t3x-globos"))return;
+  var fondo=document.createElement("canvas"),arriba=document.createElement("canvas");
+  fondo.className="t3x-globos t3x-globos-fondo";arriba.className="t3x-globos t3x-globos-arriba";
+  fondo.setAttribute("aria-hidden","true");arriba.setAttribute("aria-hidden","true");
+  escena.insertBefore(fondo,escena.firstChild);
+  raiz.appendChild(arriba);
+  raiz.classList.add("t3x-con-globos");
+  var dpr=Math.min(window.devicePixelRatio||1,2),xf=fondo.getContext("2d"),xa=arriba.getContext("2d");
+  var Wf=0,Hf=0,Wa=0,Ha=0,techo=[],suben=[],R=azarFijo(1612),quieto=K.reducido(),lejos=null;
+  function medir(){
+    /* el tamaño del dibujo, no el de la pantalla: la solapa puede estar a medio abrir (girada o achicada) */
+    if(!fondo.offsetWidth||!arriba.offsetWidth)return false;
+    Wf=fondo.offsetWidth;Hf=fondo.offsetHeight;Wa=arriba.offsetWidth;Ha=arriba.offsetHeight;
+    fondo.width=Math.round(Wf*dpr);fondo.height=Math.round(Hf*dpr);arriba.width=Math.round(Wa*dpr);arriba.height=Math.round(Ha*dpr);
+    xf.setTransform(dpr,0,0,dpr,0,0);xa.setTransform(dpr,0,0,dpr,0,0);
+    /* el techo: muchísimos, apretados arriba y más sueltos hacia abajo. Los del fondo, chiquitos y lavados */
+    techo=[];
+    var n=0,y;
+    /* ninguno toca el borde del lienzo: así el montón termina en globos enteros y no en un corte recto */
+    for(y=16;y<Hf*.52;y+=7){var cuantos=Math.round(Wf/9*(1-y/(Hf*.64)));for(var i=0;i<cuantos;i++)techo.push({x:15+R()*(Wf-30),y:y+R()*9,r:7+R()*4,c:COLORES[(n++)%COLORES.length],f:R()*6.28,lejos:1});}
+    for(y=26;y<Hf*.68;y+=13){var k=Math.round(Wf/19*(1-y/(Hf*.82)));for(var j=0;j<k;j++)techo.push({x:26+R()*(Wf-52),y:y+R()*14,r:13+R()*8,c:COLORES[Math.floor(R()*COLORES.length)],f:R()*6.28,hilo:(R()-.5)*18});}
+    techo.sort(function(p,q){return (p.lejos?0:1)-(q.lejos?0:1)||p.y-q.y;});
+    /* los del fondo, de una vez */
+    lejos=document.createElement("canvas");lejos.width=fondo.width;lejos.height=fondo.height;
+    var xl=lejos.getContext("2d");xl.setTransform(dpr,0,0,dpr,0,0);xl.globalAlpha=.55;
+    techo.forEach(function(g){if(g.lejos)dibGlobo(xl,g.x,g.y,g.r,g.c,false,0);});
+    techo=techo.filter(function(g){return !g.lejos;});
+    return true;
+  }
+  function nuevoQueSube(arranque){
+    return {x:Wa*(.06+Math.random()*.88),y:arranque?Ha*(.2+Math.random()*.8):Ha+30+Math.random()*40,r:12+Math.random()*8,v:.35+Math.random()*.45,f:Math.random()*6.28,
+      c:COLORES[Math.floor(Math.random()*COLORES.length)],hilo:(Math.random()-.5)*16};
+  }
+  function pintarFondo(t){
+    xf.clearRect(0,0,Wf,Hf);
+    if(lejos)xf.drawImage(lejos,quieto?0:Math.sin(t/1700)*1.2,quieto?0:Math.sin(t/1150)*1.5,Wf,Hf);
+    techo.forEach(function(g){
+      var dy=quieto?0:Math.sin(t/900+g.f)*1.6,dx=quieto?0:Math.sin(t/1300+g.f*1.7)*1.1;
+      dibGlobo(xf,g.x+dx,g.y+dy,g.r,g.c,true,g.hilo);
+    });
+  }
+  function pintarArriba(t){
+    xa.clearRect(0,0,Wa,Ha);
+    suben.forEach(function(g,i){
+      g.y-=g.v*2;
+      var dx=Math.sin(t/800+g.f)*5;
+      xa.globalAlpha=.94;dibGlobo(xa,g.x+dx,g.y,g.r,g.c,true,g.hilo);
+      if(g.y<-70)suben[i]=nuevoQueSube(false);
+    });
+    xa.globalAlpha=1;
+  }
+  var ult=0,intentos=0;
+  function arrancar(){
+    pintarFondo(0);
+    if(quieto)return;
+    for(var i=0;i<12;i++)suben.push(nuevoQueSube(true));
+    (function paso(t){
+      if(!raiz.isConnected||!fondo.isConnected)return;       /* salió de la solapa: se corta solo */
+      requestAnimationFrame(paso);
+      if(document.hidden||!fondo.offsetWidth||t-ult<32)return;
+      ult=t;
+      pintarFondo(t);pintarArriba(t);
+    })(performance.now());
+  }
+  /* si la solapa todavía no tiene tamaño (se está armando), se espera un toque */
+  (function probar(){
+    if(medir()){arrancar();return;}
+    if(++intentos<40)setTimeout(function(){if(raiz.isConnected)probar();},60);
+  })();
+  T3.stat("globos-cumple");
+}
+/* lo que el adviento le deja a la solapa de Ponyta (lo llama T3.ropa.adornar cada vez que se arma) */
+V.enSolapa=function(raiz){
+  var escena=raiz&&raiz.querySelector(".t3-ponyta-escena");
+  if(!escena)return;
+  try{ponerArbolito(raiz,escena);}catch(e){}
+  try{ponerGlobos(raiz,escena);}catch(e){}
+};
+
+/* ============================ EL SOBRE DE MAFIATCG ============================ */
+var LL_SOBRE="sobre-adviento",PUNTOS_SI_COMPLETA=250;
+function sobreDado(){return K.leer(LL_SOBRE);}
+function sinAbrir(){try{return T3.tcg.sobresDeUna("adviento")>0;}catch(e){return false;}}
+function sobreHTML(it,n,f){
+  var d=sobreDado();
+  if(d.dio==="puntos")return '<div class="t3x-regsobre t3x-regsobre-puntos"><p class="t3x-regsobre-nota" style="--g:'+X.giro("sob"+n,1.6)+'deg">Ya tenés todas las cartas. El sobre se cambió por puntos.</p>'+K.fichaHTML(PUNTOS_SI_COMPLETA)+'</div>';
+  var pack=T3.tcg&&T3.tcg.sobreHTML?T3.tcg.sobreHTML("adviento"):"";
+  return '<div class="t3x-regsobre'+(d.dio&&!sinAbrir()?" t3x-regsobre-abierto":"")+'"><span class="t3x-sobre t3x-sobre-nola t3x-sobre-adv t3x-regsobre-sobre" style="--g:'+X.giro("sob"+n,3)+'deg">'+pack+'</span></div>'+
+    '<div class="t3x-regsobre-abajo">'+(d.dio&&!sinAbrir()?"":K.botonHTML("Abrirlo en el TCG",'data-sobre="ir"',"t3x-mesa-boton-oro"))+'</div>';
+}
+function pieSobre(it){
+  var d=sobreDado();
+  if(d.dio==="puntos")return "Carpeta completa. No me queda nada para darte.";
+  if(d.dio&&!sinAbrir())return "Ya lo abriste. La carta está en tu carpeta.";
+  return "Trae una sola carta. Y es una que no tenés.";
+}
+function montarSobre(it,n,f,velo,limpiezas){
+  var d=sobreDado();
+  if(!d.dio){
+    /* se entrega una sola vez, la primera que ve la sorpresa */
+    var dio=false;
+    try{dio=!!(T3.tcg&&T3.tcg.darNola&&T3.tcg.darNola("adviento"));}catch(e){}
+    if(!dio)K.premiar(PUNTOS_SI_COMPLETA);
+    T3.guardar(LL_SOBRE,{f:T3.hoy,dio:dio?"sobre":"puntos"});T3.stat("sobre-adviento");
+    if(!dio){
+      var ob=velo.querySelector(".t3-adviento-objeto");
+      if(ob)ob.innerHTML=sobreHTML(it,n,f);
+      K.decir(velo,pieSobre(it));
+    }
+  }
+  var b=velo.querySelector('[data-sobre="ir"]');
+  if(b)b.addEventListener("click",function(){K.irA(velo,"tcg");});
+}
+function miniSobre(it,n,f,g){
+  var pack=T3.tcg&&T3.tcg.sobreHTML?T3.tcg.sobreHTML("adviento"):"";
+  return '<div class="t3-adviento-mini t3x-mini-sobre"><span class="t3x-sobre t3x-sobre-nola t3x-sobre-adv">'+pack+'</span></div>';
+}
+V.registrar("sobre",{adentro:"adentro: un sobre de cartas",mini:miniSobre,objeto:sobreHTML,pie:pieSobre,montar:montarSobre});
+
+V._ponyta={arbol:arbol,MODELOS:MODELOS,fechaCumple:fechaCumple,hayGlobos:hayGlobos,LL_ARBOL:LL_ARBOL,LL_CARTA:LL_CARTA,LL_SOBRE:LL_SOBRE,PUNTOS_SI_COMPLETA:PUNTOS_SI_COMPLETA};
+})();
+
+/* ------------------------------------------------------------
+   LAS VENTANITAS QUE TERMINAN EN LA VIDA REAL (repaso del 26/11/2026 con Mati): las citas y la frase en alemán.
+   En las dos habla él, en primera persona, como en el resto de la app.
+
+   · ELEGIR LA CITA (8 y 20; tipo "cita"). La idea y las opciones son de Mati (van literales): el 8 elige entre cuatro
+     (A, B y C el viernes 11; la D, el sábado 12, con sushitos en casa el viernes). Marca una, confirma, y le llega a
+     él por WhatsApp, así tiene tiempo de organizar. El 20 ({ronda:2, dia}) vuelve a elegir, para el sábado 26, entre
+     las tres que NO eligió el 8 (la D, ya sin los sushitos). Si el 8 todavía no eligió, el 20 la manda a elegir primero.
+     Si abre la ventanita tarde y alguna fecha ya pasó, el menú no promete días que no existen: dice "a combinar"
+     (y el mensaje que le llega a él, "fecha a combinar"). Guarda en "citas": {1:{id,f}, 2:{id,f}}.
+   · LA FRASE EN ALEMÁN (23; tipo "aleman"). Ella colecciona cartas de Ponyta en todos los idiomas y él tiene varias en
+     alemán. Un corazón de Lebkuchen (los de los mercaditos de Navidad) trae colgada la frase "Hast du zufällig ein
+     kleines Geschenk für heute?". Tiene que elegir qué dice entre tres opciones (dos en chiste) y, cuando acierta,
+     decírsela a él, en alemán: abajo está cómo se lee y un botón para escucharla con la voz en alemán del teléfono.
+     No se muestra ninguna carta de Ponyta: el regalito es sorpresa. Guarda en "aleman": {f, intentos}.
+   ------------------------------------------------------------ */
+(function(){
+"use strict";
+var T3=window.T3,V=T3&&T3.ventanitas;
+if(!V||!V.registrar)return;
+var X=T3.x,esc=X.esc,U=T3.util,K=V.util;
+var DIA=["dom","lun","mar","mié","jue","vie","sáb"],MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+/* ============================ ELEGIR LA CITA ============================ */
+var LL_CITAS="citas";
+function citas(){return K.leer(LL_CITAS);}
+function ronda(it){return +it.ronda===2?2:1;}
+function elegida(r){var c=citas()[r];return c&&c.id?c:null;}
+/* la ventanita de la primera elección: {n, it} */
+function primera(){
+  for(var n=1;n<=24;n++){var it=K.contenido(n);if(it.tipo==="cita"&&ronda(it)===1)return {n:n,it:it};}
+  return null;
+}
+function esDia(d){return /^\d{4}-\d{2}-\d{2}$/.test(d);}
+function opciones(it){
+  if(ronda(it)===1)return (Array.isArray(it.opciones)?it.opciones:[]).filter(function(o){return o&&o.id&&o.t;}).map(function(o){
+    return {id:String(o.id),t:String(o.t),dia:String(o.dia||""),mas:String(o.mas||""),masDia:String(o.masDia||"")};});
+  /* la segunda: las de la primera que no eligió, todas para el día nuevo y sin el agregado */
+  var p=primera(),ya=elegida(1);
+  if(!p)return [];
+  return opciones(p.it).filter(function(o){return !ya||o.id!==ya.id;}).map(function(o){return {id:o.id,t:o.t,dia:String(it.dia||o.dia),mas:"",masDia:""};});
+}
+/* ¿se le pasó alguna fecha? Se mira desde el día en que eligió (o desde hoy, si todavía no): si abre la ventanita
+   tarde, el menú entero pasa a "a combinar" */
+function vencidas(it){
+  var r=ronda(it),ya=elegida(r),ref=ya&&esDia(ya.f)?ya.f:T3.hoy,L=opciones(it);
+  if(r===2&&ya){var p=primera();if(p)L=opciones(p.it).map(function(o){return {dia:String(it.dia||o.dia),masDia:""};});}
+  return L.some(function(o){return (esDia(o.dia)&&o.dia<ref)||(esDia(o.masDia)&&o.masDia<ref);});
+}
+/* el agregado de una opción ("y sushitos chill en casa" + "el viernes 11", si todavía se llega) */
+function masDe(o,tarde){return o.mas?o.mas+(o.masDia&&!tarde?" el "+cuando(o.masDia,true):""):"";}
+/* la segunda no se puede elegir hasta que elija la primera (son "las que no eligió") */
+function trabada(it){return ronda(it)===2&&!elegida(1);}
+function cuando(dia,largo){
+  if(!esDia(dia))return "";
+  var d=T3.f.aDate(dia);
+  return largo?T3.f.diaSemana(dia)+" "+d.getDate():DIA[d.getDay()]+" "+d.getDate();
+}
+function mensajeCita(it,o){
+  var tarde=vencidas(it),mas=masDe(o,tarde);
+  return "💌 "+(ronda(it)===2?"Otra cita":"Cita elegida")+": la "+o.id+", "+o.t+(tarde?" (fecha a combinar)":o.dia?" ("+cuando(o.dia,true)+")":"")+(mas?", "+mas:"")+".";
+}
+/* un óvalo a mano alzada alrededor de la opción marcada, del tamaño que se le pida (W×H) */
+function trazoOvalo(sal,W,H){
+  var d="",cx=W/2,cy=H/2,rx=W/2-6,ry=H/2-4,h=U.hash("ovalo"+sal),fase=(h%100)/100;
+  for(var i=0;i<=66;i++){var t=i/64*6.2832*1.04-2.9+fase,q=1+.03*Math.sin(t*3+fase*6)+i*.0006;d+=(i?"L":"M")+(cx+rx*q*Math.cos(t)).toFixed(1)+" "+(cy+ry*q*Math.sin(t)).toFixed(1);}
+  return d;
+}
+/* --l: el largo del trazo (para dibujarlo de a poco). Arranca en un número de sobra y medirOvalos pone el de verdad.
+   (No se usa pathLength: así no depende de cómo lo entienda cada navegador.) */
+function ovalo(sal){
+  return '<svg class="t3x-cita-marca" data-sal="'+esc(sal)+'" viewBox="0 0 300 58" style="--l:1400" aria-hidden="true"><path d="'+trazoOvalo(sal,300,58)+'"/></svg>';
+}
+/* cada renglón tiene su alto (el nombre puede ocupar dos o tres): el óvalo se vuelve a trazar a su medida, sin estirarlo */
+function medirOvalos(raiz){
+  [].forEach.call(raiz.querySelectorAll(".t3x-cita-marca"),function(s){
+    var w=s.clientWidth||(s.parentNode&&s.parentNode.offsetWidth+14)||300,hh=s.clientHeight||(s.parentNode&&s.parentNode.offsetHeight+4)||58;
+    if(w<40||hh<20)return;
+    s.setAttribute("viewBox","0 0 "+w+" "+hh);
+    var p=s.querySelector("path");
+    if(!p)return;
+    p.setAttribute("d",trazoOvalo(s.getAttribute("data-sal"),w,hh));
+    try{var largo=p.getTotalLength();if(largo>50)s.style.setProperty("--l",String(Math.ceil(largo)+2));}catch(e){}
+  });
+}
+function citaHTML(it,n,f){
+  var r=ronda(it),ya=elegida(r),L=opciones(it),traba=trabada(it),p=primera(),tarde=!traba&&vencidas(it);
+  var titulo=ya?(r===2?"La otra cita":"La cita"):r===2?"Otra cita":"Elegí la cita";
+  var sub=traba||ya?"":r===2?(tarde||!esDia(String(it.dia||""))?"De las que quedaron.":"Para el "+cuando(String(it.dia),true)+". De las que quedaron."):"Marcá una. Yo me ocupo del resto.";
+  var lista=traba?'<p class="t3x-cita-traba">Primero elegí la cita de la ventanita '+(p?p.n:8)+'. Acá van a estar las que no elijas.</p>'
+    :'<ul class="t3x-cita-lista" role="radiogroup" aria-label="Las citas">'+L.map(function(o){
+      var es=ya&&ya.id===o.id;
+      return '<li><button type="button" class="t3x-cita-op'+(es?" t3x-cita-esta":"")+'" data-cita="op" data-id="'+esc(o.id)+'" role="radio" aria-checked="'+(es?"true":"false")+'"'+(ya?" disabled":"")+'>'+
+        '<span class="t3x-cita-letra">'+esc(o.id)+'</span><span class="t3x-cita-txt"><span class="t3x-cita-nom">'+esc(o.t)+'</span>'+
+        (o.mas?'<span class="t3x-cita-mas">'+esc(masDe(o,tarde))+'</span>':'')+'</span>'+
+        (tarde?'<span class="t3x-cita-dia t3x-cita-dia-libre">a combinar</span>':o.dia?'<span class="t3x-cita-dia">'+esc(cuando(o.dia,false))+'</span>':'')+ovalo(n+o.id)+'</button></li>';
+    }).join("")+'</ul>';
+  return '<div class="t3x-cita'+(ya?" t3x-cita-hecha":"")+(traba?" t3x-cita-trabada":"")+'" style="--g:'+X.giro("cita"+n,1.3)+'deg">'+
+    '<p class="t3x-cita-rot">Menú de citas<span>Nº '+K.p2(n)+'</span></p>'+
+    '<h3 class="t3x-cita-titulo">'+titulo+'</h3>'+(sub?'<p class="t3x-cita-sub">'+esc(sub)+'</p>':'')+lista+
+    (ya?'<div class="t3x-cita-sello"><b>ELEGIDA</b><span>'+esc(T3.f.corta(ya.f).toUpperCase())+'</span></div>':'')+'</div>'+
+    '<div class="t3x-cita-abajo">'+(ya?abajoHecha(it,ya):traba&&p&&K.abierta(p.n)?K.botonHTML("Ir a la del "+p.n,'data-cita="primera"'):"")+'</div>';
+}
+function abajoHecha(it,ya){
+  var o=opciones2(it,ya.id);
+  return o?'<a class="t3x-cita-otra-vez" href="'+esc(X.wa(mensajeCita(it,o)))+'" target="_blank" rel="noopener">avisarme de nuevo ↗</a>':"";
+}
+/* la opción elegida, con sus datos (en la segunda ronda ya no está en opciones(): se busca en la primera) */
+function opciones2(it,id){
+  var l=opciones(it).filter(function(o){return o.id===id;});
+  if(l.length)return l[0];
+  var p=primera();
+  if(!p)return null;
+  var o=opciones(p.it).filter(function(x){return x.id===id;})[0];
+  return o?(ronda(it)===2?{id:o.id,t:o.t,dia:String(it.dia||o.dia),mas:"",masDia:""}:o):null;
+}
+function pieCita(it){
+  var r=ronda(it),ya=elegida(r);
+  if(trabada(it))return "Te espera. Primero la otra.";
+  if(ya)return "Elegiste la "+ya.id+". Del resto me ocupo yo.";
+  return "Tocá la que quieras. Después confirmás.";
+}
+function montarCita(it,n,f,velo,limpiezas){
+  var raiz=velo.querySelector(".t3x-cita"),abajo=velo.querySelector(".t3x-cita-abajo");
+  if(raiz){medirOvalos(raiz);var tm=setTimeout(function(){medirOvalos(raiz);},400);limpiezas.push(function(){clearTimeout(tm);});}   /* de nuevo cuando ya cargó la letra */
+  /* la segunda, trabada: si la primera ya la abrió (y no eligió), un botón la lleva ahí (se abre su sorpresa, acá mismo) */
+  var ir=velo.querySelector('[data-cita="primera"]');
+  if(ir)ir.addEventListener("click",function(){var p=primera();T3.sonido("click");if(p){try{T3.adviento.abrir(K.fechaDe(p.n));}catch(e){}}});
+  if(!raiz||!abajo||trabada(it)||elegida(ronda(it)))return;
+  var r=ronda(it),L=opciones(it),marcada=null;
+  function botones(o){
+    abajo.innerHTML='<a class="t3x-mesa-boton t3x-mesa-boton-oro" data-cita="confirmar" href="'+esc(X.wa(mensajeCita(it,o)))+'" target="_blank" rel="noopener">Esta quiero<i aria-hidden="true">↗</i></a>'+
+      '<button type="button" class="t3x-mesa-boton t3x-mesa-boton-sobrio" data-cita="otra">Mejor otra</button>';
+  }
+  velo.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-cita]");
+    if(!b||elegida(r))return;
+    var que=b.getAttribute("data-cita");
+    if(que==="op"){
+      var id=b.getAttribute("data-id"),o=L.filter(function(x){return x.id===id;})[0];
+      if(!o)return;
+      marcada=o;
+      [].forEach.call(raiz.querySelectorAll(".t3x-cita-op"),function(x){
+        var es=x===b;
+        if(es&&!x.classList.contains("t3x-cita-esta")){x.classList.remove("t3x-cita-esta");void x.offsetWidth;}
+        x.classList.toggle("t3x-cita-esta",es);x.setAttribute("aria-checked",es?"true":"false");
+      });
+      raiz.classList.add("t3x-cita-con-marca");
+      T3.sonido("papel",.7);U.vibrar&&U.vibrar(8);
+      botones(o);
+      K.decir(velo,"¿Segura? Al confirmar me llega por WhatsApp.");
+      return;
+    }
+    if(que==="otra"){
+      marcada=null;
+      [].forEach.call(raiz.querySelectorAll(".t3x-cita-op"),function(x){x.classList.remove("t3x-cita-esta");x.setAttribute("aria-checked","false");});
+      raiz.classList.remove("t3x-cita-con-marca");
+      abajo.innerHTML="";T3.sonido("tic",.6);
+      K.decir(velo,pieCita(it));
+      return;
+    }
+    if(que==="confirmar"&&marcada){
+      /* el toque ya abre WhatsApp (es un link): acá queda anotado */
+      var C=citas();C[r]={id:marcada.id,f:T3.hoy};T3.guardar(LL_CITAS,C);
+      T3.stat("citas");T3.stat("cita-"+r+"-"+marcada.id);
+      raiz.classList.add("t3x-cita-hecha");
+      var tit=raiz.querySelector(".t3x-cita-titulo"),su=raiz.querySelector(".t3x-cita-sub");
+      if(tit)tit.textContent=r===2?"La otra cita":"La cita";
+      if(su)su.remove();
+      [].forEach.call(raiz.querySelectorAll(".t3x-cita-op"),function(x){x.disabled=true;});
+      raiz.insertAdjacentHTML("beforeend",'<div class="t3x-cita-sello t3x-cita-sello-cae"><b>ELEGIDA</b><span>'+esc(T3.f.corta(T3.hoy).toUpperCase())+'</span></div>');
+      abajo.innerHTML=abajoHecha(it,C[r]);
+      K.decir(velo,pieCita(it));
+      T3.sonido("sello",.9);U.vibrar&&U.vibrar(22);
+      try{var q=raiz.getBoundingClientRect();U.confeti({x:(q.left+q.width/2)/innerWidth,y:(q.top+q.height*.6)/innerHeight,cantidad:80});}catch(e){}
+      try{if(T3.ponyta&&T3.ponyta.reaccionar)T3.ponyta.reaccionar("gano");}catch(e){}
+      K.refrescarMini(n);
+      /* la segunda ventanita ya sabe cuáles quedaron */
+      for(var k=1;k<=24;k++){if(k!==n&&K.contenido(k).tipo==="cita")K.refrescarMini(k);}
+    }
+  });
+}
+function miniCita(it,n,f,g){
+  var r=ronda(it),ya=elegida(r);
+  /* en la redonda (chiquita, con el número abajo) va solo la letra */
+  var chica=g&&(g.forma==="redonda"||(g.w===1&&g.h===1));
+  return '<div class="t3-adviento-mini t3x-mini-cita'+(ya?" t3x-mini-cita-ya":"")+(chica?" t3x-mini-cita-chica":"")+'">'+(chica?"":'<small>cita</small>')+'<b>'+(ya?esc(ya.id):"?")+'</b>'+
+    (!chica&&r===2&&it.dia&&!(!trabada(it)&&vencidas(it))?'<i>'+esc(cuando(String(it.dia),false))+'</i>':'')+'</div>';
+}
+V.registrar("cita",{adentro:"adentro: una cita a elección",mini:miniCita,objeto:citaHTML,pie:pieCita,montar:montarCita});
+
+/* ============================ LA FRASE EN ALEMÁN ============================ */
+var LL_ALEMAN="aleman";
+function aleman(){return K.leer(LL_ALEMAN);}
+function corazonSVG(texto,chico){
+  var C="M120 206C40 152 14 106 14 72C14 37 40 14 71 14C93 14 110 26 120 45C130 26 147 14 169 14C200 14 226 37 226 72C226 106 200 152 120 206Z";
+  var pal=String(texto||"").split(/\s+/).filter(Boolean),mitad=Math.ceil(pal.length/2);
+  var l1=pal.slice(0,mitad).join(" "),l2=pal.slice(mitad).join(" ");
+  return '<svg class="t3x-ale-svg" viewBox="0 -34 240 250" aria-hidden="true">'+
+    /* la cinta para colgarlo */
+    '<path d="M120 46C112 20 104 -4 102 -34M120 46C128 20 136 -4 138 -34" fill="none" stroke="#B33A2B" stroke-width="7" stroke-linecap="round"/>'+
+    '<path d="'+C+'" transform="translate(3 5)" fill="rgba(20,12,6,.42)"/>'+
+    '<path d="'+C+'" fill="#8A5A33"/><path d="'+C+'" fill="none" stroke="#6B4322" stroke-width="3"/>'+
+    /* el glasé: un cordón y perlitas */
+    '<path d="'+C+'" transform="translate(120 110) scale(.86) translate(-120 -110)" fill="none" stroke="#FBF5E7" stroke-width="4.500" stroke-linejoin="round"/>'+
+    '<path d="'+C+'" transform="translate(120 110) scale(.74) translate(-120 -110)" fill="none" stroke="#F4A3B8" stroke-width="5" stroke-linecap="round" stroke-dasharray=".1 11"/>'+
+    (chico?'<path d="M120 138C100 124 92 112 92 102a12 12 0 0 1 28-5 12 12 0 0 1 28 5c0 10-8 22-28 36z" fill="#FBF5E7"/>'
+      :'<text class="t3x-ale-glase" x="120" y="'+(l2?88:102)+'" text-anchor="middle">'+esc(l1)+'</text>'+(l2?'<text class="t3x-ale-glase" x="120" y="116" text-anchor="middle">'+esc(l2)+'</text>':'')+
+       '<g fill="#A9D8C3"><circle cx="86" cy="150" r="4"/><circle cx="154" cy="150" r="4"/></g><g fill="#F2C24A"><circle cx="103" cy="164" r="3.400"/><circle cx="137" cy="164" r="3.400"/><circle cx="120" cy="176" r="3.400"/></g>')+
+    '</svg>';
+}
+function opcionesAleman(it,n){
+  var l=[{t:String(it.dice||""),ok:true}].concat((Array.isArray(it.otras)?it.otras:[]).map(function(o){return typeof o==="string"?{t:o,no:"Nein."}:{t:String(o.t||""),no:String(o.no||"Nein.")};}));
+  l=l.filter(function(o){return o.t;});
+  /* siempre en el mismo orden, y la buena nunca primera */
+  var k=l.length>1?1+U.hash("aleman"+n)%(l.length-1):0;
+  return l.slice(k).concat(l.slice(0,k)).map(function(o,i){o.i=i;return o;});
+}
+function alemanHTML(it,n,f){
+  var hecho=!!aleman().f,L=opcionesAleman(it,n);
+  var oir=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+  return '<div class="t3x-ale'+(hecho?" t3x-ale-hecha":"")+'">'+
+    '<div class="t3x-ale-corazon" style="--g:'+X.giro("ale"+n,3)+'deg">'+corazonSVG(it.corazon||"Frohe Weihnachten",false)+'</div>'+
+    '<div class="t3x-ale-cartel" style="--g:'+X.giro("alec"+n,1.4)+'deg"><p class="t3x-ale-frase" lang="de">'+esc(it.frase||"")+'</p>'+
+    (oir?'<button type="button" class="t3x-ale-oir" data-ale="oir" aria-label="Escuchar cómo suena"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 11h5l7-6v18l-7-6H4z"/><path class="t3x-ale-onda" d="M20 9.500a6.500 6.500 0 0 1 0 9M22.800 6a11 11 0 0 1 0 16"/></svg></button>':'')+'</div>'+
+    '<div class="t3x-ale-opciones" role="group" aria-label="¿Qué dice?"'+(hecho?" hidden":"")+'><p class="t3x-ale-q">¿Qué dice?</p>'+
+    L.map(function(o){return '<button type="button" class="t3x-ale-op" data-ale="op" data-i="'+o.i+'">'+esc(o.t)+'</button>';}).join("")+'</div>'+
+    '<div class="t3x-ale-fin"'+(hecho?"":" hidden")+'><p class="t3x-ale-dice">'+esc(it.dice||"")+'</p>'+
+    '<p class="t3x-ale-ahora">Ahora decímelo. En alemán.</p>'+
+    (it.suena?'<p class="t3x-ale-suena"><span>se lee</span>'+esc(String(it.suena).replace(/-/g,"\u2011"))+'</p>':'')+'</div></div>';
+}
+function pieAleman(it){return aleman().f?"Ya sabés qué dice. Decímelo en alemán.":"Está en alemán. ¿Qué dice?";}
+function hablar(txt){
+  if(T3.mudo&&T3.mudo())return false;
+  try{
+    var s=window.speechSynthesis;
+    if(!s||!window.SpeechSynthesisUtterance)return false;
+    s.cancel();
+    var u=new SpeechSynthesisUtterance(String(txt||""));
+    u.lang="de-DE";u.rate=.8;u.pitch=1;
+    var v=(s.getVoices()||[]).filter(function(x){return /^de([-_]|$)/i.test(x.lang||"");})[0];
+    if(v)u.voice=v;
+    s.speak(u);
+    return true;
+  }catch(e){return false;}
+}
+function montarAleman(it,n,f,velo,limpiezas){
+  var raiz=velo.querySelector(".t3x-ale");
+  if(!raiz)return;
+  var L=opcionesAleman(it,n),intentos=+aleman().intentos||0;
+  /* en algunos teléfonos las voces se cargan recién cuando se piden */
+  try{if(window.speechSynthesis)window.speechSynthesis.getVoices();}catch(e){}
+  limpiezas.push(function(){try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(e){}});
+  velo.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-ale]");
+    if(!b)return;
+    var que=b.getAttribute("data-ale");
+    if(que==="oir"){
+      var ok=hablar(it.frase);
+      T3.stat("aleman-oir");
+      b.classList.remove("t3x-ale-suena-ya");void b.offsetWidth;b.classList.add("t3x-ale-suena-ya");
+      if(!ok)K.decir(velo,T3.mudo&&T3.mudo()?"La app está en silencio.\nPrendele el sonido y probá de nuevo.":"Este teléfono no sabe leerla."+(aleman().f?" Abajo está cómo suena.":""));
+      return;
+    }
+    if(que!=="op"||aleman().f)return;
+    var o=L[+b.getAttribute("data-i")];
+    if(!o)return;
+    if(!o.ok){
+      intentos++;T3.guardar(LL_ALEMAN,{intentos:intentos});T3.stat("aleman-errores");
+      b.classList.add("t3x-ale-no");b.disabled=true;
+      T3.sonido("error",.7);U.vibrar&&U.vibrar(24);
+      K.decir(velo,o.no||"Nein.");
+      return;
+    }
+    T3.guardar(LL_ALEMAN,{f:T3.hoy,intentos:intentos});T3.stat("aleman");
+    raiz.classList.add("t3x-ale-hecha");
+    raiz.querySelector(".t3x-ale-opciones").hidden=true;
+    var fin=raiz.querySelector(".t3x-ale-fin");fin.hidden=false;fin.classList.add("t3x-ale-fin-entra");
+    K.decir(velo,"Genau. Ahora decímelo así, en alemán.");
+    T3.sonido("exito",.9);U.vibrar&&U.vibrar(20);
+    try{var q=raiz.querySelector(".t3x-ale-corazon").getBoundingClientRect();U.confeti({x:(q.left+q.width/2)/innerWidth,y:(q.top+q.height/2)/innerHeight,cantidad:70});}catch(e){}
+    K.refrescarMini(n);
+  });
+}
+function miniAleman(it,n,f,g){
+  return '<div class="t3-adviento-mini t3x-mini-ale">'+corazonSVG("",true)+'<small lang="de">auf Deutsch</small></div>';
+}
+V.registrar("aleman",{adentro:"adentro: algo en alemán",mini:miniAleman,objeto:alemanHTML,pie:pieAleman,montar:montarAleman});
+
+V._citas={citas:citas,opciones:opciones,mensaje:mensajeCita,primera:primera,vencidas:vencidas,LL_CITAS:LL_CITAS,LL_ALEMAN:LL_ALEMAN,opcionesAleman:opcionesAleman,hablar:hablar};
 })();
 /*EXTRAS-JS>>*/
 (function(){try{if(window.T3&&T3.activo&&T3.cuaderno&&T3.cuaderno.arrancar)T3.cuaderno.arrancar();}

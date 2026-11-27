@@ -64,7 +64,7 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.waitForTimeout(1400);
   await pg.screenshot({path:S+"b-vale.jpg"});
   r=await pg.evaluate(()=>{const a=document.querySelector(".t3x-vale-avisar");return a?{t:a.innerText,href:decodeURIComponent(a.href)}:null;});
-  chequear("al canjear aparece «avisarle a Mati» con el vale en el mensaje",r&&/avisarle a Mati/.test(r.t)&&/Canjeo mi vale Nº 0002 del adviento: un helado de menta granizada\./.test(r.href),r);
+  chequear("al canjear aparece «avisarle a Mati» con el vale en el mensaje",r&&/avisarle a Mati/.test(r.t)&&/Canjeo mi vale Nº 0002 del adviento: mimitos\./.test(r.href),r);
   chequear("sin errores de JavaScript",errores.length===0,errores);
   await ctx.close();
   await b.close();srv.close();process.exit(resumen()?1:0);

@@ -65,8 +65,11 @@ adviento, tcg y pony y tienda"; "sin trivia ni nada de juegos".
   cupón del 29 y la nota de voz del 30, que iban como juego del día). Queda lo demás de la hoja: el cartel del 1/12 (sin
   "las cartas ahora se pueden contestar"), la nota del 3, lo que dice Ponyta y la ventanita. **El evento del 1 de enero
   (el Tomo 2) queda**: lo confirmó Mati.
-- Como no hay juegos, MafiaTCG da **un sobre por día** y nada más (la nota de bienvenida ya no promete "si ganás el juego
-  del día, otro": `hayJuegos()` en `T3.tcg`). Y una hoja sin carta no se precinta aunque el día diga `sellado`.
+- **"Los duelos no son juegos"** (lo aclaró Mati el 27/11): lo apagado son los juegos de la hoja (trivia, wordle, tetris…).
+  Los duelos de MafiaTCG no se tocaron: 2 por día y 10 MafiaPoints por victoria, también en diciembre.
+- Como no hay juego en la hoja, MafiaTCG da **un sobre por día** y nada más: el sobre extra se ganaba con el juego de la
+  hoja, no con los duelos (la nota de bienvenida ya no promete "si ganás el juego del día, otro": `hayJuegos()` en
+  `T3.tcg`). Y una hoja sin carta no se precinta aunque el día diga `sellado`.
 - **Las hojas de diciembre son las de las ventanitas**: `T3.fechas` cuenta como hoja a todo día con carta, evento, juego
   **o ventanita** (del 1 al 24). Del 25 al 31 la hoja existe solo ese día (está en blanco) y después no queda en el cuaderno.
   Los papeles y tintas especiales de esos días siguen (el 12/12 es la única hoja de papel negro del cuaderno: ahí el dibujo

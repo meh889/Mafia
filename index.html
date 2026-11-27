@@ -4353,7 +4353,9 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 
 /* ---- la frase en alemán: el corazón de Lebkuchen, el cartelito con la frase y las tres traducciones ---- */
 .t3x-ale{display:flex;flex-direction:column;align-items:center;width:324px;max-width:calc(100vw - 36px)}
-.t3x-ale-corazon{width:172px;max-width:46vw;margin-bottom:-4px;transform:rotate(var(--g,0deg));transform-origin:50% 0}
+/* (medidas ajustadas el 27/11/2026: una de las opciones que dictó Mati ocupa tres renglones, y con el corazón un poco
+   más chico y las opciones más juntas entra sin desplazar también en los iPhone de 812 de alto) */
+.t3x-ale-corazon{width:156px;max-width:46vw;margin-bottom:-4px;transform:rotate(var(--g,0deg));transform-origin:50% 0}
 .t3x-ale-svg{display:block;width:100%;height:auto;overflow:visible}
 .t3x-ale-glase{font-family:var(--t3-mano);font-weight:700;font-size:26.500px;fill:#FBF5E7}
 .t3x-ale-cartel{position:relative;z-index:1;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:13px 10px 13px 18px;background:var(--t3-adviento-ruido),#FBF5E7;
@@ -4367,10 +4369,10 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
 .t3x-ale-onda{fill:none}
 .t3x-ale-suena-ya .t3x-ale-onda{animation:t3x-ale-onda .9s ease-out 2}
 @keyframes t3x-ale-onda{0%{opacity:.2}40%{opacity:1}100%{opacity:.2}}
-.t3x-ale-opciones{display:flex;flex-direction:column;gap:9px;width:100%;margin-top:16px}
+.t3x-ale-opciones{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:13px}
 .t3x-ale-opciones[hidden],.t3x-ale-fin[hidden]{display:none}
 .t3x-ale-q{margin:0 0 1px;text-align:center;font:500 9.500px/1 var(--t3-mono);letter-spacing:.22em;text-transform:uppercase;color:#CDBB9A}
-.t3x-ale-op{appearance:none;-webkit-appearance:none;box-sizing:border-box;width:100%;min-height:50px;margin:0;padding:9px 14px 8px;text-align:left;cursor:pointer;
+.t3x-ale-op{appearance:none;-webkit-appearance:none;box-sizing:border-box;width:100%;min-height:48px;margin:0;padding:8px 14px 7px;text-align:left;cursor:pointer;
   background:#E8D6AE;border:1px solid #8A7A5A;border-radius:3px;box-shadow:0 3px 0 rgba(20,14,10,.5);font:700 22.500px/1.08 var(--t3-mano);color:#2B2118;text-wrap:balance;-webkit-tap-highlight-color:transparent}
 .t3x-ale-op:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(20,14,10,.5)}
 .t3x-ale-op:focus-visible{outline:2px solid var(--t3-fuego);outline-offset:3px}
@@ -4405,9 +4407,10 @@ button.t3x-ticket{width:100%;margin:0;padding:0;border:0;border-radius:0;font:in
   .t3x-cofre{width:150px}
   .t3x-rueda button{height:34px}
   /* la frase en alemán del 23 */
-  .t3x-ale-corazon{width:124px}
-  .t3x-ale-opciones{gap:7px;margin-top:10px}
-  .t3x-ale-op{min-height:46px;padding:7px 14px 6px}
+  .t3x-ale-corazon{width:114px}
+  .t3x-ale-cartel{padding-top:9px;padding-bottom:9px}
+  .t3x-ale-opciones{gap:6px;margin-top:9px}
+  .t3x-ale-op{min-height:44px;padding:6px 14px 5px}
 }
 /*EXTRAS-CSS>>*/
 </style>
@@ -11116,10 +11119,12 @@ var INK="#0d131a";var CONTENIDO_ADVIENTO=[
 /*22*/{tipo:"vale",que:"cafecito en Kuta",corto:"cafecito",mini:"Kuta",letra:"Con algo dulce (o salado), obvio. Invito yo."},
 /*23 · una frase en alemán (ella colecciona cartas de Ponyta en todos los idiomas, y él tiene varias en alemán). La tiene
        que traducir eligiendo entre tres (dos son en chiste) y después decírsela a él, en alemán. La frase la pidió Mati:
-       "¿Por casualidad tenés un regalito para hoy?". No se muestra ninguna carta: el regalito es sorpresa. */
+       "¿Por casualidad tenés un regalito para hoy?". Las otras dos también las dictó él (27/11/2026) y van literales,
+       solo con la ortografía arreglada: si elige una de esas, la app contesta sin sumar chistes propios.
+       No se muestra ninguna carta: el regalito es sorpresa. */
       {tipo:"aleman",frase:"Hast du zufällig ein kleines Geschenk für heute?",dice:"¿Por casualidad tenés un regalito para hoy?",
-        otras:[{t:"¿Tenés un pañuelito? Acabo de estornudar.",no:"Nein. Aunque «Geschenk» suena a estornudo, sí."},
-               {t:"¿Hasta qué hora abre el kiosco hoy?",no:"Nein. «Hast du» no es «hasta»."}],
+        otras:["¿Vecino tendrá un buen plato del día hoy?",
+               "Si todo junto se escribe separado, ¿por qué separado se escribe todo junto?"],
         suena:"jast du tsu-FÉ-lij ain KLÁI-nes gue-SHÉNK fiur JÓI-te?",corazon:"Frohe Weihnachten"},
 /*24 · el cofre: se abre con los cuatro números del mapa. Lo que dice el papel de adentro está en CONFIG.t3.tesoro. */
       {tipo:"cofre"}
@@ -20481,7 +20486,8 @@ V._ponyta={arbol:arbol,MODELOS:MODELOS,fechaCumple:fechaCumple,hayGlobos:hayGlob
      (y el mensaje que le llega a él, "fecha a combinar"). Guarda en "citas": {1:{id,f}, 2:{id,f}}.
    · LA FRASE EN ALEMÁN (23; tipo "aleman"). Ella colecciona cartas de Ponyta en todos los idiomas y él tiene varias en
      alemán. Un corazón de Lebkuchen (los de los mercaditos de Navidad) trae colgada la frase "Hast du zufällig ein
-     kleines Geschenk für heute?". Tiene que elegir qué dice entre tres opciones (dos en chiste) y, cuando acierta,
+     kleines Geschenk für heute?". Tiene que elegir qué dice entre tres opciones (dos en chiste: también las dictó Mati,
+     y si elige una de esas la app contesta "Nein" y nada más, sin chistes propios) y, cuando acierta,
      decírsela a él, en alemán: abajo está cómo se lee y un botón para escucharla con la voz en alemán del teléfono.
      No se muestra ninguna carta de Ponyta: el regalito es sorpresa. Guarda en "aleman": {f, intentos}.
    ------------------------------------------------------------ */
@@ -20680,8 +20686,9 @@ function corazonSVG(texto,chico){
        '<g fill="#A9D8C3"><circle cx="86" cy="150" r="4"/><circle cx="154" cy="150" r="4"/></g><g fill="#F2C24A"><circle cx="103" cy="164" r="3.400"/><circle cx="137" cy="164" r="3.400"/><circle cx="120" cy="176" r="3.400"/></g>')+
     '</svg>';
 }
+var NEIN="Nein. Probá con otra.";      /* lo que contesta cuando elige mal (una opción puede traer su propio "no") */
 function opcionesAleman(it,n){
-  var l=[{t:String(it.dice||""),ok:true}].concat((Array.isArray(it.otras)?it.otras:[]).map(function(o){return typeof o==="string"?{t:o,no:"Nein."}:{t:String(o.t||""),no:String(o.no||"Nein.")};}));
+  var l=[{t:String(it.dice||""),ok:true}].concat((Array.isArray(it.otras)?it.otras:[]).map(function(o){return typeof o==="string"?{t:o,no:NEIN}:{t:String(o.t||""),no:String(o.no||NEIN)};}));
   l=l.filter(function(o){return o.t;});
   /* siempre en el mismo orden, y la buena nunca primera */
   var k=l.length>1?1+U.hash("aleman"+n)%(l.length-1):0;
@@ -20740,7 +20747,7 @@ function montarAleman(it,n,f,velo,limpiezas){
       intentos++;T3.guardar(LL_ALEMAN,{intentos:intentos});T3.stat("aleman-errores");
       b.classList.add("t3x-ale-no");b.disabled=true;
       T3.sonido("error",.7);U.vibrar&&U.vibrar(24);
-      K.decir(velo,o.no||"Nein.");
+      K.decir(velo,o.no||NEIN);
       return;
     }
     T3.guardar(LL_ALEMAN,{f:T3.hoy,intentos:intentos});T3.stat("aleman");

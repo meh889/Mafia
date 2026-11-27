@@ -112,8 +112,11 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   (`T3.tcg.darNola("adviento")`; se abre en la pestaña del TCG, en rojo). Con la carpeta completa son 250 MafiaPoints.
 - **La frase en alemán del 23** (`tipo:"aleman"`): ella colecciona cartas de Ponyta en todos los idiomas y él tiene varias
   en alemán. Un corazón de Lebkuchen trae la frase que pidió Mati ("¿Por casualidad tenés un regalito para hoy?"); elige
-  la traducción entre tres (dos en chiste) y después se la tiene que decir a él: aparece cómo se lee y un botón para
-  escucharla (la voz en alemán del teléfono). **No se muestra ninguna carta**: el regalito es sorpresa.
+  la traducción entre tres y después se la tiene que decir a él: aparece cómo se lee y un botón para escucharla (la voz
+  en alemán del teléfono). Las otras dos opciones, en chiste, también las dictó él (27/11: reemplazó las que había
+  inventado Claude) y van literales: "¿Vecino tendrá un buen plato del día hoy?" y "Si todo junto se escribe separado,
+  ¿por qué separado se escribe todo junto?". Si elige una de esas, la app contesta "Nein. Probá con otra." y nada más:
+  no se le suman chistes propios. **No se muestra ninguna carta**: el regalito es sorpresa.
 - **Los vales** (2, 14 y 22): llevan una firma abajo (la de la app, "Yo") y el sello de goma en esa esquina.
 - **El 1 de enero se va todo lo de Navidad** (lo pidió Mati: "lo de Reyes no, el 1 desaparece todo"): la pestaña del
   adviento, el gorro (`GORRO_HASTA`) y el arbolito. Lo ya ganado no se pierde: cada hoja de diciembre conserva su

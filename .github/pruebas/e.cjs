@@ -173,8 +173,9 @@ const correr=async(pg,fin)=>{await pg.click(".t3-ponyta-correr",{force:true});aw
   chequear("el globo no pisa el gorro",r.globoAbajo<=r.gorroArriba+1,r);
   await correr(o.pg,"vuelta");r=await foto(o.pg);
   chequear("corre y vuelve como siempre, y suma la herradura",!r.ausente&&r.pony&&r.gorro&&r.dias.includes("2026-12-01")&&r.stats.huellas===3&&r.boton.toUpperCase()==="OTRA VUELTA"&&r.viaje.ida==="2026-11-19",r);
-  await o.pg.evaluate(()=>T3.cuaderno.irA("2026-11-15"));await o.pg.waitForTimeout(1800);r=await hoja(o.pg);
-  chequear("las hojas de noviembre siguen con su dibujo, sin gorro",r.fecha==="2026-11-15"&&r.dibujo&&!r.gorro,r);
+  /* (las hojas de noviembre ya no se pueden ir a ver: se quemaron el 1/12. Queda la regla: el gorro es de diciembre) */
+  r=await o.pg.evaluate(()=>({nov:T3.viaje.conGorro("2026-11-15"),dic:T3.viaje.conGorro("2026-12-01")}));
+  chequear("el gorro es de diciembre: a una hoja de noviembre no le tocaría",r.nov===false&&r.dic===true,r);
   r=await o.pg.evaluate(()=>[T3.viaje.conGorro("2026-11-30"),T3.viaje.conGorro("2026-12-01"),T3.viaje.conGorro("2026-12-31"),T3.viaje.conGorro("2027-01-01"),T3.viaje.conGorro("2027-01-06")]);
   chequear("una vez abierta la ventanita 1, el gorro va del 1/12 al 31/12: el 1 de enero se va todo lo de Navidad (lo pidió Mati)",r.join()==="false,true,true,false,false",r);
   chequear("sin errores de JavaScript",o.errores.length===0,o.errores);

@@ -1,4 +1,5 @@
-/* Laboratorio · ida y vuelta: cartel del 1/12, contestar cartas, la tienda el primer día (sin puntos) y vales.
+/* Laboratorio · ida y vuelta: cartel del 1/12, contestar cartas (con una carta puesta a mano: diciembre no trae y las
+   viejas se quemaron el 1/12), la tienda el primer día (sin puntos) y vales.
    La tienda con puntos, la ropa de Ponyta y el modo Pou están en f.cjs. */
 const {servir,abrir,chequear,resumen,estado,motor}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
@@ -18,7 +19,9 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await pg.evaluate(()=>({cartel:(document.querySelector(".t3x-cartel")||{}).innerText,pest:Array.from(document.querySelectorAll("[data-pest]")).map(x=>x.getAttribute("data-pest"))}));
   chequear("el 1/12 está el cartel de vuelta, que anuncia el TCG y la tienda",/Abierto de nuevo/i.test(r.cartel||"")&&/MafiaTCG/.test(r.cartel||"")&&/tienda, en la pestaña verde/i.test(r.cartel||"")&&!/talonario de pedidos/i.test(r.cartel||""),r.cartel);
   chequear("aparece la pestaña de la tienda",r.pest.includes("pedidos")&&/tienda/i.test(await pg.evaluate(()=>document.querySelector('[data-pest="pedidos"]').innerText)),r.pest);
-  await pg.evaluate(()=>T3.cuaderno.irA("2026-10-26"));await pg.waitForTimeout(1100);
+  /* Contestar: desde la quema del 1/12 no quedan cartas viejas, y diciembre no trae. Se prueba con una carta puesta a mano en
+     la hoja de hoy: si algún día vuelve a haber carta, tiene que poder contestarse. */
+  await pg.evaluate(()=>{CONFIG.dias["2026-12-01"].mensaje="Estás hecho un joven.";T3.cuaderno.refrescar("2026-12-01");});await pg.waitForTimeout(1100);
   await pg.screenshot({path:S+"b-contestar.jpg"});
   r=await pg.evaluate(()=>{const c=document.querySelector(".t3x-contestar");return c?{t:c.innerText.trim(),vis:getComputedStyle(c).opacity,alto:c.getBoundingClientRect().height}:null;});
   chequear("debajo de una carta aparece «contestarle»",r&&r.t==="contestarle"&&r.vis==="1",r);
@@ -27,15 +30,15 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await pg.evaluate(()=>({nom:(document.querySelector(".t3-cuaderno-suelta-nombre")||{}).textContent,cita:(document.querySelector(".t3x-resp-cita")||{}).innerText,gDes:document.querySelector(".t3x-resp-guardar").disabled,mIna:document.querySelector(".t3x-resp-mandar").classList.contains("t3x-inactivo")}));
   chequear("abre la hoja con la cita de la carta y los botones apagados",r.nom==="Contestarle"&&/joven/.test(r.cita)&&r.gDes&&r.mIna,r);
   await pg.fill(".t3x-resp-texto","Viejo pero mío.\nTe amo más yo.");await pg.waitForTimeout(600);
-  r=await pg.evaluate(()=>({href:document.querySelector(".t3x-resp-mandar").href,borr:T3.leer("resp-borrador-2026-10-26","")}));
-  chequear("al escribir arma el link de WhatsApp y guarda el borrador",/^https:\/\/wa\.me\/\?text=/.test(r.href)&&decodeURIComponent(r.href).includes("Respuesta a tu carta del 26 de octubre")&&decodeURIComponent(r.href).includes("Te amo más yo.")&&/Viejo/.test(r.borr),r);
+  r=await pg.evaluate(()=>({href:document.querySelector(".t3x-resp-mandar").href,borr:T3.leer("resp-borrador-2026-12-01","")}));
+  chequear("al escribir arma el link de WhatsApp y guarda el borrador",/^https:\/\/wa\.me\/\?text=/.test(r.href)&&decodeURIComponent(r.href).includes("Respuesta a tu carta del 1 de diciembre")&&decodeURIComponent(r.href).includes("Te amo más yo.")&&/Viejo/.test(r.borr),r);
   await pg.click(".t3x-resp-guardar");await pg.waitForTimeout(500);
   await pg.screenshot({path:S+"b-guardada.jpg"});
   await pg.click(".t3-cuaderno-suelta-cerrar");await pg.waitForTimeout(2600);
   await pg.screenshot({path:S+"b-pagina.jpg"});
-  r=await pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-bloque > .t3-cuaderno-hoja.t3-cuaderno-visible");return {txt:h?h.innerText:"",extra:T3.paginasExtra("2026-10-26"),borr:T3.leer("resp-borrador-2026-10-26",null),n:T3.leer("resp-2026-10-26",0),stat:T3.stats().respuestas};});
+  r=await pg.evaluate(()=>{const h=document.querySelector(".t3-cuaderno-bloque > .t3-cuaderno-hoja.t3-cuaderno-visible");return {txt:h?h.innerText:"",extra:T3.paginasExtra("2026-12-01"),borr:T3.leer("resp-borrador-2026-12-01",null),n:T3.leer("resp-2026-12-01",0),stat:T3.stats().respuestas};});
   chequear("la respuesta queda como hoja del cuaderno y se muestra",r.extra.length===1&&r.extra[0].autor==="Sofi"&&/Te amo más yo/.test(r.txt)&&/escrito por Sofi/i.test(r.txt)&&r.borr===null&&r.n===1&&r.stat===1,{txt:r.txt.slice(0,160),extra:r.extra,n:r.n});
-  await pg.evaluate(()=>T3.cuaderno.irA("2026-10-26"));await pg.waitForTimeout(1100);
+  await pg.evaluate(()=>T3.cuaderno.irA("2026-12-01"));await pg.waitForTimeout(1100);
   r=await pg.evaluate(()=>document.querySelector(".t3x-contestar").innerText.trim());
   chequear("después dice «contestarle otra vez»",r==="contestarle otra vez",r);
 

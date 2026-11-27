@@ -145,11 +145,12 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   r=await leer();
   const extra=await pg.evaluate(()=>({stat:T3.stats()["tcg-sobres"],punto:document.querySelector(".t3-cuaderno-pestana-tcg").classList.contains("t3-cuaderno-con-sobre"),capa:!!document.querySelector(".t3x-apertura")}));
   const totalCartas=Object.keys(r.e.cartas).filter(id=>id!=="una-que-ya-no-existe").reduce((a,id)=>a+r.e.cartas[id].n,0);
-  chequear("al abrir descuenta sobres, suma cartas y avisa que mañana hay otro",/Mañana hay otro/.test(r.hay)&&/ganá el juego de hoy/.test(r.hay)&&r.e.sobres===0&&r.e.abiertos===6&&totalCartas===12&&extra.stat===2&&!extra.punto&&!extra.capa,{hay:r.hay,sobres:r.e.sobres,abiertos:r.e.abiertos,totalCartas});
+  chequear("al abrir descuenta sobres, suma cartas y avisa que mañana hay otro (uno por día: en diciembre no hay juego que dé uno extra)",/Mañana hay otro/.test(r.hay)&&/uno por día/.test(r.hay)&&!/juego/.test(r.hay)&&r.e.sobres===0&&r.e.abiertos===6&&totalCartas===12&&extra.stat===2&&!extra.punto&&!extra.capa,{hay:r.hay,sobres:r.e.sobres,abiertos:r.e.abiertos,totalCartas});
   chequear("al llegar a 10 cartas se habilita el duelo y avisa",r.minis>=10&&r.boton&&/contra el programador/i.test(r.rotulo)&&r.diez===0&&/habilitó el duelo/.test(avisoDuelo),{minis:r.minis,boton:r.boton,rotulo:r.rotulo,aviso:avisoDuelo});
-  // ganar el juego del día → sobre extra
+  // ganar el juego del día → sobre extra (los juegos de diciembre quedaron apagados: se juega el de ese día, que sigue guardado, para
+  // saber que el día que se prenda alguno el sobre extra sigue andando)
   await pg.evaluate(()=>T3.cuaderno.irA("2026-12-03"));await pg.waitForTimeout(1000);
-  await pg.evaluate(()=>{T3.cuaderno.jugar(CONFIG.dias[T3.hoy].actividad);});await pg.waitForTimeout(900);
+  await pg.evaluate(()=>{const d=CONFIG.dias[T3.hoy];T3.cuaderno.jugar(d.actividad||d.actividadApagada);});await pg.waitForTimeout(900);
   await pg.evaluate(()=>window.celebrar());await pg.waitForTimeout(3200);
   r=await pg.evaluate(()=>({punto:document.querySelector(".t3-cuaderno-pestana-tcg").classList.contains("t3-cuaderno-con-sobre"),aviso:document.querySelector(".t3-cuaderno-aviso").textContent}));
   chequear("ganar el juego del día avisa y marca un sobre extra",r.punto&&/sobre de MafiaTCG/.test(r.aviso),r);

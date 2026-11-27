@@ -1,12 +1,12 @@
 /* Laboratorio · avisos del lado de la app (solo Chromium: usa su service worker) */
-const {chromium}=require("playwright");const {servir,chequear,resumen,externo}=require("./comun.cjs");
+const {chromium}=require("playwright");const {servir,chequear,resumen,externo,yaQuemado}=require("./comun.cjs");
 const S=(process.env.SALIDA||require("os").tmpdir())+"/";
 const SUB={endpoint:"https://web.push.apple.com/QFalsa123",keys:{p256dh:"BPubFalsa_-123",auth:"authFalso_-9"}};
 async function abrir(b,base,fecha,op){
   op=op||{};
   const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:op.dpr||1,locale:"es-AR",timezoneId:"America/Argentina/Buenos_Aires",hasTouch:true,isMobile:true,permissions:op.permisos||[]});
   await ctx.addInitScript((o)=>{try{
-    if(!sessionStorage.getItem("__s")){sessionStorage.setItem("__s","1");localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');localStorage.setItem("pv-t3-vio-indice","true");localStorage.setItem("pv-t3-set-escritas",JSON.stringify([o.fecha]));localStorage.setItem("pv-t3-set-abrio",JSON.stringify([o.fecha]));}
+    if(!sessionStorage.getItem("__s")){sessionStorage.setItem("__s","1");localStorage.setItem("pv-t3-inaugurado",'"2026-10-01"');localStorage.setItem("pv-t3-vio-indice","true");localStorage.setItem("pv-t3-set-escritas",JSON.stringify([o.fecha]));localStorage.setItem("pv-t3-set-abrio",JSON.stringify([o.fecha]));if(o.quema)localStorage.setItem("pv-t3-quema",o.quema);}
     if(o.sinNoti){delete window.Notification;try{Object.defineProperty(window,"Notification",{value:undefined,configurable:true});}catch(e){}  delete window.PushManager;}
     if(o.niega&&window.Notification){try{Object.defineProperty(Notification,"permission",{get:function(){return window.__perm||"default";},configurable:true});Notification.requestPermission=function(){window.__perm="denied";return Promise.resolve("denied");};}catch(e){}}
     if(o.fingir&&window.PushManager){
@@ -21,7 +21,7 @@ async function abrir(b,base,fecha,op){
         window.__op=op;const n=(+localStorage.getItem("__sub_cuenta")||0)+1;localStorage.setItem("__sub_cuenta",String(n));
         const g={n:n,llave:Array.from(new Uint8Array(op.applicationServerKey.buffer||op.applicationServerKey))};localStorage.setItem(LS,JSON.stringify(g));return Promise.resolve(armar(g));};
     }
-  }catch(e){}},{fecha,sinNoti:!!op.sinNoti,niega:!!op.niega,fingir:op.fingir!==false,sub:SUB});
+  }catch(e){}},{fecha,sinNoti:!!op.sinNoti,niega:!!op.niega,fingir:op.fingir!==false,sub:SUB,quema:(yaQuemado(fecha)["pv-t3-quema"]||"")});   /* en diciembre, con el cuaderno ya quemado (la quema del 1/12 se prueba en j.cjs) */
   const pg=await ctx.newPage();const errores=[];pg.on("pageerror",e=>errores.push(String(e&&e.message||e)));
   await pg.route("**/*",r=>{const u=r.request().url();return (u.startsWith(base)||externo(u))?r.continue():r.abort();});
   await pg.goto(base+"/?fecha="+fecha,{waitUntil:"load"});

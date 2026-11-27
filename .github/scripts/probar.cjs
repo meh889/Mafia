@@ -24,6 +24,10 @@ const RAIZ = path.resolve(__dirname, "..", "..");
 const SITIO = String(process.env.SITIO || "").replace(/\/+$/, "");
 const DIAS_ADELANTE = 10;
 const MARCADAS = ["2026-12-01", "2026-12-16", "2026-12-24", "2026-12-25", "2026-12-31", "2027-01-01"];
+/* La quema del 1/12 (T3.quema): la primera vez que se abre el cuaderno desde ese día, Ponyta lo prende fuego y aparece un
+   video. Las fechas de diciembre se prueban con el cuaderno ya quemado (como va a estar casi siempre); la escena se prueba
+   aparte, una vez, en probarQuema. */
+const DIA_QUEMA = "2026-12-01";
 const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json",
   ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml",
   ".m4a": "audio/mp4", ".mp3": "audio/mpeg", ".wav": "audio/wav", ".mp4": "video/mp4", ".ttf": "font/ttf", ".woff2": "font/woff2" };
@@ -84,6 +88,10 @@ function estaticos() {
   audios.forEach((f) => { if (!fs.existsSync(path.join(RAIZ, "audios", f))) falla("audios", "falta el audio audios/" + f); });
   if (/\bX\.CLIPS=/.test(extras) && !audios.length) falla("audios", "no pude leer la lista de audios (X.CLIPS)");
   if (/\bfx:"explosion"/.test(extras) && !fs.existsSync(path.join(TCG, "explosion.webp"))) falla("MafiaTCG", "falta la tira de la explosión: fotos/t3/tcg/explosion.webp");
+  /* el video de la quema del 1/12 (el que mandó Mati) y su foto */
+  const vq = /var VIDEO=\{src:"([^"]+)",poster:"([^"]+)"/.exec(extras);
+  if (vq) [vq[1], vq[2]].forEach((f) => { if (!fs.existsSync(path.join(RAIZ, f))) falla("la quema", "falta " + f); });
+  else if (/T3\.quema=\{/.test(extras)) falla("la quema", "no pude leer cuál es el video (VIDEO) en T3.quema");
   /* el aviso diario: que el script lea la hoja sin romperse y use la misma llave que la app */
   const pAviso = path.join(__dirname, "aviso.cjs");
   if (fs.existsSync(pAviso)) {
@@ -106,8 +114,16 @@ function servir() {
     const abs = path.join(RAIZ, ruta);
     if (!abs.startsWith(RAIZ) || !fs.existsSync(abs) || fs.statSync(abs).isDirectory()) { res.writeHead(404); res.end("no está"); return; }
     const st = fs.statSync(abs);
-    res.writeHead(200, { "Content-Type": TIPOS[path.extname(abs).toLowerCase()] || "application/octet-stream",
-      "Content-Length": st.size, "Last-Modified": st.mtime.toUTCString(), "Cache-Control": "max-age=600" });
+    const tipo = TIPOS[path.extname(abs).toLowerCase()] || "application/octet-stream";
+    /* pedidos por pedazos (Range), como los sirve GitHub Pages: el video de la quema los necesita en Safari */
+    const rg = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+    if (rg && req.method === "GET" && (rg[1] || rg[2])) {
+      const a = rg[1] === "" ? Math.max(0, st.size - (+rg[2])) : +rg[1], z = rg[1] !== "" && rg[2] !== "" ? Math.min(+rg[2], st.size - 1) : st.size - 1;
+      if (a > z || a >= st.size) { res.writeHead(416, { "Content-Range": "bytes */" + st.size }); res.end(); return; }
+      res.writeHead(206, { "Content-Type": tipo, "Content-Length": z - a + 1, "Content-Range": "bytes " + a + "-" + z + "/" + st.size, "Accept-Ranges": "bytes", "Last-Modified": st.mtime.toUTCString() });
+      fs.createReadStream(abs, { start: a, end: z }).pipe(res); return;
+    }
+    res.writeHead(200, { "Content-Type": tipo, "Content-Length": st.size, "Accept-Ranges": "bytes", "Last-Modified": st.mtime.toUTCString(), "Cache-Control": "max-age=600" });
     if (req.method === "HEAD") { res.end(); return; }
     fs.createReadStream(abs).pipe(res);
   });
@@ -121,7 +137,8 @@ async function probarFecha(browser, base, fecha, op) {
   const ctx = await browser.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 1, locale: "es-AR",
     timezoneId: "America/Argentina/Buenos_Aires", hasTouch: true, isMobile: true });
   const errores = [], faltan = [];
-  if (!op.deCero) await ctx.addInitScript(() => { try { localStorage.setItem("pv-t3-inaugurado", '"2026-10-01"'); } catch (e) {} });
+  const quemado = fecha >= DIA_QUEMA ? JSON.stringify({ f: DIA_QUEMA, video: DIA_QUEMA }) : "";
+  if (!op.deCero) await ctx.addInitScript((q) => { try { localStorage.setItem("pv-t3-inaugurado", '"2026-10-01"'); if (q) localStorage.setItem("pv-t3-quema", q); } catch (e) {} }, quemado);
   const pg = await ctx.newPage();
   pg.on("pageerror", (e) => errores.push(String(e && e.message || e)));
   pg.on("console", (m) => { if (m.type() === "error" && /T3 no arrancó/.test(m.text())) errores.push(m.text()); });
@@ -176,6 +193,56 @@ async function probarFecha(browser, base, fecha, op) {
   await ctx.close();
 }
 
+/* ---------- 3b · la quema del 1/12 ---------- */
+/* Abre el 1/12 por primera vez, corre la tapa y lleva la escena hasta el final con su reloj de prueba: tiene que haber
+   fuego, tiene que aparecer el video y, al cerrarlo, quedar el cuaderno arrancando el 1/12 con la foto del video en la hoja. */
+async function probarQuema(browser, base) {
+  const donde = "la quema del 1/12";
+  const ctx = await browser.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 1, locale: "es-AR",
+    timezoneId: "America/Argentina/Buenos_Aires", hasTouch: true, isMobile: true });
+  const errores = [];
+  await ctx.addInitScript(() => { try { localStorage.setItem("pv-t3-inaugurado", '"2026-10-01"'); } catch (e) {} });
+  const pg = await ctx.newPage();
+  pg.on("pageerror", (e) => errores.push(String(e && e.message || e)));
+  await pg.route("**/*", (r) => (r.request().url().startsWith(base) ? r.continue() : r.abort()));
+  const antes = fallas.length;
+  try {
+    await pg.goto(base + "/?fecha=" + DIA_QUEMA, { waitUntil: "load", timeout: 30000 });
+    await pg.waitForFunction(() => window.T3 && document.querySelector(".t3-cuaderno-hoja"), null, { timeout: 15000 });
+    await pg.waitForTimeout(800);
+    const a = await pg.evaluate(() => ({ hay: !!T3.quema, toca: !!(T3.quema && T3.quema.toca()), escena: !!(T3.quema && T3.quema._prueba.escena()), hojas: T3.fechas().length }));
+    if (!a.hay) falla(donde, "no está T3.quema");
+    else if (!a.toca || !a.escena) falla(donde, "el 1/12, la primera vez, la escena no quedó armada");
+    else {
+      await pg.evaluate(() => {
+        const el = document.querySelector(".t3-cuaderno-elastico"), r = el.getBoundingClientRect();
+        const o = { bubbles: true, cancelable: true, pointerId: 1, pointerType: "touch", isPrimary: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 };
+        el.dispatchEvent(new PointerEvent("pointerdown", o)); el.dispatchEvent(new PointerEvent("pointerup", o));
+      });
+      await pg.waitForFunction(() => document.getElementById("t3").classList.contains("t3-cuaderno-abierto"), null, { timeout: 8000 });
+      const medio = await pg.evaluate(() => T3.quema._prueba.escena().cuadroEn(3, 0.05));
+      if (!(medio.llamas > 0)) falla(donde, "a mitad de la escena no hay fuego");
+      await pg.evaluate(() => T3.quema._prueba.escena().cuadroEn(9, 0.05));
+      await pg.waitForSelector(".t3x-quema-video", { timeout: 10000 });
+      await pg.waitForTimeout(500);
+      await pg.evaluate(() => document.querySelector(".t3x-quema-cerrar").click());
+      await pg.waitForFunction(() => !document.querySelector(".t3x-quema-video"), null, { timeout: 8000 });
+      await pg.waitForTimeout(2500);
+      const d = await pg.evaluate(() => ({ primera: T3.fechas()[0], antes: T3.fechas(T3.hoy, true).length, tizones: document.querySelectorAll(".t3x-quema-pestana").length,
+        tarjeta: !!document.querySelector(".t3-cuaderno-hoja .t3x-quema-tarjeta"), hoja: !!document.querySelector('.t3-cuaderno-hoja[data-fecha="' + T3.hoy + '"]'), frena: T3.quema.frena() }));
+      if (d.primera !== DIA_QUEMA) falla(donde, "después del fuego el cuaderno no arranca el 1/12 (arranca el " + d.primera + ")");
+      if (!d.tizones) falla(donde, "no quedaron los tizones de las pestañas");
+      if (!d.hoja || !d.tarjeta || d.frena) falla(donde, "al cerrar el video no quedó la hoja del día con la foto del video");
+      errores.forEach((e) => falla(donde, "error de JavaScript: " + e));
+      if (fallas.length === antes) console.log("  ✓ " + donde + " · " + a.hojas + " hojas antes, " + (a.hojas - d.antes + 1) + " después · " + d.tizones + " tizones · el video aparece y queda en la hoja");
+    }
+  } catch (e) {
+    errores.forEach((x) => falla(donde, "error de JavaScript: " + x));
+    falla(donde, "se trabó: " + String(e && e.message || e).split("\n")[0]);
+  }
+  await ctx.close();
+}
+
 /* ---------- 4 · la versión publicada ---------- */
 async function publicada() {
   console.log("Publicado · " + SITIO);
@@ -189,7 +256,7 @@ async function publicada() {
   if (!r.ok) falla("publicado", "la página responde " + r.status);
   else if (Buffer.compare(local, remoto) !== 0) falla("publicado", "lo que está publicado no es este commit (publicado: " + remoto.length + " bytes, del " + lm + "; repo: " + local.length + " bytes). Puede que todavía se esté publicando.");
   else console.log("  ✓ lo publicado es idéntico a este commit (" + remoto.length + " bytes, del " + lm + ")");
-  for (const f of ["manifest.json", "sw.js", "audios/win.wav", "icon.png", "audios/gorro.mp3", "audios/sorpresa.mp3", "audios/explosion.mp3", "fotos/t3/tcg/explosion.webp", "fotos/t3/tienda/casco.webp"]) {
+  for (const f of ["manifest.json", "sw.js", "audios/win.wav", "icon.png", "audios/gorro.mp3", "audios/sorpresa.mp3", "audios/explosion.mp3", "fotos/t3/tcg/explosion.webp", "fotos/t3/tienda/casco.webp", "videos/1-dic.mp4", "videos/1-dic.jpg"]) {
     try { const x = await fetch(SITIO + "/" + f + "?_=" + Date.now(), { method: "HEAD", cache: "no-store" }); if (!x.ok) falla("publicado", f + " responde " + x.status); }
     catch (e) { falla("publicado", f + ": " + e.message); }
   }
@@ -220,6 +287,7 @@ async function publicada() {
     await probarFecha(browser, base, hoy, { deCero: true });
   } else console.log("Navegador · " + fechas.join(", "));
   for (const f of fechas) await probarFecha(browser, base, f);
+  await probarQuema(browser, base);
   await browser.close(); if (srv) srv.close();
   console.log("");
   if (avisos.length) console.log(avisos.length + " aviso(s) que no frenan nada.");

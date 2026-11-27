@@ -23,7 +23,8 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
 - `CONFIG.dias["AAAA-MM-DD"]`: una línea por día, con un comentario arriba. Campos: `mensaje` (la carta),
   `sellado` (la carta se destapa al ganar), `actividad:{tipo,…}`, `evento`, `eventoArgs`, `nota`, `ponyta`,
   `foto`, `lugar`, `cartel` (texto = cartel de vacaciones · objeto `{titulo,texto,lista}` = cartel verde).
-  Un día sin `actividad` no tiene juego.
+  Un día sin `actividad` no tiene juego. **En diciembre de 2026 todos dicen `eventoApagado` y `actividadApagada`**: están
+  apagados a propósito (ver "La quema y diciembre").
 - `CONFIG.t3`: la temporada actual, "el cuaderno" (1/10/2026 → 1/1/2027): `pin`, `estreno`, `whatsapp`,
   `tcg` (`premio`, `duelosPorDia`, `puntosPorVictoria`), `tienda` (`precios`: pisa cualquier precio), `herraduras`
   (`cada`, `puntos`), `pedidos` (talonario propio), datos del cumple del 16/12, etc.
@@ -34,7 +35,7 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   de 2026, legible y comentado: `T3.x` (base, con los audios: ver "Los audios"), `T3.actualizar`, `T3.respaldo`, `T3.taller`, `T3.vuelta`
   (contestar cartas, vales), `T3.tienda` (la pestaña verde; el cuaderno la sigue llamando `pedidos`), MafiaTCG
   (`T3.tcg` y cuatro módulos más: ver abajo), `T3.ropa`, `T3.pou` y `T3.herraduras` (ver "La tienda"), `T3.avisos`,
-  `T3.viaje` y `T3.ventanitas` (ver "El adviento").
+  `T3.viaje`, `T3.ventanitas` (ver "El adviento") y `T3.quema` (ver "La quema y diciembre").
   Lo que es para Sofi (TCG, tienda, contestar, avisos) aparece recién desde `CONFIG.t3.estreno`.
 - `T3.viaje` (noviembre 2026): Ponyta se va de vacaciones. Desde `SALE`, la próxima corrida en su solapa es la
   de la ida: deja la herradura del día, no vuelve y queda una nota (los textos están arriba del bloque). Mientras
@@ -53,6 +54,50 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   en pantallas chicas, además se aleja (`kS`), para que no se corte contra el borde ni pise el botón (25/11/2026: era
   lo que se veía mal "al iniciar el calendario"; `e.cjs` lo mide en las dos entradas). Para verlo cuadro por cuadro,
   igual en cualquier navegador: `T3.adviento.pagina(host,{popup:true,retraso:0,congelar:ms})`.
+
+## La quema y diciembre (27/11/2026)
+Lo pidió Mati, en tres mensajes: "ya que hay muchos días vacíos de carta, vamos a prender fuego el cuaderno: cuando Sofía
+abra MafiApp el 1 de diciembre, una mini animación; que Ponyta entre corriendo prendiendo fuego del inicio hasta el fin de
+noviembre, y yo te grabo un video mío para que aparezca post animación"; "los eventos que había para diciembre apagalos: es
+adviento, tcg y pony y tienda"; "sin trivia ni nada de juegos".
+- **Diciembre no tiene cartas, ni eventos, ni juegos.** En `CONFIG.dias`, cada día de diciembre dice `eventoApagado` y
+  `actividadApagada` (con ese nombre nadie los lee: para prender uno se le saca el "Apagado"; incluye la foto del 23, el
+  cupón del 29 y la nota de voz del 30, que iban como juego del día). Queda lo demás de la hoja: el cartel del 1/12 (sin
+  "las cartas ahora se pueden contestar"), la nota del 3, lo que dice Ponyta y la ventanita. **El evento del 1 de enero
+  (el Tomo 2) queda**: lo confirmó Mati.
+- Como no hay juegos, MafiaTCG da **un sobre por día** y nada más (la nota de bienvenida ya no promete "si ganás el juego
+  del día, otro": `hayJuegos()` en `T3.tcg`). Y una hoja sin carta no se precinta aunque el día diga `sellado`.
+- **Las hojas de diciembre son las de las ventanitas**: `T3.fechas` cuenta como hoja a todo día con carta, evento, juego
+  **o ventanita** (del 1 al 24). Del 25 al 31 la hoja existe solo ese día (está en blanco) y después no queda en el cuaderno.
+  Los papeles y tintas especiales de esos días siguen (el 12/12 es la única hoja de papel negro del cuaderno: ahí el dibujo
+  a lápiz de Ponyta y el "la de hoy" de la ventanita van en claro, con dos reglas al final de los estilos de la quema).
+- **La quema** (`T3.quema`, EXTRAS; el video está en `videos/`): la primera vez que se abre el cuaderno desde `DIA` (1/12),
+  al correr la tapa aparece la primera hoja (la del 30/7); Ponyta entra corriendo, da tres vueltas y se quema hoja por
+  hoja, mes por mes; las pestañas de julio a noviembre arden una atrás de la otra y el fuego frena antes de la de
+  diciembre. Ponyta termina colgada del señalador (vuelve ese día de las vacaciones: hasta que entra, el señalador cuelga
+  solo). Dura 6,5 segundos. Después aparece **el video de Mati** (se toca para verlo, con sonido; va con un marco de papel
+  chamuscado, una mecha que marca cuánto falta y Ponyta mirando desde arriba) y, al cerrarlo, la hoja del día se presenta
+  como siempre, con el video pegado como una foto para volver a verlo. Lo nuevo (las pestañas del TCG, el adviento y la
+  tienda) recién aparece ahí.
+- **"Se quema todo"** (lo eligió Mati): desde ese momento el cuaderno arranca el 1/12. Lo anterior no se puede volver a ver
+  (tampoco las cartas): no está en el cuaderno, ni en el índice (que pasa a decir "lo que no se quemó"), ni en las dobladas,
+  ni en el mapa. De las pestañas de esos meses quedan cinco tizones. Los números de hoja no se corren (la del 1/12 es la 93)
+  y los recuerdos pegados en la tapa siguen. Se guarda en `pv-t3-quema` (`f`: el día en que se quemó · `video`: cuándo lo vio).
+- Cómo está hecho: el cuaderno (minificado) solo pregunta (`T3.quema.desde()`, `.pestanas()`, `.corridas()`, `.frena()`) y
+  avisa (`.alMontar()`); `T3.cuaderno.refrescar(f,"lista"|"presentar")` es nuevo. Las hojas que arden son **réplicas
+  dibujadas en un lienzo** (una por mes, con su sello, su carta, su tarjeta de juego y la Ponyta a lápiz) que se agujerean
+  con un mapa de ruido; las llamas son "calor" en una grilla (sube, se mezcla y se enfría) pintado con dos colores planos,
+  los de Ponyta. Sin filtros. Con "reducir movimiento" no hay animación: aparece quemado y va al video.
+- **El video va tal cual**: solo sin metadatos y con el índice al principio para que arranque rápido
+  (`ffmpeg -c copy -map_metadata -1 -movflags +faststart`); la foto de tapa es un cuadro del mismo video. Lo que se le "suma"
+  va por afuera, en vivo. El repo es público: Mati sabe que el video queda accesible por link.
+- Para verla: la máquina del tiempo, viajando al 1/12 con el estado "el de ella", como viene (ahí nada toca el progreso de
+  verdad). Hacia adelante lo quemado sigue quemado: para verla otra vez hay que volver a hoy (o a un día anterior) y viajar
+  de nuevo. Hasta que ese celular la vea de verdad, **cada viaje nuevo a diciembre arranca con la quema** (es lo que vería
+  ella). Con "de cero" es un celular nuevo: primero el paquete de la inauguración y después se quema igual (lo prueba `j`).
+  Para pararla en un instante: `T3.quema._prueba.escena().cuadroEn(segundos)`. Las pruebas (`comun.cjs`, `probar.cjs`)
+  siembran el cuaderno **ya quemado** en diciembre para que cada escenario no arranque con la escena; el que quiere verla
+  pasa `quema:true`.
 
 ## El adviento (repasado con Mati, ventanita por ventanita, el 26/11/2026)
 - **En el adviento no van fotos, notas de voz ni frases**: las sacó Mati. Qué da cada ventanita está en la lista
@@ -130,14 +175,17 @@ su iPhone. **Todo lo que entra a `main` le llega a ella en minutos.**
   abajo pasa a ocupar dos) lo nuevo va hacia abajo, y solo sube si de otra forma no entraría (`anclar` en
   `T3.ventanitas`). Los textos del renglón de abajo pueden traer un `\n` donde termina la frase. Para que todo entre sin
   desplazar se descuentan la isla y la rayita del iPhone (`--t3x-isla`, `--t3x-rayita`); en un iPhone bajito (SE) hay
-  reglas aparte al final de los estilos.
+  reglas aparte al final de los estilos. `anclar` mide **antes** de que el tipo arme lo suyo: una ventanita cuyo renglón
+  de abajo a veces ocupa uno y a veces dos se anota con `dosRenglones:true` (hoy, la Generala) y así le reserva siempre
+  los dos; si no, al volver a entrar a mitad de una mano quedaba 12 px más arriba que jugándola de corrido (lo encontró
+  el laboratorio de GitHub el 27/11/2026).
 - **Ojo con los nombres nuevos**: una clase `t3x-…` o una clave `pv-t3-…` puede pisar una que ya existe sin que
   ninguna prueba salte. Pasó dos veces armando esto: `t3x-mini-carta` ya era la carta chica de la carpeta del TCG (se
   le desacomodó la carpeta) y `arbolito` ya era el árbol del evento del 8/12 (le iba a borrar el Lego al día siguiente).
   Antes de estrenar un nombre, buscarlo en todo `index.html`.
-- Los días con evento en la hoja (4, 8, 16, 24, 25, 28 y 31) no sirven para probar el adviento con
-  `T3.cuaderno.abrir("adviento")`: mientras dura el evento el cuaderno no está armado. Se prueba desde otro día (el cofre,
-  desde el 26) o sembrando el evento como ya visto (`pv-t3-set-eventos-vistos`), como hacen las pruebas.
+- En un día con evento en la hoja no se puede probar el adviento con `T3.cuaderno.abrir("adviento")` (mientras dura el
+  evento el cuaderno no está armado). Los de diciembre quedaron apagados el 27/11/2026, así que hoy no molesta; las pruebas
+  igual siembran el evento como ya visto (`pv-t3-set-eventos-vistos`), por si alguno se vuelve a prender.
 
 ## Los audios que manda Mati (25/11/2026)
 - Son recortes cortos (memes, efectos, un pedacito de canción) y van **tal cual**: solo se les sacan las etiquetas, sin
@@ -270,7 +318,8 @@ se ganan en los duelos y, en diciembre, en las ventanitas que se juegan (la rule
   qué da cada ventanita, el papelito, el mapa, el cofre, los vales, el cupón (con la compra en la tienda) y el 1 de
   enero · `h` las ventanitas que se juegan (la ruleta, los penales y la Generala, con la suerte arreglada por
   `T3.ventanitas._juegos.conAzar`) · `i` los regalos para Ponyta, el Lego, la carta con sus globos, el sobre de
-  MafiaTCG, las citas y el alemán. Los audios se
+  MafiaTCG, las citas y el alemán · `j` la quema del 1/12 (la escena cuadro por cuadro, el video, la hoja del día, el
+  índice, volver a entrar, "reducir movimiento", pantalla chica, un celular nuevo) y diciembre apagado. Los audios se
   prueban por `T3.x.clipLog`: en Chromium tienen que sonar; donde el navegador no sepa leer el mp3, solo no romper. Si se toca ese código, correr el que corresponda: `node .github/pruebas/a.cjs`
   (capturas en `SALIDA=carpeta`).
 - WebKit no está instalado en la sesión ni se puede instalar (el sitio de donde Playwright lo baja está bloqueado):
@@ -300,7 +349,8 @@ se ganan en los duelos y, en diciembre, en las ventanitas que se juegan (la rule
 
 ## Avisos (notificación diaria)
 - `.github/workflows/aviso.yml` corre todos los días 12:17 UTC y ejecuta `.github/scripts/aviso.cjs`,
-  que lee la hoja de hoy en `index.html`; si no hay nada cargado no manda.
+  que lee la hoja de hoy en `index.html`; si no hay nada cargado no manda. En diciembre (sin cartas ni juegos) avisa de
+  la ventanita del día (del 1 al 24) o del sobre de MafiaTCG (del 25 al 31).
 - Secrets del repo: `AVISOS_VAPID_PRIVADA` (la llave) y `AVISOS_SUSCRIPCIONES` (códigos `MAFIAPUSH1:…`,
   uno por renglón; los da la app al activar los avisos).
 - Mandar uno a mano: `gh workflow run aviso.yml -R meh889/Mafia --ref main -f texto="…"` (o `-f prueba=true`).

@@ -47,8 +47,14 @@ function decidir(f, dia, estreno) {
   if (!dia) return { saltar: "hoy no hay hoja cargada" };
   const carta = String(dia.mensaje || "").trim();
   const juego = dia.actividad && dia.actividad.tipo;
-  if (!carta && !juego && !dia.evento && !dia.ilegible) return { saltar: "la hoja de hoy no tiene nada" + (dia.cartel ? " (solo el cartel)" : "") };
   const n = diaDelAnio(f);
+  if (!carta && !juego && !dia.evento && !dia.ilegible) {
+    /* Diciembre (27/11/2026): sin cartas, eventos ni juegos. Lo de cada día es la ventanita del adviento (del 1 al 24)
+       y el sobre de MafiaTCG; del 25 al 31, el sobre. Fuera de diciembre, una hoja vacía sigue sin avisar. */
+    if (/^\d{4}-12-(0[1-9]|1\d|2[0-4])$/.test(f)) return { body: elegir(["Hay ventanita nueva en el adviento.", "Ya se puede abrir la ventanita de hoy.", "Ventanita nueva. Y un sobre esperando."], n) };
+    if (/^\d{4}-12-(2[5-9]|3[01])$/.test(f)) return { body: elegir(["Hay sobre nuevo en MafiaTCG.", "Un sobre esperando en MafiaTCG."], n) };
+    return { saltar: "la hoja de hoy no tiene nada" + (dia.cartel ? " (solo el cartel)" : "") };
+  }
   if (dia.evento) return { body: elegir(["Hoy no es una hoja cualquiera.", "Hoy pasa algo en el cuaderno.", "Abrí el cuaderno: hoy hay algo distinto."], n) };
   if (carta && dia.sellado) return { body: elegir(["Hay carta, pero viene con cinta: primero el juego.", "Te escribí. Para leerla hay que ganar primero."], n) };
   if (carta) return { body: elegir(["Te escribí. Está en el cuaderno.", "Hay carta nueva en el cuaderno.", "Ya está la hoja de hoy. Con carta."], n) };

@@ -150,7 +150,8 @@ const S=(process.env.SALIDA||require("os").tmpdir())+"/";
   await pg.waitForTimeout(900);
   const pidio=estado.pedidos.filter(p=>/win\.wav/.test(p));
   chequear("después del primer toque baja audios/win.wav",pidio.length===1&&/audios\/win\.wav/.test(pidio[0]),pidio);
-  await pg.evaluate(()=>{T3.cuaderno.jugar(CONFIG.dias[T3.hoy].actividad);});
+  /* (el juego del 1/12 quedó apagado con todo diciembre: se juega ese mismo, que sigue guardado en "actividadApagada") */
+  await pg.evaluate(()=>{const d=CONFIG.dias[T3.hoy];T3.cuaderno.jugar(d.actividad||d.actividadApagada);});
   await pg.waitForTimeout(900);
   r=await pg.evaluate(()=>{let e="";try{window.celebrar();}catch(x){e=String(x);}return {e,gano:T3.tiene("ganados",T3.hoy),sello:!!document.querySelector(".t3-cuaderno-suelta .t3-cuaderno-gano, .t3-cuaderno-suelta.t3-cuaderno-gano")};});
   chequear("ganar un juego anota la victoria sin romper nada",!r.e&&r.gano&&r.sello,r);
